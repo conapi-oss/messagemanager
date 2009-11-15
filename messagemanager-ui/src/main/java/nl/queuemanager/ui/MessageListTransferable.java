@@ -180,7 +180,7 @@ public class MessageListTransferable implements Transferable {
 						result.append('\n');
 					}
 				} catch (JMSException e) {
-					throw new IOException(e);
+					throw new IOException(e.toString());
 				}
 			}
 			

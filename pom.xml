@@ -5,9 +5,23 @@
   <name>Message Manager</name>
   <version>2.2.0-SNAPSHOT</version>
   <packaging>pom</packaging>
- <modules>
+  <modules>
     <module>messagemanager-core</module>
     <module>messagemanager-ui</module>
+    <module>messagemanager-sonicmq</module>
   </modules>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
 
