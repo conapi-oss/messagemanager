@@ -29,6 +29,7 @@ import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.smm.ConnectionModel;
 import nl.queuemanager.smm.Domain;
 import nl.queuemanager.smm.SMCConnectionModel;
+import nl.queuemanager.smm.Version;
 import nl.queuemanager.ui.MessageSendTabPanel;
 import nl.queuemanager.ui.QueuesTabPanel;
 import nl.queuemanager.ui.TaskErrorListener;
@@ -40,7 +41,6 @@ import com.sonicsw.ma.gui.util.JMAFrame;
 
 public class SMMFrame extends JMAFrame {
 	private static final String APP_NAME = "Message Manager";
-	private static final String VERSION = "@version@";
 
 	private final JMAFrame jmaFrame = this;
 	
@@ -151,7 +151,7 @@ public class SMMFrame extends JMAFrame {
 	
 	@Override 
 	public void setTitle(String title) {
-		super.setTitle(APP_NAME + " " + VERSION + " " + title);
+		super.setTitle(APP_NAME + " " + Version.getVersion() + " " + title);
 	}
 	
 	@Override
