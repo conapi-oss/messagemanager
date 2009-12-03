@@ -40,7 +40,7 @@ public class MessageBuffer extends AbstractEventSource<MessageEvent> implements 
 	private final Set<Message> lockedMessages = new HashSet<Message>();
 	private final Object lock = new Object();
 	
-	private int maximumNumberOfMessages;
+	private int maximumNumberOfMessages = 50;
 	
 	public void onMessage(Message message) {
 		synchronized(lock) {

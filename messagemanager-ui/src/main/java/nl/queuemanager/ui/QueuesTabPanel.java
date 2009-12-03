@@ -49,7 +49,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import nl.queuemanager.core.PrefUtils;
+import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.JMSBroker;
@@ -68,6 +68,7 @@ import nl.queuemanager.ui.JMSDestinationTransferHandler.JMSDestinationHolder;
 import nl.queuemanager.ui.message.MessageViewerPanel;
 import nl.queuemanager.ui.util.Holder;
 
+@SuppressWarnings("serial")
 public class QueuesTabPanel extends JSplitPane {
 	private JComboBox brokerCombo;
 	private QueueTable queueTable;
@@ -76,12 +77,14 @@ public class QueuesTabPanel extends JSplitPane {
 
 	private final JMSDomain sonic;
 	private final TaskExecutor worker;
+	private final Configuration config;
 	private final QueueBrowserEventListener qbel;
 	private       Timer autoRefreshTimer;
 	
-	public QueuesTabPanel(JMSDomain sonicDomain, TaskExecutor workerExecutor) {
+	public QueuesTabPanel(JMSDomain sonicDomain, TaskExecutor workerExecutor, Configuration config) {
 		this.sonic = sonicDomain;
 		this.worker = workerExecutor;
+		this.config = config;
 		
 		queueTable = createQueueTable();
 		messageTable = createMessageTable();
@@ -405,8 +408,8 @@ public class QueuesTabPanel extends JSplitPane {
 			autoRefreshTimer = null;
 		}
 		
-		int autoRefreshInterval = Integer.parseInt(PrefUtils.getInstance().getUserPref(
-				PrefUtils.PREF_AUTOREFRESH_INTERVAL, "5000"));
+		int autoRefreshInterval = Integer.parseInt(config.getUserPref(
+				Configuration.PREF_AUTOREFRESH_INTERVAL, "5000"));
 		
 		this.autoRefreshTimer = new Timer();
 		autoRefreshTimer.schedule(new TimerTask() {
@@ -470,7 +473,7 @@ public class QueuesTabPanel extends JSplitPane {
 			messages.add(messageTable.getRowItem(i));
 		}
 		
-		CommonUITasks.saveMessages(this, messages, worker);
+		CommonUITasks.saveMessages(this, messages, worker, config);
 	}	
 	
 	private void displayMessage(final Message message) {

@@ -29,8 +29,8 @@ import javax.swing.JFileChooser;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
+import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.Pair;
-import nl.queuemanager.core.PrefUtils;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.tasks.SaveMessagesToFileTask;
 import nl.queuemanager.core.util.Clearable;
@@ -93,7 +93,7 @@ public class CommonUITasks {
 	 * @param parent The parent GUI component for the dialog boxes
 	 * @param messagesToSave The messages to save
 	 */
-	public static void saveMessages(Component parent, List<Message> messagesToSave, TaskExecutor worker) {
+	public static void saveMessages(Component parent, List<Message> messagesToSave, TaskExecutor worker, Configuration config) {
 		final FileFilter esbmsgFileFilter = new SingleExtensionFileFilter(".esbmsg", "ESB Message File");
 		boolean saveAsESBMSG = false;
 		
@@ -106,7 +106,7 @@ public class CommonUITasks {
 		// Initialize the JFileChooser
 		JFileChooser chooser = new JFileChooser();
 		chooser.setCurrentDirectory(new File(
-				PrefUtils.getInstance().getUserPref(PrefUtils.PREF_SAVE_DIRECTORY, ".")));
+				config.getUserPref(Configuration.PREF_SAVE_DIRECTORY, ".")));
 		chooser.setMultiSelectionEnabled(false);
 		chooser.addChoosableFileFilter(esbmsgFileFilter);
 		chooser.setAcceptAllFileFilterUsed(true);
@@ -121,8 +121,8 @@ public class CommonUITasks {
 			Message selectedMessage = messagesToSave.get(0);
 			
 			if(selectedMessage != null && selectedFile != null) {
-				PrefUtils.getInstance().setUserPref(
-						PrefUtils.PREF_SAVE_DIRECTORY, 
+				config.setUserPref(
+						Configuration.PREF_SAVE_DIRECTORY, 
 						chooser.getCurrentDirectory().getAbsolutePath());
 				messages.add(Pair.create(selectedMessage, selectedFile));
 				saveAsESBMSG = 
@@ -138,8 +138,8 @@ public class CommonUITasks {
 			if(selectedDir == null)
 				return;
 			
-			PrefUtils.getInstance().setUserPref(
-					PrefUtils.PREF_SAVE_DIRECTORY, 
+			config.setUserPref(
+					Configuration.PREF_SAVE_DIRECTORY, 
 					selectedDir.getAbsolutePath());
 
 			for(Message m: messagesToSave) {

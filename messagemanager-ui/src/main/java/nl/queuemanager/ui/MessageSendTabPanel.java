@@ -66,7 +66,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
 
-import nl.queuemanager.core.PrefUtils;
+import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.JMSBroker;
@@ -87,14 +87,15 @@ import nl.queuemanager.ui.util.JIntegerField;
 import nl.queuemanager.ui.util.JSearchableTextArea;
 import nl.queuemanager.ui.util.SpringUtilities;
 
+@SuppressWarnings("serial")
 public class MessageSendTabPanel extends JPanel {
-	//TODO: Extend these constants with some kind of provider-dependent list
 	private final String[] deliveryModes = {"PERSISTENT", "NON-PERSISTENT"};
 	
 	private final JComboBox brokerCombo;
 	private final JMSDestinationTable destinationTable;
 	private final JMSDomain sonic;
 	private final TaskExecutor worker;
+	private final Configuration config;
 
 	private JTextField filenameField;
 	private JIntegerField numberOfMessagesField;
@@ -109,9 +110,10 @@ public class MessageSendTabPanel extends JPanel {
 	private JButton sendButton;
 	private Map<String, Object> properties = CollectionFactory.newHashMap();
 	
-	public MessageSendTabPanel(JMSDomain sonic, TaskExecutor worker) {		
+	public MessageSendTabPanel(JMSDomain sonic, TaskExecutor worker, Configuration config) {		
 		this.sonic = sonic;
 		this.worker = worker;
+		this.config = config;
 				
 		/******************************
 		 * Left side -- Queues and topic tables **
@@ -212,7 +214,7 @@ public class MessageSendTabPanel extends JPanel {
 				destinationTable.removeItem(selectedItem);
 				topicNameField.setText(selectedItem.getName());
 				
-				PrefUtils.getInstance().removeTopicPublisher((JMSTopic)selectedItem);
+				config.removeTopicPublisher((JMSTopic)selectedItem);
 			}
 		});
 		CommonUITasks.makeSegmented(removeTopicButton, Segmented.ONLY);
@@ -227,7 +229,7 @@ public class MessageSendTabPanel extends JPanel {
 					
 					if(destinationTable.getItemRow(topic) == -1) {
 						destinationTable.addItem(topic);
-						PrefUtils.getInstance().addTopicPublisher(topic);
+						config.addTopicPublisher(topic);
 					}
 					
 					topicNameField.setText("");
@@ -497,8 +499,8 @@ public class MessageSendTabPanel extends JPanel {
 			public void actionPerformed(final ActionEvent e) {				
 			      JFileChooser chooser = new JFileChooser();
 			      chooser.setCurrentDirectory(new File(
-			    		  PrefUtils.getInstance().getUserPref(
-			    				  PrefUtils.PREF_BROWSE_DIRECTORY, 
+			    		  config.getUserPref(
+			    				  Configuration.PREF_BROWSE_DIRECTORY, 
 			    				  ".")));
 			      chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 			      int r = chooser.showOpenDialog(MessageSendTabPanel.this);
@@ -506,8 +508,8 @@ public class MessageSendTabPanel extends JPanel {
 			        String fname = chooser.getSelectedFile().getPath();
 			        filenameField.setText(fname);
 			        
-			        PrefUtils.getInstance().setUserPref(
-			        		PrefUtils.PREF_BROWSE_DIRECTORY,
+			        config.setUserPref(
+			        		Configuration.PREF_BROWSE_DIRECTORY,
 			        		chooser.getCurrentDirectory().getAbsolutePath());
 			      }
 			    
@@ -751,7 +753,7 @@ public class MessageSendTabPanel extends JPanel {
 	 * @return
 	 */
 	private List<JMSTopic> getConfiguredTopics(JMSBroker broker) {
-		List<String> topicNames = PrefUtils.getInstance().getTopicPublisherNames(broker);
+		List<String> topicNames = config.getTopicPublisherNames(broker);
 		final List<JMSTopic> topics = CollectionFactory.newArrayList();
 		
 		for(String name: topicNames) {

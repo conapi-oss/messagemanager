@@ -41,13 +41,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
-import nl.queuemanager.core.PrefUtils;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.smm.ConnectionModel;
 import nl.queuemanager.smm.Domain;
 import nl.queuemanager.smm.SMCConnectionModel;
+import nl.queuemanager.smm.SMMConfiguration;
 import nl.queuemanager.ui.CommonUITasks;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.util.DesktopHelper;
@@ -57,18 +57,20 @@ import com.sonicsw.ma.gui.domain.DomainConnectionModel;
 import com.sonicsw.ma.gui.domain.JDomainConnectionDialog;
 import com.sonicsw.ma.gui.util.JMAFrame;
 
+@SuppressWarnings("serial")
 class ConnectionTabPanel extends JPanel {
-
 	private final JMAFrame jmaFrame;
 	private final Domain sonic;
 	private final TaskExecutor worker;
+	private final SMMConfiguration config;
 	private ConnectionModelTable connectionTable;
 	private final PreferenceManager prefs = PreferenceManager.getInstance();
 		
-	public ConnectionTabPanel(JMAFrame jmaFrame, Domain sonic, TaskExecutor worker) {
+	public ConnectionTabPanel(JMAFrame jmaFrame, Domain sonic, TaskExecutor worker, SMMConfiguration config) {
 		this.jmaFrame = jmaFrame;
 		this.sonic = sonic;
 		this.worker = worker;
+		this.config = config;
 		
 		JPanel brandingPanel = createBrandingPanel();
 		JPanel connectionsPanel = createConnectionsPanel();
@@ -81,7 +83,7 @@ class ConnectionTabPanel extends JPanel {
 	}
 
 	private void setupMailingList() {		
-		if("unknown".equals(PrefUtils.getInstance().getUserPref(PrefUtils.PREF_MAILINGLIST_STATUS, "unknown"))) {
+		if("unknown".equals(config.getUserPref(SMMConfiguration.PREF_MAILINGLIST_STATUS, "unknown"))) {
 			final JTextField emailAddressField;
 			final JButton subscribeButton;
 			final JButton denyButton;
@@ -116,7 +118,7 @@ class ConnectionTabPanel extends JPanel {
 							// If an IOException occurs. Ignore it.
 							return;
 						}
-						PrefUtils.getInstance().setUserPref(PrefUtils.PREF_MAILINGLIST_STATUS, 
+						config.setUserPref(SMMConfiguration.PREF_MAILINGLIST_STATUS, 
 								emailAddressField.getText());
 						remove(box);
 						revalidate();
@@ -125,7 +127,7 @@ class ConnectionTabPanel extends JPanel {
 			});
 			denyButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					PrefUtils.getInstance().setUserPref(PrefUtils.PREF_MAILINGLIST_STATUS, "deny");
+					config.setUserPref(SMMConfiguration.PREF_MAILINGLIST_STATUS, "deny");
 					remove(box);
 					revalidate();
 				}

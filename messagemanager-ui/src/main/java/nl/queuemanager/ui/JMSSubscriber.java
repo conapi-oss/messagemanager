@@ -22,9 +22,9 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.swing.SwingUtilities;
 
+import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.MessageBuffer;
 import nl.queuemanager.core.MessageEvent;
-import nl.queuemanager.core.PrefUtils;
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.events.EventSource;
 import nl.queuemanager.core.jms.JMSDestination;
@@ -46,15 +46,15 @@ public class JMSSubscriber extends Observable implements EventSource<MessageEven
 	private final MessageBuffer buffer;
 	private MessageConsumer consumer;
 	
-	public JMSSubscriber(JMSDomain sonic, TaskExecutor worker, JMSDestination destination, MessageBuffer buffer) {
+	public JMSSubscriber(JMSDomain sonic, TaskExecutor worker, Configuration config, JMSDestination destination, MessageBuffer buffer) {
 		this.sonic = sonic;
 		this.worker = worker;
 		this.destination = destination;
 		this.buffer = buffer;
 		
+		buffer.setMaximumNumberOfMessages(Integer.parseInt(config.getUserPref(
+				Configuration.PREF_MAX_BUFFERED_MSG, "50")));
 		buffer.addListener(this);
-		buffer.setMaximumNumberOfMessages(Integer.parseInt(PrefUtils.getInstance().getUserPref(
-				PrefUtils.PREF_MAX_BUFFERED_MSG, "50")));
 	}
 	
 	/**

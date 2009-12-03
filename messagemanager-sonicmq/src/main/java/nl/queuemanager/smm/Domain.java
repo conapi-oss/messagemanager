@@ -41,7 +41,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
-import nl.queuemanager.core.PrefUtils;
+import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.events.AbstractEventSource;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.JMSBroker;
@@ -76,6 +76,8 @@ import com.sonicsw.mq.mgmtapi.config.constants.IBackupBrokerConstants;
 import com.sonicsw.mq.mgmtapi.config.constants.IBrokerConstants;
 
 public class Domain extends AbstractEventSource<DomainEvent> implements JMSDomain {
+	private Configuration config;
+	
 	private       ConnectionModel model;
 	private final ArrayList<SonicMQBroker> brokerList = CollectionFactory.newArrayList();
 	
@@ -590,8 +592,8 @@ public class Domain extends AbstractEventSource<DomainEvent> implements JMSDomai
 			return;
 		
 		// Try the configuration to get an alternate URL if one is configured.
-		String brokerUrl = PrefUtils.getInstance().getBrokerPref(
-				broker, PrefUtils.PREF_BROKER_ALTERNATE_URL, broker.getBrokerURL());
+		String brokerUrl = config.getBrokerPref(
+				broker, Configuration.PREF_BROKER_ALTERNATE_URL, broker.getBrokerURL());
 		
 		progress.message.jclient.ConnectionFactory factory = 
 			new progress.message.jclient.ConnectionFactory(
@@ -688,8 +690,11 @@ public class Domain extends AbstractEventSource<DomainEvent> implements JMSDomai
 //		return topic;
 //	}
 	
+	public void setConfigurationManager(Configuration config) {
+		this.config = config;
+	}
+	
 	private static class SonicExceptionListener implements ExceptionListener {
-
 		public void onException(JMSException ex) {
 			System.out.println("EXCEPTION CAUGHT!");
 			

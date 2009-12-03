@@ -25,14 +25,18 @@ public class Main {
 	}
 	
 	public static void main(String[] args) {
+		// Create the ConfigurationManager
+		final SMMConfiguration config = new XmlConfiguration();
+		
 		// Create the sonic domain proxy object
 		final Domain sonic = new Domain();
+		sonic.setConfigurationManager(config);
 		
 		// Create the background worker 
 		final TaskExecutor worker = new TaskExecutor();
 
 		// Create the main application frame
-		final SMMFrame frame = new SMMFrame(sonic, worker);
+		final SMMFrame frame = new SMMFrame(sonic, worker, config);
 		
 		// Set the frame visible and start the program
 		frame.setVisible(true);

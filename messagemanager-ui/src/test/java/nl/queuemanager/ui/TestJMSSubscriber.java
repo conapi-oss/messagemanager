@@ -27,19 +27,20 @@ import java.util.Observer;
 
 import javax.jms.Message;
 
+import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.MessageBuffer;
 import nl.queuemanager.core.MessageEvent;
 import nl.queuemanager.core.jms.JMSDestination;
 import nl.queuemanager.core.jms.impl.MessageFactory;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.test.support.SynchronousExecutorService;
-import nl.queuemanager.ui.JMSSubscriber;
 
 import org.junit.Before;
 import org.junit.Test;
+import static org.mockito.Mockito.*;
 
 public class TestJMSSubscriber implements Observer {
-
+	private Configuration config;
 	private TaskExecutor worker;
 	private JMSSubscriber subscriber;
 	private JMSDestination destination;
@@ -50,14 +51,20 @@ public class TestJMSSubscriber implements Observer {
 	
 	@Before
 	public void before() {
+		config = mock(Configuration.class);
+		when(config.getUserPref(Configuration.PREF_MAX_BUFFERED_MSG, "50")).thenReturn("50");
+		
 		worker = new TaskExecutor(new SynchronousExecutorService());
 		buffer = new MessageBuffer();
-		subscriber = new JMSSubscriber(null, worker, destination, buffer);
+		subscriber = new JMSSubscriber(null, worker, config, destination, buffer);
 		subscriber.addObserver(this);
 	}
 	
 	@Test
 	public void testReceiveMessage() {
+		verify(config).getUserPref(Configuration.PREF_MAX_BUFFERED_MSG, "50");
+		verifyNoMoreInteractions(config);
+		
 		expectedUpdates++;
 		buffer.onMessage(MessageFactory.createMessage());
 		
@@ -240,5 +247,4 @@ public class TestJMSSubscriber implements Observer {
 		expectedUpdates--;
 //		System.out.println("Update received, " + expectedUpdates + " more to go");
 	}
-
 }

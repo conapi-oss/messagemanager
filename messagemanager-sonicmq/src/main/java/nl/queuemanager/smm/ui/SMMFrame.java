@@ -29,6 +29,7 @@ import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.smm.ConnectionModel;
 import nl.queuemanager.smm.Domain;
 import nl.queuemanager.smm.SMCConnectionModel;
+import nl.queuemanager.smm.SMMConfiguration;
 import nl.queuemanager.smm.Version;
 import nl.queuemanager.ui.MessageSendTabPanel;
 import nl.queuemanager.ui.QueuesTabPanel;
@@ -39,6 +40,7 @@ import nl.queuemanager.ui.task.TaskQueuePanel;
 import com.sonicsw.ma.gui.domain.DomainConnectionModel;
 import com.sonicsw.ma.gui.util.JMAFrame;
 
+@SuppressWarnings("serial")
 public class SMMFrame extends JMAFrame {
 	private static final String APP_NAME = "Message Manager";
 
@@ -52,7 +54,7 @@ public class SMMFrame extends JMAFrame {
 	private final TopicSubscriberTabPanel topicsPanel;
 	private final MessageSendTabPanel messageSendPanel;
 	
-	public SMMFrame(Domain sonic, TaskExecutor worker) {
+	public SMMFrame(Domain sonic, TaskExecutor worker, SMMConfiguration config) {
 		super("messagemanager");
 		
 		setTitle("");
@@ -64,16 +66,16 @@ public class SMMFrame extends JMAFrame {
 		tabsPane.setToolTipText("");
 		
 		// Create the panels for each tab and add them to the tabbedpane
-		connectionPanel = new ConnectionTabPanel(this, sonic, worker);
+		connectionPanel = new ConnectionTabPanel(this, sonic, worker, config);
 		tabsPane.addTab("Connection", connectionPanel);
 		
-		queuesPanel = new QueuesTabPanel(sonic, worker);
+		queuesPanel = new QueuesTabPanel(sonic, worker, config);
 		tabsPane.addTab("Queue browser", queuesPanel);
 
-		topicsPanel = new TopicSubscriberTabPanel(sonic, worker);
+		topicsPanel = new TopicSubscriberTabPanel(sonic, worker, config);
 		tabsPane.addTab("Topic subscriber", topicsPanel);
 		
-		messageSendPanel = new MessageSendTabPanel(sonic, worker);
+		messageSendPanel = new MessageSendTabPanel(sonic, worker, config);
 		tabsPane.addTab("Message sender", messageSendPanel);
 		
 		tabsPane.add("Help", new HelpTabPanel());

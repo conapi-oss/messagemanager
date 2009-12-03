@@ -43,9 +43,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.MessageBuffer;
 import nl.queuemanager.core.MessageEvent;
-import nl.queuemanager.core.PrefUtils;
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.JMSBroker;
@@ -66,10 +66,12 @@ import nl.queuemanager.ui.message.MessageViewerPanel;
  * @author Gerco Dries (gdr@progaia-rs.nl)
  *
  */
+@SuppressWarnings("serial")
 public class TopicSubscriberTabPanel extends JSplitPane {
 	private JComboBox brokerCombo;
 	private final JMSDomain sonic;
 	private final TaskExecutor worker;
+	private final Configuration config;
 	
 	private final TopicSubscriberTable subscriberTable;
 	private final MessagesTable messageTable;
@@ -77,9 +79,10 @@ public class TopicSubscriberTabPanel extends JSplitPane {
 	
 	private final MessageEventListener messageEventListener;
 	
-	public TopicSubscriberTabPanel(JMSDomain sonic, TaskExecutor worker) {
+	public TopicSubscriberTabPanel(JMSDomain sonic, TaskExecutor worker, Configuration config) {
 		this.sonic = sonic;
 		this.worker = worker;
+		this.config = config;
 		
 		subscriberTable = createTopicTable();
 		messageTable = createMessageTable();
@@ -195,7 +198,7 @@ public class TopicSubscriberTabPanel extends JSplitPane {
 			messages.add(messageTable.getRowItem(i));
 		}
 		
-		CommonUITasks.saveMessages(this, messages, worker);
+		CommonUITasks.saveMessages(this, messages, worker, config);
 	}
 
 	/**
@@ -301,7 +304,7 @@ public class TopicSubscriberTabPanel extends JSplitPane {
 	 * @return
 	 */
 	private List<JMSTopic> getConfiguredTopics(JMSBroker broker) {
-		List<String> topicNames = PrefUtils.getInstance().getTopicSubscriberNames(broker);
+		List<String> topicNames = config.getTopicSubscriberNames(broker);
 		final List<JMSTopic> topics = CollectionFactory.newArrayList();
 		
 		for(String name: topicNames) {
@@ -389,7 +392,7 @@ public class TopicSubscriberTabPanel extends JSplitPane {
 	private void populateTopicTable(final List<JMSTopic> topics) {
 		final List<JMSSubscriber> entries = CollectionFactory.newArrayList();
 		for(JMSTopic t: topics) {
-			entries.add(new JMSSubscriber(sonic, worker, t, new MessageBuffer()));
+			entries.add(new JMSSubscriber(sonic, worker, config, t, new MessageBuffer()));
 		}
 		
 		SwingUtilities.invokeLater(new Runnable() {
@@ -437,7 +440,7 @@ public class TopicSubscriberTabPanel extends JSplitPane {
 			if(item != null) {
 				item.setActive(false);
 				subscriberTable.removeItem(item);
-				PrefUtils.getInstance().removeTopicSubscriber((JMSTopic)item.getDestination());
+				config.removeTopicSubscriber((JMSTopic)item.getDestination());
 			}
 		}
 	}
@@ -490,10 +493,10 @@ public class TopicSubscriberTabPanel extends JSplitPane {
 					
 					JMSSubscriber subscriber = subscriberTable.getItemForDestination(topic); 
 					if(subscriber == null) {
-						subscriber = new JMSSubscriber(sonic, worker, topic, new MessageBuffer());
+						subscriber = new JMSSubscriber(sonic, worker, config, topic, new MessageBuffer());
 						subscriber.setActive(true);
 						subscriberTable.addItem(subscriber);
-						PrefUtils.getInstance().addTopicSubscriber((JMSTopic)subscriber.getDestination());
+						config.addTopicSubscriber((JMSTopic)subscriber.getDestination());
 					}
 					
 					topicNameField.setText("");
