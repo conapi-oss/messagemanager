@@ -19,7 +19,7 @@ import java.util.EventObject;
 
 import nl.queuemanager.core.events.EventSource;
 
-
+@SuppressWarnings("serial")
 public class TaskEvent extends EventObject {
 	public static enum EVENT {
 		/**

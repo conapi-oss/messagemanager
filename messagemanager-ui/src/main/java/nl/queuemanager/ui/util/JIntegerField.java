@@ -30,6 +30,7 @@ import javax.swing.text.PlainDocument;
  * @author Gerco Dries (gdr@progaia-rs.nl)
  *
  */
+@SuppressWarnings("serial")
 public class JIntegerField extends JTextField {
 	private long maxValue = Integer.MAX_VALUE;
 	private long minValue = 0;

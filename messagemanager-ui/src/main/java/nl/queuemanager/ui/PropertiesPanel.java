@@ -41,6 +41,7 @@ import javax.swing.event.ListSelectionListener;
 import nl.queuemanager.ui.message.MessagePropertiesTable;
 import nl.queuemanager.ui.util.SpringUtilities;
 
+@SuppressWarnings("serial")
 public class PropertiesPanel extends JPanel {
 	private static final String[] PROPTYPES = { 
 		String.class.getSimpleName(),

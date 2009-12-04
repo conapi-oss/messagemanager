@@ -25,6 +25,7 @@ import nl.queuemanager.core.events.EventSource;
  * @author Gerco Dries (gdr@progaia-rs.nl)
  *
  */
+@SuppressWarnings("serial")
 public class MessageEvent extends EventObject {
 	
 	public static enum EVENT {

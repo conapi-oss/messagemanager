@@ -72,6 +72,7 @@ public class EnumerateMessagesTask extends BackgroundTask implements CancelableT
 		return "Browsing messages for queue " + getQueue();
 	}
 
+	@SuppressWarnings("serial")
 	public static class QueueBrowserEvent extends EventObject {
 		public static enum EVENT {
 			BROWSING_STARTED,

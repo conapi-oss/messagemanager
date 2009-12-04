@@ -15,6 +15,7 @@
  */
 package nl.queuemanager.core;
 
+@SuppressWarnings("serial")
 public class Pair<First, Second> implements java.io.Serializable {
 	private final First one;
 	private final Second two;

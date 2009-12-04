@@ -35,6 +35,8 @@ import javax.jms.StreamMessage;
  */
 class JMSStreamMessage extends JMSMessage implements StreamMessage, Serializable {
 
+	private static final long serialVersionUID = 6236058322245760102L;
+	
 	protected byte[] body;
 	protected transient ByteArrayInputStream bin;
 	protected transient ObjectInputStream oin; 

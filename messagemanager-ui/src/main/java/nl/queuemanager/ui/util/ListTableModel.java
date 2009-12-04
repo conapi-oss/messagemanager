@@ -19,6 +19,7 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+@SuppressWarnings("serial")
 public abstract class ListTableModel<T> extends AbstractTableModel {
 	protected List<T> data;
 	protected String[] columnNames;

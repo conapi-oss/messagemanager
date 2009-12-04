@@ -37,6 +37,7 @@ import nl.queuemanager.ui.util.PairTableModel;
  * @author Gerco Dries (gdr@progaia-rs.nl)
  *
  */
+@SuppressWarnings("serial")
 public class MessagePropertiesTable extends JTable {
 
 	public MessagePropertiesTable() {

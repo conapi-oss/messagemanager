@@ -27,6 +27,7 @@ import javax.swing.JDialog;
 
 import nl.queuemanager.core.util.CollectionFactory;
 
+@SuppressWarnings("serial")
 public class PropertiesDialog extends JDialog {
 	private PropertiesPanel propPanel;
 	private boolean okPressed = false;

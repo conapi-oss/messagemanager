@@ -50,6 +50,7 @@ import nl.queuemanager.ui.util.ListTableModel;
  * @author Gerco Dries (gdr@progaia-rs.nl)
  *
  */
+@SuppressWarnings("serial")
 public class MessagesTable extends JTable implements Clearable {
 	private JMSDestination currentDestination;
 	

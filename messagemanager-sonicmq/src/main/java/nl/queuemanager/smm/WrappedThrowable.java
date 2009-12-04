@@ -17,6 +17,13 @@ package nl.queuemanager.smm;
 
 import javax.management.JMException;
 
+/**
+ * Allow any Throwable to be wrapped in a JMException.
+ * 
+ * @author Gerco Dries
+ *
+ */
+@SuppressWarnings("serial")
 public class WrappedThrowable extends JMException {
 
 	public WrappedThrowable(Throwable cause) {

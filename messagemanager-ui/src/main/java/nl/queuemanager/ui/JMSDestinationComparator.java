@@ -20,6 +20,7 @@ import java.util.Comparator;
 
 import nl.queuemanager.core.jms.JMSDestination;
 
+@SuppressWarnings("serial")
 public class JMSDestinationComparator implements Comparator<JMSDestination>, Serializable {
 	public int compare(final JMSDestination d1, final JMSDestination d2) {
 		return d1.getName().compareToIgnoreCase(d2.getName());

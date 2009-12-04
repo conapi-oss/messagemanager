@@ -36,6 +36,7 @@ import nl.queuemanager.ui.util.PairTableModel;
  * @author Gerco Dries (gdr@progaia-rs.nl)
  *
  */
+@SuppressWarnings("serial")
 public class JMSHeadersTable extends JTable {
 
 	private final SimpleDateFormat dateFormatter = 

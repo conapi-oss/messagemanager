@@ -17,6 +17,7 @@ package nl.queuemanager.ui.util;
 
 import nl.queuemanager.core.Pair;
 
+@SuppressWarnings("serial")
 public class PairTableModel <First, Second> extends ListTableModel<Pair<First, Second>> {
 	
 	@Override

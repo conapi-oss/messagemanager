@@ -343,6 +343,7 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 		return structureTree.getDragEnabled();
 	}
 
+	@SuppressWarnings("serial")
 	private class StructureTreeTransferHandler extends TransferHandler {
 
 		@Override

@@ -43,6 +43,7 @@ import nl.queuemanager.ui.util.ListTableModel;
  * @author Gerco Dries (gdr@progaia-rs.nl)
  *
  */
+@SuppressWarnings("serial")
 public class JMSDestinationTable extends JTable implements Clearable, JMSDestinationHolder {	
 	private boolean filterEnabled = false;
 	private FilterColumnListener filterColumnListener;	

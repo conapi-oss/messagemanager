@@ -26,7 +26,7 @@ import java.util.Iterator;
  * A weak HashSet. An element stored in the WeakHashSet might be
  * garbage collected, if there is no strong reference to this element.
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({ "unchecked", "serial" })
 public class WeakHashSet extends HashSet {
     /**
      * Helps to detect garbage collected values.

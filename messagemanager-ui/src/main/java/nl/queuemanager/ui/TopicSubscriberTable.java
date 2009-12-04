@@ -44,6 +44,7 @@ import nl.queuemanager.ui.util.ObservingListTableModel;
  * @author Gerco Dries (gdr@progaia-rs.nl)
  *
  */
+@SuppressWarnings("serial")
 public class TopicSubscriberTable extends JTable implements Clearable, JMSDestinationHolder {	
 	private boolean filterEnabled = false;
 	private FilterColumnListener filterColumnListener;

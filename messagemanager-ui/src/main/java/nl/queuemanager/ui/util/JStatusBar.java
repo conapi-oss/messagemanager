@@ -39,6 +39,7 @@ import nl.queuemanager.ui.progress.Throbber;
  * @author Gerco Dries (gdr@progaia-rs.nl)
  *
  */
+@SuppressWarnings("serial")
 public class JStatusBar extends JPanel {
 	private final Icon errorIcon;
 	private final JLabel statusLabel;

@@ -20,6 +20,7 @@ import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
+@SuppressWarnings("serial")
 public class Throbber extends JLabel {
 	
 	public Throbber() {		

@@ -41,6 +41,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class JMSXMLMessage extends JMSTextMessage implements nl.queuemanager.core.jms.JMSXMLMessage, Serializable {
+	private static final long serialVersionUID = -1561318271681047429L;
+	
 	protected boolean namespaceAware = false;
 	protected transient Document document;
 	

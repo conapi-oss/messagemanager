@@ -24,6 +24,7 @@ import javax.help.JHelpNavigator;
 import javax.swing.JLabel;
 import javax.swing.JSplitPane;
 
+@SuppressWarnings("serial")
 public class HelpTabPanel extends JSplitPane {
 
 	public HelpTabPanel() {

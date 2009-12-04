@@ -5,6 +5,7 @@ import java.util.Comparator;
 
 import nl.queuemanager.core.jms.JMSQueue;
 
+@SuppressWarnings("serial")
 public class MessageCountComparator implements Comparator<JMSQueue>, Serializable {
 
 	private boolean descending = false;

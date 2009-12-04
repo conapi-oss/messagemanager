@@ -28,6 +28,7 @@ import javax.swing.SwingUtilities;
  * @author Gerco Dries (gdr@progaia-rs.nl)
  *
  */
+@SuppressWarnings("serial")
 public abstract class ObservingListTableModel<T extends Observable> extends ListTableModel<T> implements Observer {
 
 	@Override

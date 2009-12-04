@@ -27,6 +27,7 @@ import javax.swing.table.DefaultTableCellRenderer;
  * messages in a queue is bigger than zero
  * </p>
  */
+@SuppressWarnings("serial")
 public class MessageCountTableCellRenderer extends DefaultTableCellRenderer {
 
 	@Override

@@ -40,6 +40,7 @@ import nl.queuemanager.ui.util.MessageCountComparator;
  * @author Gerco Dries (gdr@progaia-rs.nl)
  *
  */
+@SuppressWarnings("serial")
 class QueueTable extends JTable implements Clearable {
 
 	private final Comparator<JMSQueue> messageCountComparator = new MessageCountComparator(true);

@@ -35,6 +35,7 @@ import nl.queuemanager.ui.util.JStatusBar;
  * @author Gerco Dries (gdr@progaia-rs.nl)
  *
  */
+@SuppressWarnings("serial")
 public class TaskQueuePanel extends JPanel implements EventListener<TaskEvent> {
 
 	private Map<Task, JStatusBar> statusbars = CollectionFactory.newHashMap();

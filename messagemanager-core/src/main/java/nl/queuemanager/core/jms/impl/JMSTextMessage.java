@@ -22,6 +22,8 @@ import javax.jms.TextMessage;
 
 class JMSTextMessage extends JMSMessage implements TextMessage, Serializable {
 
+	private static final long serialVersionUID = -7611977799066950298L;
+	
 	private String text;
 	
 	@Override

@@ -34,6 +34,7 @@ import javax.swing.JTextArea;
  * @author Gerco Dries (gdr@progaia-rs.nl)
  *
  */
+@SuppressWarnings("serial")
 public class JSearchableTextArea extends JTextArea {
 	private boolean searchEnabled;
 

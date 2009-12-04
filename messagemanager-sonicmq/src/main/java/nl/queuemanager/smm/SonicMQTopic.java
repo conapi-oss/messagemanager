@@ -18,7 +18,6 @@ package nl.queuemanager.smm;
 import javax.jms.JMSException;
 
 import nl.queuemanager.core.jms.JMSTopic;
-import nl.queuemanager.core.jms.JMSDestination.TYPE;
 
 import com.sonicsw.mq.common.runtime.IDurableSubscriptionData;
 

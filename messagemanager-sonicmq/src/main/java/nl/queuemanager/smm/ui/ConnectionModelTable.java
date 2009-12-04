@@ -25,6 +25,7 @@ import nl.queuemanager.smm.ConnectionModel;
 import nl.queuemanager.ui.util.ListTableModel;
 
 
+@SuppressWarnings("serial")
 class ConnectionModelTable extends JTable {
 
 	public ConnectionModelTable() {

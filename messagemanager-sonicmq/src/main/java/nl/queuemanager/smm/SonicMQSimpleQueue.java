@@ -18,7 +18,6 @@ package nl.queuemanager.smm;
 import javax.jms.JMSException;
 
 import nl.queuemanager.core.jms.JMSQueue;
-import nl.queuemanager.core.jms.JMSDestination.TYPE;
 
 public class SonicMQSimpleQueue extends SonicMQDestination implements JMSQueue {
 

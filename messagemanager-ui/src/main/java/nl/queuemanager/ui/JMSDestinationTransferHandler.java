@@ -39,6 +39,7 @@ import nl.queuemanager.core.tasks.EnumerateQueuesTask;
 import nl.queuemanager.core.tasks.SendFileListTask;
 import nl.queuemanager.core.tasks.SendMessageListTask;
 
+@SuppressWarnings("serial")
 public class JMSDestinationTransferHandler extends TransferHandler {
 	private static String newline = System.getProperty("line.separator");
 	
