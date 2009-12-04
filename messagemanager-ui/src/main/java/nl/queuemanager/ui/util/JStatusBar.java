@@ -92,7 +92,7 @@ public class JStatusBar extends JPanel {
 	 */
 	private Icon loadErrorIcon() {
 		URL iconURL = getClass().getResource("error_16x16.gif");
-		return new ImageIcon(iconURL);
+		return new ImageIcon(iconURL, "Error");
 	}
 
 	/**
@@ -121,7 +121,8 @@ public class JStatusBar extends JPanel {
 	 */
 	public void setErrorText(String message) {
 		statusLabel.setText(message);
-		statusLabel.setIcon(errorIcon);
+		if(errorIcon != null)
+			statusLabel.setIcon(errorIcon);
 	}
 	
 	/**

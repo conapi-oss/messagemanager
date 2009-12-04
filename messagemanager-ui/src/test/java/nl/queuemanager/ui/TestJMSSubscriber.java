@@ -18,36 +18,37 @@ package nl.queuemanager.ui;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.Collections;
-import java.util.List;
-import java.util.Observable;
 import java.util.Observer;
 
 import javax.jms.Message;
 
 import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.MessageBuffer;
-import nl.queuemanager.core.MessageEvent;
 import nl.queuemanager.core.jms.JMSDestination;
 import nl.queuemanager.core.jms.impl.MessageFactory;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.test.support.SynchronousExecutorService;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.mockito.Mockito.*;
 
-public class TestJMSSubscriber implements Observer {
+public class TestJMSSubscriber {
 	private Configuration config;
 	private TaskExecutor worker;
 	private JMSSubscriber subscriber;
 	private JMSDestination destination;
 	private MessageBuffer buffer;
-	
-	private volatile int expectedUpdates;
-	private List<MessageEvent.EVENT> expectedEvents;
+	private Observer observer;
 	
 	@Before
 	public void before() {
@@ -57,52 +58,54 @@ public class TestJMSSubscriber implements Observer {
 		worker = new TaskExecutor(new SynchronousExecutorService());
 		buffer = new MessageBuffer();
 		subscriber = new JMSSubscriber(null, worker, config, destination, buffer);
-		subscriber.addObserver(this);
+		verify(config).getUserPref(Configuration.PREF_MAX_BUFFERED_MSG, "50");
+		
+		observer = mock(Observer.class);
+		subscriber.addObserver(observer);
+	}
+	
+	@After
+	public void after() {
+		verifyNoMoreInteractions(config, observer);
 	}
 	
 	@Test
 	public void testReceiveMessage() {
-		verify(config).getUserPref(Configuration.PREF_MAX_BUFFERED_MSG, "50");
-		verifyNoMoreInteractions(config);
-		
-		expectedUpdates++;
 		buffer.onMessage(MessageFactory.createMessage());
+
+		verify(observer).update(eq(subscriber), anyObject());
 		
 		assertEquals(1, subscriber.getMessageCount());
-		
-		checkUpdatesReceived();
 	}
 	
 	@Test
 	public void testProcessEvent() {
-		expectedUpdates++;
 		subscriber.processEvent(null);
-		checkUpdatesReceived();
+		verify(observer).update(eq(subscriber), anyObject());
 	}
 
 	@Test
 	public void testRemoveMessages() {
 		Message message = MessageFactory.createMessage();
 		
-		expectedUpdates++;
 		buffer.onMessage(message);
+		verify(observer).update(eq(subscriber), anyObject());
 		
 		assertEquals(1, subscriber.getMessageCount());
 		
 		buffer.remove(Collections.singletonList(message));
 		
 		assertEquals(0, subscriber.getMessageCount());
-		checkUpdatesReceived();
 	}
 
 	@Test
 	public void testClear() {
-		expectedUpdates += 2;
 		buffer.onMessage(MessageFactory.createMessage());
 		buffer.onMessage(MessageFactory.createMessage());
 		
+		verify(observer, times(2)).update(eq(subscriber), anyObject());
+		
 		assertEquals(2, subscriber.getMessageCount());
-		checkUpdatesReceived();
 	}
 	
 	@Test
@@ -111,7 +114,6 @@ public class TestJMSSubscriber implements Observer {
 
 		buffer.setMaximumNumberOfMessages(3);
 		
-		expectedUpdates = 9; // 6x MESSAGE_RECEIVED + 3x MESSAGE_DISCARDED
 		buffer.onMessage(message);
 		buffer.onMessage(MessageFactory.createMessage());
 		buffer.onMessage(MessageFactory.createMessage());
@@ -126,7 +128,7 @@ public class TestJMSSubscriber implements Observer {
 		assertEquals(3, buffer.getMessageCount());
 		assertTrue(buffer.getMessages().contains(message));
 		
-		checkUpdatesReceived();
+		verify(observer, times(9)).update(eq(subscriber), anyObject());
 	}
 	
 	@Test
@@ -135,12 +137,10 @@ public class TestJMSSubscriber implements Observer {
 		Message message = MessageFactory.createMessage();
 		
 		// Send the message to be locked
-		expectedUpdates++;
 		buffer.onMessage(message);
 		buffer.lockMessage(message);
 		
 		// Fill up the buffer
-		expectedUpdates += 4;
 		buffer.onMessage(MessageFactory.createMessage());
 		buffer.onMessage(MessageFactory.createMessage());
 		buffer.onMessage(MessageFactory.createMessage());
@@ -148,13 +148,12 @@ public class TestJMSSubscriber implements Observer {
 		assertEquals(3, buffer.getMessageCount());
 		
 		// Unlock the message and send another to make it disappear;
-		expectedUpdates += 2;
 		buffer.unlockMessage(message);
 		buffer.onMessage(MessageFactory.createMessage());
 
 		assertFalse(buffer.getMessages().contains(message));
 		
-		checkUpdatesReceived();
+		verify(observer, times(7)).update(eq(subscriber), anyObject());
 	}
 	
 	@Test
@@ -165,22 +164,20 @@ public class TestJMSSubscriber implements Observer {
 		Message m3 = MessageFactory.createMessage();
 		Message m4 = MessageFactory.createMessage();
 		
-		expectedUpdates += 3;
 		buffer.onMessage(m1);
 		buffer.lockMessage(m1);
 		buffer.onMessage(m2);
 		buffer.lockMessage(m2);
 		buffer.onMessage(m3);
 		buffer.lockMessage(m3);
+		verify(observer, times(3)).update(eq(subscriber), anyObject());
 		
 		assertEquals(3, buffer.getMessageCount());
 		
-		expectedUpdates++;
 		buffer.onMessage(m4);
+		verify(observer, times(4)).update(eq(subscriber), anyObject());
 		
 		assertEquals(4, buffer.getMessageCount());		
-		
-		checkUpdatesReceived();
 	}
 	
 	@Test
@@ -191,60 +188,31 @@ public class TestJMSSubscriber implements Observer {
 		Message m3 = MessageFactory.createMessage();
 		Message m4 = MessageFactory.createMessage();
 		
-		expectedUpdates += 3;
 		buffer.onMessage(m1);
 		buffer.lockMessage(m1);
 		buffer.onMessage(m2);
 		buffer.lockMessage(m2);
 		buffer.onMessage(m3);
 		buffer.lockMessage(m3);
+		verify(observer, times(3)).update(eq(subscriber), anyObject());
 		
 		assertEquals(3, buffer.getMessageCount());
 		
-		expectedUpdates++;
 		buffer.onMessage(m4);
+		verify(observer, times(4)).update(eq(subscriber), anyObject());
 		
 		assertEquals(4, buffer.getMessageCount());		
 
 		buffer.unlockAll();
 		
-		expectedUpdates += 3; // One message added, two messages removed
 		buffer.onMessage(MessageFactory.createMessage());
+		verify(observer, times(7)).update(eq(subscriber), anyObject());
 
 		assertEquals(3, buffer.getMessageCount());
-		
-		checkUpdatesReceived();
 	}
 
 	@Test
 	public void testGetDestination() {
 		assertEquals(destination, subscriber.getDestination());
-	}
-
-	public void processEvent(MessageEvent event) {
-		if(expectedEvents == null || expectedEvents.size() == 0)
-			fail("Received event id " + event.getId() + " while not expecting any");
-			
-		if(!event.getId().equals(expectedEvents.get(0)))
-			fail("Got event id " + event.getId() + " but was expecting event id " + expectedEvents.get(0));
-		
-		assertTrue("Event info was not a Message!", event.getInfo() instanceof Message);
-		
-		expectedEvents.remove(0);
-	}
-
-	public void checkUpdatesReceived() {
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		assertTrue("Did not receive an update, but " + expectedUpdates + " more were expected", expectedUpdates == 0);
-	}
-	
-	public void update(Observable o, Object arg) {
-		assertTrue("Was not expecting an update, but " + o + " called notifyObservers()", expectedUpdates > 0);
-		expectedUpdates--;
-//		System.out.println("Update received, " + expectedUpdates + " more to go");
 	}
 }

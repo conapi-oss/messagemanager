@@ -12,6 +12,23 @@
   <properties>
     <sonic.version>7.6.0</sonic.version>
   </properties>
+  <build>
+  	<plugins>
+  		<plugin>
+  			<groupId>org.codehaus.mojo</groupId>
+  			<artifactId>exec-maven-plugin</artifactId>
+  			<configuration>
+  				<mainClass>nl.queuemanager.smm.Main</mainClass>
+  				<systemProperties>
+  					<systemProperty>
+  						<key>developer</key>
+  						<value>true</value>
+  					</systemProperty>
+  				</systemProperties>
+  			</configuration>
+  		</plugin>
+  	</plugins>
+  </build>
 	<repositories>
 		<repository>
 			<id>soa-knowledge</id>

@@ -188,17 +188,8 @@ public class JMSSubscriber extends Observable implements EventSource<MessageEven
 	 * Fire notifyObservers on the EDT. If already running on the EDT, call notifyObservers directly.
 	 */
 	private void fireNotifyObservers() {
-		// FIXME Does this class REALLY need to dispatch on the EDT? Let the observers figure that out!
-		if(SwingUtilities.isEventDispatchThread()) {
-			setChanged();
-			notifyObservers();
-		} else {
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					fireNotifyObservers();
-				}
-			});
-		}
+		setChanged();
+		notifyObservers();
 	}
 
 	public int compareTo(JMSSubscriber o) {

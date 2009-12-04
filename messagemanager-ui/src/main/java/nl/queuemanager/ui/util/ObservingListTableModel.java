@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.swing.SwingUtilities;
+
 /**
  * A ListTableModel that observes it's contents and fires the appropriate events when
  * any Observable entry changes.
@@ -67,9 +69,17 @@ public abstract class ObservingListTableModel<T extends Observable> extends List
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void update(Observable observable, Object obj) {
-		int row = getItemRow((T)observable);
-		fireTableRowsUpdated(row, row);
+	public void update(final Observable observable, final Object obj) {
+		if(SwingUtilities.isEventDispatchThread()) {
+			int row = getItemRow((T)observable);
+			fireTableRowsUpdated(row, row);
+		} else {
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					update(observable, obj);
+				}
+			});
+		}
 	}
 
 }

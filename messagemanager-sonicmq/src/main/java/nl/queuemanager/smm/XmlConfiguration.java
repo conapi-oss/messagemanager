@@ -102,7 +102,7 @@ public class XmlConfiguration implements SMMConfiguration {
 	/* (non-Javadoc)
 	 * @see nl.queuemanager.core.ConfigurationManager#getUserPref(java.lang.String, java.lang.String)
 	 */
-	public String getUserPref(String key, String def) {
+	public synchronized String getUserPref(String key, String def) {
 		Document prefs = readPrefs();
 		String result = "";
 		
@@ -126,7 +126,7 @@ public class XmlConfiguration implements SMMConfiguration {
 	/* (non-Javadoc)
 	 * @see nl.queuemanager.core.ConfigurationManager#setUserPref(java.lang.String, java.lang.String)
 	 */
-	public void setUserPref(String key, String value) {
+	public synchronized void setUserPref(String key, String value) {
 		Document prefs = readPrefs();
 		
 		try {
@@ -140,7 +140,7 @@ public class XmlConfiguration implements SMMConfiguration {
 	/* (non-Javadoc)
 	 * @see nl.queuemanager.core.ConfigurationManager#getBrokerPref(nl.queuemanager.core.jms.JMSBroker, java.lang.String, java.lang.String)
 	 */
-	public String getBrokerPref(JMSBroker broker, String key, String def) {
+	public synchronized String getBrokerPref(JMSBroker broker, String key, String def) {
 		Document prefs = readPrefs();
 		
 		String expr = String.format("/c:%s/c:Broker[@name='%s']/c:%s", 
@@ -164,7 +164,7 @@ public class XmlConfiguration implements SMMConfiguration {
 	/* (non-Javadoc)
 	 * @see nl.queuemanager.core.ConfigurationManager#setBrokerPref(nl.queuemanager.core.jms.JMSBroker, java.lang.String, java.lang.String)
 	 */
-	public void setBrokerPref(JMSBroker broker, String key, String value) {
+	public synchronized void setBrokerPref(JMSBroker broker, String key, String value) {
 		Document prefs = readPrefs();
 		
 		try {
@@ -178,7 +178,7 @@ public class XmlConfiguration implements SMMConfiguration {
 	/* (non-Javadoc)
 	 * @see nl.queuemanager.core.ConfigurationManager#getTopicSubscriberNames(nl.queuemanager.core.jms.JMSBroker)
 	 */
-	public List<String> getTopicSubscriberNames(JMSBroker broker) {
+	public synchronized List<String> getTopicSubscriberNames(JMSBroker broker) {
 		Document prefs = readPrefs();
 		
 		String expr = String.format("/c:%s/c:Broker[@name='%s']/c:Subscribers/c:Subscriber", 
@@ -196,7 +196,7 @@ public class XmlConfiguration implements SMMConfiguration {
 	/* (non-Javadoc)
 	 * @see nl.queuemanager.core.ConfigurationManager#getTopicPublisherNames(nl.queuemanager.core.jms.JMSBroker)
 	 */
-	public List<String> getTopicPublisherNames(JMSBroker broker) {
+	public synchronized List<String> getTopicPublisherNames(JMSBroker broker) {
 		Document prefs = readPrefs();
 		
 		String expr = String.format("/c:%s/c:Broker[@name='%s']/c:Publishers/c:Publisher", 
@@ -214,7 +214,7 @@ public class XmlConfiguration implements SMMConfiguration {
 	/* (non-Javadoc)
 	 * @see nl.queuemanager.core.ConfigurationManager#addTopicSubscriber(nl.queuemanager.core.jms.JMSTopic)
 	 */
-	public void addTopicSubscriber(JMSTopic topic) {
+	public synchronized void addTopicSubscriber(JMSTopic topic) {
 		if(getTopicSubscriberNames(topic.getBroker()).contains(topic.getName()))
 			return;
 		
@@ -234,7 +234,7 @@ public class XmlConfiguration implements SMMConfiguration {
 	/* (non-Javadoc)
 	 * @see nl.queuemanager.core.ConfigurationManager#addTopicPublisher(nl.queuemanager.core.jms.JMSTopic)
 	 */
-	public void addTopicPublisher(JMSTopic topic) {
+	public synchronized void addTopicPublisher(JMSTopic topic) {
 		if(getTopicPublisherNames(topic.getBroker()).contains(topic.getName()))
 			return;
 		
@@ -256,7 +256,7 @@ public class XmlConfiguration implements SMMConfiguration {
 	 * 
 	 * @param topic
 	 */
-	public void removeTopicSubscriber(JMSTopic topic) {
+	public synchronized void removeTopicSubscriber(JMSTopic topic) {
 		removePrefNode(String.format(
 			"/c:%s/c:Broker[@name='%s']/c:Subscribers/c:Subscriber[text()='%s']", 
 			ROOT_ELEMENT, topic.getBroker().toString(), topic.getName()));
@@ -265,7 +265,7 @@ public class XmlConfiguration implements SMMConfiguration {
 	/* (non-Javadoc)
 	 * @see nl.queuemanager.core.ConfigurationManager#removeTopicPublisher(nl.queuemanager.core.jms.JMSTopic)
 	 */
-	public void removeTopicPublisher(JMSTopic topic) {
+	public synchronized void removeTopicPublisher(JMSTopic topic) {
 		removePrefNode(String.format(
 			"/c:%s/c:Broker[@name='%s']/c:Publishers/c:Publisher[text()='%s']", 
 			ROOT_ELEMENT, topic.getBroker().toString(), topic.getName()));
