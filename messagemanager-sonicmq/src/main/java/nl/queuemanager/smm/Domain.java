@@ -165,7 +165,7 @@ public class Domain extends AbstractEventSource<DomainEvent> implements JMSDomai
 	 */
 	public List<? extends JMSBroker> enumerateBrokers() throws JMException {
 		brokerList.clear();
-
+		int brokersFound = 0;
 		try {
 			IDirectoryFileSystemService dsProxy = getDirectoryFilesystemService();
 			MQMgmtBeanFactory domain = new MQMgmtBeanFactory();
@@ -173,12 +173,11 @@ public class Domain extends AbstractEventSource<DomainEvent> implements JMSDomai
 	
 			IAgentManagerProxy amp = model.getAgentManager();
 			IContainerState[] states = (IContainerState[]) amp.getCollectiveState();
-	
+
 			for(IContainerState containerState: states) {
 				// Skip offline containers
 				if(containerState.getState() != IContainerState.STATE_ONLINE)
 					continue;
-					
 				IComponentState[] cstates = containerState.getComponentStates();
 				
 				component:
@@ -196,8 +195,9 @@ public class Domain extends AbstractEventSource<DomainEvent> implements JMSDomai
 						String logicalName = dsProxy.storageToLogical(ci.getName());
 						logicalName = logicalName.substring(0, logicalName.lastIndexOf('/'));
 	//					System.out.println("LogicalName: " + logicalName);
-						IBrokerBean broker = domain.getBrokerBean(logicalName);
-						
+						IBrokerBean broker = null;
+						try {
+							broker = domain.getBrokerBean(logicalName);
 						// Find all acceptors for this broker and use the first TCP acceptor
 						IAcceptorTcpsBean acceptor = getPrimaryAcceptor(broker.getAcceptorsBean());
 						if(acceptor != null) {
@@ -209,7 +209,12 @@ public class Domain extends AbstractEventSource<DomainEvent> implements JMSDomai
 							
 							if(isBrokerOnline(brokerData)) {
 								brokerList.add(brokerData);
+								brokersFound++;
 							}					
+						}
+						
+						} catch (MgmtException e) {
+							continue component;
 						}
 					} else if(IBackupBrokerConstants.DS_TYPE.equals(ci.getType())) {
 						ObjectName boname = new ObjectName(ri.getCanonicalName());
@@ -217,30 +222,43 @@ public class Domain extends AbstractEventSource<DomainEvent> implements JMSDomai
 						String logicalName = dsProxy.storageToLogical(ci.getName());
 						logicalName = logicalName.substring(0, logicalName.lastIndexOf('/'));
 	//					System.out.println("LogicalName: " + logicalName);
-						IBackupBrokerBean broker = domain.getBackupBrokerBean(logicalName);
+						IBackupBrokerBean broker = null;
+						try{
+							broker = domain.getBackupBrokerBean(logicalName);
 						
 						// Find all acceptors for this broker and use the first TCP acceptor
-						IAcceptorTcpsBean acceptor = getPrimaryAcceptor(broker.getAcceptorsBean());
-						if(acceptor != null) {
-							SonicMQBroker brokerData = new SonicMQBroker(
+							IAcceptorTcpsBean acceptor = getPrimaryAcceptor(broker.getAcceptorsBean());
+							if(acceptor != null) {
+								SonicMQBroker brokerData = new SonicMQBroker(
 									boname,
 									broker.getPrimaryBrokerBean().getBrokerName() + " (Backup)",
 									getAcceptorUrl(containerState.getContainerHost(), acceptor),
 									SonicMQBroker.ROLE.BACKUP);
 							
-							if(isBrokerOnline(brokerData)) {
-								brokerList.add(brokerData);
+								if(isBrokerOnline(brokerData)) {
+									brokerList.add(brokerData);
+									brokersFound++;
+								}
 							}
+						} catch (MgmtException e) {							
+							continue component;
 						}
 					}
 				}
 			}
 			
 			dispatchEvent(new DomainEvent(EVENT.BROKERS_ENUMERATED, getBrokerList(), this));
+			if(brokersFound == 0){
+				throw new MgmtException("No Brokers Found ... you have possibly not enough privileges");
+			}
 			return getBrokerList();
-		} catch (MgmtException e) {
+		} 
+		catch (MgmtException e) {
+			//is the case if not administrator priviledged or specifically denied access 
+			//as is the case in a secure SDM deployment.
 			throw new WrappedThrowable(e);
-		} catch (DirectoryServiceException e) {
+		}
+		catch (DirectoryServiceException e) {
 			throw new WrappedThrowable(e);
 		}
 	}
