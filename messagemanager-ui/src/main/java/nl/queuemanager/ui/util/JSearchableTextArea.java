@@ -171,7 +171,9 @@ public class JSearchableTextArea extends JTextArea {
 						searchString, 
 						Math.max(startPosition, 0));
 				if(position >= 0) {
-					textArea.select(position, position + searchString.length());
+					int endPosition = position + searchString.length();
+					textArea.setCaretPosition(endPosition);
+					textArea.select(position, endPosition);
 				} else if (startPosition > 0) {
 					// If not found and we were searching from a non-zero
 					// start position, retry from the top.
