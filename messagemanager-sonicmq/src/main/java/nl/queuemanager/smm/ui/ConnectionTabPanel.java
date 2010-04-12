@@ -177,9 +177,9 @@ class ConnectionTabPanel extends JPanel {
 		
 		// Get Progaia logo
 		JLabel jLabelProgaia = new JLabel();
-		URL url = getClass().getResource("progaiars.png");
+		URL url = getClass().getResource("progaia.jpg");
 		jLabelProgaia.setIcon(new ImageIcon(url));
-		DesktopHelper.addLink(jLabelProgaia, "http://www.progaia-rs.nl");
+		DesktopHelper.addLink(jLabelProgaia, "http://www.progaia.nl");
 		brandingPanel.add(jLabelProgaia);
 		
 		// space between the pictures
