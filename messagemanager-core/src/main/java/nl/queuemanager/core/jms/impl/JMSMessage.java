@@ -17,6 +17,7 @@ package nl.queuemanager.core.jms.impl;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.UUID;
@@ -52,6 +53,7 @@ class JMSMessage implements Message, Serializable {
 	
 	JMSMessage() {
 		this.properties = CollectionFactory.newHashMap();
+		this.timestamp = new Date().getTime();
 	}
 	
 	public void acknowledge() {

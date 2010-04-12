@@ -484,8 +484,8 @@ public class Domain extends AbstractEventSource<DomainEvent> implements JMSDomai
 		
 		MessageProducer producer = connection.getMessageProducer(destination);
 		long timetolive = producer.getTimeToLive();
-		if(jmsMessage.getJMSExpiration() == 0) {
-			timetolive = jmsMessage.getJMSExpiration() - jmsMessage.getJMSTimestamp();
+		if(messageToSend.getJMSExpiration() != 0) {
+			timetolive = messageToSend.getJMSExpiration() - messageToSend.getJMSTimestamp();
 		}
 		producer.send(jmsMessage, jmsMessage.getJMSDeliveryMode(), jmsMessage.getJMSPriority(), timetolive);
 	}
