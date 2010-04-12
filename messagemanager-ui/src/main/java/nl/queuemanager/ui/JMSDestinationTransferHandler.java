@@ -16,7 +16,6 @@
 package nl.queuemanager.ui;
 
 import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
@@ -63,22 +62,7 @@ public class JMSDestinationTransferHandler extends TransferHandler {
 	 */
 	@Override
 	protected Transferable createTransferable(JComponent c) {
-		final List<JMSDestination> destinationList = 
-			destinationHolder.getJMSDestinationList();
-
-		if(destinationList.size() == 0)
-			return null;
-		
-		if(destinationList.size() == 1)
-			return new StringSelection(destinationList.get(0).toString());
-		
-		StringBuffer sb = new StringBuffer();
-		for(JMSDestination dst: destinationList) {
-			sb.append(dst.getName());
-			sb.append(newline);
-		}
-		
-		return new StringSelection(sb.toString());
+		return new JMSDestinationInfoTransferable(destinationHolder.getJMSDestinationList());
 	}
 	
 	/**

@@ -22,10 +22,8 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -102,7 +100,7 @@ public class MessageSendTabPanel extends JPanel {
 	private JTextArea typingArea;
 	private boolean isFromImport;
 	private JTextField jmsCorrelationIDField;
-	private JTextField jmsReplyToField;
+	private JMSDestinationField jmsReplyToField;
 	private JIntegerField jmsTTLField;
 	private JComboBox deliveryModeCombo;
 	private JTextField customPropertiesField;
@@ -315,11 +313,8 @@ public class MessageSendTabPanel extends JPanel {
 		formPanel.add(createLabelFor(jmsCorrelationIDField, "JMS Correlation ID:"));
 		formPanel.add(jmsCorrelationIDField);
 		
-		jmsReplyToField = new JTextField();
-		jmsReplyToField.setMaximumSize(new Dimension(
-				Integer.MAX_VALUE, 
-				jmsReplyToField.getPreferredSize().height));
-		jmsReplyToField.setToolTipText("Fill in a queue name or drag a queue from the left queue table");
+		jmsReplyToField = new JMSDestinationField();
+		jmsReplyToField.setToolTipText("Type a name or drag a destination from the table on the left");
 		formPanel.add(createLabelFor(jmsReplyToField, "JMS Reply to:"));
 		formPanel.add(jmsReplyToField);
 
@@ -536,12 +531,8 @@ public class MessageSendTabPanel extends JPanel {
 					
 					String jmsCorrIdValue = jmsCorrelationIDField.getText();
 					
-					String jmsReplyToText = jmsReplyToField.getText();
-					JMSDestination jmsReplyToValue = null;
-					if(jmsReplyToText != null && jmsReplyToText.length() > 0) {
-						jmsReplyToValue = sonic.createQueue(
-								(JMSBroker) brokerCombo.getSelectedItem(), jmsReplyToText);
-					}
+					JMSDestination jmsReplyToValue = jmsReplyToField.getDestination(
+						sonic, (JMSBroker) brokerCombo.getSelectedItem());
 					
 					long jmsTimeToLiveValue = jmsTTLField.getValue();
 										
@@ -864,21 +855,11 @@ public class MessageSendTabPanel extends JPanel {
 	 * @author Gerco Dries (gdr@progaia-rs.nl)
 	 *
 	 */
-	private static class FileDropTargetListener implements DropTargetListener {
+	private static class FileDropTargetListener extends DropTargetAdapter {
 		private final JTextComponent component;
 		
 		public FileDropTargetListener(JTextComponent component) {
 			this.component = component;
-		}
-
-		// DropTargetListener implementation
-		public void dragEnter(DropTargetDragEvent dtde) {
-		}
-
-		public void dragExit(DropTargetEvent dte) {
-		}
-
-		public void dragOver(DropTargetDragEvent dtde) {
 		}
 
 		public void drop(DropTargetDropEvent dtde) {
@@ -893,10 +874,6 @@ public class MessageSendTabPanel extends JPanel {
 			}
 		}
 
-		public void dropActionChanged(DropTargetDragEvent dtde) {
-		}
-
-		// TransferHandler implementation
 		private boolean canImport(DataFlavor[] transferFlavors) {
 			for(DataFlavor flavor: transferFlavors) {
 				if(DataFlavor.javaFileListFlavor.equals(flavor)) {
@@ -974,6 +951,110 @@ public class MessageSendTabPanel extends JPanel {
 			reader.read(buffer);
 			reader.close();
 			return buffer;
+		}
+	}
+	
+	private static class JMSDestinationField extends Box {
+		private final JTextField nameField;
+		private final JComboBox typeField;
+		
+		public JMSDestinationField() {
+			super(BoxLayout.X_AXIS);
+			nameField = new JTextField();
+			nameField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 
+					(int)nameField.getPreferredSize().getHeight()));
+			typeField = new JComboBox(new TYPE[] {
+					JMSDestination.TYPE.QUEUE, JMSDestination.TYPE.TOPIC});
+			typeField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 
+					(int)typeField.getPreferredSize().getHeight()));
+			add(nameField);
+			add(Box.createHorizontalStrut(5));
+			add(typeField);
+			
+			setMaximumSize(new Dimension(Integer.MAX_VALUE, (int)getPreferredSize().getHeight()));
+			
+			new DropTarget(nameField, DnDConstants.ACTION_COPY_OR_MOVE, new DTL());
+		}
+		
+		@Override
+		public void setToolTipText(String text) {
+			super.setToolTipText(text);
+			nameField.setToolTipText(text);
+		}
+		
+		/**
+		 * Return the entered destination, null if the name field is empty.
+		 * 
+		 * @param domain The JMSDomain to use to create the destination object
+		 * 
+		 * @return
+		 */
+		public JMSDestination getDestination(JMSDomain domain, JMSBroker broker) {
+			String name = nameField.getText();
+			
+			if(name == null || name.trim().length() == 0)
+				return null;
+			
+			if(JMSDestination.TYPE.QUEUE.equals(typeField.getSelectedItem()))
+				return domain.createQueue(broker, name);
+			
+			if(JMSDestination.TYPE.TOPIC.equals(typeField.getSelectedItem()))
+				return domain.createTopic(broker, name);
+			
+			return null;
+		}
+		
+		private class DTL extends DropTargetAdapter {
+			public void drop(DropTargetDropEvent dtde) {
+				if((dtde.getDropAction() & DnDConstants.ACTION_COPY_OR_MOVE) != 0 
+				&& canImport(dtde.getCurrentDataFlavors())) {
+					dtde.acceptDrop(DnDConstants.ACTION_COPY);
+					dtde.dropComplete(importData(dtde.getTransferable()));
+					dragExit(null);
+				} else {
+					dtde.rejectDrop();
+					dragExit(null);
+				}
+			}
+
+			private boolean importData(Transferable transferable) {
+				try {
+					if(transferable.isDataFlavorSupported(JMSDestinationInfoTransferable.jmsDestinationInfosFlavor))
+						return importData((JMSDestinationInfo[])transferable.getTransferData(JMSDestinationInfoTransferable.jmsDestinationInfosFlavor));
+					
+					if(transferable.isDataFlavorSupported(DataFlavor.stringFlavor))
+						return importData((String)transferable.getTransferData(DataFlavor.stringFlavor));
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (UnsupportedFlavorException e) {
+					e.printStackTrace();
+				}
+				
+				return false;
+			}
+
+			private boolean importData(String transferData) {
+				JMSDestinationField.this.nameField.setText(transferData);
+				return true;
+			}
+
+			private boolean importData(JMSDestinationInfo[] transferData) {
+				JMSDestinationField.this.nameField.setText(transferData[0].getName());
+				JMSDestinationField.this.typeField.setSelectedItem(transferData[0].getType());
+				return true;
+			}
+
+			private boolean canImport(DataFlavor[] currentDataFlavors) {
+				for(DataFlavor flavor: currentDataFlavors) {
+					if(JMSDestinationInfoTransferable.jmsDestinationInfosFlavor.equals(flavor))
+						return true;
+					
+					if(DataFlavor.stringFlavor.equals(flavor))
+						return true;
+				}
+
+				return false;
+			}
 		}
 	}
 }

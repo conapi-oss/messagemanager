@@ -19,6 +19,7 @@ import java.awt.Dimension;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.swing.JTable;
@@ -74,7 +75,8 @@ public class JMSHeadersTable extends JTable {
 				data.add(Pair.create("JMSTimestamp", dateFormatter.format(message.getJMSTimestamp())));
 				data.add(Pair.create("JMSCorrelationID", message.getJMSCorrelationID()));
 				data.add(Pair.create("JMSCorrelationID (hex)", toHex(message.getJMSCorrelationIDAsBytes())));
-				data.add(Pair.create("JMSReplyTo", safeToString(message.getJMSReplyTo())));
+				data.add(Pair.create("JMSReplyTo", message.getJMSReplyTo() == null ? "" : String.format("%s (%s)", 
+						safeToString(message.getJMSReplyTo()), destinationTypeToString(message.getJMSReplyTo()))));
 				data.add(Pair.create("JMSRedelivered", Boolean.toString(message.getJMSRedelivered())));
 				data.add(Pair.create("JMSType", message.getJMSType()));
 				data.add(Pair.create("JMSExpiration", message.getJMSExpiration() != 0 ? 
@@ -88,6 +90,19 @@ public class JMSHeadersTable extends JTable {
 		((PairTableModel<String, String>)getModel()).setData(data);
 	}
 	
+	private String destinationTypeToString(Destination jmsReplyTo) {
+		if(jmsReplyTo == null)
+			return "none";
+		
+		if(javax.jms.Queue.class.isAssignableFrom(jmsReplyTo.getClass()))
+			return "queue";
+		
+		if(javax.jms.Topic.class.isAssignableFrom(jmsReplyTo.getClass()))
+			return "topic";
+		
+		return "unknown type";
+	}
+
 	private String toHex(byte[] correlationID) {
 		if(correlationID == null)
 			return "";

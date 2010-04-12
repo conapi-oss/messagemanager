@@ -94,8 +94,7 @@ class QueueTable extends JTable implements Clearable {
 	}
 	
 	/**
-	 * Updates only existing items, any other items in the list are ignored. If the
-	 * list is empty, add all items to the list.
+	 * Updates existing items, any missing items in the list are added.
 	 * 
 	 * @param queues
 	 */
@@ -110,6 +109,8 @@ class QueueTable extends JTable implements Clearable {
 					if(item.getMessageCount() != q.getMessageCount()) {
 						realModel.setRowItem(row, q);
 					}
+				} else {
+					realModel.addRow(q);
 				}
 			}
 		}
