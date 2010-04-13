@@ -15,29 +15,27 @@
  */
 package nl.queuemanager.smm;
 
-import nl.queuemanager.core.task.TaskExecutor;
+import nl.queuemanager.core.CoreModule;
 import nl.queuemanager.smm.ui.SMMFrame;
+import nl.queuemanager.ui.UIModule;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 public class Main {
 
 	// Do not allow instances of this class
-	private Main() {
-	}
+	private Main() {}
 	
 	public static void main(String[] args) {
-		// Create the ConfigurationManager
-		final SMMConfiguration config = new XmlConfiguration();
+		Injector injector = Guice.createInjector(
+				new CoreModule(), 
+				new UIModule(), 
+				new SMMModule());
 		
-		// Create the sonic domain proxy object
-		final Domain sonic = new Domain();
-		sonic.setConfigurationManager(config);
-		
-		// Create the background worker 
-		final TaskExecutor worker = new TaskExecutor();
-
 		// Create the main application frame
-		final SMMFrame frame = new SMMFrame(sonic, worker, config);
-		
+		final SMMFrame frame = injector.getInstance(SMMFrame.class);
+
 		// Set the frame visible and start the program
 		frame.setVisible(true);
 		frame.start();

@@ -42,10 +42,9 @@ public class TaskErrorListener implements EventListener<TaskEvent> {
 	
 	private static final boolean DEBUG = "TRUE".equalsIgnoreCase(System.getProperty("developer"));
 	
-	private final Component parent;	
+	private Component parent;
 	
-	public TaskErrorListener(Component parent) {
-		this.parent = parent;
+	public TaskErrorListener() {
 	}
 	
 	public void processEvent(TaskEvent event) {
@@ -56,7 +55,7 @@ public class TaskErrorListener implements EventListener<TaskEvent> {
 		case TASK_ERROR:
 			if(!((Task)event.getSource()).isBackground()) {
 				String message = translateExceptionMessage((Exception)event.getInfo());
-				showMessage(parent, event.getSource().toString(), message, true);
+				showMessage(getParent(), event.getSource().toString(), message, true);
 			}
 			
 			break;
@@ -106,5 +105,13 @@ public class TaskErrorListener implements EventListener<TaskEvent> {
 						error ? JOptionPane.ERROR_MESSAGE : JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
+	}
+
+	public void setParent(Component parent) {
+		this.parent = parent;
+	}
+
+	public Component getParent() {
+		return parent;
 	}		
 }

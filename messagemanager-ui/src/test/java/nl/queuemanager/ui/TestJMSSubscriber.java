@@ -36,7 +36,7 @@ import nl.queuemanager.core.MessageBuffer;
 import nl.queuemanager.core.jms.JMSDestination;
 import nl.queuemanager.core.jms.impl.MessageFactory;
 import nl.queuemanager.core.task.TaskExecutor;
-import nl.queuemanager.test.support.SynchronousExecutorService;
+import nl.queuemanager.test.support.SynchronousTaskExecutor;
 
 import org.junit.After;
 import org.junit.Before;
@@ -55,7 +55,7 @@ public class TestJMSSubscriber {
 		config = mock(Configuration.class);
 		when(config.getUserPref(Configuration.PREF_MAX_BUFFERED_MSG, "50")).thenReturn("50");
 		
-		worker = new TaskExecutor(new SynchronousExecutorService());
+		worker = new SynchronousTaskExecutor();
 		buffer = new MessageBuffer();
 		subscriber = new JMSSubscriber(null, worker, config, destination, buffer);
 		verify(config).getUserPref(Configuration.PREF_MAX_BUFFERED_MSG, "50");

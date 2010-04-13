@@ -47,6 +47,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.google.inject.Singleton;
+
 /**
  * Preferences utility class. Handles the format and location of the preferences,
  * no details about the preferences implementation should be outside of this class!
@@ -56,6 +58,7 @@ import org.xml.sax.SAXException;
  * @author Gerco Dries (gdr@progaia-rs.nl)
  *
  */
+@Singleton
 public class XmlConfiguration implements SMMConfiguration {
 	private static final String ROOT_ELEMENT = "Configuration";
 

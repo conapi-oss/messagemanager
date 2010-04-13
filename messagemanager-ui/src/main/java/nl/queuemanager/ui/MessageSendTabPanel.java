@@ -85,6 +85,8 @@ import nl.queuemanager.ui.util.JIntegerField;
 import nl.queuemanager.ui.util.JSearchableTextArea;
 import nl.queuemanager.ui.util.SpringUtilities;
 
+import com.google.inject.Inject;
+
 @SuppressWarnings("serial")
 public class MessageSendTabPanel extends JPanel {
 	private final String[] deliveryModes = {"PERSISTENT", "NON-PERSISTENT"};
@@ -108,6 +110,7 @@ public class MessageSendTabPanel extends JPanel {
 	private JButton sendButton;
 	private Map<String, Object> properties = CollectionFactory.newHashMap();
 	
+	@Inject
 	public MessageSendTabPanel(JMSDomain sonic, TaskExecutor worker, Configuration config) {		
 		this.sonic = sonic;
 		this.worker = worker;

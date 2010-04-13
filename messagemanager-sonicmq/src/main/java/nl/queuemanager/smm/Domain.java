@@ -54,6 +54,8 @@ import nl.queuemanager.core.util.CollectionFactory;
 import progress.message.jclient.MultipartMessage;
 import progress.message.jclient.XMLMessage;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.sonicsw.ma.mgmtapi.config.IMgmtBeanBase;
 import com.sonicsw.ma.mgmtapi.config.MgmtException;
 import com.sonicsw.mf.common.IDirectoryFileSystemService;
@@ -75,13 +77,18 @@ import com.sonicsw.mq.mgmtapi.config.IAcceptorsBean.IDefaultAcceptorsType;
 import com.sonicsw.mq.mgmtapi.config.constants.IBackupBrokerConstants;
 import com.sonicsw.mq.mgmtapi.config.constants.IBrokerConstants;
 
+@Singleton
 public class Domain extends AbstractEventSource<DomainEvent> implements JMSDomain {
-	private Configuration config;
-	
+	private final Configuration config;
 	private       ConnectionModel model;
 	private final ArrayList<SonicMQBroker> brokerList = CollectionFactory.newArrayList();
 	
 	private Map<SonicMQBroker, SonicMQConnection> brokerConnections;
+
+	@Inject
+	public Domain(SMMConfiguration configuration) {
+		this.config = configuration;
+	}
 	
 	/* (non-Javadoc)
 	 * @see nl.queuemanager.smm.sonic.JMSDomain#connect(nl.queuemanager.smm.sonic.ConnectionModel)
@@ -707,10 +714,6 @@ public class Domain extends AbstractEventSource<DomainEvent> implements JMSDomai
 //		 }
 //		return topic;
 //	}
-	
-	public void setConfigurationManager(Configuration config) {
-		this.config = config;
-	}
 	
 	private static class SonicExceptionListener implements ExceptionListener {
 		public void onException(JMSException ex) {

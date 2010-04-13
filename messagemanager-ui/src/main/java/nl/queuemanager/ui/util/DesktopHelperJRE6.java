@@ -15,31 +15,36 @@
  */
 package nl.queuemanager.ui.util;
 
+import java.awt.Cursor;
+import java.awt.Desktop;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.net.URI;
 
 import javax.swing.JComponent;
 
-public class DesktopHelperJRE6 {
+public class DesktopHelperJRE6 implements DesktopHelper {
 
-	public static void addLink(final JComponent component, final URI uri) {
-//		if(!Desktop.isDesktopSupported()) {
-//			System.err.println("Desktop is not supported on this platform");
-//			return;
-//		}
-//		
-//		component.addMouseListener(new MouseAdapter() {
-//			@Override
-//			public void mouseClicked(MouseEvent e) {
-//				if(MouseEvent.BUTTON1 == e.getButton()) {
-//					try {
-//						Desktop.getDesktop().browse(uri);
-//					} catch (IOException ex) {
-//						ex.printStackTrace();
-//					}
-//				}
-//			}
-//		});
-//		
-//		component.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+	public void addLink(final JComponent component, final URI uri) {
+		if(!Desktop.isDesktopSupported()) {
+			System.err.println("Desktop is not supported on this platform");
+			return;
+		}
+		
+		component.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(MouseEvent.BUTTON1 == e.getButton()) {
+					try {
+						Desktop.getDesktop().browse(uri);
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					}
+				}
+			}
+		});
+		
+		component.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 	}
 }

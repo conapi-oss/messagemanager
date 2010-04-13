@@ -185,7 +185,7 @@ public class JMSSubscriber extends Observable implements EventSource<MessageEven
 	}
 
 	/**
-	 * Fire notifyObservers on the EDT. If already running on the EDT, call notifyObservers directly.
+	 * Fire notifyObservers. May run on any thread, observers are required to invoke on the EDT if required.
 	 */
 	private void fireNotifyObservers() {
 		setChanged();

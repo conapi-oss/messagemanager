@@ -32,7 +32,7 @@ import nl.queuemanager.core.util.WeakHashSet;
  */
 public abstract class Task extends AbstractEventSource<TaskEvent> implements Runnable {
 
-	private TaskExecutor executor;
+	private MultiQueueTaskExecutor executor;
 	
 	private DependencyRemover dependencyRemover = new DependencyRemover();
 	
@@ -73,11 +73,11 @@ public abstract class Task extends AbstractEventSource<TaskEvent> implements Run
 		this.dependencies = new WeakHashSet();
 	}
 	
-	TaskExecutor getExecutor() {
+	MultiQueueTaskExecutor getExecutor() {
 		return executor;
 	}
 
-	void setExecutor(TaskExecutor executor) {
+	void setExecutor(MultiQueueTaskExecutor executor) {
 		this.executor = executor;
 	}
 	

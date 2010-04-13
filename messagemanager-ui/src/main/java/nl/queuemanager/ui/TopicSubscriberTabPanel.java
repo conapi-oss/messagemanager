@@ -58,6 +58,8 @@ import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.message.MessageViewerPanel;
 
+import com.google.inject.Inject;
+
 /**
  * This class implements the topic subscriber panel. It has a table of configured topics,
  * a message list for the currently selected topic and a message viewer panel to display
@@ -79,6 +81,7 @@ public class TopicSubscriberTabPanel extends JSplitPane {
 	
 	private final MessageEventListener messageEventListener;
 	
+	@Inject
 	public TopicSubscriberTabPanel(JMSDomain sonic, TaskExecutor worker, Configuration config) {
 		this.sonic = sonic;
 		this.worker = worker;

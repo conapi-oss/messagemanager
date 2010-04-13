@@ -16,22 +16,11 @@
 package nl.queuemanager.ui.util;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import javax.swing.JComponent;
 
-public class DesktopHelper {
+public interface DesktopHelper {
 
-	public static void addLink(JComponent component, String uri) {
-		try {
-			Class.forName("java.awt.Desktop");
-			DesktopHelperJRE6.addLink(component, new URI(uri));
-		} catch (ClassNotFoundException e) {
-			// No Desktop class, don't add the link.
-			return;
-		} catch (URISyntaxException e) {
-			// Syntax exception in URI, rethrow as RuntimeException
-			throw new RuntimeException(e);
-		}		
-	}
+	public abstract void addLink(JComponent component, URI uri);
+	
 }

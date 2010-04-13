@@ -68,6 +68,8 @@ import nl.queuemanager.ui.JMSDestinationTransferHandler.JMSDestinationHolder;
 import nl.queuemanager.ui.message.MessageViewerPanel;
 import nl.queuemanager.ui.util.Holder;
 
+import com.google.inject.Inject;
+
 @SuppressWarnings("serial")
 public class QueuesTabPanel extends JSplitPane {
 	private JComboBox brokerCombo;
@@ -81,9 +83,10 @@ public class QueuesTabPanel extends JSplitPane {
 	private final QueueBrowserEventListener qbel;
 	private       Timer autoRefreshTimer;
 	
-	public QueuesTabPanel(JMSDomain sonicDomain, TaskExecutor workerExecutor, Configuration config) {
+	@Inject
+	public QueuesTabPanel(JMSDomain sonicDomain, TaskExecutor worker, Configuration config) {
 		this.sonic = sonicDomain;
-		this.worker = workerExecutor;
+		this.worker = worker;
 		this.config = config;
 		
 		queueTable = createQueueTable();

@@ -24,6 +24,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -52,6 +54,7 @@ import nl.queuemanager.ui.CommonUITasks;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.util.DesktopHelper;
 
+import com.google.inject.Inject;
 import com.sonicsw.ma.gui.PreferenceManager;
 import com.sonicsw.ma.gui.domain.DomainConnectionModel;
 import com.sonicsw.ma.gui.domain.JDomainConnectionDialog;
@@ -59,20 +62,20 @@ import com.sonicsw.ma.gui.util.JMAFrame;
 
 @SuppressWarnings("serial")
 class ConnectionTabPanel extends JPanel {
-	private final JMAFrame jmaFrame;
+	private       JMAFrame jmaFrame;	
 	private final Domain sonic;
 	private final TaskExecutor worker;
 	private final SMMConfiguration config;
-	private ConnectionModelTable connectionTable;
+	private       ConnectionModelTable connectionTable;
 	private final PreferenceManager prefs = PreferenceManager.getInstance();
-		
-	public ConnectionTabPanel(JMAFrame jmaFrame, Domain sonic, TaskExecutor worker, SMMConfiguration config) {
-		this.jmaFrame = jmaFrame;
+	
+	@Inject
+	public ConnectionTabPanel(Domain sonic, TaskExecutor worker, SMMConfiguration config, DesktopHelper desktopHelper) {
 		this.sonic = sonic;
 		this.worker = worker;
 		this.config = config;
 		
-		JPanel brandingPanel = createBrandingPanel();
+		JPanel brandingPanel = createBrandingPanel(desktopHelper);
 		JPanel connectionsPanel = createConnectionsPanel();
 		
 		// Now add the panels to this panel
@@ -159,7 +162,7 @@ class ConnectionTabPanel extends JPanel {
 		return connectionsPanel;
 	}
 
-	private JPanel createBrandingPanel() {
+	private JPanel createBrandingPanel(DesktopHelper desktopHelper) {
 		// Create the branding area
 		JPanel brandingPanel = new JPanel();
 		brandingPanel.setLayout(new BoxLayout(brandingPanel, BoxLayout.X_AXIS));
@@ -179,7 +182,10 @@ class ConnectionTabPanel extends JPanel {
 		JLabel jLabelProgaia = new JLabel();
 		URL url = getClass().getResource("progaia.jpg");
 		jLabelProgaia.setIcon(new ImageIcon(url));
-		DesktopHelper.addLink(jLabelProgaia, "http://www.progaia.nl");
+		try {
+			desktopHelper.addLink(jLabelProgaia, new URI("http://www.progaia.nl"));
+		} catch (URISyntaxException e) {
+		}
 		brandingPanel.add(jLabelProgaia);
 		
 		// space between the pictures
@@ -189,7 +195,10 @@ class ConnectionTabPanel extends JPanel {
 		JLabel jLabelSonic = new JLabel();
 		URL url2 = getClass().getResource("progresssonic.jpg");
 		jLabelSonic.setIcon(new ImageIcon(url2));
-		DesktopHelper.addLink(jLabelSonic, "http://www.progress.com");
+		try {
+			desktopHelper.addLink(jLabelSonic, new URI("http://www.progress.com"));
+		} catch (URISyntaxException e) {
+		}
 		brandingPanel.add(jLabelSonic);
 				
 		// space on right of the second picture
@@ -382,7 +391,7 @@ class ConnectionTabPanel extends JPanel {
 	}
 	
 	public DomainConnectionModel getConnectionModel(DomainConnectionModel model) {
-		JDomainConnectionDialog connectionDialog = new JDomainConnectionDialog(jmaFrame);
+		JDomainConnectionDialog connectionDialog = new JDomainConnectionDialog(getJmaFrame());
 		try {
 			connectionDialog.editInstance(null, model, true);
 			connectionDialog.setVisible(true);
@@ -403,5 +412,13 @@ class ConnectionTabPanel extends JPanel {
         connectionDialog.dispose();
         
         return model;
+	}
+
+	public void setJmaFrame(JMAFrame jmaFrame) {
+		this.jmaFrame = jmaFrame;
+	}
+
+	public JMAFrame getJmaFrame() {
+		return jmaFrame;
 	}		
 }
