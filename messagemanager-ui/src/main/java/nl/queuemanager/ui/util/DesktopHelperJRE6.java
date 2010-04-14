@@ -27,24 +27,24 @@ import javax.swing.JComponent;
 public class DesktopHelperJRE6 implements DesktopHelper {
 
 	public void addLink(final JComponent component, final URI uri) {
-		if(!Desktop.isDesktopSupported()) {
-			System.err.println("Desktop is not supported on this platform");
-			return;
-		}
-		
-		component.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if(MouseEvent.BUTTON1 == e.getButton()) {
-					try {
-						Desktop.getDesktop().browse(uri);
-					} catch (IOException ex) {
-						ex.printStackTrace();
-					}
-				}
-			}
-		});
-		
-		component.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+//		if(!Desktop.isDesktopSupported()) {
+//			System.err.println("Desktop is not supported on this platform");
+//			return;
+//		}
+//		
+//		component.addMouseListener(new MouseAdapter() {
+//			@Override
+//			public void mouseClicked(MouseEvent e) {
+//				if(MouseEvent.BUTTON1 == e.getButton()) {
+//					try {
+//						Desktop.getDesktop().browse(uri);
+//					} catch (IOException ex) {
+//						ex.printStackTrace();
+//					}
+//				}
+//			}
+//		});
+//		
+//		component.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 	}
 }
