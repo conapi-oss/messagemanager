@@ -15,8 +15,6 @@ package nl.queuemanager.smm;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Properties;
 
 public class Version {
@@ -26,10 +24,6 @@ public class Version {
 	public static synchronized String getVersion() {		
 		if(version == null) {
 			version = "unknown version";
-			
-			for(URL u: ((URLClassLoader)Version.class.getClassLoader()).getURLs()) {
-				System.out.println(u);
-			}
 			
 			try {
 				InputStream stream = Version.class.getClassLoader().getResourceAsStream(

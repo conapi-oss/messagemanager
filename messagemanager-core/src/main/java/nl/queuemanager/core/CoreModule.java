@@ -10,7 +10,7 @@ public class CoreModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(TaskExecutor.class).to(MultiQueueTaskExecutor.class).in(Scopes.SINGLETON);
+		bind(TaskExecutor.class).to(MultiQueueTaskExecutor.class).in(Scopes.SINGLETON);;
 	}
 
 }

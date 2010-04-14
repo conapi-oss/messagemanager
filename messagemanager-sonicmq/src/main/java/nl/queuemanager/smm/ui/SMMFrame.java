@@ -25,7 +25,7 @@ import javax.swing.UIManager;
 
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
-import nl.queuemanager.core.task.MultiQueueTaskExecutor;
+import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.smm.ConnectionModel;
 import nl.queuemanager.smm.Domain;
 import nl.queuemanager.smm.SMCConnectionModel;
@@ -56,7 +56,7 @@ public class SMMFrame extends JMAFrame {
 	private final MessageSendTabPanel messageSendPanel;
 	
 	@Inject
-	public SMMFrame(Domain sonic, MultiQueueTaskExecutor worker, Injector injector) {
+	public SMMFrame(Domain sonic, TaskExecutor worker, Injector injector) {
 		super("messagemanager");
 		
 		setTitle("");

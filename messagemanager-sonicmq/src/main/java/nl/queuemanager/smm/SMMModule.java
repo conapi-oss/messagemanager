@@ -25,28 +25,28 @@ public class SMMModule extends AbstractModule {
 		bind(JMSDomain.class).to(Domain.class).in(Scopes.SINGLETON);
 	}
 
-//	public class MethodInvocationTracingInterceptor implements MethodInterceptor {
-//		public Object invoke(MethodInvocation invocation) throws Throwable {
-//			Class<?> objectClass = invocation.getThis() != null ? 
-//				invocation.getThis().getClass() : 
-//				invocation.getMethod().getDeclaringClass();
-//
-//			String declaringClassName = invocation.getMethod().getDeclaringClass().getName();
-//				
-//			String methodName = String.format("%s::%s", 
-//					objectClass.getName(), 
-//					invocation.getMethod().getName());
-//
-//			if(declaringClassName.startsWith("nl.queuemanager"))
-//				System.out.println("ENTER " + methodName);
-//			
-//			Object ret = invocation.proceed();
-//			
-//			if(declaringClassName.startsWith("nl.queuemanager"))
-//				System.out.println("LEAVE " + methodName);
-//			
-//			return ret;
-//		}
-//	}
+	public class MethodInvocationTracingInterceptor implements MethodInterceptor {
+		public Object invoke(MethodInvocation invocation) throws Throwable {
+			Class<?> objectClass = invocation.getThis() != null ? 
+				invocation.getThis().getClass() : 
+				invocation.getMethod().getDeclaringClass();
+
+			String declaringClassName = invocation.getMethod().getDeclaringClass().getName();
+				
+			String methodName = String.format("%s::%s", 
+					objectClass.getName(), 
+					invocation.getMethod().getName());
+
+			if(declaringClassName.startsWith("nl.queuemanager"))
+				System.out.println("ENTER " + methodName);
+			
+			Object ret = invocation.proceed();
+			
+			if(declaringClassName.startsWith("nl.queuemanager"))
+				System.out.println("LEAVE " + methodName);
+			
+			return ret;
+		}
+	}
 	
 }

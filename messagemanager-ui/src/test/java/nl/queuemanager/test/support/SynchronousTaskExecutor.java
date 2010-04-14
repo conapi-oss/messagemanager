@@ -15,7 +15,9 @@
  */
 package nl.queuemanager.test.support;
 
+import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.task.Task;
+import nl.queuemanager.core.task.TaskEvent;
 import nl.queuemanager.core.task.TaskExecutor;
 
 /**
@@ -43,5 +45,11 @@ public class SynchronousTaskExecutor implements TaskExecutor {
 		for(Task t: tasks) {
 			execute(t);
 		}
+	}
+
+	public void addListener(EventListener<TaskEvent> listener) {
+	}
+
+	public void removeListener(EventListener<TaskEvent> listener) {
 	}
 }
