@@ -19,20 +19,16 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.datatransfer.Transferable;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.util.Set;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.event.TreeSelectionEvent;
@@ -42,32 +38,12 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Result;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
-import nl.queuemanager.core.Xerces210DocumentWrapper;
 import nl.queuemanager.core.jms.JMSMultipartMessage;
 import nl.queuemanager.core.jms.JMSPart;
 import nl.queuemanager.core.jms.JMSXMLMessage;
-import nl.queuemanager.core.util.NullEntityResolver;
 import nl.queuemanager.ui.MessageListTransferable;
-import nl.queuemanager.ui.util.JSearchableTextArea;
 import nl.queuemanager.ui.util.TreeNodeInfo;
-
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import com.jhe.hexed.JHexEditor;
 
 public class MessageViewerPanel extends JPanel implements TreeSelectionListener {
 
@@ -78,13 +54,22 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 	
 	private Message message = null;
 	private JScrollPane infoScrollPane = null;
+
+	private final Set<MessageContentViewer> messageContentViewers;
+	private final Set<MessagePartContentViewer> partContentViewers;
 	
 	/**
 	 * This is the default constructor
 	 */
-	public MessageViewerPanel() {
+	public MessageViewerPanel(
+		Set<MessageContentViewer> messageContentViewers,
+		Set<MessagePartContentViewer> partContentViewers) 
+	{
 		super();
 		initialize();
+		
+		this.messageContentViewers = messageContentViewers;
+		this.partContentViewers = partContentViewers;
 		
 		// Select the "JMS Properties" node
 		structureTree.getSelectionModel().setSelectionPath(structureTree.getPathForRow(0));
@@ -125,10 +110,10 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 					"Properties", 
 					messageHeadersTable)));
 		
-		if(message != null) 
-		try {
+		if(message != null) try {
 			if(message instanceof JMSMultipartMessage) {
 				JMSMultipartMessage mp = (JMSMultipartMessage)message;
+				
 				for(int i=0; i<mp.getPartCount(); i++) {
 					JMSPart part = mp.getPart(i);
 					DefaultMutableTreeNode partNode = null;
@@ -142,7 +127,7 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 						fillTree(partNode, (Message)part.getContent());
 						root.add(partNode);
 					} else {
-						LazyUILoader uiLoader = getPartUILoader(part);
+						MessageContentViewer uiLoader = getPartUILoader(part);
 						partNode = 
 							new DefaultMutableTreeNode(
 								new TreeNodeInfo(
@@ -165,28 +150,28 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 						new DefaultMutableTreeNode(
 								new TreeNodeInfo(
 										"Body (Xml)", 
-										new LazyXmlMessageLoader((JMSXMLMessage)message),
+										new XmlMessageContentViewer((JMSXMLMessage)message),
 										message)));
 			} else if(message instanceof TextMessage) {
 				root.add(
 						new DefaultMutableTreeNode(
 							new TreeNodeInfo(
 								"Body (Text)", 
-								new LazyXmlMessageLoader((TextMessage)message),
+								new XmlMessageContentViewer((TextMessage)message),
 								message)));
 			} else if(message instanceof BytesMessage) {
 				root.add(
 					new DefaultMutableTreeNode(
 						new TreeNodeInfo(
 							"Body (Bytes)", 
-							new LazyBytesMessageLoader((BytesMessage)message),
+							new BytesMessageViewer((BytesMessage)message),
 							message)));
 			} else {
 				root.add(
 					new DefaultMutableTreeNode(
 						new TreeNodeInfo(
 							"Unknown content",
-							new LazyStringLoader("Unable to display content of " + message.getClass().getSimpleName()),
+							new StringContentViewer("Unable to display content of " + message.getClass().getSimpleName()),
 							message)));
 			}
 		} catch (JMSException e) {
@@ -202,22 +187,29 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 		}
 	}
 
-	private LazyUILoader getPartUILoader(JMSPart part) {
-		String contentType = part.getContentType();
-		if(contentType.startsWith("text/")
-		|| contentType.startsWith("application/x-sonicxq-bpheader")) {
-			return new LazyXmlPartLoader(part);
-		} else
-		if(contentType.equals("application/x-sonicmq-textmessage")
-		|| contentType.equals("application/x-sonicmq-xmlmessage")) {
-			return new LazyXmlMessagePartLoader(part);
-		} else
-		if(contentType.equals("application/x-sonicmq-multipartmessage"))
-		{
-			return new LazyMultipartMessagePartLoader(part);
-		} else {
-			return new LazyBytesPartLoader(part);
+	private MessagePartContentViewer getPartUILoader(JMSPart part) {
+		for(MessagePartContentViewer v: partContentViewers) {
+			if(v.supports(part))
+				return v;
 		}
+		
+		return null;
+		
+//		String contentType = part.getContentType();
+//		if(contentType.startsWith("text/")
+//		|| contentType.startsWith("application/x-sonicxq-bpheader")) {
+//			return new XmlPartContentViewer(part);
+//		} else
+//		if(contentType.equals("application/x-sonicmq-textmessage")
+//		|| contentType.equals("application/x-sonicmq-xmlmessage")) {
+//			return new XmlMessagePartContentViewer(part);
+//		} else
+//		if(contentType.equals("application/x-sonicmq-multipartmessage"))
+//		{
+//			return new MultipartMessagePartContentViewer(part);
+//		} else {
+//			return new BytesPartViewer(part);
+//		}
 	}
 
 	public void valueChanged(TreeSelectionEvent event) {
@@ -237,8 +229,8 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 			
 			// If the node contains a LazyUILoader, replace it by the UI 
 			// it loads and process the resulting JComponent
-			if(data instanceof LazyUILoader) {
-				info.setData(((LazyUILoader)data).createUI());
+			if(data instanceof MessageContentViewer) {
+				info.setData(((MessageContentViewer)data).createUI());
 				data = info.getData();
 			}
 		    
@@ -397,208 +389,5 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 		}
 		
 	}
-	
-	private interface LazyUILoader {
-		public JComponent createUI();
-	}
-	
-	private static class LazyStringLoader implements LazyUILoader {
-
-		private final String str;
 		
-		public LazyStringLoader(String str) {
-			this.str = str;
-		}
-		
-		public JComponent createUI() {
-			return new JLabel(str);
-		}		
-	}
-	
-	private static abstract class LazyTextAreaLoader implements LazyUILoader {
-		
-		protected abstract String getContent();
-		
-		public JComponent createUI() {
-			final JTextArea textArea = new JSearchableTextArea();
-			textArea.setEditable(false);
-			textArea.setText(getContent());
-			textArea.setCaretPosition(0);
-
-			textArea.setToolTipText("Type to search");
-			
-			return textArea;
-		}
-	}
-	
-	private static abstract class LazyXmlLoader extends LazyTextAreaLoader {
-
-		protected String formatXml(Document document) {
-			try {
-				Transformer transformer = TransformerFactory.newInstance().newTransformer();
-				transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-				StringWriter sw = new StringWriter();
-				Result result = new StreamResult(sw);
-				
-				DOMSource source = new DOMSource(Xerces210DocumentWrapper.wrap(document));
-				transformer.transform(source, result);
-				
-				return sw.getBuffer().toString();
-			} catch (TransformerConfigurationException e) {
-				return null;
-			} catch (TransformerException e) {
-				return null;
-			}
-		}
-		
-	}
-	
-	private static class LazyXmlMessageLoader extends LazyXmlLoader {
-		private final TextMessage message;
-		
-		public LazyXmlMessageLoader(TextMessage message) {
-			this.message = message;
-		}
-		
-		@Override
-		public String getContent() {
-			try {
-				// Try to parse the message as Xml
-				if(message instanceof JMSXMLMessage) {
-					// Get the Document from the message
-					try {
-						Document d = ((JMSXMLMessage)message).getDocument();
-						return formatXml(d);
-					} catch (JMSException e) {
-						// Getting the Document failed, perhaps it wasn't XML after all?
-						return message.getText();
-					}				
-				}
-	
-				// The message wasn't an XMLMessage, try to parse as XML anyway
-				try {
-					String text = message.getText();
-					InputSource is = new InputSource(new StringReader(text != null?text:""));
-					DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-					DocumentBuilder db = dbf.newDocumentBuilder();
-					db.setEntityResolver(new NullEntityResolver());
-					Document doc = db.parse(is);
-					
-					return formatXml(doc);
-				} catch (SAXException e) {
-				} catch (IOException e) {
-				} catch (ParserConfigurationException e) {
-				}
-				
-				// Parsing the Xml failed, just return the text content
-				return message.getText();
-			} catch (JMSException e) {
-				return "Exception while retrieving the contents of the message.\n" +
-					e.toString();
-			}
-		}		
-	}
-	
-	private static class LazyXmlPartLoader extends LazyXmlLoader {
-		protected final JMSPart part;
-		
-		public LazyXmlPartLoader(JMSPart part) {
-			this.part = part;
-		}
-		
-		@Override
-		public String getContent() {
-			String content = (String)part.getContent();
-			if(content != null) {
-				try {
-					InputSource is = new InputSource(new StringReader(content));
-					Document doc = DocumentBuilderFactory.newInstance().
-						newDocumentBuilder().parse(is);
-					
-					return formatXml(doc);
-				} catch (SAXException e) {
-					return content;
-				} catch (IOException e) {
-					return content;
-				} catch (ParserConfigurationException e) {
-					return content;
-				}
-			} else {
-				return "";
-			}
-		}		
-	}
-	
-	private static class LazyXmlMessagePartLoader extends LazyXmlMessageLoader {
-		public LazyXmlMessagePartLoader(JMSPart part) {
-			super((TextMessage)part.getContent());
-		}		
-	}
-	
-	private static class LazyMultipartMessagePartLoader implements LazyUILoader {
-		protected final JMSMultipartMessage message; 
-		
-		public LazyMultipartMessagePartLoader(JMSPart part) {
-			message = (JMSMultipartMessage)part.getContent();
-		}
-
-		public JComponent createUI() {
-			MessageViewerPanel panel = new MessageViewerPanel();
-			panel.setMessage(message);
-			return panel;
-		}		
-	}
-
-	private static abstract class LazyHexEditorLoader implements LazyUILoader {
-		protected abstract byte[] getContent();
-		public JComponent createUI() {
-			JHexEditor hexEditor = new JHexEditor(getContent());
-			hexEditor.setReadOnly(true);
-			return hexEditor;
-		}
-	}
-	
-	private static class LazyBytesMessageLoader extends LazyHexEditorLoader {
-		private final BytesMessage message;
-		
-		public LazyBytesMessageLoader(BytesMessage message) {
-			this.message = message;
-		}
-		
-		@Override
-		public byte[] getContent() {
-			try {
-				byte[] data = new byte[(int)message.getBodyLength()];
-				message.reset();
-				message.readBytes(data);
-				return data;
-			} catch (JMSException e) {
-				return null;
-			}
-		}
-	}
-	
-	private static class LazyBytesPartLoader extends LazyHexEditorLoader {
-		private final JMSPart part;
-		
-		public LazyBytesPartLoader(JMSPart part) {
-			this.part = part;
-		}
-		
-		@Override
-		public byte[] getContent() {
-			Object content = part.getContent();
-			
-			if(content != null) {
-				if(byte[].class.isAssignableFrom(content.getClass())) {
-					return (byte[])content;
-				} else {
-					return content.toString().getBytes();
-				}
-			} else {
-				return new byte[] {};
-			}
-		}		
-	}
-	
-}  //  @jve:decl-index=0:visual-constraint="10,10"
+}  

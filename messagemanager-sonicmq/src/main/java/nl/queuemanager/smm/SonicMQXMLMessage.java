@@ -30,7 +30,7 @@ import progress.message.jclient.XMLMessage;
  * @author Gerco Dries (gdr@progaia-rs.nl)
  *
  */
-public class SonicMQXMLMessage extends SonicMQMessage implements JMSXMLMessage {
+class SonicMQXMLMessage extends SonicMQMessage implements JMSXMLMessage {
 
 	protected SonicMQXMLMessage(XMLMessage message) {
 		super(message);

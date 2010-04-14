@@ -24,8 +24,7 @@ import nl.queuemanager.core.jms.JMSDestination;
  * @author Gerco Dries (gdr@progaia-rs.nl)
  *
  */
-public abstract class SonicMQDestination implements JMSDestination {
-
+abstract class SonicMQDestination implements JMSDestination {
 	protected SonicMQBroker broker;
 	
 	public SonicMQDestination(SonicMQBroker broker) {

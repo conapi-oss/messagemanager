@@ -38,7 +38,7 @@ import nl.queuemanager.ui.util.PairTableModel;
  *
  */
 @SuppressWarnings("serial")
-public class JMSHeadersTable extends JTable {
+class JMSHeadersTable extends JTable {
 
 	private final SimpleDateFormat dateFormatter = 
 		new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z");

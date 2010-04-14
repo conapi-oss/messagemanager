@@ -20,8 +20,7 @@ import java.util.Enumeration;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 
-public class SonicMQMessage implements javax.jms.Message {
-
+class SonicMQMessage implements javax.jms.Message {
 	protected final javax.jms.Message delegate;
 
 	protected SonicMQMessage(javax.jms.Message delegate) {

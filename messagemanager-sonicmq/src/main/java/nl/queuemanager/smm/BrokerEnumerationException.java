@@ -24,9 +24,9 @@ import javax.management.JMException;
  *
  */
 @SuppressWarnings("serial")
-public class WrappedThrowable extends JMException {
+class BrokerEnumerationException extends JMException {
 
-	public WrappedThrowable(Throwable cause) {
+	public BrokerEnumerationException(Throwable cause) {
 		super(cause.toString());
 		initCause(cause);
 	}

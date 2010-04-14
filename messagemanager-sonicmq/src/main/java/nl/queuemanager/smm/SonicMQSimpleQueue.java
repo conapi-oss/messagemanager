@@ -19,8 +19,7 @@ import javax.jms.JMSException;
 
 import nl.queuemanager.core.jms.JMSQueue;
 
-public class SonicMQSimpleQueue extends SonicMQDestination implements JMSQueue {
-
+class SonicMQSimpleQueue extends SonicMQDestination implements JMSQueue {
 	protected final String name;
 	
 	protected SonicMQSimpleQueue(SonicMQBroker broker, String name) {

@@ -35,7 +35,7 @@ import nl.queuemanager.ui.util.PairTableModel;
  *
  */
 @SuppressWarnings("serial")
-public class MessagePartHeadersTable extends JTable {
+class MessagePartHeadersTable extends JTable {
 
 	public MessagePartHeadersTable() {
 		super();

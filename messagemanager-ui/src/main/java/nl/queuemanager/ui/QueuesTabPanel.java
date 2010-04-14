@@ -69,6 +69,7 @@ import nl.queuemanager.ui.message.MessageViewerPanel;
 import nl.queuemanager.ui.util.Holder;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 @SuppressWarnings("serial")
 public class QueuesTabPanel extends JSplitPane {
@@ -84,7 +85,7 @@ public class QueuesTabPanel extends JSplitPane {
 	private       Timer autoRefreshTimer;
 	
 	@Inject
-	public QueuesTabPanel(JMSDomain sonicDomain, TaskExecutor worker, Configuration config) {
+	public QueuesTabPanel(JMSDomain sonicDomain, TaskExecutor worker, Configuration config, Injector injector) {
 		this.sonic = sonicDomain;
 		this.worker = worker;
 		this.config = config;
@@ -92,7 +93,7 @@ public class QueuesTabPanel extends JSplitPane {
 		queueTable = createQueueTable();
 		messageTable = createMessageTable();
 		
-		messageViewer = new MessageViewerPanel();
+		messageViewer = injector.getInstance(MessageViewerPanel.class);
 		messageViewer.setDragEnabled(true);
 		
 		// Panel for the connection selector combobox

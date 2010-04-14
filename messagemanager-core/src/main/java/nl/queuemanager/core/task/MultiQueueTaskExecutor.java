@@ -27,7 +27,7 @@ import java.util.concurrent.Executors;
 import nl.queuemanager.core.events.AbstractEventSource;
 import nl.queuemanager.core.events.EventListener;
 
-public class MultiQueueTaskExecutor extends AbstractEventSource<TaskEvent> implements EventListener<TaskEvent>, TaskExecutor 
+class MultiQueueTaskExecutor extends AbstractEventSource<TaskEvent> implements EventListener<TaskEvent>, TaskExecutor 
 {
 	// List of Tasks that are waiting to run
 	private final List<Task> waitingTasks;
@@ -79,7 +79,7 @@ public class MultiQueueTaskExecutor extends AbstractEventSource<TaskEvent> imple
 	 * Called by Tasks to signal that they have finished executing. Called after all
 	 * listeners have been notified of this event.
 	 */
-	void afterExecute(@SuppressWarnings("unused") final Task task) {
+	void afterExecute(final Task task) {
 		processWaitingTasks();
 	}
 	

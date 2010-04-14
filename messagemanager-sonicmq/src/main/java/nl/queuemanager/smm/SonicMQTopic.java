@@ -27,7 +27,7 @@ import com.sonicsw.mq.common.runtime.IDurableSubscriptionData;
  * @author Gerco Dries (gdr@progaia-rs.nl)
  *
  */
-public class SonicMQTopic extends SonicMQDestination implements JMSTopic {
+class SonicMQTopic extends SonicMQDestination implements JMSTopic {
 	private String topicName;
 	
 	// Unused for now, until I think of a use for it.

@@ -26,7 +26,7 @@ import com.sonicsw.mq.common.runtime.IQueueData;
  * 
  * @author Gerco Dries (gdr@progaia-rs.nl)
  */
-public class SonicMQQueue extends SonicMQDestination implements JMSQueue {
+class SonicMQQueue extends SonicMQDestination implements JMSQueue {
 	private final IQueueData queue;
 
 	protected SonicMQQueue(SonicMQBroker broker, IQueueData queueData) {

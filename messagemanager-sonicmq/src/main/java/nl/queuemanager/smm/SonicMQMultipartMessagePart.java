@@ -29,7 +29,7 @@ import progress.message.jclient.Part;
  * @author Gerco Dries (gdr@progaia-rs.nl)
  *
  */
-public class SonicMQMultipartMessagePart implements JMSPart {
+class SonicMQMultipartMessagePart implements JMSPart {
 	protected final Part delegate;
 	
 	public SonicMQMultipartMessagePart(Part part) {

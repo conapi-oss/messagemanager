@@ -263,10 +263,10 @@ public class Domain extends AbstractEventSource<DomainEvent> implements JMSDomai
 		catch (MgmtException e) {
 			//is the case if not administrator priviledged or specifically denied access 
 			//as is the case in a secure SDM deployment.
-			throw new WrappedThrowable(e);
+			throw new BrokerEnumerationException(e);
 		}
 		catch (DirectoryServiceException e) {
-			throw new WrappedThrowable(e);
+			throw new BrokerEnumerationException(e);
 		}
 	}
 

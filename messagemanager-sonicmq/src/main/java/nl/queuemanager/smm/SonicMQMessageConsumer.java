@@ -23,8 +23,7 @@ import javax.jms.MessageListener;
 import progress.message.jclient.MultipartMessage;
 import progress.message.jclient.XMLMessage;
 
-public class SonicMQMessageConsumer implements MessageConsumer {
-
+class SonicMQMessageConsumer implements MessageConsumer {
 	private final MessageConsumer delegate;
 	
 	public SonicMQMessageConsumer(MessageConsumer delegate) {

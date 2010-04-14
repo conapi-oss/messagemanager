@@ -35,7 +35,7 @@ import progress.message.jclient.Session;
  * @author gerco
  *
  */
-public class SonicMQConnection {
+class SonicMQConnection {
 	private final SonicMQBroker broker;
 	private final Connection connection;
 	private final Session syncSession;

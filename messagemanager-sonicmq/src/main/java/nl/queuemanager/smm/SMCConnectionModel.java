@@ -31,7 +31,6 @@ import com.sonicsw.mx.config.ConfigServerUtility;
 import com.sonicsw.mx.config.IConfigServer;
 
 public class SMCConnectionModel implements ConnectionModel {
-
 	DomainConnectionModel delegate;
 	
 	public SMCConnectionModel(DomainConnectionModel delegate) {
