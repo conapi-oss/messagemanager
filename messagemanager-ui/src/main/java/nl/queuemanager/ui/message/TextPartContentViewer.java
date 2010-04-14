@@ -12,7 +12,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-class XmlPartContentViewer extends XmlContentViewer<JMSPart> implements MessagePartContentViewer {
+class TextPartContentViewer extends XmlContentViewer<JMSPart> implements MessagePartContentViewer {
 	
 	@Override
 	public String getContent(JMSPart part) {

@@ -19,6 +19,7 @@ public class UIModule extends AbstractModule {
 		} catch (ClassNotFoundException e) {
 			bind(DesktopHelper.class).to(DesktopHelperJRE5.class);
 		}
+		
 	}
 
 }

@@ -19,12 +19,13 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.datatransfer.Transferable;
-import java.util.Set;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.TextMessage;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -41,9 +42,10 @@ import javax.swing.tree.TreeSelectionModel;
 
 import nl.queuemanager.core.jms.JMSMultipartMessage;
 import nl.queuemanager.core.jms.JMSPart;
-import nl.queuemanager.core.jms.JMSXMLMessage;
 import nl.queuemanager.ui.MessageListTransferable;
 import nl.queuemanager.ui.util.TreeNodeInfo;
+
+import com.google.inject.Inject;
 
 public class MessageViewerPanel extends JPanel implements TreeSelectionListener {
 
@@ -55,15 +57,16 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 	private Message message = null;
 	private JScrollPane infoScrollPane = null;
 
-	private final Set<MessageContentViewer> messageContentViewers;
-	private final Set<MessagePartContentViewer> partContentViewers;
+	private final Map<Integer, MessageContentViewer> messageContentViewers;
+	private final Map<Integer, MessagePartContentViewer> partContentViewers;
 	
 	/**
 	 * This is the default constructor
 	 */
+	@Inject
 	public MessageViewerPanel(
-		Set<MessageContentViewer> messageContentViewers,
-		Set<MessagePartContentViewer> partContentViewers) 
+		Map<Integer, MessageContentViewer> messageContentViewers,
+		Map<Integer, MessagePartContentViewer> partContentViewers) 
 	{
 		super();
 		initialize();
@@ -127,52 +130,27 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 						fillTree(partNode, (Message)part.getContent());
 						root.add(partNode);
 					} else {
-						MessageContentViewer uiLoader = getPartUILoader(part);
-						partNode = 
-							new DefaultMutableTreeNode(
-								new TreeNodeInfo(
-									"Part " + i + " (" + part.getContentType() + ")", 
-									uiLoader,
-									part));
+						ContentViewer<JMSPart> viewer = getContentViewer(partContentViewers, part); 
+						partNode = new DefaultMutableTreeNode(new TreeNodeInfo(
+							"Part " + i + " (" + part.getContentType() + ")", viewer, part));
 						root.add(partNode);
 						
 						MessagePartHeadersTable partHeadersTable = new MessagePartHeadersTable();
 						partHeadersTable.setMessagePart(part);
-						partNode.add(
-								new DefaultMutableTreeNode(
-										new TreeNodeInfo(
-												"Headers", 
-												partHeadersTable)));
+						partNode.add(new DefaultMutableTreeNode(new TreeNodeInfo("Headers", partHeadersTable)));
 					}
 				}
-			} else if(message instanceof JMSXMLMessage) {
-				root.add(
-						new DefaultMutableTreeNode(
-								new TreeNodeInfo(
-										"Body (Xml)", 
-										new XmlMessageContentViewer((JMSXMLMessage)message),
-										message)));
-			} else if(message instanceof TextMessage) {
-				root.add(
-						new DefaultMutableTreeNode(
-							new TreeNodeInfo(
-								"Body (Text)", 
-								new XmlMessageContentViewer((TextMessage)message),
-								message)));
-			} else if(message instanceof BytesMessage) {
-				root.add(
-					new DefaultMutableTreeNode(
-						new TreeNodeInfo(
-							"Body (Bytes)", 
-							new BytesMessageViewer((BytesMessage)message),
-							message)));
 			} else {
-				root.add(
-					new DefaultMutableTreeNode(
-						new TreeNodeInfo(
-							"Unknown content",
-							new StringContentViewer("Unable to display content of " + message.getClass().getSimpleName()),
-							message)));
+				ContentViewer<Message> viewer = getContentViewer(messageContentViewers, message);
+				
+				if(viewer != null) {
+					// TODO Re-introduce the "Body (Xml)" style label in the tree
+					root.add(new DefaultMutableTreeNode(new TreeNodeInfo("Body", viewer, message)));
+				} else {
+					root.add(new DefaultMutableTreeNode(new TreeNodeInfo(
+						"Unknown content", new StringContentViewer(), 
+							"Unable to display content of " + message.getClass().getSimpleName())));
+				}
 			}
 		} catch (JMSException e) {
 			e.printStackTrace();
@@ -187,29 +165,15 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 		}
 	}
 
-	private MessagePartContentViewer getPartUILoader(JMSPart part) {
-		for(MessagePartContentViewer v: partContentViewers) {
-			if(v.supports(part))
+	private <C, T> ContentViewer<T> getContentViewer(Map<C, ? extends ContentViewer<T>> contentViewers, T object) {
+		SortedSet<C> keys = new TreeSet<C>(contentViewers.keySet());
+		for(C key: keys) {
+			ContentViewer<T> v = contentViewers.get(key);
+			if(v.supports(object))
 				return v;
 		}
 		
 		return null;
-		
-//		String contentType = part.getContentType();
-//		if(contentType.startsWith("text/")
-//		|| contentType.startsWith("application/x-sonicxq-bpheader")) {
-//			return new XmlPartContentViewer(part);
-//		} else
-//		if(contentType.equals("application/x-sonicmq-textmessage")
-//		|| contentType.equals("application/x-sonicmq-xmlmessage")) {
-//			return new XmlMessagePartContentViewer(part);
-//		} else
-//		if(contentType.equals("application/x-sonicmq-multipartmessage"))
-//		{
-//			return new MultipartMessagePartContentViewer(part);
-//		} else {
-//			return new BytesPartViewer(part);
-//		}
 	}
 
 	public void valueChanged(TreeSelectionEvent event) {
@@ -227,10 +191,14 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 			TreeNodeInfo info = ((TreeNodeInfo)nodeInfo);
 			Object data = info.getData();
 			
-			// If the node contains a LazyUILoader, replace it by the UI 
+			// If the node contains a ContentViewer, replace it by the UI 
 			// it loads and process the resulting JComponent
 			if(data instanceof MessageContentViewer) {
-				info.setData(((MessageContentViewer)data).createUI());
+				info.setData(((MessageContentViewer)data).createUI((Message)info.getRef()));
+				data = info.getData();
+			}
+			if(data instanceof MessagePartContentViewer) {
+				info.setData(((MessagePartContentViewer)data).createUI((JMSPart)info.getRef()));
 				data = info.getData();
 			}
 		    

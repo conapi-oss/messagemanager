@@ -10,7 +10,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import nl.queuemanager.core.jms.JMSPart;
 import nl.queuemanager.core.jms.JMSXMLMessage;
 import nl.queuemanager.core.util.NullEntityResolver;
 
@@ -18,13 +17,10 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-class XmlMessagePartContentViewer extends XmlContentViewer<JMSPart> implements MessagePartContentViewer {
+class TextMessageContentViewer extends XmlContentViewer<Message> implements MessageContentViewer {
 	
 	@Override
-	protected String getContent(JMSPart part) {
-		// FIXME Prevent this code duplication with XmlMessageContentViewer
-		Message message = (Message)part.getContent();
-		
+	public String getContent(Message message) {
 		try {
 			// Try to parse the message as Xml
 			if(message instanceof JMSXMLMessage) {
@@ -60,12 +56,9 @@ class XmlMessagePartContentViewer extends XmlContentViewer<JMSPart> implements M
 				e.toString();
 		}
 	}
-	
-	public boolean supports(JMSPart part) {
-		String contentType = part.getContentType();
-		
-		return contentType.equals("application/x-sonicmq-textmessage")
-			|| contentType.equals("application/x-sonicmq-xmlmessage");
-	}
-	
+
+	public boolean supports(Message message) {
+		return JMSXMLMessage.class.isAssignableFrom(message.getClass())
+			|| TextMessage.class.isAssignableFrom(message.getClass());
+	}		
 }

@@ -78,19 +78,19 @@ public class QueuesTabPanel extends JSplitPane {
 	private MessagesTable messageTable;
 	private MessageViewerPanel messageViewer;
 
-	private final JMSDomain sonic;
+	private final JMSDomain domain;
 	private final TaskExecutor worker;
 	private final Configuration config;
 	private final QueueBrowserEventListener qbel;
 	private       Timer autoRefreshTimer;
 	
 	@Inject
-	public QueuesTabPanel(JMSDomain sonicDomain, TaskExecutor worker, Configuration config, Injector injector) {
-		this.sonic = sonicDomain;
+	public QueuesTabPanel(JMSDomain domain, TaskExecutor worker, Configuration config, Injector injector) {
+		this.domain = domain;
 		this.worker = worker;
 		this.config = config;
 		
-		queueTable = createQueueTable();
+		queueTable = createQueueTable(domain, worker);
 		messageTable = createMessageTable();
 		
 		messageViewer = injector.getInstance(MessageViewerPanel.class);
@@ -174,7 +174,7 @@ public class QueuesTabPanel extends JSplitPane {
 		
 		this.qbel = new QueueBrowserEventListener();
 				
-		sonicDomain.addListener(new DomainEventListener());
+		domain.addListener(new DomainEventListener());
 	}
 
 	private JPanel createMessagesActionPanel() {
@@ -251,11 +251,11 @@ public class QueuesTabPanel extends JSplitPane {
 		return queuesActionPanel;
 	}
 
-	private QueueTable createQueueTable() {
+	private QueueTable createQueueTable(final JMSDomain domain, final TaskExecutor worker) {
 		final QueueTable table = new QueueTable();
 		
 		table.setTransferHandler(new JMSDestinationTransferHandler(
-				sonic, worker, new InternalDestinationHolder()));
+				domain, worker, new InternalDestinationHolder()));
 		
 		final Holder<Boolean> shouldBrowse = new Holder<Boolean>();
 		shouldBrowse.setValue(Boolean.TRUE);
@@ -362,10 +362,10 @@ public class QueuesTabPanel extends JSplitPane {
 	}
 		
 	private void enumerateBrokers() {
-		worker.execute(new Task(sonic) {
+		worker.execute(new Task(domain) {
 			@Override
 			public void execute() throws Exception {
-				sonic.enumerateBrokers();
+				domain.enumerateBrokers();
 			}
 			@Override
 			public String toString() {
@@ -397,7 +397,7 @@ public class QueuesTabPanel extends JSplitPane {
 		worker.execute(new Task(broker) {
 			@Override
 			public void execute() throws Exception {
-				sonic.connectToBroker(broker);
+				domain.connectToBroker(broker);
 			}
 			@Override
 			public String toString() {
@@ -432,7 +432,7 @@ public class QueuesTabPanel extends JSplitPane {
 
 	private void enumerateQueues(final JMSBroker broker) {		
 		// Get the queue list from the broker
-		worker.execute(new EnumerateQueuesTask(sonic, broker, null));
+		worker.execute(new EnumerateQueuesTask(domain, broker, null));
 	}
 
 	private void populateQueueTable(final List<JMSQueue> queues) {
@@ -458,7 +458,7 @@ public class QueuesTabPanel extends JSplitPane {
 	private void enumerateMessages(final JMSQueue queue) {
 		// Cancel any running browser task and start a new one
 		qbel.cancel();
-		worker.execute(new EnumerateMessagesTask(queue, sonic, qbel));
+		worker.execute(new EnumerateMessagesTask(queue, domain, qbel));
 	}
 		
 	private void displaySelectedMessage() {
@@ -498,7 +498,7 @@ public class QueuesTabPanel extends JSplitPane {
 		worker.executeInOrder(new Task(queueList.get(0).getBroker()) {
 			@Override
 			public void execute() throws Exception {
-				sonic.deleteMessages(queueList);
+				domain.deleteMessages(queueList);
 			}
 			@Override
 			public String toString() {
@@ -508,7 +508,7 @@ public class QueuesTabPanel extends JSplitPane {
 					return "Deleting all messages from " + queueList.size() + " queue(s)";
 			}
 		},
-		new EnumerateQueuesTask(sonic, (JMSBroker)brokerCombo.getSelectedItem(), null));
+		new EnumerateQueuesTask(domain, (JMSBroker)brokerCombo.getSelectedItem(), null));
 	}
 	
 	private void deleteSelectedMessages() {
@@ -536,7 +536,7 @@ public class QueuesTabPanel extends JSplitPane {
 		worker.executeInOrder(new Task(queue.getBroker()) {
 			@Override
 			public void execute() throws Exception {
-				sonic.deleteMessages(queue, messages);
+				domain.deleteMessages(queue, messages);
 			}
 			@Override
 			public String toString() {
@@ -544,7 +544,7 @@ public class QueuesTabPanel extends JSplitPane {
 					"Deleting " + messages.size() + " messages from " + queue;
 			}
 		},
-		new EnumerateQueuesTask(sonic, (JMSBroker)brokerCombo.getSelectedItem(), null));
+		new EnumerateQueuesTask(domain, (JMSBroker)brokerCombo.getSelectedItem(), null));
 	}
 	
 	private class InternalDestinationHolder implements JMSDestinationHolder {

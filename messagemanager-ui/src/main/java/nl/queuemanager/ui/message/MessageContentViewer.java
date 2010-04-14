@@ -3,6 +3,11 @@ package nl.queuemanager.ui.message;
 import javax.jms.Message;
 import javax.swing.JComponent;
 
+/**
+ * Interface for components that can create a GUI to display a Message.
+ * 
+ * @author Gerco Dries <gerco@gdries.nl>
+ */
 public interface MessageContentViewer extends ContentViewer<Message> {
 	
 	/**

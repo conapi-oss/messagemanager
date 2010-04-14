@@ -59,6 +59,7 @@ import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.message.MessageViewerPanel;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 /**
  * This class implements the topic subscriber panel. It has a table of configured topics,
@@ -82,14 +83,14 @@ public class TopicSubscriberTabPanel extends JSplitPane {
 	private final MessageEventListener messageEventListener;
 	
 	@Inject
-	public TopicSubscriberTabPanel(JMSDomain sonic, TaskExecutor worker, Configuration config) {
+	public TopicSubscriberTabPanel(JMSDomain sonic, TaskExecutor worker, Configuration config, Injector injector) {
 		this.sonic = sonic;
 		this.worker = worker;
 		this.config = config;
 		
 		subscriberTable = createTopicTable();
 		messageTable = createMessageTable();
-		messageViewer = new MessageViewerPanel();
+		messageViewer = injector.getInstance(MessageViewerPanel.class);
 		messageViewer.setDragEnabled(true);
 		
 		brokerCombo = createBrokerCombo();

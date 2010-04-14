@@ -4,6 +4,11 @@ import javax.swing.JComponent;
 
 import nl.queuemanager.core.jms.JMSPart;
 
+/**
+ * Interface for components that can create a GUI to display a Message Part.
+ * 
+ * @author Gerco Dries <gerco@gdries.nl>
+ */
 public interface MessagePartContentViewer extends ContentViewer<JMSPart> {
 	
 	/**
