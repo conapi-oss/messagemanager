@@ -15,11 +15,6 @@
  */
 package nl.queuemanager.ui.util;
 
-import java.awt.Cursor;
-import java.awt.Desktop;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.IOException;
 import java.net.URI;
 
 import javax.swing.JComponent;
