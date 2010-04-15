@@ -20,8 +20,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.datatransfer.Transferable;
 import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -57,8 +57,8 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 	private Message message = null;
 	private JScrollPane infoScrollPane = null;
 
-	private final Map<Integer, MessageContentViewer> messageContentViewers;
-	private final Map<Integer, MessagePartContentViewer> partContentViewers;
+	private final SortedMap<Integer, MessageContentViewer> messageContentViewers;
+	private final SortedMap<Integer, MessagePartContentViewer> partContentViewers;
 	
 	/**
 	 * This is the default constructor
@@ -71,8 +71,8 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 		super();
 		initialize();
 		
-		this.messageContentViewers = messageContentViewers;
-		this.partContentViewers = partContentViewers;
+		this.messageContentViewers = new TreeMap<Integer, MessageContentViewer>(messageContentViewers);
+		this.partContentViewers = new TreeMap<Integer, MessagePartContentViewer>(partContentViewers);
 		
 		// Select the "JMS Properties" node
 		structureTree.getSelectionModel().setSelectionPath(structureTree.getPathForRow(0));
@@ -165,10 +165,19 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 		}
 	}
 
+	/**
+	 * Interrogate each ContentViewer<T> in the contentViewers map in the natural order of the Map
+	 * and return the first ContentViewer<T> that supports the given object.
+	 * 
+	 * @param <C>
+	 * @param <T>
+	 * @param contentViewers
+	 * @param object
+	 * @return
+	 */
 	private <C, T> ContentViewer<T> getContentViewer(Map<C, ? extends ContentViewer<T>> contentViewers, T object) {
-		SortedSet<C> keys = new TreeSet<C>(contentViewers.keySet());
-		for(C key: keys) {
-			ContentViewer<T> v = contentViewers.get(key);
+		for(Map.Entry<C, ? extends ContentViewer<T>> entry: contentViewers.entrySet()) {
+			ContentViewer<T> v = entry.getValue();
 			if(v.supports(object))
 				return v;
 		}
