@@ -20,4 +20,11 @@ interface ContentViewer<T> {
 	 */
 	public JComponent createUI(T object);
 
+	/**
+	 * Get a description for the type of this content (Xml, Text, etc).
+	 * 
+	 * @param object
+	 * @return
+	 */
+	public String getDescription(T object);
 }

@@ -24,4 +24,8 @@ class BytesMessageViewer extends HexEditorContentViewer<Message> implements Mess
 		return BytesMessage.class.isAssignableFrom(message.getClass());
 	}
 
+	public String getDescription(Message object) {
+		return "Bytes";
+	}
+
 }

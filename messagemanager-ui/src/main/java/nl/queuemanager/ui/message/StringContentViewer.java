@@ -11,5 +11,9 @@ class StringContentViewer implements ContentViewer<String> {
 
 	public boolean supports(String str) {
 		return str != null;
+	}
+
+	public String getDescription(String object) {
+		return null;
 	}		
 }

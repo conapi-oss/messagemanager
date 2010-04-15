@@ -132,7 +132,7 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 					} else {
 						ContentViewer<JMSPart> viewer = getContentViewer(partContentViewers, part); 
 						partNode = new DefaultMutableTreeNode(new TreeNodeInfo(
-							"Part " + i + " (" + part.getContentType() + ")", viewer, part));
+							"Part " + i + " (" + viewer.getDescription(part) + ")", viewer, part));
 						root.add(partNode);
 						
 						MessagePartHeadersTable partHeadersTable = new MessagePartHeadersTable();
@@ -144,8 +144,8 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 				ContentViewer<Message> viewer = getContentViewer(messageContentViewers, message);
 				
 				if(viewer != null) {
-					// TODO Re-introduce the "Body (Xml)" style label in the tree
-					root.add(new DefaultMutableTreeNode(new TreeNodeInfo("Body", viewer, message)));
+					root.add(new DefaultMutableTreeNode(new TreeNodeInfo(
+						"Body (" + viewer.getDescription(message) + ")", viewer, message)));
 				} else {
 					root.add(new DefaultMutableTreeNode(new TreeNodeInfo(
 						"Unknown content", new StringContentViewer(), 

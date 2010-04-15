@@ -38,8 +38,11 @@ import nl.queuemanager.core.tasks.EnumerateQueuesTask;
 import nl.queuemanager.core.tasks.SendFileListTask;
 import nl.queuemanager.core.tasks.SendMessageListTask;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 @SuppressWarnings("serial")
-public class JMSDestinationTransferHandler extends TransferHandler {
+class JMSDestinationTransferHandler extends TransferHandler {
 	private static String newline = System.getProperty("line.separator");
 	
 	private JMSDomain domain;
@@ -50,7 +53,12 @@ public class JMSDestinationTransferHandler extends TransferHandler {
 	
 	private int sourceActions;
 
-	public JMSDestinationTransferHandler(JMSDomain sonic, TaskExecutor worker, JMSDestinationHolder destinationHolder) {
+	@Inject
+	public JMSDestinationTransferHandler(
+			JMSDomain sonic, 
+			TaskExecutor worker, 
+			@Assisted JMSDestinationHolder destinationHolder) 
+	{
 		setSourceActions(COPY);
 		setDomain(sonic);
 		setWorker(worker);

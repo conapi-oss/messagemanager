@@ -72,7 +72,7 @@ import com.google.inject.Injector;
 @SuppressWarnings("serial")
 public class TopicSubscriberTabPanel extends JSplitPane {
 	private JComboBox brokerCombo;
-	private final JMSDomain sonic;
+	private final JMSDomain domain;
 	private final TaskExecutor worker;
 	private final Configuration config;
 	
@@ -83,12 +83,13 @@ public class TopicSubscriberTabPanel extends JSplitPane {
 	private final MessageEventListener messageEventListener;
 	
 	@Inject
-	public TopicSubscriberTabPanel(JMSDomain sonic, TaskExecutor worker, Configuration config, Injector injector) {
-		this.sonic = sonic;
-		this.worker = worker;
-		this.config = config;
+	public TopicSubscriberTabPanel(Injector injector) {
+		// FIXME This is against DI best practices
+		this.domain = injector.getInstance(JMSDomain.class);
+		this.worker = injector.getInstance(TaskExecutor.class);
+		this.config = injector.getInstance(Configuration.class);
 		
-		subscriberTable = createTopicTable();
+		subscriberTable = createTopicTable(injector);
 		messageTable = createMessageTable();
 		messageViewer = injector.getInstance(MessageViewerPanel.class);
 		messageViewer.setDragEnabled(true);
@@ -156,7 +157,7 @@ public class TopicSubscriberTabPanel extends JSplitPane {
 		
 		this.messageEventListener = new MessageEventListener();
 		
-		sonic.addListener(new DomainEventListener());
+		domain.addListener(new DomainEventListener());
 	}
 
 	private JPanel createMessagesActionPanel() {
@@ -271,7 +272,7 @@ public class TopicSubscriberTabPanel extends JSplitPane {
 		worker.execute(new Task(broker) {
 			@Override
 			public void execute() throws Exception {
-				sonic.connectToBroker(broker);
+				domain.connectToBroker(broker);
 			}
 			@Override
 			public String toString() {
@@ -312,7 +313,7 @@ public class TopicSubscriberTabPanel extends JSplitPane {
 		final List<JMSTopic> topics = CollectionFactory.newArrayList();
 		
 		for(String name: topicNames) {
-			topics.add(sonic.createTopic(broker, name));
+			topics.add(domain.createTopic(broker, name));
 		}
 		
 		return topics;
@@ -335,8 +336,8 @@ public class TopicSubscriberTabPanel extends JSplitPane {
 		});
 	}
 	
-	private TopicSubscriberTable createTopicTable() {
-		final TopicSubscriberTable table = new TopicSubscriberTable(sonic, worker);
+	private TopicSubscriberTable createTopicTable(Injector injector) {
+		final TopicSubscriberTable table = injector.getInstance(TopicSubscriberTable.class);
 		
 		// Give the table an empty list in case TOPICS_ENUMERATED never fires or there
 		// are no topics to enumerate.
@@ -396,7 +397,7 @@ public class TopicSubscriberTabPanel extends JSplitPane {
 	private void populateTopicTable(final List<JMSTopic> topics) {
 		final List<JMSSubscriber> entries = CollectionFactory.newArrayList();
 		for(JMSTopic t: topics) {
-			entries.add(new JMSSubscriber(sonic, worker, config, t, new MessageBuffer()));
+			entries.add(new JMSSubscriber(domain, worker, config, t, new MessageBuffer()));
 		}
 		
 		SwingUtilities.invokeLater(new Runnable() {
@@ -493,11 +494,11 @@ public class TopicSubscriberTabPanel extends JSplitPane {
 				final String topicName = topicNameField.getText();
 				
 				if(topicName != null && topicName.trim().length() > 0) {
-					JMSTopic topic = sonic.createTopic((JMSBroker)brokerCombo.getSelectedItem(), topicName);
+					JMSTopic topic = domain.createTopic((JMSBroker)brokerCombo.getSelectedItem(), topicName);
 					
 					JMSSubscriber subscriber = subscriberTable.getItemForDestination(topic); 
 					if(subscriber == null) {
-						subscriber = new JMSSubscriber(sonic, worker, config, topic, new MessageBuffer());
+						subscriber = new JMSSubscriber(domain, worker, config, topic, new MessageBuffer());
 						subscriber.setActive(true);
 						subscriberTable.addItem(subscriber);
 						config.addTopicSubscriber((JMSTopic)subscriber.getDestination());

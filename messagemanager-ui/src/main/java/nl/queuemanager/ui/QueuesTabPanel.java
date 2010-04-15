@@ -85,12 +85,13 @@ public class QueuesTabPanel extends JSplitPane {
 	private       Timer autoRefreshTimer;
 	
 	@Inject
-	public QueuesTabPanel(JMSDomain domain, TaskExecutor worker, Configuration config, Injector injector) {
-		this.domain = domain;
-		this.worker = worker;
-		this.config = config;
+	public QueuesTabPanel(Injector injector) {
+		// FIXME This is against DI best practices
+		this.domain = injector.getInstance(JMSDomain.class);
+		this.worker = injector.getInstance(TaskExecutor.class);
+		this.config = injector.getInstance(Configuration.class);
 		
-		queueTable = createQueueTable(domain, worker);
+		queueTable = createQueueTable(injector.getInstance(JMSDestinationTransferHandlerFactory.class));
 		messageTable = createMessageTable();
 		
 		messageViewer = injector.getInstance(MessageViewerPanel.class);
@@ -251,11 +252,10 @@ public class QueuesTabPanel extends JSplitPane {
 		return queuesActionPanel;
 	}
 
-	private QueueTable createQueueTable(final JMSDomain domain, final TaskExecutor worker) {
+	private QueueTable createQueueTable(JMSDestinationTransferHandlerFactory transferHandlerfactory) {
 		final QueueTable table = new QueueTable();
 		
-		table.setTransferHandler(new JMSDestinationTransferHandler(
-				domain, worker, new InternalDestinationHolder()));
+		table.setTransferHandler(transferHandlerfactory.create(new InternalDestinationHolder()));
 		
 		final Holder<Boolean> shouldBrowse = new Holder<Boolean>();
 		shouldBrowse.setValue(Boolean.TRUE);

@@ -6,12 +6,16 @@ import nl.queuemanager.ui.util.DesktopHelperJRE5;
 import nl.queuemanager.ui.util.DesktopHelperJRE6;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.assistedinject.FactoryProvider;
 
 public class UIModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
 		install(new MessageViewerModule());
+		
+		bind(JMSDestinationTransferHandlerFactory.class).toProvider(FactoryProvider.newFactory(
+			JMSDestinationTransferHandlerFactory.class, JMSDestinationTransferHandler.class));
 		
 		try {
 			Class.forName("java.awt.Desktop");

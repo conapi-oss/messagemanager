@@ -60,5 +60,11 @@ class TextMessageContentViewer extends XmlContentViewer<Message> implements Mess
 	public boolean supports(Message message) {
 		return JMSXMLMessage.class.isAssignableFrom(message.getClass())
 			|| TextMessage.class.isAssignableFrom(message.getClass());
+	}
+
+	public String getDescription(Message message) {
+		if(message instanceof JMSXMLMessage)
+			return "Xml";
+		return "Text";
 	}		
 }

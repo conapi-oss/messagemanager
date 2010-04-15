@@ -21,5 +21,9 @@ class BytesPartViewer extends HexEditorContentViewer<JMSPart> implements Message
 
 	public boolean supports(JMSPart object) {
 		return true;
+	}
+
+	public String getDescription(JMSPart part) {
+		return part.getContentType();
 	}		
 }

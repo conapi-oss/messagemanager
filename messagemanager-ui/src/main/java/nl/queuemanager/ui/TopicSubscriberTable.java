@@ -28,13 +28,13 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import nl.queuemanager.core.jms.JMSDestination;
-import nl.queuemanager.core.jms.JMSDomain;
-import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.util.Clearable;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.ui.JMSDestinationTransferHandler.JMSDestinationHolder;
 import nl.queuemanager.ui.util.FilteredTableModel;
 import nl.queuemanager.ui.util.ObservingListTableModel;
+
+import com.google.inject.Inject;
 
 /**
  * This class is a topic subscriber table. It contains JMSTopicSubscriber objects.
@@ -52,7 +52,8 @@ public class TopicSubscriberTable extends JTable implements Clearable, JMSDestin
 	private FilteredTableModel<JMSSubscriber> filteredModel;
 	private TopicTableModel realModel; 
 	
-	public TopicSubscriberTable(JMSDomain sonic, TaskExecutor worker) {
+	@Inject
+	public TopicSubscriberTable(JMSDestinationTransferHandlerFactory destinationHandlerFactory) {
 		super();
 		
 		setModel(new TopicTableModel());
@@ -66,7 +67,7 @@ public class TopicSubscriberTable extends JTable implements Clearable, JMSDestin
 		TableCellRenderer renderer = new MessageCountTableCellRenderer();
 		setDefaultRenderer(Integer.class, renderer);
 		
-		setTransferHandler(new JMSDestinationTransferHandler(sonic, worker, this));
+		setTransferHandler(destinationHandlerFactory.create(this));
 		setDragEnabled(true);
 		setFilterEnabled(true);
 	}
