@@ -9,6 +9,7 @@
     <module>messagemanager-core</module>
     <module>messagemanager-ui</module>
     <module>messagemanager-sonicmq</module>
+    <module>messagemanager-sonicmq-76</module>
   </modules>
   
   <build>

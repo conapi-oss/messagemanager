@@ -1,4 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<description>Sonic Message Manager for SonicMQ 7.6</description>
+	<url>http://www.queuemanager.nl/7.6</url>
   <parent>
     <artifactId>messagemanager</artifactId>
     <groupId>nl.queuemanager</groupId>
@@ -6,28 +8,51 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>nl.queuemanager</groupId>
-  <artifactId>messagemanager-sonicmq</artifactId>
-  <name>Message Manager for SonicMQ</name>
+  <artifactId>messagemanager-sonicmq-76</artifactId>
+  <packaging>pom</packaging>
+  <name>Message Manager for SonicMQ 7.6</name>
   <version>2.4.0-SNAPSHOT</version>
-  <properties>
-    <sonic.version>7.6.0</sonic.version>
-  </properties>
   <build>
   	<plugins>
-  		<plugin>
-  			<groupId>org.codehaus.mojo</groupId>
-  			<artifactId>exec-maven-plugin</artifactId>
-  			<version>1.1.1</version>
-  			<configuration>
-  				<mainClass>nl.queuemanager.smm.Main</mainClass>
-  				<systemProperties>
-  					<systemProperty>
-  						<key>developer</key>
-  						<value>true</value>
-  					</systemProperty>
-  				</systemProperties>
-  			</configuration>
-  		</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo.webstart</groupId>
+				<artifactId>webstart-maven-plugin</artifactId>
+				<version>1.0-alpha-2</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>jnlp-inline</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<!-- JNLP generation -->
+					<jnlp>
+						<j2seVersion>1.5+</j2seVersion>
+
+						<inputTemplate>src/main/jnlp/template.vm</inputTemplate> <!-- relative to inputTemplateResourcePath -->
+						<outputFile>SonicMessageManager.jnlp</outputFile> <!-- defaults to launch.jnlp -->
+
+						<mainClass>nl.queuemanager.smm.Main</mainClass>
+					</jnlp>
+
+					<!-- SIGNING -->
+					<!-- 
+					<sign>
+						<keystore>${basedir}/src/main/jnlp/keystore.jks</keystore>
+						<storepass>keystore</storepass>
+						
+						<alias>gdries</alias>
+						<keypass>gdries</keypass>
+						
+						<verify>true</verify>
+					</sign>
+					-->
+
+					<verbose>false</verbose>
+				</configuration>
+			</plugin>
   	</plugins>
   </build>
 	<repositories>
@@ -46,7 +71,7 @@
   <dependencies>
     <dependency>
       <groupId>nl.queuemanager</groupId>
-      <artifactId>messagemanager-core</artifactId>
+      <artifactId>messagemanager-sonicmq</artifactId>
       <version>2.4.0-SNAPSHOT</version>
       <scope>compile</scope>
       <exclusions>
@@ -61,91 +86,63 @@
       </exclusions>
     </dependency>
     <dependency>
-    	<groupId>junit</groupId>
-    	<artifactId>junit</artifactId>
-    	<version>[4,5)</version>
-    	<type>jar</type>
-    	<scope>provided</scope>
-    </dependency>
-    <dependency>
-    	<groupId>nl.queuemanager</groupId>
-    	<artifactId>messagemanager-ui</artifactId>
-    	<version>2.4.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
     	<groupId>com.progress.sonic.mq</groupId>
     	<artifactId>activation</artifactId>
-    	<version>${sonic.version}</version>
+    	<version>7.6.0</version>
     	<type>jar</type>
-    	<scope>provided</scope>
     </dependency>
     <dependency>
     	<groupId>com.progress.sonic.mq</groupId>
     	<artifactId>mgmt_client</artifactId>
-    	<version>${sonic.version}</version>
+    	<version>7.6.0</version>
     	<type>jar</type>
-    	<scope>provided</scope>
     </dependency>
     <dependency>
     	<groupId>com.progress.sonic.mq</groupId>
     	<artifactId>mgmt_config</artifactId>
-    	<version>${sonic.version}</version>
+    	<version>7.6.0</version>
     	<type>jar</type>
-    	<scope>provided</scope>
     </dependency>
     <dependency>
     	<groupId>com.progress.sonic.mq</groupId>
     	<artifactId>smc</artifactId>
-    	<version>${sonic.version}</version>
+    	<version>7.6.0</version>
     	<type>jar</type>
-    	<scope>provided</scope>
     </dependency>
     <dependency>
     	<groupId>com.progress.sonic.mq</groupId>
     	<artifactId>sonic_Client</artifactId>
-    	<version>${sonic.version}</version>
+    	<version>7.6.0</version>
     	<type>jar</type>
-    	<scope>provided</scope>
     </dependency>
     <dependency>
     	<groupId>com.progress.sonic.mq</groupId>
     	<artifactId>sonic_Crypto</artifactId>
-    	<version>${sonic.version}</version>
+    	<version>7.6.0</version>
     	<type>jar</type>
-    	<scope>provided</scope>
     </dependency>
     <dependency>
     	<groupId>com.progress.sonic.mq</groupId>
     	<artifactId>sonic_mgmt_client</artifactId>
-    	<version>${sonic.version}</version>
+    	<version>7.6.0</version>
     	<type>jar</type>
-    	<scope>provided</scope>
     </dependency>
     <dependency>
     	<groupId>com.progress.sonic.mq</groupId>
     	<artifactId>sonic_XMessage</artifactId>
-    	<version>${sonic.version}</version>
+    	<version>7.6.0</version>
     	<type>jar</type>
-    	<scope>provided</scope>
     </dependency>
     <dependency>
     	<groupId>com.progress.sonic.mq</groupId>
     	<artifactId>xercesImpl</artifactId>
-    	<version>${sonic.version}</version>
+    	<version>7.6.0</version>
     	<type>jar</type>
-    	<scope>provided</scope>
     </dependency>
     <dependency>
     	<groupId>javax.help</groupId>
     	<artifactId>javahelp</artifactId>
     	<version>2.0.02</version>
-    	<type>jar</type>
-    	<scope>compile</scope>
-    </dependency>
-    <dependency>
-    	<groupId>com.google.inject</groupId>
-    	<artifactId>guice</artifactId>
-    	<version>2.0</version>
     	<type>jar</type>
     	<scope>compile</scope>
     </dependency>
