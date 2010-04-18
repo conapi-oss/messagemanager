@@ -66,16 +66,18 @@ class ConnectionTabPanel extends JPanel {
 	private final Domain sonic;
 	private final TaskExecutor worker;
 	private final SMMConfiguration config;
+	private final DesktopHelper desktop;
 	private       ConnectionModelTable connectionTable;
 	private final PreferenceManager prefs = PreferenceManager.getInstance();
 	
 	@Inject
-	public ConnectionTabPanel(Domain sonic, TaskExecutor worker, SMMConfiguration config, DesktopHelper desktopHelper) {
+	public ConnectionTabPanel(Domain sonic, TaskExecutor worker, SMMConfiguration config, DesktopHelper desktop) {
 		this.sonic = sonic;
 		this.worker = worker;
 		this.config = config;
+		this.desktop = desktop;
 		
-		JPanel brandingPanel = createBrandingPanel(desktopHelper);
+		JPanel brandingPanel = createBrandingPanel();
 		JPanel connectionsPanel = createConnectionsPanel();
 		
 		// Now add the panels to this panel
@@ -162,7 +164,7 @@ class ConnectionTabPanel extends JPanel {
 		return connectionsPanel;
 	}
 
-	private JPanel createBrandingPanel(DesktopHelper desktopHelper) {
+	private JPanel createBrandingPanel() {
 		// Create the branding area
 		JPanel brandingPanel = new JPanel();
 		brandingPanel.setLayout(new BoxLayout(brandingPanel, BoxLayout.X_AXIS));
@@ -183,7 +185,7 @@ class ConnectionTabPanel extends JPanel {
 		URL url = getClass().getResource("progaia.jpg");
 		jLabelProgaia.setIcon(new ImageIcon(url));
 		try {
-			desktopHelper.addLink(jLabelProgaia, new URI("http://www.progaia.nl"));
+			desktop.addLink(jLabelProgaia, new URI("http://www.progaia.nl"));
 		} catch (URISyntaxException e) {
 		}
 		brandingPanel.add(jLabelProgaia);
@@ -196,7 +198,7 @@ class ConnectionTabPanel extends JPanel {
 		URL url2 = getClass().getResource("progresssonic.jpg");
 		jLabelSonic.setIcon(new ImageIcon(url2));
 		try {
-			desktopHelper.addLink(jLabelSonic, new URI("http://www.progress.com"));
+			desktop.addLink(jLabelSonic, new URI("http://www.progress.com"));
 		} catch (URISyntaxException e) {
 		}
 		brandingPanel.add(jLabelSonic);
@@ -393,6 +395,7 @@ class ConnectionTabPanel extends JPanel {
 	public DomainConnectionModel getConnectionModel(DomainConnectionModel model) {
 		JDomainConnectionDialog connectionDialog = new JDomainConnectionDialog(getJmaFrame());
 		try {
+			desktop.makeMacSheet(connectionDialog);
 			connectionDialog.editInstance(null, model, true);
 			connectionDialog.setVisible(true);
 		} catch (Exception e) {

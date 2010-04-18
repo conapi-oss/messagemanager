@@ -18,9 +18,23 @@ package nl.queuemanager.ui.util;
 import java.net.URI;
 
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 
 public interface DesktopHelper {
 
+	/**
+	 * Makes the component a link to the specified URI that opens in the default browser.
+	 * 
+	 * @param component
+	 * @param uri
+	 */
 	public abstract void addLink(JComponent component, URI uri);
+	
+	/**
+	 * When running on Mac OS X JRE1.6, make the dialog a pop-out sheet.
+	 * 
+	 * @param dialog
+	 */
+	public abstract void makeMacSheet(JDialog dialog);
 	
 }

@@ -17,12 +17,14 @@ package nl.queuemanager.ui.util;
 
 import java.awt.Cursor;
 import java.awt.Desktop;
+import java.awt.Dialog.ModalityType;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
 
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 
 public class DesktopHelperJRE6 implements DesktopHelper {
 
@@ -46,5 +48,11 @@ public class DesktopHelperJRE6 implements DesktopHelper {
 		});
 		
 		component.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+	}
+
+	public void makeMacSheet(JDialog dialog) {
+		dialog.setModal(true);
+		dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
+		dialog.getRootPane().putClientProperty("apple.awt.documentModalSheet", "true");
 	}
 }

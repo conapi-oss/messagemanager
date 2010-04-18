@@ -28,6 +28,17 @@
   				</systemProperties>
   			</configuration>
   		</plugin>
+  		<plugin>
+  			<artifactId>maven-jar-plugin</artifactId>
+  			<configuration>
+  				<archive>
+	  				<manifest>
+	  					<mainClass>nl.queuemanager.smm.Main</mainClass>
+	  					<addClasspath>true</addClasspath>
+	  				</manifest>
+  				</archive>
+  			</configuration>
+  		</plugin>
   	</plugins>
   </build>
 	<repositories>

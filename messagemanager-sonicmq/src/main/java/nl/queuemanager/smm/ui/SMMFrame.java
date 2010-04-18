@@ -69,6 +69,7 @@ public class SMMFrame extends JMAFrame {
 		
 		// Create the panels for each tab and add them to the tabbedpane
 		connectionPanel = injector.getInstance(ConnectionTabPanel.class);
+		connectionPanel.setJmaFrame(this);
 		tabsPane.addTab("Connection", connectionPanel);
 		
 		queuesPanel = injector.getInstance(QueuesTabPanel.class);
