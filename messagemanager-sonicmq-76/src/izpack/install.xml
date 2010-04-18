@@ -1,0 +1,40 @@
+<installation version="1.0">
+	<info>
+		<appname>${pom.name}</appname>
+		<appversion>${pom.version}</appversion>
+		<url>http://www.queuemanager.nl</url>
+		<authors>
+			<author name="Gerco Dries" email="gdr@progaia.nl" />
+		</authors>
+		<javaversion>1.5</javaversion>
+	</info>
+	<locale>
+		<langpack iso3="eng"/>
+	</locale>
+	<guiprefs resizable="no" width="800" height="550">
+		<modifier key="useHeadingPanel" value="yes"/>
+		<modifier key="useHeadingForSummary" value="yes"/>
+		<modifier key="headingImageOnLeft" value="yes"/>
+		<modifier key="headingLineCount" value="2"/>
+		<modifier key="headingFontSize" value="1.5"/>
+		<modifier key="headingBackgroundColor" value="0x00ffffff"/>
+		<modifier key="headingPanelCounter" value="text"/>
+		<modifier key="headingPanelCounterPos" value="inHeading"/>
+	</guiprefs>
+	<panels>
+	    <panel classname="HelloPanel"/>
+	    <panel classname="TargetPanel">
+	    	<os family="win"/>
+	    </panel>
+	    <panel classname="SummaryPanel"/>
+	    <panel classname="InstallPanel"/>
+	    <panel classname="SimpleFinishPanel"/>
+	</panels>
+	<packs>
+		<pack name="${pom.name}" required="yes">
+			<os family="mac"/>
+			<description>${pom.description}</description>
+			<fileset os="mac" dir="${basedir}/target/jnlp" targetdir="$INSTALL_PATH" includes="*.jar"/>
+		</pack>
+	</packs>
+</installation>
