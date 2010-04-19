@@ -1,0 +1,177 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<description>Sonic Message Manager for SonicMQ 7.0</description>
+	<url>http://www.queuemanager.nl/7.0</url>
+	<parent>
+		<artifactId>messagemanager</artifactId>
+		<groupId>nl.queuemanager</groupId>
+		<version>2.4.0-SNAPSHOT</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>nl.queuemanager</groupId>
+	<artifactId>messagemanager-sonicmq-70</artifactId>
+	<packaging>pom</packaging>
+	<name>Message Manager for SonicMQ 7.0</name>
+	<version>2.4.0-SNAPSHOT</version>
+	<build>
+		<resources>
+		</resources>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo.webstart</groupId>
+				<artifactId>webstart-maven-plugin</artifactId>
+				<version>1.0-alpha-2</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>jnlp-inline</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<!-- JNLP generation -->
+					<jnlp>
+						<j2seVersion>1.5+</j2seVersion>
+
+						<inputTemplate>src/main/jnlp/template.vm</inputTemplate> <!-- relative to inputTemplateResourcePath -->
+						<outputFile>SonicMessageManager.jnlp</outputFile> <!-- defaults to launch.jnlp -->
+
+						<mainClass>nl.queuemanager.smm.Main</mainClass>
+					</jnlp>
+
+					<!-- SIGNING -->
+					<!--
+						<sign> <keystore>${basedir}/src/main/jnlp/keystore.jks</keystore>
+						<storepass>keystore</storepass> <alias>gdries</alias>
+						<keypass>gdries</keypass> <verify>true</verify> </sign>
+					-->
+
+					<verbose>false</verbose>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.izpack</groupId>
+				<artifactId>izpack-maven-plugin</artifactId>
+				<version>1.0-alpha-5</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>izpack</goal>
+						</goals>
+						<configuration>
+							<installerFile>${project.build.directory}/SonicMessageManager-${version}-Sonic70.jar</installerFile>
+							<izpackBasedir>${project.build.directory}/izpack</izpackBasedir>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.codehaus.izpack</groupId>
+						<artifactId>izpack-standalone-compiler</artifactId>
+						<version>4.3.2</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+		</plugins>
+	</build>
+	<repositories>
+		<repository>
+			<id>soa-knowledge</id>
+			<name>SOA Knowledge Public</name>
+			<url>http://www.soa-knowledge.org/nexus/content/groups/public-mirror</url>
+			<releases>
+				<updatePolicy>interval:30</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+	<dependencies>
+		<dependency>
+			<groupId>nl.queuemanager</groupId>
+			<artifactId>messagemanager-sonicmq</artifactId>
+			<version>2.4.0-SNAPSHOT</version>
+			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<artifactId>geronimo-spec-jms</artifactId>
+					<groupId>geronimo-spec</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>geronimo-spec-activation</artifactId>
+					<groupId>geronimo-spec</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>sonic-mq</groupId>
+			<artifactId>activation</artifactId>
+			<version>7.0</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>sonic-mq</groupId>
+			<artifactId>MFdirectory</artifactId>
+			<version>7.0</version>
+		</dependency>
+		<dependency>
+			<groupId>sonic-mq</groupId>
+			<artifactId>mgmt_client</artifactId>
+			<version>7.0</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>sonic-mq</groupId>
+			<artifactId>mgmt_config</artifactId>
+			<version>7.0</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>sonic-mq</groupId>
+			<artifactId>smc</artifactId>
+			<version>7.0</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>sonic-mq</groupId>
+			<artifactId>sonic_Client</artifactId>
+			<version>7.0</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>sonic-mq</groupId>
+			<artifactId>sonic_Crypto</artifactId>
+			<version>7.0</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>sonic-mq</groupId>
+			<artifactId>sonic_mgmt_client</artifactId>
+			<version>7.0</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>sonic-mq</groupId>
+			<artifactId>sonic_XMessage</artifactId>
+			<version>7.0</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>sonic-mq</groupId>
+			<artifactId>xercesImpl</artifactId>
+			<version>7.0</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>javax.help</groupId>
+			<artifactId>javahelp</artifactId>
+			<version>2.0.02</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+</project>
