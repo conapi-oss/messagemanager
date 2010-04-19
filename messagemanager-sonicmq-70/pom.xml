@@ -50,31 +50,6 @@
 					<verbose>false</verbose>
 				</configuration>
 			</plugin>
-
-			<plugin>
-				<groupId>org.codehaus.izpack</groupId>
-				<artifactId>izpack-maven-plugin</artifactId>
-				<version>1.0-alpha-5</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>izpack</goal>
-						</goals>
-						<configuration>
-							<installerFile>${project.build.directory}/SonicMessageManager-${version}-Sonic70.jar</installerFile>
-							<izpackBasedir>${project.build.directory}/izpack</izpackBasedir>
-						</configuration>
-					</execution>
-				</executions>
-				<dependencies>
-					<dependency>
-						<groupId>org.codehaus.izpack</groupId>
-						<artifactId>izpack-standalone-compiler</artifactId>
-						<version>4.3.2</version>
-					</dependency>
-				</dependencies>
-			</plugin>
 		</plugins>
 	</build>
 	<repositories>
