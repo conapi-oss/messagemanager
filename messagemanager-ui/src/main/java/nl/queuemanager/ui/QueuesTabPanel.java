@@ -69,7 +69,6 @@ import nl.queuemanager.ui.message.MessageViewerPanel;
 import nl.queuemanager.ui.util.Holder;
 
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 
 @SuppressWarnings("serial")
 public class QueuesTabPanel extends JSplitPane {
@@ -85,17 +84,22 @@ public class QueuesTabPanel extends JSplitPane {
 	private       Timer autoRefreshTimer;
 	
 	@Inject
-	public QueuesTabPanel(Injector injector) {
-		// FIXME This is against DI best practices
-		this.domain = injector.getInstance(JMSDomain.class);
-		this.worker = injector.getInstance(TaskExecutor.class);
-		this.config = injector.getInstance(Configuration.class);
+	public QueuesTabPanel(
+			JMSDomain domain, 
+			TaskExecutor worker,
+			Configuration config,
+			JMSDestinationTransferHandlerFactory jmsDestinationTransferHandlerFactory,
+			MessageViewerPanel messageViewer)
+	{
+		this.domain = domain;
+		this.worker = worker;
+		this.config = config;
+		this.queueTable = createQueueTable(jmsDestinationTransferHandlerFactory);
 		
-		queueTable = createQueueTable(injector.getInstance(JMSDestinationTransferHandlerFactory.class));
-		messageTable = createMessageTable();
-		
-		messageViewer = injector.getInstance(MessageViewerPanel.class);
+		this.messageViewer = messageViewer;
 		messageViewer.setDragEnabled(true);
+		
+		messageTable = createMessageTable();
 		
 		// Panel for the connection selector combobox
 		JPanel connectionPanel = new JPanel();
