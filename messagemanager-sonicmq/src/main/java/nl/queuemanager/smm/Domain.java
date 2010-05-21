@@ -44,13 +44,13 @@ import javax.management.ReflectionException;
 import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.events.AbstractEventSource;
 import nl.queuemanager.core.jms.DomainEvent;
-import nl.queuemanager.core.jms.JMSBroker;
-import nl.queuemanager.core.jms.JMSDestination;
 import nl.queuemanager.core.jms.JMSDomain;
-import nl.queuemanager.core.jms.JMSQueue;
-import nl.queuemanager.core.jms.JMSTopic;
 import nl.queuemanager.core.jms.DomainEvent.EVENT;
 import nl.queuemanager.core.util.CollectionFactory;
+import nl.queuemanager.jms.JMSBroker;
+import nl.queuemanager.jms.JMSDestination;
+import nl.queuemanager.jms.JMSQueue;
+import nl.queuemanager.jms.JMSTopic;
 import progress.message.jclient.MultipartMessage;
 import progress.message.jclient.XMLMessage;
 

@@ -10,8 +10,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import nl.queuemanager.core.jms.JMSXMLMessage;
 import nl.queuemanager.core.util.NullEntityResolver;
+import nl.queuemanager.jms.JMSXMLMessage;
 
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;

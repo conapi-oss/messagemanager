@@ -29,8 +29,8 @@ import nl.queuemanager.core.MessageBuffer;
 import nl.queuemanager.core.MessageEvent;
 import nl.queuemanager.core.MessageEvent.EVENT;
 import nl.queuemanager.core.events.EventListener;
-import nl.queuemanager.core.jms.impl.MessageFactory;
 import nl.queuemanager.core.util.CollectionFactory;
+import nl.queuemanager.jms.impl.MessageFactory;
 
 import org.junit.Before;
 import org.junit.Test;

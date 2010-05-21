@@ -19,7 +19,7 @@ import java.util.Enumeration;
 
 import javax.jms.JMSException;
 
-import nl.queuemanager.core.jms.JMSPart;
+import nl.queuemanager.jms.JMSPart;
 import progress.message.jclient.Part;
 
 /**

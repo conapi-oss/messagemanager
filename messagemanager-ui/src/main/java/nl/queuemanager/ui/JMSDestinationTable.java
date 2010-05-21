@@ -26,13 +26,13 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import nl.queuemanager.core.jms.JMSDestination;
 import nl.queuemanager.core.jms.JMSDomain;
-import nl.queuemanager.core.jms.JMSQueue;
-import nl.queuemanager.core.jms.JMSDestination.TYPE;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.util.Clearable;
 import nl.queuemanager.core.util.CollectionFactory;
+import nl.queuemanager.jms.JMSDestination;
+import nl.queuemanager.jms.JMSQueue;
+import nl.queuemanager.jms.JMSDestination.TYPE;
 import nl.queuemanager.ui.JMSDestinationTransferHandler.JMSDestinationHolder;
 import nl.queuemanager.ui.util.FilteredTableModel;
 import nl.queuemanager.ui.util.ListTableModel;

@@ -24,8 +24,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.TableColumn;
 
 import nl.queuemanager.core.Pair;
-import nl.queuemanager.core.jms.JMSPart;
 import nl.queuemanager.core.util.CollectionFactory;
+import nl.queuemanager.jms.JMSPart;
 import nl.queuemanager.ui.util.PairTableModel;
 
 /**

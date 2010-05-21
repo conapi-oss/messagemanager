@@ -21,10 +21,10 @@ import java.util.List;
 import javax.jms.JMSException;
 import javax.jms.Message;
 
-import nl.queuemanager.core.jms.JMSDestination;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.CancelableTask;
 import nl.queuemanager.core.task.Task;
+import nl.queuemanager.jms.JMSDestination;
 
 public class SendMessageListTask extends Task implements CancelableTask {
 

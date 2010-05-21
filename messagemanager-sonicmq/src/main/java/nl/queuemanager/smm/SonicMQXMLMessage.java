@@ -17,7 +17,7 @@ package nl.queuemanager.smm;
 
 import javax.jms.JMSException;
 
-import nl.queuemanager.core.jms.JMSXMLMessage;
+import nl.queuemanager.jms.JMSXMLMessage;
 
 import org.w3c.dom.Document;
 

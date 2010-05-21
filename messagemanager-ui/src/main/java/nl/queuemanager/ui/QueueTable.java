@@ -27,9 +27,9 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import nl.queuemanager.core.jms.JMSQueue;
 import nl.queuemanager.core.util.Clearable;
 import nl.queuemanager.core.util.CollectionFactory;
+import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.ui.util.FilteredTableModel;
 import nl.queuemanager.ui.util.ListTableModel;
 import nl.queuemanager.ui.util.MessageCountComparator;

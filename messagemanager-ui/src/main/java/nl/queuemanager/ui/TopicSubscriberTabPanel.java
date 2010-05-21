@@ -48,13 +48,13 @@ import nl.queuemanager.core.MessageBuffer;
 import nl.queuemanager.core.MessageEvent;
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
-import nl.queuemanager.core.jms.JMSBroker;
-import nl.queuemanager.core.jms.JMSDestination;
 import nl.queuemanager.core.jms.JMSDomain;
-import nl.queuemanager.core.jms.JMSTopic;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.util.CollectionFactory;
+import nl.queuemanager.jms.JMSBroker;
+import nl.queuemanager.jms.JMSDestination;
+import nl.queuemanager.jms.JMSTopic;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.message.MessageViewerPanel;
 

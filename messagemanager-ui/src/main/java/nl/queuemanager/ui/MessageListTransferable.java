@@ -27,11 +27,11 @@ import javax.jms.Message;
 import javax.jms.TextMessage;
 
 import nl.queuemanager.core.Pair;
-import nl.queuemanager.core.jms.JMSDestination;
-import nl.queuemanager.core.jms.JMSPart;
-import nl.queuemanager.core.jms.JMSQueue;
-import nl.queuemanager.core.jms.impl.MessageFactory;
 import nl.queuemanager.core.util.CollectionFactory;
+import nl.queuemanager.jms.JMSDestination;
+import nl.queuemanager.jms.JMSPart;
+import nl.queuemanager.jms.JMSQueue;
+import nl.queuemanager.jms.impl.MessageFactory;
 
 /**
  * This class represents a list of messages in transit in a drag-and-drop

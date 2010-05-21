@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import nl.queuemanager.core.jms.JMSDestination;
+import nl.queuemanager.jms.JMSDestination;
 
 public class JMSDestinationInfoTransferable implements Transferable {
 	

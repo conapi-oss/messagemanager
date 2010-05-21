@@ -36,9 +36,9 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import nl.queuemanager.core.MapNamespaceContext;
-import nl.queuemanager.core.jms.JMSBroker;
-import nl.queuemanager.core.jms.JMSTopic;
 import nl.queuemanager.core.util.CollectionFactory;
+import nl.queuemanager.jms.JMSBroker;
+import nl.queuemanager.jms.JMSTopic;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;

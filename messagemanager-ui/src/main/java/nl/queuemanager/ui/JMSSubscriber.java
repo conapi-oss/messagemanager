@@ -27,11 +27,11 @@ import nl.queuemanager.core.MessageBuffer;
 import nl.queuemanager.core.MessageEvent;
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.events.EventSource;
-import nl.queuemanager.core.jms.JMSDestination;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.BackgroundTask;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.util.Clearable;
+import nl.queuemanager.jms.JMSDestination;
 
 /**
  * Contains a MessageBuffer and possibly a MessageConsumer subscribed to a JMS Topic.

@@ -40,8 +40,8 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import nl.queuemanager.core.jms.JMSMultipartMessage;
-import nl.queuemanager.core.jms.JMSPart;
+import nl.queuemanager.jms.JMSMultipartMessage;
+import nl.queuemanager.jms.JMSPart;
 import nl.queuemanager.ui.MessageListTransferable;
 import nl.queuemanager.ui.util.TreeNodeInfo;
 

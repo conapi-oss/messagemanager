@@ -27,9 +27,7 @@ import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
 import nl.queuemanager.core.Pair;
-import nl.queuemanager.core.jms.JMSDestination;
 import nl.queuemanager.core.jms.JMSDomain;
-import nl.queuemanager.core.jms.JMSQueue;
 import nl.queuemanager.core.task.BackgroundTask;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskEvent;
@@ -37,6 +35,8 @@ import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.tasks.EnumerateQueuesTask;
 import nl.queuemanager.core.tasks.SendFileListTask;
 import nl.queuemanager.core.tasks.SendMessageListTask;
+import nl.queuemanager.jms.JMSDestination;
+import nl.queuemanager.jms.JMSQueue;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;

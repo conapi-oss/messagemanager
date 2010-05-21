@@ -22,8 +22,8 @@ import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 
-import nl.queuemanager.core.jms.JMSDestination;
 import nl.queuemanager.core.util.CollectionFactory;
+import nl.queuemanager.jms.JMSDestination;
 import progress.message.jclient.Session;
 
 /**

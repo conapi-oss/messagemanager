@@ -33,9 +33,9 @@ import javax.jms.Message;
 
 import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.MessageBuffer;
-import nl.queuemanager.core.jms.JMSDestination;
-import nl.queuemanager.core.jms.impl.MessageFactory;
 import nl.queuemanager.core.task.TaskExecutor;
+import nl.queuemanager.jms.JMSDestination;
+import nl.queuemanager.jms.impl.MessageFactory;
 import nl.queuemanager.test.support.SynchronousTaskExecutor;
 
 import org.junit.After;

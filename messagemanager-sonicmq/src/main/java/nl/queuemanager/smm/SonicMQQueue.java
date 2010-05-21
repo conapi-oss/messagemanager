@@ -17,7 +17,7 @@ package nl.queuemanager.smm;
 
 import javax.jms.JMSException;
 
-import nl.queuemanager.core.jms.JMSQueue;
+import nl.queuemanager.jms.JMSQueue;
 
 import com.sonicsw.mq.common.runtime.IQueueData;
 

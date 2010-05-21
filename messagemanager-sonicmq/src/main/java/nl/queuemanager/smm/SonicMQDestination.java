@@ -15,8 +15,8 @@
  */
 package nl.queuemanager.smm;
 
-import nl.queuemanager.core.jms.JMSBroker;
-import nl.queuemanager.core.jms.JMSDestination;
+import nl.queuemanager.jms.JMSBroker;
+import nl.queuemanager.jms.JMSDestination;
 
 /**
  * Abstract base class for SonicMQ based JMSDestinations

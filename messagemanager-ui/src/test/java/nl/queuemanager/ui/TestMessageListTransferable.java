@@ -29,13 +29,13 @@ import javax.jms.Message;
 import javax.jms.TextMessage;
 
 import nl.queuemanager.core.Pair;
-import nl.queuemanager.core.jms.JMSDestination;
-import nl.queuemanager.core.jms.JMSMultipartMessage;
-import nl.queuemanager.core.jms.JMSPart;
-import nl.queuemanager.core.jms.JMSQueue;
-import nl.queuemanager.core.jms.impl.DestinationFactory;
-import nl.queuemanager.core.jms.impl.MessageFactory;
 import nl.queuemanager.core.util.CollectionFactory;
+import nl.queuemanager.jms.JMSDestination;
+import nl.queuemanager.jms.JMSMultipartMessage;
+import nl.queuemanager.jms.JMSPart;
+import nl.queuemanager.jms.JMSQueue;
+import nl.queuemanager.jms.impl.DestinationFactory;
+import nl.queuemanager.jms.impl.MessageFactory;
 import nl.queuemanager.ui.MessageListTransferable;
 
 import org.junit.Before;

@@ -29,12 +29,12 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 
 import nl.queuemanager.core.ESBMessage;
 import nl.queuemanager.core.Pair;
-import nl.queuemanager.core.jms.JMSMultipartMessage;
-import nl.queuemanager.core.jms.JMSPart;
-import nl.queuemanager.core.jms.MessageType;
 import nl.queuemanager.core.task.CancelableTask;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskEvent;
+import nl.queuemanager.jms.JMSMultipartMessage;
+import nl.queuemanager.jms.JMSPart;
+import nl.queuemanager.jms.MessageType;
 
 public class SaveMessagesToFileTask extends Task implements CancelableTask {
 	private final List<Pair<javax.jms.Message, File>> messages;

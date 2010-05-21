@@ -27,12 +27,12 @@ import javax.jms.Message;
 import javax.jms.TextMessage;
 
 import nl.queuemanager.core.ESBMessage;
-import nl.queuemanager.core.jms.JMSDestination;
 import nl.queuemanager.core.jms.JMSDomain;
-import nl.queuemanager.core.jms.impl.MessageFactory;
 import nl.queuemanager.core.task.CancelableTask;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.util.CollectionFactory;
+import nl.queuemanager.jms.JMSDestination;
+import nl.queuemanager.jms.impl.MessageFactory;
 
 public class SendFileListTask extends Task implements CancelableTask {
 	

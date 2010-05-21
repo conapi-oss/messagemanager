@@ -1,6 +1,6 @@
 package nl.queuemanager.ui.message;
 
-import nl.queuemanager.core.jms.JMSPart;
+import nl.queuemanager.jms.JMSPart;
 
 class BytesPartViewer extends HexEditorContentViewer<JMSPart> implements MessagePartContentViewer {
 	

@@ -29,6 +29,10 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ReflectionException;
 
 import nl.queuemanager.core.events.EventSource;
+import nl.queuemanager.jms.JMSBroker;
+import nl.queuemanager.jms.JMSDestination;
+import nl.queuemanager.jms.JMSQueue;
+import nl.queuemanager.jms.JMSTopic;
 
 /**
  * Interface to a JMS Domain.

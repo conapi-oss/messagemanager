@@ -30,9 +30,9 @@ import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
-import nl.queuemanager.core.jms.JMSMultipartMessage;
-import nl.queuemanager.core.jms.JMSPart;
-import nl.queuemanager.core.jms.JMSXMLMessage;
+import nl.queuemanager.jms.JMSMultipartMessage;
+import nl.queuemanager.jms.JMSPart;
+import nl.queuemanager.jms.JMSXMLMessage;
 import progress.message.jclient.MultipartMessage;
 import progress.message.jclient.Part;
 import progress.message.jclient.Session;

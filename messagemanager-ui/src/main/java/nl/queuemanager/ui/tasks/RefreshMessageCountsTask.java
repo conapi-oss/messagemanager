@@ -19,10 +19,10 @@ import java.util.List;
 
 import javax.swing.SwingUtilities;
 
-import nl.queuemanager.core.jms.JMSBroker;
 import nl.queuemanager.core.jms.JMSDomain;
-import nl.queuemanager.core.jms.JMSQueue;
 import nl.queuemanager.core.task.BackgroundTask;
+import nl.queuemanager.jms.JMSBroker;
+import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.ui.util.ListTableModel;
 
 public class RefreshMessageCountsTask extends BackgroundTask {

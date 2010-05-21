@@ -17,7 +17,7 @@ package nl.queuemanager.smm;
 
 import javax.jms.JMSException;
 
-import nl.queuemanager.core.jms.JMSTopic;
+import nl.queuemanager.jms.JMSTopic;
 
 import com.sonicsw.mq.common.runtime.IDurableSubscriptionData;
 

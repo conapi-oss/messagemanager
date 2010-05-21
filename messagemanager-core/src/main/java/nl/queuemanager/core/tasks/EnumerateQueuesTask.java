@@ -15,9 +15,9 @@
  */
 package nl.queuemanager.core.tasks;
 
-import nl.queuemanager.core.jms.JMSBroker;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.BackgroundTask;
+import nl.queuemanager.jms.JMSBroker;
 
 public class EnumerateQueuesTask extends BackgroundTask {
 	

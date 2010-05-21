@@ -13,6 +13,7 @@
     <module>messagemanager-sonicmq-70</module>
     <!-- module>messagemanager-sonicmq-75</module -->
     <module>messagemanager-sonicmq-76</module>
+    <module>jmsmessages</module>
   </modules>
   
   <build>

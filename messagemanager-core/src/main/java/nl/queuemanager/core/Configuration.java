@@ -15,8 +15,8 @@ package nl.queuemanager.core;
 
 import java.util.List;
 
-import nl.queuemanager.core.jms.JMSBroker;
-import nl.queuemanager.core.jms.JMSTopic;
+import nl.queuemanager.jms.JMSBroker;
+import nl.queuemanager.jms.JMSTopic;
 
 public interface Configuration {
 	public static final String PREF_BROWSE_DIRECTORY = "browseDirectory";

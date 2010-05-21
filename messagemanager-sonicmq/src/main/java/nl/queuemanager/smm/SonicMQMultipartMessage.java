@@ -19,8 +19,8 @@ import javax.activation.DataHandler;
 import javax.jms.JMSException;
 import javax.jms.Message;
 
-import nl.queuemanager.core.jms.JMSMultipartMessage;
-import nl.queuemanager.core.jms.JMSPart;
+import nl.queuemanager.jms.JMSMultipartMessage;
+import nl.queuemanager.jms.JMSPart;
 import progress.message.jclient.Channel;
 import progress.message.jclient.MultipartMessage;
 import progress.message.jclient.Part;

@@ -34,13 +34,13 @@ import javax.swing.TransferHandler;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import nl.queuemanager.core.jms.JMSDestination;
-import nl.queuemanager.core.jms.JMSMultipartMessage;
-import nl.queuemanager.core.jms.JMSQueue;
-import nl.queuemanager.core.jms.JMSTopic;
-import nl.queuemanager.core.jms.JMSXMLMessage;
 import nl.queuemanager.core.util.Clearable;
 import nl.queuemanager.core.util.CollectionFactory;
+import nl.queuemanager.jms.JMSDestination;
+import nl.queuemanager.jms.JMSMultipartMessage;
+import nl.queuemanager.jms.JMSQueue;
+import nl.queuemanager.jms.JMSTopic;
+import nl.queuemanager.jms.JMSXMLMessage;
 import nl.queuemanager.ui.util.ListTableModel;
 
 

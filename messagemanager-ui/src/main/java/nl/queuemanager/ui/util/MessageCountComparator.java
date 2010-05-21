@@ -3,7 +3,7 @@ package nl.queuemanager.ui.util;
 import java.io.Serializable;
 import java.util.Comparator;
 
-import nl.queuemanager.core.jms.JMSQueue;
+import nl.queuemanager.jms.JMSQueue;
 
 @SuppressWarnings("serial")
 public class MessageCountComparator implements Comparator<JMSQueue>, Serializable {

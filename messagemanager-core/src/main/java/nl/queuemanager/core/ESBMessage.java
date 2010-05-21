@@ -41,10 +41,10 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import nl.queuemanager.core.jms.JMSMultipartMessage;
-import nl.queuemanager.core.jms.JMSPart;
-import nl.queuemanager.core.jms.MessageType;
-import nl.queuemanager.core.jms.impl.MessageFactory;
+import nl.queuemanager.jms.JMSMultipartMessage;
+import nl.queuemanager.jms.JMSPart;
+import nl.queuemanager.jms.MessageType;
+import nl.queuemanager.jms.impl.MessageFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
