@@ -11,11 +11,15 @@
     <module>messagemanager-sonicmq</module>
     <module>messagemanager-sonicmq-61</module>
     <module>messagemanager-sonicmq-70</module>
-    <!-- module>messagemanager-sonicmq-75</module -->
+    <module>messagemanager-sonicmq-75</module>
     <module>messagemanager-sonicmq-76</module>
     <module>jmsmessages</module>
+    <module>messagemanager-sonicmq-80</module>
   </modules>
   
+  <scm>
+  	<developerConnection>scm:git:${project.basedir}</developerConnection>
+  </scm>
   <build>
     <plugins>
       <plugin>
