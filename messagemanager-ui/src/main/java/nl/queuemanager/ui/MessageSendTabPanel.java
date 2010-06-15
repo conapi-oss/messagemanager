@@ -62,6 +62,8 @@ import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.text.JTextComponent;
 
 import nl.queuemanager.core.Configuration;
@@ -102,6 +104,7 @@ public class MessageSendTabPanel extends JPanel {
 	private JTextArea typingArea;
 	private boolean isFromImport;
 	private JTextField jmsCorrelationIDField;
+	private JMSDestinationField sendDestinationField;
 	private JMSDestinationField jmsReplyToField;
 	private JIntegerField jmsTTLField;
 	private JComboBox deliveryModeCombo;
@@ -128,6 +131,13 @@ public class MessageSendTabPanel extends JPanel {
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		destinationTableScrollPane.setPreferredSize(new Dimension(350, 100));
 		destinationTableScrollPane.setViewportView(destinationTable);
+		destinationTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent e) {
+				if(!e.getValueIsAdjusting())
+					sendDestinationField.setDestination(
+						destinationTable.getSelectedItem());
+			}
+		});
 		
 		JPanel actionPanel = createActionPanel();
 		
@@ -275,6 +285,10 @@ public class MessageSendTabPanel extends JPanel {
 		
 		final JPanel formPanel = new JPanel();
 		formPanel.setLayout(new SpringLayout());
+		
+		sendDestinationField = new JMSDestinationField();
+		formPanel.add(createLabelFor(sendDestinationField, "Destination"));
+		formPanel.add(sendDestinationField);
 	
 		numberOfMessagesField = new JIntegerField(10);
 		numberOfMessagesField.setMaximumSize(new Dimension(
@@ -352,7 +366,7 @@ public class MessageSendTabPanel extends JPanel {
 		formPanel.add(radioPanel);
 		
 		SpringUtilities.makeCompactGrid(formPanel, 
-				8, 2, 
+				9, 2, 
 				0, 0, 
 				5, 5);		
 		
@@ -530,7 +544,8 @@ public class MessageSendTabPanel extends JPanel {
 					
 					int numberOfMessages = numberOfMessagesField.getValue();
 					
-					JMSDestination queueContent = destinationTable.getSelectedItem();
+					JMSDestination sendDestination = sendDestinationField.getDestination(
+						sonic, (JMSBroker) brokerCombo.getSelectedItem());
 					
 					String jmsCorrIdValue = jmsCorrelationIDField.getText();
 					
@@ -539,8 +554,8 @@ public class MessageSendTabPanel extends JPanel {
 					
 					long jmsTimeToLiveValue = jmsTTLField.getValue();
 										
-					if(queueContent == null) {
-						JOptionPane.showMessageDialog(null,	"Please select a destination" );
+					if(sendDestination == null) {
+						JOptionPane.showMessageDialog(null,	"Please select or enter a destination" );
 						return;
 					}
 					
@@ -558,7 +573,7 @@ public class MessageSendTabPanel extends JPanel {
 						}else
 						{
 							sendMessage(
-								queueContent, 
+								sendDestination, 
 								numberOfMessages, 
 								delayPerMessageField.getValue(), 
 								getDeliveryMode(),
@@ -572,7 +587,7 @@ public class MessageSendTabPanel extends JPanel {
 						messageContent = typingArea.getText();
 						
 						sendMessage(
-							queueContent, 
+							sendDestination, 
 							numberOfMessages, 
 							delayPerMessageField.getValue(), 
 							getDeliveryMode(),
@@ -968,8 +983,8 @@ public class MessageSendTabPanel extends JPanel {
 					(int)nameField.getPreferredSize().getHeight()));
 			typeField = new JComboBox(new TYPE[] {
 					JMSDestination.TYPE.QUEUE, JMSDestination.TYPE.TOPIC});
-			typeField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 
-					(int)typeField.getPreferredSize().getHeight()));
+			typeField.setMaximumSize(typeField.getPreferredSize());
+//			typeField.setPrototypeDisplayValue(JMSDestination.TYPE.QUEUE);
 			add(nameField);
 			add(Box.createHorizontalStrut(5));
 			add(typeField);
@@ -1005,6 +1020,11 @@ public class MessageSendTabPanel extends JPanel {
 				return domain.createTopic(broker, name);
 			
 			return null;
+		}
+		
+		public void setDestination(JMSDestination destination) {
+			this.nameField.setText(destination.getName());
+			this.typeField.setSelectedItem(destination.getType());
 		}
 		
 		private class DTL extends DropTargetAdapter {
