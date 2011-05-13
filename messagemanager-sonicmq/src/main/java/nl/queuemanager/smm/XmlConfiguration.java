@@ -419,7 +419,8 @@ class XmlConfiguration implements SMMConfiguration {
 			
 			tf.transform(s, r);
 		} catch (TransformerException e) {
-			throw new RuntimeException("Error while saving prefs");
+			System.err.println("Error while saving prefs!");
+			e.printStackTrace(System.err);
 		}
 	}
 	
