@@ -53,19 +53,6 @@
 
 		</plugins>
 	</build>
-	<repositories>
-		<repository>
-			<id>soa-knowledge</id>
-			<name>SOA Knowledge Public</name>
-			<url>http://www.soa-knowledge.org/nexus/content/groups/public-mirror</url>
-			<releases>
-				<updatePolicy>interval:30</updatePolicy>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>nl.queuemanager</groupId>

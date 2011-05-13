@@ -39,21 +39,33 @@
   				</archive>
   			</configuration>
   		</plugin>
-  	</plugins>
+  		<plugin>
+  			<groupId>com.agilejava.docbkx</groupId>
+  			<artifactId>docbkx-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>generate-javahelp</goal>
+                </goals>
+                <phase>generate-sources</phase>
+                <configuration>
+                	<targetDirectory>${project.build.directory}/classes/javahelp</targetDirectory>
+                </configuration>
+              </execution>
+            </executions>
+            <dependencies>
+              <dependency>
+                <groupId>org.docbook</groupId>
+                <artifactId>docbook-xml</artifactId>
+                <version>4.4</version>
+                <scope>runtime</scope>
+              </dependency>
+            </dependencies>
+  		  </plugin>
+  	  </plugins>
+  	<resources>
+  	</resources>
   </build>
-	<repositories>
-		<repository>
-			<id>soa-knowledge</id>
-			<name>SOA Knowledge Public</name>
-			<url>http://www.soa-knowledge.org/nexus/content/groups/public-mirror</url>
-			<releases>
-				<updatePolicy>interval:30</updatePolicy>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
   <dependencies>
     <dependency>
       <groupId>nl.queuemanager</groupId>
@@ -76,7 +88,7 @@
     	<artifactId>junit</artifactId>
     	<version>[4,5)</version>
     	<type>jar</type>
-    	<scope>provided</scope>
+    	<scope>test</scope>
     </dependency>
     <dependency>
     	<groupId>nl.queuemanager</groupId>

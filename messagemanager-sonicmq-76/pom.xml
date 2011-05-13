@@ -10,13 +10,22 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>nl.queuemanager</groupId>
 	<artifactId>messagemanager-sonicmq-76</artifactId>
-	<packaging>pom</packaging>
+	<packaging>jar</packaging>
 	<name>Message Manager for SonicMQ 7.6</name>
 	<version>2.4.0-SNAPSHOT</version>
 	<build>
-		<resources>
-		</resources>
 		<plugins>
+			<plugin>
+	  			<artifactId>maven-jar-plugin</artifactId>
+	  			<configuration>
+	  				<archive>
+		  				<manifest>
+		  					<mainClass>nl.queuemanager.smm.Main</mainClass>
+		  					<addClasspath>true</addClasspath>
+		  				</manifest>
+	  				</archive>
+	  			</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo.webstart</groupId>
 				<artifactId>webstart-maven-plugin</artifactId>
@@ -53,19 +62,6 @@
 
 		</plugins>
 	</build>
-	<repositories>
-		<repository>
-			<id>soa-knowledge</id>
-			<name>SOA Knowledge Public</name>
-			<url>http://www.soa-knowledge.org/nexus/content/groups/public-mirror</url>
-			<releases>
-				<updatePolicy>interval:30</updatePolicy>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>nl.queuemanager</groupId>
