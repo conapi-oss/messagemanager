@@ -132,7 +132,8 @@ public class SaveMessagesToFileTask extends Task implements CancelableTask {
 	}
 
 	private File createFilenameForMessage(javax.jms.Message message, File directory) throws JMSException {
-		return new File(directory, message.getJMSMessageID().replaceAll(":", "_"));
+		String name = String.format("%d-%s", message.getJMSTimestamp(), message.getJMSMessageID().replace(':', '_'));
+		return new File(directory, name);
 	}
 	
 	private File createFilenameWithExtension(javax.jms.Message message, File file) {

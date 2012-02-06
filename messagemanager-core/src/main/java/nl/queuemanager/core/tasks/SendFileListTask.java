@@ -25,6 +25,10 @@ import java.util.List;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+
+import org.xml.sax.SAXException;
 
 import nl.queuemanager.core.ESBMessage;
 import nl.queuemanager.core.jms.JMSDomain;
@@ -95,7 +99,8 @@ public class SendFileListTask extends Task implements CancelableTask {
 					sleep(delay);
 				
 				if(file.getPath().toLowerCase().endsWith(".esbmsg")) {
-					sonic.sendMessage(queue, ESBMessage.readFromFile(file));
+					Message esbMessage = composeFromEsbMessage(file);
+					sonic.sendMessage(queue, esbMessage);
 				} else {
 					Message message = composeMessage(template, readFile(file), file);
 					replaceFields(message, i+1);
@@ -130,6 +135,20 @@ public class SendFileListTask extends Task implements CancelableTask {
 		}
 	}
 
+	private Message composeFromEsbMessage(File file) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException, JMSException {
+		Message esbMessage = ESBMessage.readFromFile(file);
+		if(template != null) {
+			MessageFactory.copyProperties(template, esbMessage);
+			if(esbMessage.getJMSCorrelationID() != null)
+				esbMessage.setJMSCorrelationID(template.getJMSCorrelationID());
+			if(template.getJMSReplyTo() != null)
+				esbMessage.setJMSReplyTo(template.getJMSReplyTo());
+			if(template.getJMSExpiration() != 0)
+				esbMessage.setJMSExpiration(template.getJMSExpiration());
+		}
+		return esbMessage;
+	}
+	
 	private Message composeMessage(final Message template, final byte[] content, final File file) throws JMSException {
 		TextMessage message;
 		String fileName = file.getName().toLowerCase();

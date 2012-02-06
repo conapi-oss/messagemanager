@@ -70,55 +70,55 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>sonic-mq</groupId>
+			<groupId>com.progress.sonic.mq</groupId>
 			<artifactId>activation</artifactId>
 			<version>7.5.1</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
-			<groupId>sonic-mq</groupId>
+			<groupId>com.progress.sonic.mq</groupId>
 			<artifactId>mgmt_client</artifactId>
 			<version>7.5.1</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
-			<groupId>sonic-mq</groupId>
+			<groupId>com.progress.sonic.mq</groupId>
 			<artifactId>mgmt_config</artifactId>
 			<version>7.5.1</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
-			<groupId>sonic-mq</groupId>
+			<groupId>com.progress.sonic.mq</groupId>
 			<artifactId>smc</artifactId>
 			<version>7.5.1</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
-			<groupId>sonic-mq</groupId>
+			<groupId>com.progress.sonic.mq</groupId>
 			<artifactId>sonic_Client</artifactId>
 			<version>7.5.1</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
-			<groupId>sonic-mq</groupId>
+			<groupId>com.progress.sonic.mq</groupId>
 			<artifactId>sonic_Crypto</artifactId>
 			<version>7.5.1</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
-			<groupId>sonic-mq</groupId>
+			<groupId>com.progress.sonic.mq</groupId>
 			<artifactId>sonic_mgmt_client</artifactId>
 			<version>7.5.1</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
-			<groupId>sonic-mq</groupId>
+			<groupId>com.progress.sonic.mq</groupId>
 			<artifactId>sonic_XMessage</artifactId>
 			<version>7.5.1</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
-			<groupId>sonic-mq</groupId>
+			<groupId>com.progress.sonic.mq</groupId>
 			<artifactId>xercesImpl</artifactId>
 			<version>7.5.1</version>
 			<type>jar</type>

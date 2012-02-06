@@ -626,6 +626,10 @@ public class Domain extends AbstractEventSource<DomainEvent> implements JMSDomai
 				model.getUserName(), 
 				model.getPassword());
 		
+		String loginSPI = System.getProperty("smm.jms.LoginSPI", null);
+		if(loginSPI != null);
+			factory.setLoginSPI(loginSPI);
+		
 		factory.setConnectID(null);
 		factory.setConnectionURLs(brokerUrl);
 		factory.setSequential(true);

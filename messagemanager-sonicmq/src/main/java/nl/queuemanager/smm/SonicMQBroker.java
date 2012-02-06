@@ -33,8 +33,13 @@ class SonicMQBroker implements Comparable<JMSBroker>, JMSBroker {
 	public SonicMQBroker(ObjectName objectName, String brokerName, String connectionUrl, ROLE role) {
 		this.objectName = objectName;
 		this.brokerName = brokerName;
-		this.brokerURL  = connectionUrl;
+		this.brokerURL  = sanitizeBrokerUrl(connectionUrl);
 		this.role       = role;
+	}
+
+	private String sanitizeBrokerUrl(String connectionUrl) {
+		// Removes #ONLY from the URL if present
+		return connectionUrl.replace("#ONLY", "");
 	}
 
 	public String getBrokerName() {
