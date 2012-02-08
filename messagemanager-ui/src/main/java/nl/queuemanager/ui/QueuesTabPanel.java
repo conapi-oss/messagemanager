@@ -54,9 +54,7 @@ import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.CancelableTask;
-import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskExecutor;
-import nl.queuemanager.core.tasks.EnumerateMessagesTask;
 import nl.queuemanager.core.tasks.EnumerateMessagesTask.QueueBrowserEvent;
 import nl.queuemanager.core.tasks.TaskFactory;
 import nl.queuemanager.core.util.CollectionFactory;
@@ -77,7 +75,6 @@ public class QueuesTabPanel extends JSplitPane {
 	private MessagesTable messageTable;
 	private MessageViewerPanel messageViewer;
 
-	private final JMSDomain domain;
 	private final TaskExecutor worker;
 	private final Configuration config;
 	private final QueueBrowserEventListener qbel;
@@ -93,7 +90,6 @@ public class QueuesTabPanel extends JSplitPane {
 			MessageViewerPanel messageViewer,
 			TaskFactory taskFactory)
 	{
-		this.domain = domain;
 		this.worker = worker;
 		this.config = config;
 		this.queueTable = createQueueTable(jmsDestinationTransferHandlerFactory);
@@ -443,7 +439,7 @@ public class QueuesTabPanel extends JSplitPane {
 	private void enumerateMessages(final JMSQueue queue) {
 		// Cancel any running browser task and start a new one
 		qbel.cancel();
-		worker.execute(new EnumerateMessagesTask(queue, domain, qbel));
+		worker.execute(taskFactory.enumerateMessages(queue, qbel));
 	}
 		
 	private void displaySelectedMessage() {
@@ -480,20 +476,9 @@ public class QueuesTabPanel extends JSplitPane {
 		// Cancel any active queue browsing event
 		qbel.cancel();
 		
-		worker.executeInOrder(new Task(queueList.get(0).getBroker()) {
-			@Override
-			public void execute() throws Exception {
-				domain.deleteMessages(queueList);
-			}
-			@Override
-			public String toString() {
-				if(queueList.size()==1)
-					return "Deleting all messages from " + queueList.get(0);
-				else
-					return "Deleting all messages from " + queueList.size() + " queue(s)";
-			}
-		},
-		taskFactory.enumerateQueues((JMSBroker)brokerCombo.getSelectedItem(), null));
+		worker.executeInOrder(
+			taskFactory.clearQueues(queueList),
+			taskFactory.enumerateQueues((JMSBroker)brokerCombo.getSelectedItem(), null));
 	}
 	
 	private void deleteSelectedMessages() {
@@ -518,18 +503,9 @@ public class QueuesTabPanel extends JSplitPane {
 		}
 
 		// Submit the removal task to the worker
-		worker.executeInOrder(new Task(queue.getBroker()) {
-			@Override
-			public void execute() throws Exception {
-				domain.deleteMessages(queue, messages);
-			}
-			@Override
-			public String toString() {
-				return 
-					"Deleting " + messages.size() + " messages from " + queue;
-			}
-		},
-		taskFactory.enumerateQueues((JMSBroker)brokerCombo.getSelectedItem(), null));
+		worker.executeInOrder(
+			taskFactory.deleteMessages(queue, messages),
+			taskFactory.enumerateQueues((JMSBroker)brokerCombo.getSelectedItem(), null));
 	}
 	
 	private class InternalDestinationHolder implements JMSDestinationHolder {

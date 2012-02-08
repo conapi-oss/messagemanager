@@ -18,6 +18,7 @@ package nl.queuemanager.core.tasks;
 import java.util.Enumeration;
 import java.util.EventObject;
 
+import javax.inject.Inject;
 import javax.jms.Message;
 
 import nl.queuemanager.core.events.AbstractEventSource;
@@ -27,14 +28,21 @@ import nl.queuemanager.core.task.BackgroundTask;
 import nl.queuemanager.core.task.CancelableTask;
 import nl.queuemanager.jms.JMSQueue;
 
+import com.google.inject.assistedinject.Assisted;
+
 public class EnumerateMessagesTask extends BackgroundTask implements CancelableTask {
 	private final JMSQueue queue;
 	private final JMSDomain sonic;
 	private QueueBrowserEventSource eventSource;
 	
 	private volatile boolean canceled = false;
-	
-	public EnumerateMessagesTask(final JMSQueue queue, final JMSDomain sonic, final EventListener<QueueBrowserEvent> listener) {
+
+	@Inject
+	EnumerateMessagesTask(
+			@Assisted final JMSQueue queue, 
+			@Assisted final EventListener<QueueBrowserEvent> listener,
+			final JMSDomain sonic) 
+	{
 		super(queue.getBroker());
 		
 		this.queue = queue;

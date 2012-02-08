@@ -27,7 +27,7 @@ import nl.queuemanager.core.task.Task;
 import nl.queuemanager.jms.JMSDestination;
 
 public class SendMessageListTask extends Task implements CancelableTask {
-
+	
 	private final int repeats;
 	private final JMSDestination queue;
 	private final List<Message> messages;
