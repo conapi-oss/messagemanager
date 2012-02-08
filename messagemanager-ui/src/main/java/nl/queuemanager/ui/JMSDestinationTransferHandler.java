@@ -31,7 +31,6 @@ import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
 import nl.queuemanager.core.Pair;
-import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.BackgroundTask;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.tasks.TaskFactory;
@@ -63,7 +62,6 @@ class JMSDestinationTransferHandler extends TransferHandler {
 
 	@Inject
 	public JMSDestinationTransferHandler(
-			JMSDomain domain, 
 			TaskExecutor worker, 
 			TaskFactory taskFactory,
 			@Assisted JMSDestinationHolder destinationHolder) 
