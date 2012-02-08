@@ -71,10 +71,9 @@ import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.TaskExecutor;
-import nl.queuemanager.core.tasks.ConnectToBrokerTaskFactory;
-import nl.queuemanager.core.tasks.EnumerateQueuesTask;
 import nl.queuemanager.core.tasks.SendFileListTask;
 import nl.queuemanager.core.tasks.SendMessageListTask;
+import nl.queuemanager.core.tasks.TaskFactory;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
@@ -98,6 +97,7 @@ public class MessageSendTabPanel extends JPanel {
 	private final JMSDestinationTable destinationTable;
 	private final JMSDomain sonic;
 	private final TaskExecutor worker;
+	private final TaskFactory taskFactory;
 	private final Configuration config;
 
 	private JTextField filenameField;
@@ -117,13 +117,17 @@ public class MessageSendTabPanel extends JPanel {
 	private final Injector injector;
 	
 	@Inject
-	public MessageSendTabPanel(Injector injector, JMSDomain sonic, TaskExecutor worker, Configuration config) {
+	public MessageSendTabPanel(Injector injector, JMSDomain sonic, 
+			TaskExecutor worker, Configuration config, TaskFactory taskFactory,
+			JMSDestinationTable destinationTable) 
+	{
 		// FIXME Don't reference injector
 		this.injector = injector;
 		
 		this.sonic = sonic;
 		this.worker = worker;
 		this.config = config;
+		this.taskFactory = taskFactory;
 				
 		/******************************
 		 * Left side -- Queues and topic tables **
@@ -131,7 +135,7 @@ public class MessageSendTabPanel extends JPanel {
 		brokerCombo = createBrokerCombo();
 				
 		// Create the destination table and wrap it in a scrollpane
-		destinationTable = new JMSDestinationTable(sonic, worker);
+		this.destinationTable = destinationTable;
 		JScrollPane destinationTableScrollPane = new JScrollPane(destinationTable,
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -141,7 +145,7 @@ public class MessageSendTabPanel extends JPanel {
 			public void valueChanged(ListSelectionEvent e) {
 				if(!e.getValueIsAdjusting())
 					sendDestinationField.setDestination(
-						destinationTable.getSelectedItem());
+						MessageSendTabPanel.this.destinationTable.getSelectedItem());
 			}
 		});
 		
@@ -622,7 +626,7 @@ public class MessageSendTabPanel extends JPanel {
 	protected void refreshQueues() {
 		final JMSBroker broker = (JMSBroker)brokerCombo.getSelectedItem();
 		
-		worker.execute(new EnumerateQueuesTask(sonic, broker, null));
+		worker.execute(taskFactory.enumerateQueues(broker, null));
 	};
 	
 	private int getDeliveryMode(){
@@ -668,7 +672,7 @@ public class MessageSendTabPanel extends JPanel {
 		// Send the file(list) and schedule a refresh of the destination table
 		worker.executeInOrder(
 			new SendFileListTask(queue, file, message, number, delay, sonic),
-			new EnumerateQueuesTask(sonic, queue.getBroker(), null));
+			taskFactory.enumerateQueues(queue.getBroker(), null));
 	}
 
 	/**
@@ -708,7 +712,7 @@ public class MessageSendTabPanel extends JPanel {
 		// Create the tasks for sending and browsing messages
 		worker.executeInOrder(
 			new SendMessageListTask(queue, message, number, delay, sonic),
-			new EnumerateQueuesTask(sonic, queue.getBroker(), null));
+			taskFactory.enumerateQueues(queue.getBroker(), null));
 	}
 
 	private void populateBrokerCombo(final List<JMSBroker> brokers) {
@@ -730,7 +734,7 @@ public class MessageSendTabPanel extends JPanel {
 	
 	private void connectToBroker(final JMSBroker broker) {
 		// Connect to the broker
-		worker.execute(injector.getInstance(ConnectToBrokerTaskFactory.class).create(broker));
+		worker.execute(injector.getInstance(TaskFactory.class).connectToBroker(broker));
 	}
 	
 	/**
@@ -749,7 +753,7 @@ public class MessageSendTabPanel extends JPanel {
 	 */
 	private void enumerateQueues(final JMSBroker broker) {		
 		// Get the queue list from the broker
-		worker.execute(new EnumerateQueuesTask(sonic, broker, null));
+		worker.execute(taskFactory.enumerateQueues(broker, null));
 	}
 	
 	/**

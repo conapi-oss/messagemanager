@@ -56,10 +56,9 @@ import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.CancelableTask;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskExecutor;
-import nl.queuemanager.core.tasks.ConnectToBrokerTaskFactory;
 import nl.queuemanager.core.tasks.EnumerateMessagesTask;
 import nl.queuemanager.core.tasks.EnumerateMessagesTask.QueueBrowserEvent;
-import nl.queuemanager.core.tasks.EnumerateQueuesTask;
+import nl.queuemanager.core.tasks.TaskFactory;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
@@ -83,7 +82,7 @@ public class QueuesTabPanel extends JSplitPane {
 	private final Configuration config;
 	private final QueueBrowserEventListener qbel;
 	private       Timer autoRefreshTimer;
-	private final ConnectToBrokerTaskFactory connectToBrokerTaskFactory;
+	private final TaskFactory taskFactory;
 	
 	@Inject
 	public QueuesTabPanel(
@@ -92,13 +91,13 @@ public class QueuesTabPanel extends JSplitPane {
 			Configuration config,
 			JMSDestinationTransferHandlerFactory jmsDestinationTransferHandlerFactory,
 			MessageViewerPanel messageViewer,
-			ConnectToBrokerTaskFactory connectToBrokerTaskFactory)
+			TaskFactory taskFactory)
 	{
 		this.domain = domain;
 		this.worker = worker;
 		this.config = config;
 		this.queueTable = createQueueTable(jmsDestinationTransferHandlerFactory);
-		this.connectToBrokerTaskFactory = connectToBrokerTaskFactory;
+		this.taskFactory = taskFactory;
 		
 		this.messageViewer = messageViewer;
 		messageViewer.setDragEnabled(true);
@@ -389,7 +388,7 @@ public class QueuesTabPanel extends JSplitPane {
 	
 	private void connectToBroker(final JMSBroker broker) {
 		// Connect to the broker
-		worker.execute(connectToBrokerTaskFactory.create(broker));
+		worker.execute(taskFactory.connectToBroker(broker));
 	}
 
 	public void initAutorefreshTimer() {
@@ -418,7 +417,7 @@ public class QueuesTabPanel extends JSplitPane {
 
 	private void enumerateQueues(final JMSBroker broker) {		
 		// Get the queue list from the broker
-		worker.execute(new EnumerateQueuesTask(domain, broker, null));
+		worker.execute(taskFactory.enumerateQueues(broker, null));
 	}
 
 	private void populateQueueTable(final List<JMSQueue> queues) {
@@ -494,7 +493,7 @@ public class QueuesTabPanel extends JSplitPane {
 					return "Deleting all messages from " + queueList.size() + " queue(s)";
 			}
 		},
-		new EnumerateQueuesTask(domain, (JMSBroker)brokerCombo.getSelectedItem(), null));
+		taskFactory.enumerateQueues((JMSBroker)brokerCombo.getSelectedItem(), null));
 	}
 	
 	private void deleteSelectedMessages() {
@@ -530,7 +529,7 @@ public class QueuesTabPanel extends JSplitPane {
 					"Deleting " + messages.size() + " messages from " + queue;
 			}
 		},
-		new EnumerateQueuesTask(domain, (JMSBroker)brokerCombo.getSelectedItem(), null));
+		taskFactory.enumerateQueues((JMSBroker)brokerCombo.getSelectedItem(), null));
 	}
 	
 	private class InternalDestinationHolder implements JMSDestinationHolder {

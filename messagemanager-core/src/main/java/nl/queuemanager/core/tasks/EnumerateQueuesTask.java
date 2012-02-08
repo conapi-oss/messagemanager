@@ -15,27 +15,37 @@
  */
 package nl.queuemanager.core.tasks;
 
+import javax.annotation.Nullable;
+
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.BackgroundTask;
 import nl.queuemanager.jms.JMSBroker;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 public class EnumerateQueuesTask extends BackgroundTask {
 	
-	private final JMSDomain sonic;
+	private final JMSDomain domain;
 	private final JMSBroker broker;
 	private final String filter;
 
-	public EnumerateQueuesTask(JMSDomain sonic, JMSBroker broker, String filter) {
+	@Inject
+	EnumerateQueuesTask(
+			JMSDomain sonic, 
+			@Assisted JMSBroker broker, 
+			@Nullable @Assisted String filter) 
+	{
 		super(sonic);
 		
-		this.sonic = sonic;
+		this.domain = sonic;
 		this.broker = broker;
 		this.filter = filter;
 	}
 
 	@Override
 	public void execute() throws Exception {
-		sonic.enumerateQueues(broker, filter);
+		domain.enumerateQueues(broker, filter);
 	}
 	
 	@Override

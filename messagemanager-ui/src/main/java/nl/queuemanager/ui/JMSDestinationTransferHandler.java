@@ -32,9 +32,9 @@ import nl.queuemanager.core.task.BackgroundTask;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskEvent;
 import nl.queuemanager.core.task.TaskExecutor;
-import nl.queuemanager.core.tasks.EnumerateQueuesTask;
 import nl.queuemanager.core.tasks.SendFileListTask;
 import nl.queuemanager.core.tasks.SendMessageListTask;
+import nl.queuemanager.core.tasks.TaskFactory;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSQueue;
 
@@ -43,8 +43,9 @@ import com.google.inject.assistedinject.Assisted;
 
 @SuppressWarnings("serial")
 class JMSDestinationTransferHandler extends TransferHandler {
-	private JMSDomain domain;
-	private TaskExecutor worker;
+	private final JMSDomain domain;
+	private final TaskExecutor worker;
+	private final TaskFactory taskFactory;
 
 	// The object to read JMSDestinations from
 	private final JMSDestinationHolder destinationHolder;
@@ -53,14 +54,16 @@ class JMSDestinationTransferHandler extends TransferHandler {
 
 	@Inject
 	public JMSDestinationTransferHandler(
-			JMSDomain sonic, 
+			JMSDomain domain, 
 			TaskExecutor worker, 
+			TaskFactory taskFactory,
 			@Assisted JMSDestinationHolder destinationHolder) 
 	{
 		setSourceActions(COPY);
-		setDomain(sonic);
-		setWorker(worker);
+		this.domain = domain;
+		this.worker = worker;
 		this.destinationHolder = destinationHolder;
+		this.taskFactory = taskFactory;
 	}
 
 	/**
@@ -136,14 +139,14 @@ class JMSDestinationTransferHandler extends TransferHandler {
 	protected boolean importMessageIDList(JMSDestinationHolder destinationHolder, final List<Pair<JMSQueue, String>> messageList) {
 		final JMSQueue toQueue = (JMSQueue)destinationHolder.getJMSDestination();
 		
-		getWorker().executeInOrder(new Task(toQueue.getBroker()) {
+		worker.executeInOrder(new Task(toQueue.getBroker()) {
 			@Override
 			public void execute() throws Exception {
 				int i = 0;
 				for(Pair<JMSQueue, String> messageInfo: messageList) {
 					final JMSQueue fromDst = messageInfo.first();
 					final String messageID = messageInfo.second();
-					getDomain().forwardMessage(fromDst, toQueue, messageID);
+					domain.forwardMessage(fromDst, toQueue, messageID);
 					dispatchEvent(new TaskEvent(TaskEvent.EVENT.TASK_PROGRESS, i++, this));
 				}
 			}
@@ -156,7 +159,7 @@ class JMSDestinationTransferHandler extends TransferHandler {
 				return "Moving " + messageList.size() + " message to " + toQueue;
 			}
 		},
-		new EnumerateQueuesTask(getDomain(), toQueue.getBroker(), null),
+		taskFactory.enumerateQueues(toQueue.getBroker(), null),
 		new FireRefreshRequiredTask(null, destinationHolder, toQueue));
 		
 		return true;
@@ -172,9 +175,9 @@ class JMSDestinationTransferHandler extends TransferHandler {
 	protected boolean importMessageList(JMSDestinationHolder destinationHolder, List<Message> messageList) {
 		final JMSDestination destination = destinationHolder.getJMSDestination();
 		
-		getWorker().executeInOrder(
-			new SendMessageListTask(destination, messageList, getDomain()),
-			new EnumerateQueuesTask(getDomain(), destination.getBroker(), null),
+		worker.executeInOrder(
+			new SendMessageListTask(destination, messageList, domain),
+			taskFactory.enumerateQueues(destination.getBroker(), null),
 			new FireRefreshRequiredTask(null, destinationHolder, destination));
 		
 		return true;
@@ -190,9 +193,9 @@ class JMSDestinationTransferHandler extends TransferHandler {
 	protected boolean importFileList(JMSDestinationHolder destinationHolder, List<File> fileList) {
 		final JMSDestination destination = destinationHolder.getJMSDestination();
 		
-		getWorker().executeInOrder(
-			new SendFileListTask(destination, fileList, getDomain()),
-			new EnumerateQueuesTask(getDomain(), destination.getBroker(), null),
+		worker.executeInOrder(
+			new SendFileListTask(destination, fileList, domain),
+			taskFactory.enumerateQueues(destination.getBroker(), null),
 			new FireRefreshRequiredTask(null, destinationHolder, destination));
 		
 		return true;
@@ -212,23 +215,7 @@ class JMSDestinationTransferHandler extends TransferHandler {
 	public int getSourceActions(JComponent c) {
 		return sourceActions;
 	}
-	
-	protected JMSDomain getDomain() {
-		return domain;
-	}
-	
-	protected void setDomain(JMSDomain domain) {
-		this.domain = domain;
-	}
-	
-	protected TaskExecutor getWorker() {
-		return worker;
-	}
-	
-	protected void setWorker(TaskExecutor worker) {
-		this.worker = worker;
-	}
-	
+			
 	public interface JMSDestinationHolder {
 		public JMSDestination getJMSDestination();
 		public List<JMSDestination> getJMSDestinationList();

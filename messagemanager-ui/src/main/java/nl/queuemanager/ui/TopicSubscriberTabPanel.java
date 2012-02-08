@@ -50,7 +50,7 @@ import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.TaskExecutor;
-import nl.queuemanager.core.tasks.ConnectToBrokerTaskFactory;
+import nl.queuemanager.core.tasks.TaskFactory;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
@@ -272,7 +272,7 @@ public class TopicSubscriberTabPanel extends JSplitPane {
 	
 	private void connectToBroker(final JMSBroker broker) {
 		// Connect to the broker
-		worker.execute(injector.getInstance(ConnectToBrokerTaskFactory.class).create(broker));
+		worker.execute(injector.getInstance(TaskFactory.class).connectToBroker(broker));
 	}
 
 	/**

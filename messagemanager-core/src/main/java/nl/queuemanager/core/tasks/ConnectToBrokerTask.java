@@ -20,7 +20,7 @@ public class ConnectToBrokerTask extends Task {
 	private final BrokerCredentialsProvider credentialsProvider;
 
 	@Inject
-	public ConnectToBrokerTask(
+	ConnectToBrokerTask(
 			JMSDomain domain, 
 			Configuration configuration,
 			BrokerCredentialsProvider credentialsProvider,

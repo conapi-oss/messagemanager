@@ -1,8 +1,7 @@
 package nl.queuemanager.core;
 
 import nl.queuemanager.core.task.MultiQueueTaskExecutorModule;
-import nl.queuemanager.core.tasks.ConnectToBrokerTask;
-import nl.queuemanager.core.tasks.ConnectToBrokerTaskFactory;
+import nl.queuemanager.core.tasks.TaskFactory;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
@@ -14,10 +13,8 @@ public class CoreModule extends AbstractModule {
 	protected void configure() {
 		install(new MultiQueueTaskExecutorModule());
 
-		// Assisted inject for ConnectToBrokerTask objects
-		install(new FactoryModuleBuilder()
-			.implement(ConnectToBrokerTask.class, ConnectToBrokerTask.class)
-			.build(ConnectToBrokerTaskFactory.class));
+		// Install the TaskFactory for creating tasks using assisted inject
+		install(new FactoryModuleBuilder().build(TaskFactory.class));
 		
 		bind(GlobalDomainEventListener.class).in(Scopes.SINGLETON);
 	}

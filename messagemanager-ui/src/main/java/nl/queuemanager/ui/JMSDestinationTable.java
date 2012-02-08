@@ -20,19 +20,18 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import nl.queuemanager.core.jms.JMSDomain;
-import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.util.Clearable;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.jms.JMSDestination;
-import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.jms.JMSDestination.TYPE;
+import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.ui.JMSDestinationTransferHandler.JMSDestinationHolder;
 import nl.queuemanager.ui.util.FilteredTableModel;
 import nl.queuemanager.ui.util.ListTableModel;
@@ -50,9 +49,10 @@ public class JMSDestinationTable extends JTable implements Clearable, JMSDestina
 	private FilteredTableModel<JMSDestination> filteredModel;
 	private int filterColumnIndex = 1;
 	
-	private JMSDestinationTableModel realModel; 
+	private JMSDestinationTableModel realModel;
 	
-	public JMSDestinationTable(JMSDomain sonic, TaskExecutor worker) {
+	@Inject
+	public JMSDestinationTable(JMSDestinationTransferHandlerFactory jdthFactory) {
 		super();
 		
 		setModel(new JMSDestinationTableModel());
@@ -65,7 +65,7 @@ public class JMSDestinationTable extends JTable implements Clearable, JMSDestina
 		
 		setDefaultRenderer(Integer.class, new MessageCountTableCellRenderer());
 		
-		setTransferHandler(new JMSDestinationTransferHandler(sonic, worker, this));
+		setTransferHandler(jdthFactory.create(this));
 		setDragEnabled(true);
 		setFilterEnabled(true);
 	}
