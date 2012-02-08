@@ -22,13 +22,12 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
-
-import org.xml.sax.SAXException;
 
 import nl.queuemanager.core.ESBMessage;
 import nl.queuemanager.core.jms.JMSDomain;
@@ -37,6 +36,11 @@ import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.impl.MessageFactory;
+
+import org.xml.sax.SAXException;
+
+import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
 
 public class SendFileListTask extends Task implements CancelableTask {
 	
@@ -48,23 +52,23 @@ public class SendFileListTask extends Task implements CancelableTask {
 	private final JMSDomain sonic;
 	private volatile boolean canceled;
 
-	public SendFileListTask(JMSDestination queue, File file, Message template, JMSDomain sonic) {
+	@AssistedInject
+	SendFileListTask(@Assisted JMSDestination queue, @Assisted File file, @Nullable @Assisted Message template, JMSDomain sonic) {
 		this(queue, Collections.singletonList(file), template, 1, 0, sonic);
 	}
 	
-	public SendFileListTask(JMSDestination queue, File file, Message template, int repeats, int delay, JMSDomain sonic) {
+	@AssistedInject
+	SendFileListTask(@Assisted JMSDestination queue, @Assisted File file, @Assisted @Nullable Message template, @Assisted("repeats") int repeats, @Assisted("delay") int delay, JMSDomain sonic) {
 		this(queue, Collections.singletonList(file), template, repeats, delay, sonic);
 	}
 	
-	public SendFileListTask(JMSDestination queue, List<File> files, JMSDomain sonic) {
-		this(queue, files, null, 1, 0, sonic);
+	@AssistedInject
+	SendFileListTask(@Assisted JMSDestination queue, @Assisted List<File> files, @Assisted @Nullable Message template, JMSDomain sonic) {
+		this(queue, files, template, 1, 0, sonic);
 	}
 	
-	public SendFileListTask(JMSDestination queue, List<File> files, int repeats, JMSDomain sonic) {
-		this(queue, files, null, repeats, 0, sonic);
-	}
-	
-	public SendFileListTask(JMSDestination queue, List<File> files, Message template, int repeats, int delay, JMSDomain sonic) {
+	@AssistedInject
+	SendFileListTask(@Assisted JMSDestination queue, @Assisted List<File> files, @Assisted @Nullable Message template, @Assisted("repeats") int repeats, @Assisted("delay") int delay, JMSDomain sonic) {
 		super(queue.getBroker());
 		
 		this.queue = queue;

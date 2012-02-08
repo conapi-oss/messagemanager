@@ -71,8 +71,6 @@ import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.TaskExecutor;
-import nl.queuemanager.core.tasks.SendFileListTask;
-import nl.queuemanager.core.tasks.SendMessageListTask;
 import nl.queuemanager.core.tasks.TaskFactory;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.jms.JMSBroker;
@@ -671,7 +669,7 @@ public class MessageSendTabPanel extends JPanel {
 		
 		// Send the file(list) and schedule a refresh of the destination table
 		worker.executeInOrder(
-			new SendFileListTask(queue, file, message, number, delay, sonic),
+			taskFactory.sendFile(queue, file, message, number, delay),
 			taskFactory.enumerateQueues(queue.getBroker(), null));
 	}
 
@@ -711,7 +709,7 @@ public class MessageSendTabPanel extends JPanel {
 		
 		// Create the tasks for sending and browsing messages
 		worker.executeInOrder(
-			new SendMessageListTask(queue, message, number, delay, sonic),
+			taskFactory.sendMessage(queue, message, number, delay),
 			taskFactory.enumerateQueues(queue.getBroker(), null));
 	}
 

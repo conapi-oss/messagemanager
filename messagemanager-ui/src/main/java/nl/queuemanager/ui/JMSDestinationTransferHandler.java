@@ -20,6 +20,10 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 
 import javax.jms.Message;
@@ -29,11 +33,7 @@ import javax.swing.TransferHandler;
 import nl.queuemanager.core.Pair;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.BackgroundTask;
-import nl.queuemanager.core.task.Task;
-import nl.queuemanager.core.task.TaskEvent;
 import nl.queuemanager.core.task.TaskExecutor;
-import nl.queuemanager.core.tasks.SendFileListTask;
-import nl.queuemanager.core.tasks.SendMessageListTask;
 import nl.queuemanager.core.tasks.TaskFactory;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSQueue;
@@ -43,7 +43,8 @@ import com.google.inject.assistedinject.Assisted;
 
 @SuppressWarnings("serial")
 class JMSDestinationTransferHandler extends TransferHandler {
-	private final JMSDomain domain;
+	private static DataFlavor urlDataFlavor;
+	
 	private final TaskExecutor worker;
 	private final TaskFactory taskFactory;
 
@@ -51,6 +52,14 @@ class JMSDestinationTransferHandler extends TransferHandler {
 	private final JMSDestinationHolder destinationHolder;
 	
 	private int sourceActions;
+	
+	static {
+		try {
+			urlDataFlavor = new DataFlavor("application/x-java-url;class=java.net.URL");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
 
 	@Inject
 	public JMSDestinationTransferHandler(
@@ -60,7 +69,6 @@ class JMSDestinationTransferHandler extends TransferHandler {
 			@Assisted JMSDestinationHolder destinationHolder) 
 	{
 		setSourceActions(COPY);
-		this.domain = domain;
 		this.worker = worker;
 		this.destinationHolder = destinationHolder;
 		this.taskFactory = taskFactory;
@@ -88,6 +96,9 @@ class JMSDestinationTransferHandler extends TransferHandler {
 				return true;
 			
 			if(flavor.equals(DataFlavor.javaFileListFlavor))
+				return true;
+			
+			if(flavor.equals(urlDataFlavor))
 				return true;
 		}
 		
@@ -119,6 +130,27 @@ class JMSDestinationTransferHandler extends TransferHandler {
 					final List<File> fileList = (List<File>)transferable.getTransferData(DataFlavor.javaFileListFlavor);
 					return importFileList(destinationHolder, fileList);
 				}
+				
+				if(f.equals(urlDataFlavor)) {
+					try {
+						URL url = (URL)transferable.getTransferData(urlDataFlavor);
+						if("file".equals(url.getProtocol())) {
+							URI uri = url.toURI();
+							
+							// Cannot use File(URI) because the authority component is non-null on Mac OS X 10.7
+							File file = new File(uri.getPath());
+							
+							return importFileList(destinationHolder, Collections.singletonList(file));
+						} else {
+							System.out.println("Protocol is not file?!?!");
+						}
+					} catch (URISyntaxException e) {
+						System.out.println(e);
+						e.printStackTrace();
+					} catch (Throwable t) {
+						t.printStackTrace();
+					}
+				}
 			}
 		} catch (UnsupportedFlavorException e) {
 			e.printStackTrace();
@@ -139,27 +171,9 @@ class JMSDestinationTransferHandler extends TransferHandler {
 	protected boolean importMessageIDList(JMSDestinationHolder destinationHolder, final List<Pair<JMSQueue, String>> messageList) {
 		final JMSQueue toQueue = (JMSQueue)destinationHolder.getJMSDestination();
 		
-		worker.executeInOrder(new Task(toQueue.getBroker()) {
-			@Override
-			public void execute() throws Exception {
-				int i = 0;
-				for(Pair<JMSQueue, String> messageInfo: messageList) {
-					final JMSQueue fromDst = messageInfo.first();
-					final String messageID = messageInfo.second();
-					domain.forwardMessage(fromDst, toQueue, messageID);
-					dispatchEvent(new TaskEvent(TaskEvent.EVENT.TASK_PROGRESS, i++, this));
-				}
-			}
-			@Override
-			public int getProgressMaximum() {
-				return messageList.size();
-			}
-			@Override
-			public String toString() {
-				return "Moving " + messageList.size() + " message to " + toQueue;
-			}
-		},
-		taskFactory.enumerateQueues(toQueue.getBroker(), null),
+		worker.executeInOrder(
+			taskFactory.moveMessages(toQueue, messageList),
+			taskFactory.enumerateQueues(toQueue.getBroker(), null),
 		new FireRefreshRequiredTask(null, destinationHolder, toQueue));
 		
 		return true;
@@ -176,7 +190,7 @@ class JMSDestinationTransferHandler extends TransferHandler {
 		final JMSDestination destination = destinationHolder.getJMSDestination();
 		
 		worker.executeInOrder(
-			new SendMessageListTask(destination, messageList, domain),
+			taskFactory.sendMessages(destination, messageList),
 			taskFactory.enumerateQueues(destination.getBroker(), null),
 			new FireRefreshRequiredTask(null, destinationHolder, destination));
 		
@@ -194,7 +208,7 @@ class JMSDestinationTransferHandler extends TransferHandler {
 		final JMSDestination destination = destinationHolder.getJMSDestination();
 		
 		worker.executeInOrder(
-			new SendFileListTask(destination, fileList, domain),
+			taskFactory.sendFiles(destination, fileList, null),
 			taskFactory.enumerateQueues(destination.getBroker(), null),
 			new FireRefreshRequiredTask(null, destinationHolder, destination));
 		

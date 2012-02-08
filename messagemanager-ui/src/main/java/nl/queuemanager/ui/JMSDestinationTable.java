@@ -20,7 +20,6 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -51,7 +50,6 @@ public class JMSDestinationTable extends JTable implements Clearable, JMSDestina
 	
 	private JMSDestinationTableModel realModel;
 	
-	@Inject
 	public JMSDestinationTable(JMSDestinationTransferHandlerFactory jdthFactory) {
 		super();
 		

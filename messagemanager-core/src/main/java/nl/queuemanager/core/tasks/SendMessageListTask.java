@@ -26,35 +26,42 @@ import nl.queuemanager.core.task.CancelableTask;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.jms.JMSDestination;
 
+import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
+
 public class SendMessageListTask extends Task implements CancelableTask {
 	
 	private final int repeats;
 	private final JMSDestination queue;
 	private final List<Message> messages;
-	private final JMSDomain sonic;
+	private final JMSDomain domain;
 	private final int delay;
 	private volatile boolean canceled;
 	
-	public SendMessageListTask(JMSDestination queue, Message message, JMSDomain sonic) {
-		this(queue, Collections.singletonList(message), 1, 0, sonic);		
+	@AssistedInject
+	SendMessageListTask(@Assisted JMSDestination queue, @Assisted Message message, JMSDomain domain) {
+		this(queue, Collections.singletonList(message), 1, 0, domain);
 	}
 	
-	public SendMessageListTask(JMSDestination queue, Message message, int repeats, int delay, JMSDomain sonic) {
-		this(queue, Collections.singletonList(message), repeats, delay, sonic);		
+	@AssistedInject
+	SendMessageListTask(@Assisted JMSDestination queue, @Assisted Message message, @Assisted("repeats") int repeats, @Assisted("delay") int delay, JMSDomain domain) {
+		this(queue, Collections.singletonList(message), repeats, delay, domain);
 	}
 	
-	public SendMessageListTask(JMSDestination queue, List<Message> messages, JMSDomain sonic) {
-		this(queue, messages, 1, 0, sonic);
+	@AssistedInject
+	SendMessageListTask(@Assisted JMSDestination queue, @Assisted List<Message> messages, JMSDomain domain) {
+		this(queue, messages, 1, 0, domain);
 	}
 
-	public SendMessageListTask(JMSDestination queue, List<Message> messages, int repeats, int delay, JMSDomain sonic) {
+	@AssistedInject
+	SendMessageListTask(@Assisted JMSDestination queue, @Assisted List<Message> messages, @Assisted("repeats") int repeats, @Assisted("delay") int delay, JMSDomain domain) {
 		super(queue.getBroker());
 		
 		this.repeats = repeats;
 		this.delay = delay;
 		this.queue = queue;
 		this.messages = messages;
-		this.sonic = sonic;
+		this.domain = domain;
 	}
 	
 	@Override
@@ -71,7 +78,7 @@ public class SendMessageListTask extends Task implements CancelableTask {
 				// present for future repeats.
 				String oldcid = m.getJMSCorrelationID();
 				replaceFields(m, i+1);
-				sonic.sendMessage(queue, m);
+				domain.sendMessage(queue, m);
 				m.setJMSCorrelationID(oldcid);
 				
 				reportProgress(i++);
