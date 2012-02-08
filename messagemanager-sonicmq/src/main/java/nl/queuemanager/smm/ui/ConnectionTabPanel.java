@@ -58,25 +58,25 @@ import com.google.inject.Inject;
 import com.sonicsw.ma.gui.PreferenceManager;
 import com.sonicsw.ma.gui.domain.DomainConnectionModel;
 import com.sonicsw.ma.gui.domain.JDomainConnectionDialog;
-import com.sonicsw.ma.gui.util.JMAFrame;
 
 @SuppressWarnings("serial")
 class ConnectionTabPanel extends JPanel {
-	private       JMAFrame jmaFrame;	
 	private final Domain sonic;
 	private final TaskExecutor worker;
 	private final SMMConfiguration config;
 	private final DesktopHelper desktop;
 	private       ConnectionModelTable connectionTable;
 	private final PreferenceManager prefs = PreferenceManager.getInstance();
+	private final JMAFrameProvider jmaFrameProvider;
 	
 	@Inject
-	public ConnectionTabPanel(Domain sonic, TaskExecutor worker, SMMConfiguration config, DesktopHelper desktop) {
+	public ConnectionTabPanel(Domain sonic, TaskExecutor worker, SMMConfiguration config, DesktopHelper desktop, JMAFrameProvider jmaFrameProvider) {
 		this.sonic = sonic;
 		this.worker = worker;
 		this.config = config;
 		this.desktop = desktop;
-		
+		this.jmaFrameProvider = jmaFrameProvider;
+
 		JPanel brandingPanel = createBrandingPanel();
 		JPanel connectionsPanel = createConnectionsPanel();
 		
@@ -357,8 +357,7 @@ class ConnectionTabPanel extends JPanel {
 		// connect the Sonic domain to it.
 		ConnectionModel model = connectionTable.getSelectedItem();
 		if(model != null) {
-			// Allow the user to enter the password by popping up the connection
-			// dialog		
+			// Allow the user to enter the password by popping up the connection dialog
 			final DomainConnectionModel realModel =
 				getConnectionModel(((SMCConnectionModel)model).getDelegate());
 			
@@ -393,7 +392,7 @@ class ConnectionTabPanel extends JPanel {
 	}
 	
 	public DomainConnectionModel getConnectionModel(DomainConnectionModel model) {
-		JDomainConnectionDialog connectionDialog = new JDomainConnectionDialog(getJmaFrame());
+		JDomainConnectionDialog connectionDialog = new JDomainConnectionDialog(jmaFrameProvider.get());
 		try {
 			desktop.makeMacSheet(connectionDialog);
 			connectionDialog.editInstance(null, model, true);
@@ -417,11 +416,4 @@ class ConnectionTabPanel extends JPanel {
         return model;
 	}
 
-	public void setJmaFrame(JMAFrame jmaFrame) {
-		this.jmaFrame = jmaFrame;
-	}
-
-	public JMAFrame getJmaFrame() {
-		return jmaFrame;
-	}		
 }

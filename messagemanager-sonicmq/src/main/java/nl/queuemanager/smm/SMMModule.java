@@ -2,6 +2,7 @@ package nl.queuemanager.smm;
 
 import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.jms.JMSDomain;
+import nl.queuemanager.smm.ui.SMMFrame;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -23,6 +24,18 @@ public class SMMModule extends AbstractModule {
 		
 		// The JMSDomain implementation for SonicMQ
 		bind(JMSDomain.class).to(Domain.class).in(Scopes.SINGLETON);
+		
+		/**
+		 * The SMMFrame is the frame needed by the Sonic Management gui code to bind to
+		 * SMMFrame extends JMAFrame to make those widgets happy. We register the frame
+		 * here to prevent from having to pass a reference to it around.
+		 *
+		 * We bind SMMFrame directly instead of JMAFrame because Guice is exact in its bindings.
+		 * When we bind JMAFrame and someone wants an SMMFrame, Guice will create another instance.
+		 * Because we only want one instance, we choose not to bind JMAFrame at all, causing this
+		 * kind of request to crash instead of introduce weird bugs.
+		 */
+		bind(SMMFrame.class).in(Scopes.SINGLETON);
 	}
 
 	public class MethodInvocationTracingInterceptor implements MethodInterceptor {

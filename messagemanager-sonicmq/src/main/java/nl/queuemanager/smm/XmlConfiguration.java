@@ -37,6 +37,7 @@ import javax.xml.xpath.XPathFactory;
 
 import nl.queuemanager.core.MapNamespaceContext;
 import nl.queuemanager.core.util.CollectionFactory;
+import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSTopic;
 
@@ -173,6 +174,26 @@ class XmlConfiguration implements SMMConfiguration {
 		} catch (XPathExpressionException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void setBrokerCredentials(JMSBroker broker, Credentials credentials) {
+		Document prefs = readPrefs();
+		try {
+			Element brokerElement = getBrokerElement(prefs, broker.toString());
+			setElementValue(brokerElement, new String[] { "DefaultUsername" }, credentials.getUsername());
+			setElementValue(brokerElement, new String[] { "DefaultPassword" }, credentials.getPassword());
+			savePrefs(prefs);
+		} catch (XPathExpressionException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public Credentials getBrokerCredentials(JMSBroker broker) {
+		String username = getBrokerPref(broker, "DefaultUsername", null);
+		String password = getBrokerPref(broker, "DefaultPassword", null);
+		if (username != null && password != null)
+			return new Credentials(username, password);
+		return null;
 	}
 	
 	/* (non-Javadoc)

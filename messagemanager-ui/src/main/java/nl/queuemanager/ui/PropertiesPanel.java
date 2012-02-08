@@ -19,7 +19,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -27,7 +26,6 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -243,21 +241,4 @@ public class PropertiesPanel extends JPanel {
 		return value;
 	}
 	
-	public static void main(String args[]){
-		JFrame frame = new JFrame();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setTitle("Properties Under Construction");
-		PropertiesPanel propPanel = new PropertiesPanel(new HashMap<String, Object>());
-		propPanel.properties.put("propInteger23", Integer.parseInt("23"));
-		propPanel.properties.put("propBoolean", Boolean.parseBoolean("true"));
-		propPanel.properties.put("propLong", System.currentTimeMillis());
-		propPanel.properties.put("propString", "HalloString");
-		propPanel.refreshTable();
-		frame.add(propPanel);
-		frame.setResizable(false);
-		frame.pack();
-		frame.setVisible(true);
-		CommonUITasks.centerWindow(frame);
-	}
-
 }

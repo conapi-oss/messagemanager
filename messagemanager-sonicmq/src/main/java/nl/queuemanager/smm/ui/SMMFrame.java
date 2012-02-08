@@ -32,56 +32,49 @@ import nl.queuemanager.smm.SMCConnectionModel;
 import nl.queuemanager.smm.Version;
 import nl.queuemanager.ui.MessageSendTabPanel;
 import nl.queuemanager.ui.QueuesTabPanel;
-import nl.queuemanager.ui.TaskErrorListener;
 import nl.queuemanager.ui.TopicSubscriberTabPanel;
 import nl.queuemanager.ui.task.TaskQueuePanel;
 
 import com.google.inject.Inject;
-import com.google.inject.Injector;
+import com.google.inject.Singleton;
 import com.sonicsw.ma.gui.domain.DomainConnectionModel;
 import com.sonicsw.ma.gui.util.JMAFrame;
 
 @SuppressWarnings("serial")
+@Singleton
 public class SMMFrame extends JMAFrame {
 	private static final String APP_NAME = "Message Manager";
 
-	private final JMAFrame jmaFrame = this;
-	
 	private final JTabbedPane tabsPane;
-	private final TaskQueuePanel taskQueuePanel;
 	
 	private final ConnectionTabPanel connectionPanel;
 	private final QueuesTabPanel queuesPanel;
-	private final TopicSubscriberTabPanel topicsPanel;
-	private final MessageSendTabPanel messageSendPanel;
 	
 	@Inject
-	public SMMFrame(Domain sonic, TaskExecutor worker, Injector injector) {
+	public SMMFrame(Domain sonic, TaskExecutor worker, 
+			ConnectionTabPanel connectionPanel,
+			QueuesTabPanel queuesPanel,
+			TopicSubscriberTabPanel topicsPanel,
+			MessageSendTabPanel messageSendPanel,
+			HelpTabPanel helpPanel,
+			TaskQueuePanel taskQueuePanel) {
 		super("messagemanager");
+		
+		this.connectionPanel = connectionPanel;
+		this.queuesPanel = queuesPanel;
 		
 		setTitle("");
 		
 		Container contentPane = getContentPane();
 		
-		// Create the tabbedpane that will hold all tabs
+		// Create the tabbedpane and add all the panels to it
 		tabsPane = new JTabbedPane();
 		tabsPane.setToolTipText("");
-		
-		// Create the panels for each tab and add them to the tabbedpane
-		connectionPanel = injector.getInstance(ConnectionTabPanel.class);
-		connectionPanel.setJmaFrame(this);
 		tabsPane.addTab("Connection", connectionPanel);
-		
-		queuesPanel = injector.getInstance(QueuesTabPanel.class);
 		tabsPane.addTab("Queue browser", queuesPanel);
-
-		topicsPanel = injector.getInstance(TopicSubscriberTabPanel.class);
 		tabsPane.addTab("Topic subscriber", topicsPanel);
-		
-		messageSendPanel = injector.getInstance(MessageSendTabPanel.class);
-		tabsPane.addTab("Message sender", messageSendPanel);
-		
-		tabsPane.add("Help", injector.getInstance(HelpTabPanel.class));
+		tabsPane.addTab("Message sender", messageSendPanel);		
+		tabsPane.add("Help", helpPanel);
 		
 		// Now add the TabbedPane to the layout
 		contentPane.add(tabsPane, BorderLayout.CENTER);
@@ -90,16 +83,9 @@ public class SMMFrame extends JMAFrame {
 		tabsPane.setEnabledAt(3, false);
 
 		// Add the task queue panel
-		taskQueuePanel = injector.getInstance(TaskQueuePanel.class);
 		contentPane.add(taskQueuePanel, BorderLayout.SOUTH);
-				
 		worker.addListener(taskQueuePanel);
 		sonic.addListener(new DomainEventListener());
-		
-		// Wire the executor to an error listener to display errors to the user
-		TaskErrorListener errorListener = injector.getInstance(TaskErrorListener.class);
-		errorListener.setParent(this);
-		worker.addListener(errorListener);
 	}
 	
 	public void start() {
@@ -117,7 +103,7 @@ public class SMMFrame extends JMAFrame {
 				final ConnectionModel model = (ConnectionModel)event.getInfo();
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
-						jmaFrame.setTitle("(" + model.getConnectionName() + " - " + model.getDomainName() + "@" + model.getUrl() + ")");
+						setTitle("(" + model.getConnectionName() + " - " + model.getDomainName() + "@" + model.getUrl() + ")");
 						tabsPane.setEnabledAt(1, true);
 						tabsPane.setSelectedComponent(queuesPanel);
 					}

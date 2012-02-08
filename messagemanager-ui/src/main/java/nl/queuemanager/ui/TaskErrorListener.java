@@ -26,6 +26,7 @@ import javax.swing.SwingUtilities;
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskEvent;
+import nl.queuemanager.core.util.UserCanceledException;
 
 /**
  * Listens for TASK_ERROR events and alerts the user to them.
@@ -53,6 +54,12 @@ public class TaskErrorListener implements EventListener<TaskEvent> {
 		switch(event.getId()) {
 
 		case TASK_ERROR:
+			if((Exception)event.getInfo() instanceof UserCanceledException) {
+				// If the user canceled something, we don't want to bother
+				// them with another message dialog.
+				return;
+			}
+				
 			if(!((Task)event.getSource()).isBackground()) {
 				String message = translateExceptionMessage((Exception)event.getInfo());
 				showMessage(getParent(), event.getSource().toString(), message, true);

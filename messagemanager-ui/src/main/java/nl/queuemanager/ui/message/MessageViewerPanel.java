@@ -176,6 +176,7 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 	 * @return
 	 */
 	private <C, T> ContentViewer<T> getContentViewer(Map<C, ? extends ContentViewer<T>> contentViewers, T object) {
+		// FIXME This uses the maps natural ordering. This may not be what we want!
 		for(Map.Entry<C, ? extends ContentViewer<T>> entry: contentViewers.entrySet()) {
 			ContentViewer<T> v = entry.getValue();
 			if(v.supports(object))

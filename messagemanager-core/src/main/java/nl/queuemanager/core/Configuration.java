@@ -15,6 +15,7 @@ package nl.queuemanager.core;
 
 import java.util.List;
 
+import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSTopic;
 
@@ -61,6 +62,23 @@ public interface Configuration {
 	 */
 	public abstract void setBrokerPref(JMSBroker broker, String key, String value);
 
+	/**
+	 * Save the default credentials for the broker to the per-user configuration store
+	 * 
+	 * @param broker
+	 * @param credentials
+	 */
+	public abstract void setBrokerCredentials(JMSBroker broker, Credentials credentials);
+
+	/**
+	 * Retrieve the stored credentials for this broker (if any). When there are no stored credentials,
+	 * return null.
+	 * 
+	 * @param broker
+	 * @return
+	 */
+	public abstract Credentials getBrokerCredentials(JMSBroker broker);
+		
 	/**
 	 * Retrieve the stored list of topic subscribers for a broker
 	 * 

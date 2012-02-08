@@ -56,9 +56,10 @@ import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.CancelableTask;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskExecutor;
+import nl.queuemanager.core.tasks.ConnectToBrokerTaskFactory;
 import nl.queuemanager.core.tasks.EnumerateMessagesTask;
-import nl.queuemanager.core.tasks.EnumerateQueuesTask;
 import nl.queuemanager.core.tasks.EnumerateMessagesTask.QueueBrowserEvent;
+import nl.queuemanager.core.tasks.EnumerateQueuesTask;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
@@ -82,6 +83,7 @@ public class QueuesTabPanel extends JSplitPane {
 	private final Configuration config;
 	private final QueueBrowserEventListener qbel;
 	private       Timer autoRefreshTimer;
+	private final ConnectToBrokerTaskFactory connectToBrokerTaskFactory;
 	
 	@Inject
 	public QueuesTabPanel(
@@ -89,12 +91,14 @@ public class QueuesTabPanel extends JSplitPane {
 			TaskExecutor worker,
 			Configuration config,
 			JMSDestinationTransferHandlerFactory jmsDestinationTransferHandlerFactory,
-			MessageViewerPanel messageViewer)
+			MessageViewerPanel messageViewer,
+			ConnectToBrokerTaskFactory connectToBrokerTaskFactory)
 	{
 		this.domain = domain;
 		this.worker = worker;
 		this.config = config;
 		this.queueTable = createQueueTable(jmsDestinationTransferHandlerFactory);
+		this.connectToBrokerTaskFactory = connectToBrokerTaskFactory;
 		
 		this.messageViewer = messageViewer;
 		messageViewer.setDragEnabled(true);
@@ -364,20 +368,7 @@ public class QueuesTabPanel extends JSplitPane {
 		deleteButton.addActionListener(actionListener);
 		return deleteButton;
 	}
-		
-	private void enumerateBrokers() {
-		worker.execute(new Task(domain) {
-			@Override
-			public void execute() throws Exception {
-				domain.enumerateBrokers();
-			}
-			@Override
-			public String toString() {
-				return "Enumerating brokers";
-			}
-		});
-	}
-	
+			
 	private void populateBrokerCombo(final List<JMSBroker> brokers) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -398,16 +389,7 @@ public class QueuesTabPanel extends JSplitPane {
 	
 	private void connectToBroker(final JMSBroker broker) {
 		// Connect to the broker
-		worker.execute(new Task(broker) {
-			@Override
-			public void execute() throws Exception {
-				domain.connectToBroker(broker);
-			}
-			@Override
-			public String toString() {
-				return "Connecting to broker " + broker;
-			}
-		});
+		worker.execute(connectToBrokerTaskFactory.create(broker));
 	}
 
 	public void initAutorefreshTimer() {
@@ -579,13 +561,12 @@ public class QueuesTabPanel extends JSplitPane {
 	private class DomainEventListener implements EventListener<DomainEvent> {
 		@SuppressWarnings("unchecked")
 		public void processEvent(DomainEvent event) {
+			if(event == null) 
+				throw new IllegalArgumentException("event must not be null");
+			
 			switch(event.getId()) {
-			case JMX_CONNECT:
-				enumerateBrokers();
-				break;
-				
 			case BROKER_CONNECT:
-				if(brokerCombo.getSelectedItem().equals(event.getInfo())) {
+				if(event.getInfo().equals(brokerCombo.getSelectedItem())) {
 					initAutorefreshTimer();
 				}
 				break;

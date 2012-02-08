@@ -29,6 +29,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ReflectionException;
 
 import nl.queuemanager.core.events.EventSource;
+import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSQueue;
@@ -140,12 +141,14 @@ public interface JMSDomain extends EventSource<DomainEvent> {
 	 * @throws JMSException
 	 */
 	public abstract void deleteMessages(JMSQueue queue, List<Message> messages) throws JMSException;
-
+	
 	/**
-	 * Connects to a JMSBroker and creates a JMS Session for that broker.
+	 * Connects to a JMSBroker using the specified Credentials and creates a JMS 
+	 * Session for that broker. If the credentials parameter is null, will attempt
+	 * to use default credentials (if applicable for the implemenattion).
 	 * 
 	 * @throws JMSException 
 	 */
-	public abstract void connectToBroker(JMSBroker aBroker) throws JMSException;
+	public abstract void connectToBroker(JMSBroker aBroker, Credentials credentials) throws JMSException;
 
 }

@@ -70,17 +70,17 @@ import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.JMSDomain;
-import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskExecutor;
+import nl.queuemanager.core.tasks.ConnectToBrokerTaskFactory;
 import nl.queuemanager.core.tasks.EnumerateQueuesTask;
 import nl.queuemanager.core.tasks.SendFileListTask;
 import nl.queuemanager.core.tasks.SendMessageListTask;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
+import nl.queuemanager.jms.JMSDestination.TYPE;
 import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.jms.JMSTopic;
-import nl.queuemanager.jms.JMSDestination.TYPE;
 import nl.queuemanager.jms.impl.MessageFactory;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.util.JIntegerField;
@@ -88,6 +88,7 @@ import nl.queuemanager.ui.util.JSearchableTextArea;
 import nl.queuemanager.ui.util.SpringUtilities;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 @SuppressWarnings("serial")
 public class MessageSendTabPanel extends JPanel {
@@ -113,8 +114,13 @@ public class MessageSendTabPanel extends JPanel {
 	private JButton sendButton;
 	private Map<String, Object> properties = CollectionFactory.newHashMap();
 	
+	private final Injector injector;
+	
 	@Inject
-	public MessageSendTabPanel(JMSDomain sonic, TaskExecutor worker, Configuration config) {		
+	public MessageSendTabPanel(Injector injector, JMSDomain sonic, TaskExecutor worker, Configuration config) {
+		// FIXME Don't reference injector
+		this.injector = injector;
+		
 		this.sonic = sonic;
 		this.worker = worker;
 		this.config = config;
@@ -724,16 +730,7 @@ public class MessageSendTabPanel extends JPanel {
 	
 	private void connectToBroker(final JMSBroker broker) {
 		// Connect to the broker
-		worker.execute(new Task(broker) {
-			@Override
-			public void execute() throws Exception {
-				sonic.connectToBroker(broker);
-			}
-			@Override
-			public String toString() {
-				return "Connecting to broker " + broker;
-			}
-		});
+		worker.execute(injector.getInstance(ConnectToBrokerTaskFactory.class).create(broker));
 	}
 	
 	/**

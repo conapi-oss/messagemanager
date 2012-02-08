@@ -47,6 +47,7 @@ import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.jms.DomainEvent.EVENT;
 import nl.queuemanager.core.util.CollectionFactory;
+import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSQueue;
@@ -593,11 +594,13 @@ public class Domain extends AbstractEventSource<DomainEvent> implements JMSDomai
 	/* (non-Javadoc)
 	 * @see nl.queuemanager.smm.sonic.JMSDomain#connectToBroker(nl.queuemanager.smm.jms.JMSBroker)
 	 */
-	public void connectToBroker(JMSBroker aBroker) throws JMSException {
+	public void connectToBroker(JMSBroker aBroker, Credentials credentials) throws JMSException {
 		SonicMQBroker broker = (SonicMQBroker)aBroker;
 		
 		if(brokerConnections.get(broker) == null) {
-			connectJMS(broker);
+			if(credentials == null)
+				credentials = getDefaultCredentials(broker);
+			connectJMS(broker, credentials);
 		}
 		
 		dispatchEvent(new DomainEvent(EVENT.BROKER_CONNECT, broker, this));		
@@ -612,9 +615,19 @@ public class Domain extends AbstractEventSource<DomainEvent> implements JMSDomai
 		return brokerConnections.get(broker);
 	}
 	
-	private void connectJMS(SonicMQBroker broker) throws JMSException {
+	private Credentials getDefaultCredentials(SonicMQBroker broker) {
+		return new Credentials(model.getUserName(), model.getPassword());
+	}
+	
+	private void connectJMS(SonicMQBroker broker, Credentials cred) throws JMSException {
 		if(brokerConnections.get(broker) != null)
 			return;
+		
+		if(broker == null)
+			throw new IllegalArgumentException("Broker must be supplied");
+		
+		if(cred == null)
+			throw new IllegalArgumentException("Credentials must be supplied");
 		
 		// Try the configuration to get an alternate URL if one is configured.
 		String brokerUrl = config.getBrokerPref(
@@ -623,12 +636,13 @@ public class Domain extends AbstractEventSource<DomainEvent> implements JMSDomai
 		progress.message.jclient.ConnectionFactory factory = 
 			new progress.message.jclient.ConnectionFactory(
 				broker.getBrokerURL(),
-				model.getUserName(), 
-				model.getPassword());
+				cred.getUsername(), 
+				cred.getPassword());
 		
 		String loginSPI = System.getProperty("smm.jms.LoginSPI", null);
-		if(loginSPI != null);
+		if(loginSPI != null) {
 			factory.setLoginSPI(loginSPI);
+		}
 		
 		factory.setConnectID(null);
 		factory.setConnectionURLs(brokerUrl);
@@ -677,47 +691,7 @@ public class Domain extends AbstractEventSource<DomainEvent> implements JMSDomai
 				dispatchEvent(new DomainEvent(EVENT.BROKER_DISCONNECT, broker, this));
 			}
 		}
-	}
-	
-//	@SuppressWarnings("unchecked")
-//	private List<String> getUsersWithDurableSubscriptionsList(JMSBroker broker,
-//			String filter) throws InstanceNotFoundException, MBeanException,
-//			ReflectionException {
-//		List<String> users = (List<String>) model.invoke(
-//				((SonicMQBroker)broker).getObjectName(), "getUsersWithDurableSubscriptions",
-//				new Object[] { filter },
-//				new String[] { String.class.getName() });
-//		
-//		return users;
-//	}
-//	
-//	@SuppressWarnings("unchecked")
-//	private List<JMSTopic> getDurableSubscriptionsList(
-//			JMSBroker broker, String filter, String filter2)
-//			throws MalformedObjectNameException, NullPointerException,
-//			InstanceNotFoundException, MBeanException, ReflectionException {
-//
-//		List<IDurableSubscriptionData> temp = null;
-//		try {
-//			temp = (List<IDurableSubscriptionData>) model.invoke(
-//					((SonicMQBroker)broker).getObjectName(),
-//					"getDurableSubscriptions",
-//					new Object[] { filter },
-//					new String[] { String.class.getName() });
-//		} catch (Exception e) {
-//			throw new RuntimeException(e);
-//		}
-//
-//		// TODO Filter
-//		 ArrayList<JMSTopic> topic = new ArrayList<JMSTopic>();
-//		 for (IDurableSubscriptionData tmptopic: temp) {
-//			 if (!tmptopic.getTopicName().startsWith("SonicMQ.mf.")){
-//				 SonicMQTopic smqtopic = new SonicMQTopic(((SonicMQBroker)broker), tmptopic);
-//				 topic.add(smqtopic);
-//			 }
-//		 }
-//		return topic;
-//	}
+	}	
 	
 	private static class SonicExceptionListener implements ExceptionListener {
 		public void onException(JMSException ex) {

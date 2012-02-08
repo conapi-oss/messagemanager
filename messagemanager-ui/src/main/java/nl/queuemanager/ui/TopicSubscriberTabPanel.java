@@ -49,8 +49,8 @@ import nl.queuemanager.core.MessageEvent;
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.JMSDomain;
-import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskExecutor;
+import nl.queuemanager.core.tasks.ConnectToBrokerTaskFactory;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
@@ -82,9 +82,12 @@ public class TopicSubscriberTabPanel extends JSplitPane {
 	
 	private final MessageEventListener messageEventListener;
 	
+	private final Injector injector;
+	
 	@Inject
 	public TopicSubscriberTabPanel(Injector injector) {
 		// FIXME This is against DI best practices
+		this.injector = injector;
 		this.domain = injector.getInstance(JMSDomain.class);
 		this.worker = injector.getInstance(TaskExecutor.class);
 		this.config = injector.getInstance(Configuration.class);
@@ -269,16 +272,7 @@ public class TopicSubscriberTabPanel extends JSplitPane {
 	
 	private void connectToBroker(final JMSBroker broker) {
 		// Connect to the broker
-		worker.execute(new Task(broker) {
-			@Override
-			public void execute() throws Exception {
-				domain.connectToBroker(broker);
-			}
-			@Override
-			public String toString() {
-				return "Connecting to broker " + broker;
-			}
-		});
+		worker.execute(injector.getInstance(ConnectToBrokerTaskFactory.class).create(broker));
 	}
 
 	/**
