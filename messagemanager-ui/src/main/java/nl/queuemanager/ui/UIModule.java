@@ -8,19 +8,24 @@ import nl.queuemanager.ui.util.DesktopHelperJRE6;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
-import com.google.inject.assistedinject.FactoryProvider;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
 
 public class UIModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
 		install(new MessageViewerModule());
-		
-		bind(JMSDestinationTransferHandlerFactory.class).toProvider(FactoryProvider.newFactory(
-			JMSDestinationTransferHandlerFactory.class, JMSDestinationTransferHandler.class));
+
+		// Assisted inject for JMSDestinationTransferHandlers
+		install(new FactoryModuleBuilder()
+			.implement(JMSDestinationTransferHandler.class, JMSDestinationTransferHandler.class)
+			.build(JMSDestinationTransferHandlerFactory.class));
 		
 		// The broker credentials provider
 		bind(BrokerCredentialsProvider.class).to(BrokerCredentialsDialog.class).in(Scopes.SINGLETON);
+		
+		// To display errors to the user, we need a global error listener for the task executor
+		bind(TaskErrorListener.class).in(Scopes.SINGLETON);
 		
 		try {
 			Class.forName("java.awt.Desktop");

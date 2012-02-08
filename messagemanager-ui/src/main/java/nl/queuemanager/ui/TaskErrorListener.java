@@ -26,7 +26,11 @@ import javax.swing.SwingUtilities;
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskEvent;
+import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.util.UserCanceledException;
+
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Listens for TASK_ERROR events and alerts the user to them.
@@ -34,6 +38,7 @@ import nl.queuemanager.core.util.UserCanceledException;
  * @author Gerco Dries (gdr@progaia-rs.nl)
  *
  */
+@Singleton
 public class TaskErrorListener implements EventListener<TaskEvent> {
 	private static final String MANAGE_PERMISSION_DENIED = 
 		"com.sonicsw.mf.common.security.ManagePermissionDeniedException";
@@ -45,7 +50,9 @@ public class TaskErrorListener implements EventListener<TaskEvent> {
 	
 	private Component parent;
 	
-	public TaskErrorListener() {
+	@Inject
+	public TaskErrorListener(TaskExecutor executor) {
+		executor.addListener(this);
 	}
 	
 	public void processEvent(TaskEvent event) {

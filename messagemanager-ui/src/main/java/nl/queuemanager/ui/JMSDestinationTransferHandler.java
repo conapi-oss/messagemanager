@@ -43,8 +43,6 @@ import com.google.inject.assistedinject.Assisted;
 
 @SuppressWarnings("serial")
 class JMSDestinationTransferHandler extends TransferHandler {
-	private static String newline = System.getProperty("line.separator");
-	
 	private JMSDomain domain;
 	private TaskExecutor worker;
 

@@ -20,9 +20,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import nl.queuemanager.core.CoreModule;
-import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.smm.ui.SMMFrame;
-import nl.queuemanager.ui.TaskErrorListener;
 import nl.queuemanager.ui.UIModule;
 
 import com.google.inject.Guice;
@@ -47,11 +45,6 @@ public class Main {
 		
 		// Create the main application frame
 		final SMMFrame frame = injector.getInstance(SMMFrame.class);
-
-		// Wire the executor to an error listener to display errors to the user
-		final TaskErrorListener errorListener = injector.getInstance(TaskErrorListener.class);
-		errorListener.setParent(frame);
-		injector.getInstance(TaskExecutor.class).addListener(errorListener);
 		
 		try {
 			graph("/tmp/smm.dot", injector);
