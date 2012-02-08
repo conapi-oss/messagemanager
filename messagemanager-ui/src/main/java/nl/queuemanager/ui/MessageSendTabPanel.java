@@ -82,10 +82,10 @@ import nl.queuemanager.jms.impl.MessageFactory;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.util.JIntegerField;
 import nl.queuemanager.ui.util.JSearchableTextArea;
+import nl.queuemanager.ui.util.QueueCountsRefresher;
 import nl.queuemanager.ui.util.SpringUtilities;
 
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 
 @SuppressWarnings("serial")
 public class MessageSendTabPanel extends JPanel {
@@ -97,6 +97,7 @@ public class MessageSendTabPanel extends JPanel {
 	private final TaskExecutor worker;
 	private final TaskFactory taskFactory;
 	private final Configuration config;
+	private final QueueCountsRefresher qcRefresher;
 
 	private JTextField filenameField;
 	private JIntegerField numberOfMessagesField;
@@ -112,20 +113,16 @@ public class MessageSendTabPanel extends JPanel {
 	private JButton sendButton;
 	private Map<String, Object> properties = CollectionFactory.newHashMap();
 	
-	private final Injector injector;
-	
 	@Inject
-	public MessageSendTabPanel(Injector injector, JMSDomain sonic, 
-			TaskExecutor worker, Configuration config, TaskFactory taskFactory,
-			JMSDestinationTable destinationTable) 
+	public MessageSendTabPanel(JMSDomain sonic, TaskExecutor worker, Configuration config, 
+			TaskFactory taskFactory, JMSDestinationTable destinationTable, 
+			QueueCountsRefresher refresher) 
 	{
-		// FIXME Don't reference injector
-		this.injector = injector;
-		
 		this.sonic = sonic;
 		this.worker = worker;
 		this.config = config;
 		this.taskFactory = taskFactory;
+		this.qcRefresher = refresher;
 				
 		/******************************
 		 * Left side -- Queues and topic tables **
@@ -188,15 +185,26 @@ public class MessageSendTabPanel extends JPanel {
 		cmb.setAlignmentX(Component.CENTER_ALIGNMENT);
 		cmb.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
-				if(e.getID() == ItemEvent.ITEM_STATE_CHANGED
-				&& e.getStateChange() == ItemEvent.SELECTED) {
+				if(e.getID() != ItemEvent.ITEM_STATE_CHANGED)
+					return;
+				
+				switch(e.getStateChange()) {
+				case ItemEvent.DESELECTED: {
+					JMSBroker previouslySelectedBroker = (JMSBroker)e.getItem();
+					if(previouslySelectedBroker != null)
+						qcRefresher.unregisterInterest(previouslySelectedBroker);
+				} break;
+				
+				case ItemEvent.SELECTED: {
 					JMSBroker selectedBroker = (JMSBroker)e.getItem();
 					
 					destinationTable.clear();
 					
+					qcRefresher.registerInterest(selectedBroker);
 					connectToBroker(selectedBroker);
 					enumerateTopics(selectedBroker);
 					enumerateQueues(selectedBroker);
+				} break;
 				}
 			}
 		});
@@ -732,7 +740,7 @@ public class MessageSendTabPanel extends JPanel {
 	
 	private void connectToBroker(final JMSBroker broker) {
 		// Connect to the broker
-		worker.execute(injector.getInstance(TaskFactory.class).connectToBroker(broker));
+		worker.execute(taskFactory.connectToBroker(broker));
 	}
 	
 	/**

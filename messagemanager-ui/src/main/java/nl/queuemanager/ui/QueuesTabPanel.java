@@ -32,8 +32,6 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.TooManyListenersException;
 
 import javax.jms.Message;
@@ -65,6 +63,7 @@ import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.JMSDestinationTransferHandler.JMSDestinationHolder;
 import nl.queuemanager.ui.message.MessageViewerPanel;
 import nl.queuemanager.ui.util.Holder;
+import nl.queuemanager.ui.util.QueueCountsRefresher;
 
 import com.google.inject.Inject;
 
@@ -78,8 +77,8 @@ public class QueuesTabPanel extends JSplitPane {
 	private final TaskExecutor worker;
 	private final Configuration config;
 	private final QueueBrowserEventListener qbel;
-	private       Timer autoRefreshTimer;
 	private final TaskFactory taskFactory;
+	private final QueueCountsRefresher qcRefresher;
 	
 	@Inject
 	public QueuesTabPanel(
@@ -88,12 +87,14 @@ public class QueuesTabPanel extends JSplitPane {
 			Configuration config,
 			JMSDestinationTransferHandlerFactory jmsDestinationTransferHandlerFactory,
 			MessageViewerPanel messageViewer,
-			TaskFactory taskFactory)
+			TaskFactory taskFactory,
+			QueueCountsRefresher refresher)
 	{
 		this.worker = worker;
 		this.config = config;
 		this.queueTable = createQueueTable(jmsDestinationTransferHandlerFactory);
 		this.taskFactory = taskFactory;
+		this.qcRefresher = refresher;
 		
 		this.messageViewer = messageViewer;
 		messageViewer.setDragEnabled(true);
@@ -339,15 +340,26 @@ public class QueuesTabPanel extends JSplitPane {
 		cmb.setAlignmentX(Component.CENTER_ALIGNMENT);
 		cmb.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
-				if(e.getID() == ItemEvent.ITEM_STATE_CHANGED
-				&& e.getStateChange() == ItemEvent.SELECTED) {
-					JMSBroker selectedBroker = (JMSBroker)e.getItem();
-					
-					queueTable.clear();
-					messageTable.clear();
-					
-					connectToBroker(selectedBroker);
-					enumerateQueues(selectedBroker);
+				if(e.getID() != ItemEvent.ITEM_STATE_CHANGED)
+					return;
+				
+				switch(e.getStateChange()) {
+				case ItemEvent.DESELECTED: {
+					JMSBroker previouslySelectedBroker = (JMSBroker)e.getItem();
+					if(previouslySelectedBroker != null)
+						qcRefresher.unregisterInterest(previouslySelectedBroker);
+				} break;
+				
+				case ItemEvent.SELECTED: {
+						JMSBroker selectedBroker = (JMSBroker)e.getItem();
+						
+						queueTable.clear();
+						messageTable.clear();
+						
+						qcRefresher.registerInterest(selectedBroker);
+						connectToBroker(selectedBroker);
+						enumerateQueues(selectedBroker);
+				} break;
 				}
 			}
 		});
@@ -385,30 +397,6 @@ public class QueuesTabPanel extends JSplitPane {
 	private void connectToBroker(final JMSBroker broker) {
 		// Connect to the broker
 		worker.execute(taskFactory.connectToBroker(broker));
-	}
-
-	public void initAutorefreshTimer() {
-		if(autoRefreshTimer != null) {
-			autoRefreshTimer.cancel();
-			autoRefreshTimer = null;
-		}
-		
-		int autoRefreshInterval = Integer.parseInt(config.getUserPref(
-				Configuration.PREF_AUTOREFRESH_INTERVAL, "5000"));
-		
-		this.autoRefreshTimer = new Timer();
-		autoRefreshTimer.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				enumerateQueues((JMSBroker)brokerCombo.getSelectedItem());
-			}
-		}, autoRefreshInterval, autoRefreshInterval);
-	}
-	
-	public void stopAutoRefreshTimer() {
-		if(autoRefreshTimer != null) {
-			autoRefreshTimer.cancel();
-		}
 	}
 
 	private void enumerateQueues(final JMSBroker broker) {		
@@ -540,12 +528,6 @@ public class QueuesTabPanel extends JSplitPane {
 				throw new IllegalArgumentException("event must not be null");
 			
 			switch(event.getId()) {
-			case BROKER_CONNECT:
-				if(event.getInfo().equals(brokerCombo.getSelectedItem())) {
-					initAutorefreshTimer();
-				}
-				break;
-				
 			case BROKERS_ENUMERATED:
 				populateBrokerCombo((List<JMSBroker>)event.getInfo());
 				break;
@@ -559,7 +541,6 @@ public class QueuesTabPanel extends JSplitPane {
 			case BROKER_DISCONNECT:
 				Object info = event.getInfo();
 				if(info != null && info.equals(brokerCombo.getSelectedItem())) {
-					stopAutoRefreshTimer();
 					CommonUITasks.clear(messageTable);
 					CommonUITasks.clear(queueTable);
 					populateBrokerCombo(new ArrayList<JMSBroker>());
