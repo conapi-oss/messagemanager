@@ -5,6 +5,7 @@ import nl.queuemanager.ui.message.MessageViewerModule;
 import nl.queuemanager.ui.util.DesktopHelper;
 import nl.queuemanager.ui.util.DesktopHelperJRE5;
 import nl.queuemanager.ui.util.DesktopHelperJRE6;
+import nl.queuemanager.ui.util.QueueCountsRefresher;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
@@ -26,6 +27,9 @@ public class UIModule extends AbstractModule {
 		
 		// To display errors to the user, we need a global error listener for the task executor
 		bind(TaskErrorListener.class).in(Scopes.SINGLETON);
+		
+		// Refresh queue counts from one central object to prevent refreshing the same broker more than once
+		bind(QueueCountsRefresher.class).in(Scopes.SINGLETON);
 		
 		try {
 			Class.forName("java.awt.Desktop");

@@ -23,9 +23,11 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
 
+import javax.inject.Singleton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 
+@Singleton
 public class DesktopHelperJRE6 implements DesktopHelper {
 
 	public void addLink(final JComponent component, final URI uri) {
