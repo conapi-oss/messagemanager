@@ -23,6 +23,7 @@ import java.util.List;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
+import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import javax.jms.StreamMessage;
@@ -134,6 +135,8 @@ public class MessagesTable extends JTable implements Clearable {
 						return "XML";
 					} else if (message instanceof TextMessage) {
 						return "Text";
+					} else if (message instanceof MapMessage) {
+						return "Map";
 					} else if (message instanceof BytesMessage) {
 						return "Bytes";
 					} else if (message instanceof JMSMultipartMessage) {

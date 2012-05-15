@@ -19,6 +19,7 @@ public enum MessageType {
 	TEXT_MESSAGE("Text-Message", javax.jms.TextMessage.class),
 	XML_MESSAGE("XML-Message", nl.queuemanager.jms.JMSXMLMessage.class),
 	BYTES_MESSAGE("Bytes-Message", javax.jms.BytesMessage.class),
+	MAP_MESSAGE("Map-Message", javax.jms.MapMessage.class),
 	MULTIPART_MESSAGE("Multipart-Message", nl.queuemanager.jms.JMSMultipartMessage.class),
 	MESSAGE("Message", javax.jms.Message.class);
 

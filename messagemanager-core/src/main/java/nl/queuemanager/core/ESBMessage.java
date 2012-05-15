@@ -24,6 +24,7 @@ import java.util.Enumeration;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
+import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.TextMessage;
 import javax.xml.parsers.DocumentBuilder;
@@ -41,6 +42,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import nl.queuemanager.core.util.EnumerationIterator;
 import nl.queuemanager.jms.JMSMultipartMessage;
 import nl.queuemanager.jms.JMSPart;
 import nl.queuemanager.jms.MessageType;
@@ -186,12 +188,35 @@ public final class ESBMessage {
 			byte[] bytes = new byte[(int)bm.getBodyLength()];
 			bm.readBytes(bytes);
 			e.setTextContent(Base64.encodeToString(bytes, true));
+		} else if(MapMessage.class.isAssignableFrom(message.getClass())) {
+			MapMessage mapMessage = (MapMessage)message;
+			for(String name: new EnumerationIterator<String>(mapMessage.getMapNames())) {
+				Object value = mapMessage.getObject(name);
+				
+				Element entry = e.getOwnerDocument().createElement("entry");
+				entry.setAttribute("name", name);
+				entry.setAttribute("type", value.getClass().getName());
+				entry.setTextContent(convertObjectToString(value));
+				e.appendChild(entry);
+			}
 		} else {
 			throw new RuntimeException("Unsupported message type: " + message.getClass());
 		}
 		messageElement.appendChild(e);
 	}
 	
+	private static String convertObjectToString(Object value) {
+		if(value instanceof Byte) {
+			return Base64.encodeToString(new byte[] {((Byte)value).byteValue()}, true);
+		}
+		
+		if(value instanceof byte[]) {
+			return Base64.encodeToString((byte[])value, true);
+		}
+		
+		return value.toString();
+	}
+				
 	private static void savePart(Element messageElement, JMSPart part, int partIndex){
 		String contentType = part.getContentType();
 		Element e = messageElement.getOwnerDocument().createElement("part");
@@ -209,7 +234,7 @@ public final class ESBMessage {
 	
 	/**
 	 * Serialize the properties of a {@link Message} object into a DOM Element.
-	 * 
+,m	 * 
 	 * @param messageElement
 	 * @param message
 	 */
@@ -321,6 +346,8 @@ public final class ESBMessage {
 			return MessageFactory.createXMLMessage();
 		case BYTES_MESSAGE:
 			return MessageFactory.createBytesMessage();
+		case MAP_MESSAGE:
+			return MessageFactory.createMapMessage();
 		case MULTIPART_MESSAGE:
 			return MessageFactory.createMultipartMessage();
 		}
@@ -350,6 +377,10 @@ public final class ESBMessage {
 			
 		case BYTES_MESSAGE:
 			readBytesBody(esbmsgFile, doc, (BytesMessage)message);
+			break;
+			
+		case MAP_MESSAGE:
+			readMapBody(esbmsgFile, doc, (MapMessage)message);
 			break;
 			
 		case MULTIPART_MESSAGE:
@@ -414,6 +445,50 @@ public final class ESBMessage {
 		message.reset();
 	}
 
+	/**
+	 * Read the map content of the message from the Document.
+	 * 
+	 * @param doc
+	 * @param message
+	 * @throws JMSException
+	 * @throws XPathExpressionException
+	 * @throws IOException
+	 */
+	private static void readMapBody(File esbmsgFile, Document doc, MapMessage message) throws JMSException, XPathExpressionException, IOException {
+		XPath xpath = getXPath();
+		NodeList entries = (NodeList) xpath.evaluate("/sonic_esbmsg:esbmsg/body/entry", doc, XPathConstants.NODESET);
+		
+		if(entries == null)
+			return;
+		
+		for(int i=0; i<entries.getLength(); i++) {
+			Element entry = (Element)entries.item(i);
+			String name = entry.getAttribute("name");
+			String type = entry.getAttribute("type");
+			String value = entry.getTextContent();
+			
+			if(Byte.class.getName().equals(type)) {
+				message.setByte(name, Base64.decode(value)[0]);
+			} else if(Byte[].class.getName().equals(type)) {
+				message.setBytes(name, Base64.decode(value));
+			} else if(String.class.getName().equals(type)) {
+				message.setString(name, value);
+			} else if(Short.class.getName().equals(type)) {
+				message.setShort(name, Short.valueOf(value));
+			} else if(Integer.class.getName().equals(type)) {
+				message.setInt(name, Integer.valueOf(value));
+			} else if(Long.class.getName().equals(type)) {
+				message.setLong(name, Long.valueOf(value));
+			} else if(Float.class.getName().equals(type)) {
+				message.setFloat(name, Float.valueOf(value));
+			} else if(Double.class.getName().equals(type)) {
+				message.setDouble(name, Double.valueOf(value));
+			} else if(Boolean.class.getName().equals(type)) {
+				message.setBoolean(name, Boolean.valueOf(value));
+			}
+		}
+	}
+	
 	/**
 	 * Read a multi-part ESBMessage from the Document and store in {@link Message}.
 	 * 

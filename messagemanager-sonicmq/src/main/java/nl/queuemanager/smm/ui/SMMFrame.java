@@ -17,11 +17,9 @@ package nl.queuemanager.smm.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.Toolkit;
 
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
@@ -157,14 +155,4 @@ public class SMMFrame extends JMAFrame {
 	protected void maInitialize() {
 	}
 	
-	// static initializer for setting look & feel
-	static {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			if(Boolean.TRUE.equals(Toolkit.getDefaultToolkit().getDesktopProperty("awt.dynamicLayoutSupported")))
-				Toolkit.getDefaultToolkit().setDynamicLayout(true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 }
