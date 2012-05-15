@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<sonic_esbmsg:esbmsg type="Map-Message" xmlns:sonic_esbmsg="http://sonicsw.com/tools/esbmsg/namespace">
+<body content-id="body-part" file-ref="" use-file-ref="false">
+<entry name="TestBoolean" type="java.lang.Boolean">true</entry>
+<entry name="TestDouble" type="java.lang.Double">42.42</entry>
+<entry name="TestString" type="java.lang.String">TestValue</entry>
+<entry name="TestLong" type="java.lang.Long">4242424242</entry>
+<entry name="TestFloat" type="java.lang.Float">42.42</entry>
+<entry name="TestByte" type="java.lang.Byte">qw==</entry>
+<entry name="TestShort" type="java.lang.Short">42</entry>
+<entry name="TestInt" type="java.lang.Integer">42000</entry>
+<entry name="TestByte[]" type="[B">AQIDBA==</entry>
+</body>
+</sonic_esbmsg:esbmsg>
