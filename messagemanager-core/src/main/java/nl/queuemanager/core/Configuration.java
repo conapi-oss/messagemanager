@@ -25,6 +25,7 @@ public interface Configuration {
 	public static final String PREF_MAX_BUFFERED_MSG = "maxBufferedMessages";
 	public static final String PREF_AUTOREFRESH_INTERVAL = "autoRefreshInterval";
 	public static final String PREF_BROKER_ALTERNATE_URL = "alternateUrl";
+	public static final String PREF_PLUGIN_MODULES = "pluginModules";
 
 	/**
 	 * Get a per-user preference value.
@@ -43,6 +44,12 @@ public interface Configuration {
 	 */
 	public abstract void setUserPref(String key, String value);
 
+	/**
+	 * List the brokers for which preferences are stored
+	 * @return
+	 */
+	public abstract List<JMSBroker> listBrokers();
+	
 	/**
 	 * Get the value of a single per-broker preference.
 	 * 
