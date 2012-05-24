@@ -80,6 +80,7 @@ import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.jms.JMSTopic;
 import nl.queuemanager.jms.impl.MessageFactory;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
+import nl.queuemanager.ui.UITab.ConnectionState;
 import nl.queuemanager.ui.util.JIntegerField;
 import nl.queuemanager.ui.util.JSearchableTextArea;
 import nl.queuemanager.ui.util.QueueCountsRefresher;
@@ -88,7 +89,7 @@ import nl.queuemanager.ui.util.SpringUtilities;
 import com.google.inject.Inject;
 
 @SuppressWarnings("serial")
-public class MessageSendTabPanel extends JPanel {
+public class MessageSendTabPanel extends JPanel implements UITab {
 	private final String[] deliveryModes = {"PERSISTENT", "NON-PERSISTENT"};
 	
 	private final JComboBox brokerCombo;
@@ -842,6 +843,18 @@ public class MessageSendTabPanel extends JPanel {
 		}
 	}
 	
+	public String getUITabName() {
+		return "Message sender";
+	}
+
+	public JComponent getUITabComponent() {
+		return this;
+	}
+
+	public ConnectionState[] getUITabEnabledStates() {
+		return new ConnectionState[] {ConnectionState.CONNECTED};
+	}
+
 	private class DomainEventListener implements EventListener<DomainEvent> {
 
 		@SuppressWarnings("unchecked")

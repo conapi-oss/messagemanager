@@ -21,11 +21,14 @@ import javax.help.HelpSet;
 import javax.help.HelpSetException;
 import javax.help.JHelpContentViewer;
 import javax.help.JHelpNavigator;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JSplitPane;
 
+import nl.queuemanager.ui.UITab;
+
 @SuppressWarnings("serial")
-class HelpTabPanel extends JSplitPane {
+class HelpTabPanel extends JSplitPane implements UITab {
 
 	public HelpTabPanel() {
 		super(JSplitPane.HORIZONTAL_SPLIT);
@@ -47,5 +50,17 @@ class HelpTabPanel extends JSplitPane {
 			setLeftComponent(new JLabel("Unable to load the manual: " + e.getMessage()));
 		}
 		    
+	}
+
+	public String getUITabName() {
+		return "Help";
+	}
+
+	public JComponent getUITabComponent() {
+		return this;
+	}
+
+	public ConnectionState[] getUITabEnabledStates() {
+		return ConnectionState.values();
 	}
 }

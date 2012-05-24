@@ -17,6 +17,7 @@ package nl.queuemanager.smm;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
 
@@ -136,6 +137,23 @@ class XmlConfiguration implements SMMConfiguration {
 		} catch (XPathExpressionException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public synchronized List<JMSBroker> listBrokers() {
+		Document prefs = readPrefs();
+		List<JMSBroker> brokers = new ArrayList<JMSBroker>();
+		
+		String expr = String.format("/c:%s/c:Broker", ROOT_ELEMENT);
+		try {
+			NodeList brokerNodes = (NodeList)xp.evaluate(expr, prefs.getDocumentElement(), XPathConstants.NODESET);
+			for(int i=0; i< brokerNodes.getLength(); i++) {
+				Element brokerElement = (Element) brokerNodes.item(i);
+				brokers.add(new JMSBrokerName(brokerElement.getAttribute("name")));
+			}
+		} catch (XPathExpressionException e) {
+			e.printStackTrace();
+		}
+		return brokers;
 	}
 	
 	/* (non-Javadoc)
@@ -500,5 +518,22 @@ class XmlConfiguration implements SMMConfiguration {
 	private String getOldUserPref(final String key) {
 		Preferences userNode = Preferences.userNodeForPackage(XmlConfiguration.class);
 		return userNode.get(key, null);
+	}
+	
+	private class JMSBrokerName implements JMSBroker {
+		private final String name;
+
+		public JMSBrokerName(String name) {
+			this.name = name;
+		}
+		
+		public String toString() {
+			return name;
+		}
+		
+		public int compareTo(JMSBroker other) {
+			return name.compareTo(other.toString());
+		}
+		
 	}
 }

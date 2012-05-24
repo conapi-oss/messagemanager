@@ -16,15 +16,21 @@
 package nl.queuemanager.smm;
 
 import java.awt.Toolkit;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.UIManager;
 
+import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.CoreModule;
+import nl.queuemanager.smm.ui.ConnectionTabPanel;
 import nl.queuemanager.smm.ui.SMMFrame;
+import nl.queuemanager.smm.ui.SMMUIModule;
 import nl.queuemanager.ui.UIModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import com.google.inject.Stage;
 
 public class Main {
@@ -36,20 +42,62 @@ public class Main {
 		// Set look & feel to native
 		setNativeLAF();
 		
-		Injector injector = Guice.createInjector(
-				Stage.PRODUCTION,
-				new CoreModule(), 
-				new UIModule(), 
-				new SMMModule());
+		// Create the default modules
+		List<Module> modules = new ArrayList<Module>();
+		modules.add(new SMMConfigurationModule());
+		modules.add(new CoreModule());
+		modules.add(new UIModule());
+		modules.add(new SMMModule());
+		modules.add(new SMMUIModule());
+		
+		// Load plugin modules
+		modules.addAll(createPluginModules());
+		
+		// Now that the module list is complete, create the injector
+		Injector injector = Guice.createInjector(Stage.PRODUCTION, modules);
 		
 		// Create the main application frame
 		final SMMFrame frame = injector.getInstance(SMMFrame.class);
 				
-		// Set the frame visible and start the program
+		// Make the frame visible
 		frame.setVisible(true);
-		frame.start();
+		
+		// Pop up the connection dialog
+		injector.getInstance(ConnectionTabPanel.class).showDefaultConnectionDialog();
 	}
 	
+	/**
+	 * Load initial Injector to be able to read configuration for plugin loading.
+	 * For some reason, Guice complains about things already being injected when
+	 * child injectors are used. Until I find a solution for that, we dicard this
+	 * injector and configuration object after use and use it only to retrieve the
+	 * list of plugin modules to load.
+	 */
+	private static List<Module> createPluginModules() {
+		Injector configInjector = Guice.createInjector(Stage.PRODUCTION, new SMMConfigurationModule());
+		Configuration config = configInjector.getInstance(Configuration.class);
+		
+		String[] moduleNameList = config.getUserPref(Configuration.PREF_PLUGIN_MODULES, "").split(",");
+		List<Module> modules = new ArrayList<Module>(moduleNameList.length);
+		
+		for(String moduleName: moduleNameList) {
+			if(moduleName.length() == 0)
+				continue;
+			
+			try {
+				modules.add((Module) Class.forName(moduleName).newInstance());
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return modules;
+	}
+
 	private static void setNativeLAF() { 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

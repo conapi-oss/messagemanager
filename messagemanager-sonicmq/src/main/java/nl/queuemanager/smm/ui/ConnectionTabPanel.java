@@ -37,6 +37,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -52,6 +53,7 @@ import nl.queuemanager.smm.SMCConnectionModel;
 import nl.queuemanager.smm.SMMConfiguration;
 import nl.queuemanager.ui.CommonUITasks;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
+import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.util.DesktopHelper;
 
 import com.google.inject.Inject;
@@ -60,22 +62,22 @@ import com.sonicsw.ma.gui.domain.DomainConnectionModel;
 import com.sonicsw.ma.gui.domain.JDomainConnectionDialog;
 
 @SuppressWarnings("serial")
-class ConnectionTabPanel extends JPanel {
+public class ConnectionTabPanel extends JPanel implements UITab {
 	private final Domain sonic;
 	private final TaskExecutor worker;
 	private final SMMConfiguration config;
 	private final DesktopHelper desktop;
 	private       ConnectionModelTable connectionTable;
 	private final PreferenceManager prefs = PreferenceManager.getInstance();
-	private final JMAFrameProvider jmaFrameProvider;
+	private final ConnectionDialogProvider connectionDialogProvider;
 	
 	@Inject
-	public ConnectionTabPanel(Domain sonic, TaskExecutor worker, SMMConfiguration config, DesktopHelper desktop, JMAFrameProvider jmaFrameProvider) {
+	public ConnectionTabPanel(Domain sonic, TaskExecutor worker, SMMConfiguration config, DesktopHelper desktop, ConnectionDialogProvider connectionDialogProvider) {
 		this.sonic = sonic;
 		this.worker = worker;
 		this.config = config;
 		this.desktop = desktop;
-		this.jmaFrameProvider = jmaFrameProvider;
+		this.connectionDialogProvider = connectionDialogProvider;
 
 		JPanel brandingPanel = createBrandingPanel();
 		JPanel connectionsPanel = createConnectionsPanel();
@@ -392,9 +394,8 @@ class ConnectionTabPanel extends JPanel {
 	}
 	
 	public DomainConnectionModel getConnectionModel(DomainConnectionModel model) {
-		JDomainConnectionDialog connectionDialog = new JDomainConnectionDialog(jmaFrameProvider.get());
+		JDomainConnectionDialog connectionDialog = connectionDialogProvider.get();
 		try {
-			desktop.makeMacSheet(connectionDialog);
 			connectionDialog.editInstance(null, model, true);
 			connectionDialog.setVisible(true);
 		} catch (Exception e) {
@@ -414,6 +415,25 @@ class ConnectionTabPanel extends JPanel {
         connectionDialog.dispose();
         
         return model;
+	}
+	
+	public void showDefaultConnectionDialog() {
+		final DomainConnectionModel model = getConnectionModel();
+		if(model != null) {
+			connectSonic(new SMCConnectionModel(model));
+		}		
+	}
+
+	public String getUITabName() {
+		return "Connection";
+	}
+	
+	public JComponent getUITabComponent() {
+		return this;
+	}
+
+	public ConnectionState[] getUITabEnabledStates() {
+		return ConnectionState.values();
 	}
 
 }

@@ -34,6 +34,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -56,6 +57,7 @@ import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSTopic;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
+import nl.queuemanager.ui.UITab.ConnectionState;
 import nl.queuemanager.ui.message.MessageViewerPanel;
 
 import com.google.inject.Inject;
@@ -70,7 +72,7 @@ import com.google.inject.Injector;
  *
  */
 @SuppressWarnings("serial")
-public class TopicSubscriberTabPanel extends JSplitPane {
+public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 	private JComboBox brokerCombo;
 	private final JMSDomain domain;
 	private final TaskExecutor worker;
@@ -532,6 +534,18 @@ public class TopicSubscriberTabPanel extends JSplitPane {
 		return actionPanel;
 	}
 			
+	public String getUITabName() {
+		return "Topic subscriber";
+	}
+
+	public JComponent getUITabComponent() {
+		return this;
+	}
+
+	public ConnectionState[] getUITabEnabledStates() {
+		return new ConnectionState[] {ConnectionState.CONNECTED};
+	}
+
 	private class DomainEventListener implements EventListener<DomainEvent> {
 		@SuppressWarnings("unchecked")
 		public void processEvent(DomainEvent event) {

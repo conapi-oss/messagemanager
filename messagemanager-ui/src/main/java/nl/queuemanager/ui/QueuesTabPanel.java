@@ -39,6 +39,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -61,6 +62,7 @@ import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.JMSDestinationTransferHandler.JMSDestinationHolder;
+import nl.queuemanager.ui.UITab.ConnectionState;
 import nl.queuemanager.ui.message.MessageViewerPanel;
 import nl.queuemanager.ui.util.Holder;
 import nl.queuemanager.ui.util.QueueCountsRefresher;
@@ -68,7 +70,7 @@ import nl.queuemanager.ui.util.QueueCountsRefresher;
 import com.google.inject.Inject;
 
 @SuppressWarnings("serial")
-public class QueuesTabPanel extends JSplitPane {
+public class QueuesTabPanel extends JSplitPane implements UITab {
 	private JComboBox brokerCombo;
 	private QueueTable queueTable;
 	private MessagesTable messageTable;
@@ -496,6 +498,18 @@ public class QueuesTabPanel extends JSplitPane {
 			taskFactory.enumerateQueues((JMSBroker)brokerCombo.getSelectedItem(), null));
 	}
 	
+	public String getUITabName() {
+		return "Queue browser";
+	}
+
+	public JComponent getUITabComponent() {
+		return this;
+	}
+
+	public ConnectionState[] getUITabEnabledStates() {
+		return new ConnectionState[] {ConnectionState.CONNECTED};
+	}
+
 	private class InternalDestinationHolder implements JMSDestinationHolder {
 		public JMSDestination getJMSDestination() {
 			return queueTable.getSelectedItem();
