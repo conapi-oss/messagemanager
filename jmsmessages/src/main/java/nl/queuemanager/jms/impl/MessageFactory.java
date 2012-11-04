@@ -211,9 +211,9 @@ public class MessageFactory {
 		}
 		
 		if(Queue.class.isAssignableFrom(in.getClass())) {
-			return DestinationFactory.createQueue(((Queue)in).getQueueName());
+			return DestinationFactory.createQueue(null, ((Queue)in).getQueueName());
 		} else {
-			return DestinationFactory.createTopic(((Topic)in).getTopicName());
+			return DestinationFactory.createTopic(null, ((Topic)in).getTopicName());
 		}
 	}
 

@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.queuemanager.smm;
+package nl.queuemanager;
 
 import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JFrame;
 import javax.swing.UIManager;
 
 import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.CoreModule;
-import nl.queuemanager.smm.ui.ConnectionTabPanel;
-import nl.queuemanager.smm.ui.SMMFrame;
-import nl.queuemanager.smm.ui.SMMUIModule;
+import nl.queuemanager.core.configuration.XmlConfigurationModule;
 import nl.queuemanager.ui.UIModule;
 
 import com.google.inject.Guice;
@@ -44,11 +43,9 @@ public class Main {
 		
 		// Create the default modules
 		List<Module> modules = new ArrayList<Module>();
-		modules.add(new SMMConfigurationModule());
+		modules.add(new XmlConfigurationModule());
 		modules.add(new CoreModule());
 		modules.add(new UIModule());
-		modules.add(new SMMModule());
-		modules.add(new SMMUIModule());
 		
 		// Load plugin modules
 		modules.addAll(createPluginModules());
@@ -57,13 +54,10 @@ public class Main {
 		Injector injector = Guice.createInjector(Stage.PRODUCTION, modules);
 		
 		// Create the main application frame
-		final SMMFrame frame = injector.getInstance(SMMFrame.class);
+		final JFrame frame = injector.getInstance(MMFrame.class);
 		
 		// Make the frame visible
 		frame.setVisible(true);
-		
-		// Pop up the connection dialog
-		injector.getInstance(ConnectionTabPanel.class).showDefaultConnectionDialog();
 	}
 	
 	/**
@@ -74,7 +68,7 @@ public class Main {
 	 * list of plugin modules to load.
 	 */
 	private static List<Module> createPluginModules() {
-		Injector configInjector = Guice.createInjector(Stage.PRODUCTION, new SMMConfigurationModule());
+		Injector configInjector = Guice.createInjector(Stage.PRODUCTION, new XmlConfigurationModule());
 		Configuration config = configInjector.getInstance(Configuration.class);
 		
 		String[] moduleNameList = config.getUserPref(Configuration.PREF_PLUGIN_MODULES, "").split(",");
@@ -89,8 +83,6 @@ public class Main {
 				modules.add(module);
 			}
 		}
-		
-		modules.add(loadModule("nl.queuemanager.scripting.ScriptingModule"));
 		
 		return modules;
 	}

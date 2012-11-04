@@ -15,18 +15,19 @@
  */
 package nl.queuemanager.jms.impl;
 
+import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.jms.JMSTopic;
 
 public class DestinationFactory {
 	private DestinationFactory(){}
 	
-	public static JMSQueue createQueue(String name) {
-		return new JMSQueueImpl(name);
+	public static JMSQueue createQueue(JMSBroker broker, String name) {
+		return new JMSQueueImpl(broker, name);
 	}
 	
-	public static JMSTopic createTopic(String name) {
-		return new JMSTopicImpl(name);
+	public static JMSTopic createTopic(JMSBroker broker, String name) {
+		return new JMSTopicImpl(broker, name);
 	}
 	
 }

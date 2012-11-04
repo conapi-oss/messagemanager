@@ -2,6 +2,7 @@ package nl.queuemanager.ui.settings;
 
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
 import javax.swing.JList;
@@ -16,15 +17,18 @@ import nl.queuemanager.jms.JMSBroker;
 public class BrokerSettingsPanel extends JPanel implements SettingsPanel {
 
 	private final Configuration configuration;
-	private final JList<JMSBroker> brokerList;
+	private final JList brokerList;
 
 	@Inject
 	public BrokerSettingsPanel(Configuration config) {
 		this.configuration = config;
 		
-		DefaultListModel<JMSBroker> model = new DefaultListModel<JMSBroker>();
-		brokerList = new JList<JMSBroker>(model);
-		add(brokerList);
+		DefaultListModel model = new DefaultListModel();
+		brokerList = new JList(model);
+		JPanel brokerPanel = new JPanel();
+		brokerPanel.setBorder(BorderFactory.createTitledBorder("Brokers"));
+		brokerPanel.add(brokerList);
+		add(brokerPanel);
 	}
 	
 	public JComponent getUIPanel() {
@@ -32,9 +36,12 @@ public class BrokerSettingsPanel extends JPanel implements SettingsPanel {
 	}
 
 	public void readSettings() {
+		DefaultListModel model = (DefaultListModel)brokerList.getModel();
+		model.clear();
+		
 		List<JMSBroker> brokers = configuration.listBrokers();
 		for(JMSBroker broker: brokers) {
-			((DefaultListModel<JMSBroker>)brokerList.getModel()).addElement(broker);
+			model.addElement(broker);
 		}
 	}
 

@@ -22,6 +22,10 @@ abstract class JMSDestinationImpl implements nl.queuemanager.jms.JMSDestination 
 
 	protected JMSBroker broker;
 	
+	public JMSDestinationImpl(JMSBroker broker) {
+		this.broker = broker;
+	}
+	
 	public JMSBroker getBroker() {
 		return broker;
 	}

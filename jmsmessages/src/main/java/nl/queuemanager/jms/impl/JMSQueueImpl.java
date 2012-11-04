@@ -17,16 +17,19 @@ package nl.queuemanager.jms.impl;
 
 import javax.jms.JMSException;
 
+import nl.queuemanager.jms.JMSBroker;
+
 class JMSQueueImpl extends JMSDestinationImpl implements nl.queuemanager.jms.JMSQueue {
 	
 	private String name;
 	private int messageCount;
 
-	JMSQueueImpl(String name) {
-		this(name, 0);
+	JMSQueueImpl(JMSBroker broker, String name) {
+		this(broker, name, 0);
 	}
 	
-	JMSQueueImpl(String name, int messageCount) {
+	JMSQueueImpl(JMSBroker broker, String name, int messageCount) {
+		super(broker);
 		this.name = name;
 		this.messageCount = messageCount;
 	}

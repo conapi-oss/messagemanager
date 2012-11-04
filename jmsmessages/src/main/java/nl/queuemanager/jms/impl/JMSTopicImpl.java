@@ -17,13 +17,15 @@ package nl.queuemanager.jms.impl;
 
 import javax.jms.JMSException;
 
+import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSTopic;
 
 class JMSTopicImpl extends JMSDestinationImpl implements JMSTopic {
 
 	protected final String name;
 	
-	public JMSTopicImpl(String name) {
+	public JMSTopicImpl(JMSBroker broker, String name) {
+		super(broker);
 		this.name = name;
 	}
 	

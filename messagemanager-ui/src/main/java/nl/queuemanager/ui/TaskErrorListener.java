@@ -67,10 +67,10 @@ public class TaskErrorListener implements EventListener<TaskEvent> {
 				return;
 			}
 				
-			if(!((Task)event.getSource()).isBackground()) {
+//			if(!((Task)event.getSource()).isBackground()) {
 				String message = translateExceptionMessage((Exception)event.getInfo());
 				showMessage(getParent(), event.getSource().toString(), message, true);
-			}
+//			}
 			
 			break;
 		}

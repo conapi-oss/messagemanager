@@ -17,6 +17,10 @@
     <module>messagemanager-sonicmq-76</module>
     <module>messagemanager-sonicmq-80</module>
     <module>messagemanager-sonicmq-85</module>
+    <module>messagemanager-groovy</module>
+    <module>messagemanager-scripting</module>
+    <module>messagemanager-fakemq</module>
+    <module>messagemanager-app</module>
   </modules>
   
   <properties>
@@ -32,6 +36,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+	<version>2.3.2</version>
         <configuration>
           <source>1.5</source>
           <target>1.5</target>
@@ -83,6 +88,11 @@
 				<version>${guice-version}</version>
 				<type>jar</type>
 				<scope>compile</scope>
+			</dependency>
+			<dependency>
+			    <groupId>com.google.guava</groupId>
+			    <artifactId>guava</artifactId>
+			    <version>13.0.1</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

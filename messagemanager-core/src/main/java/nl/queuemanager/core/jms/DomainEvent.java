@@ -32,8 +32,6 @@ public class DomainEvent extends EventObject {
 		
 		QUEUES_ENUMERATED,
 //		TOPICS_ENUMERATED,
-		
-		MESSAGES_SENT
 	}
 	
 	private final EVENT id;

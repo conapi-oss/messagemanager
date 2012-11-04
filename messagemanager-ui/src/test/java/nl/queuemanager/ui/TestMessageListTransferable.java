@@ -45,7 +45,7 @@ public class TestMessageListTransferable {
 
 	List<Message> messages;
 	
-	JMSQueue sampleQ1 = DestinationFactory.createQueue("SampleQ1");
+	JMSQueue sampleQ1 = DestinationFactory.createQueue(null, "SampleQ1");
 	
 	@Before
 	public void before() throws JMSException {

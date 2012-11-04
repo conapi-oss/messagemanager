@@ -22,6 +22,8 @@ import nl.queuemanager.core.util.CollectionFactory;
 public abstract class AbstractEventSource<T> implements EventSource<T> {
 	private final ArrayList<EventListener<T>> listeners = CollectionFactory.newArrayList();
 	
+	private static final boolean DEBUG = "TRUE".equalsIgnoreCase(System.getProperty("developer"));
+
 	public void addListener(EventListener<T> listener) {
 		if(!listeners.contains(listener)) {
 			listeners.add(listener);
@@ -36,6 +38,7 @@ public abstract class AbstractEventSource<T> implements EventSource<T> {
 	
 	protected void dispatchEvent(T event) {
 		for(EventListener<T> listener: CollectionFactory.newArrayList(listeners)) {
+			if(DEBUG) System.out.println(Thread.currentThread() + " -> Dispatch event: " + event + " to listener " + listener);
 			listener.processEvent(event);
 		}
 	}
