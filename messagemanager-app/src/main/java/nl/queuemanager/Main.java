@@ -25,6 +25,7 @@ import javax.swing.UIManager;
 import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.CoreModule;
 import nl.queuemanager.core.configuration.XmlConfigurationModule;
+import nl.queuemanager.ui.MMFrame;
 import nl.queuemanager.ui.UIModule;
 
 import com.google.inject.Guice;
@@ -49,6 +50,7 @@ public class Main {
 		
 		// Load plugin modules
 		modules.addAll(createPluginModules());
+		modules.add(loadModule("nl.queuemanager.fakemq.FakeMQModule"));
 		
 		// Now that the module list is complete, create the injector
 		Injector injector = Guice.createInjector(Stage.PRODUCTION, modules);

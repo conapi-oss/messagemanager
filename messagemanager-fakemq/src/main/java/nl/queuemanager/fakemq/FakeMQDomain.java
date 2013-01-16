@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -15,8 +16,8 @@ import javax.management.MalformedObjectNameException;
 
 import nl.queuemanager.core.events.AbstractEventSource;
 import nl.queuemanager.core.jms.DomainEvent;
-import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.jms.DomainEvent.EVENT;
+import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
@@ -24,15 +25,18 @@ import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.jms.JMSTopic;
 import nl.queuemanager.jms.impl.DestinationFactory;
 
+import com.google.common.eventbus.EventBus;
+
 @Singleton
 public class FakeMQDomain extends AbstractEventSource<DomainEvent> implements JMSDomain {
 
 	private final JMSBroker broker = new FakeMQBroker("FakeMQ Broker 1");
-	
-	public FakeMQDomain() {
-		System.out.println("FameMQ domain constructed");
-	}
 
+	@Inject
+	public FakeMQDomain(EventBus eventBus) {
+		super(eventBus);
+	}
+	
 	public void connect() {
 		dispatchEvent(new DomainEvent(EVENT.JMX_CONNECT, null, this));
 	}

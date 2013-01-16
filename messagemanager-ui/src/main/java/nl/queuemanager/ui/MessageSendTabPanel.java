@@ -67,7 +67,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.text.JTextComponent;
 
 import nl.queuemanager.core.Configuration;
-import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.TaskExecutor;
@@ -80,12 +79,12 @@ import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.jms.JMSTopic;
 import nl.queuemanager.jms.impl.MessageFactory;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
-import nl.queuemanager.ui.UITab.ConnectionState;
 import nl.queuemanager.ui.util.JIntegerField;
 import nl.queuemanager.ui.util.JSearchableTextArea;
 import nl.queuemanager.ui.util.QueueCountsRefresher;
 import nl.queuemanager.ui.util.SpringUtilities;
 
+import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 
 @SuppressWarnings("serial")
@@ -176,8 +175,6 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		add(splitPane);
-		
-		sonic.addListener(new DomainEventListener());
 	}
 	
 	private JComboBox createBrokerCombo() {
@@ -843,6 +840,35 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
+	@Subscribe
+	public void handleDomainEvent(final DomainEvent event) {
+		switch(event.getId()) {
+		
+		case BROKERS_ENUMERATED:
+			populateBrokerCombo((List<JMSBroker>)event.getInfo());
+			break;
+		
+		case QUEUES_ENUMERATED:
+			final List<JMSQueue> queueList = (List<JMSQueue>)event.getInfo();
+			if(queueList.size() > 0 && queueList.get(0).getBroker().equals(brokerCombo.getSelectedItem())) {
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						destinationTable.updateData(queueList);
+					}
+				});
+			}
+			
+			break;
+			
+		case BROKER_DISCONNECT:
+			if(brokerCombo.getSelectedItem().equals(event.getInfo())) {
+				CommonUITasks.clear(destinationTable);
+			}
+			break;
+		}
+	}		
+	
 	public String getUITabName() {
 		return "Message sender";
 	}
@@ -855,37 +881,6 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		return new ConnectionState[] {ConnectionState.CONNECTED};
 	}
 
-	private class DomainEventListener implements EventListener<DomainEvent> {
-
-		@SuppressWarnings("unchecked")
-		public void processEvent(final DomainEvent event) {
-			switch(event.getId()) {
-			
-			case BROKERS_ENUMERATED:
-				populateBrokerCombo((List<JMSBroker>)event.getInfo());
-				break;
-			
-			case QUEUES_ENUMERATED:
-				final List<JMSQueue> queueList = (List<JMSQueue>)event.getInfo();
-				if(queueList.size() > 0 && queueList.get(0).getBroker().equals(brokerCombo.getSelectedItem())) {
-					SwingUtilities.invokeLater(new Runnable() {
-						public void run() {
-							destinationTable.updateData(queueList);
-						}
-					});
-				}
-				
-				break;
-				
-			case BROKER_DISCONNECT:
-				if(brokerCombo.getSelectedItem().equals(event.getInfo())) {
-					CommonUITasks.clear(destinationTable);
-				}
-				break;
-			}
-		}		
-	}
-	
 	/**
 	 * Implements file drop operations on JTextComponent. Delegaring to the
 	 * original TransferHandler where appropriate.

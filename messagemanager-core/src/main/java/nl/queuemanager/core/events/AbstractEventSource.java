@@ -19,11 +19,22 @@ import java.util.ArrayList;
 
 import nl.queuemanager.core.util.CollectionFactory;
 
+import com.google.common.eventbus.EventBus;
+
 public abstract class AbstractEventSource<T> implements EventSource<T> {
 	private final ArrayList<EventListener<T>> listeners = CollectionFactory.newArrayList();
+
+	private EventBus eventBus;
 	
 	private static final boolean DEBUG = "TRUE".equalsIgnoreCase(System.getProperty("developer"));
 
+	public AbstractEventSource() {
+	}
+	
+	public AbstractEventSource(EventBus eventBus) {
+		this.eventBus = eventBus;
+	}
+	
 	public void addListener(EventListener<T> listener) {
 		if(!listeners.contains(listener)) {
 			listeners.add(listener);
@@ -37,6 +48,11 @@ public abstract class AbstractEventSource<T> implements EventSource<T> {
 	}
 	
 	protected void dispatchEvent(T event) {
+		if(eventBus != null) {
+			if(DEBUG) System.out.println(Thread.currentThread() + " -> Dispatch event: " + event + " to eventbus");
+			eventBus.post(event);
+		}
+		
 		for(EventListener<T> listener: CollectionFactory.newArrayList(listeners)) {
 			if(DEBUG) System.out.println(Thread.currentThread() + " -> Dispatch event: " + event + " to listener " + listener);
 			listener.processEvent(event);

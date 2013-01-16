@@ -51,7 +51,6 @@ import javax.swing.event.ListSelectionListener;
 import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
-import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.CancelableTask;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.tasks.EnumerateMessagesTask.QueueBrowserEvent;
@@ -62,11 +61,11 @@ import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.JMSDestinationTransferHandler.JMSDestinationHolder;
-import nl.queuemanager.ui.UITab.ConnectionState;
 import nl.queuemanager.ui.message.MessageViewerPanel;
 import nl.queuemanager.ui.util.Holder;
 import nl.queuemanager.ui.util.QueueCountsRefresher;
 
+import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 
 @SuppressWarnings("serial")
@@ -84,7 +83,6 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 	
 	@Inject
 	public QueuesTabPanel(
-			JMSDomain domain, 
 			TaskExecutor worker,
 			Configuration config,
 			JMSDestinationTransferHandlerFactory jmsDestinationTransferHandlerFactory,
@@ -180,8 +178,6 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 		add(topPanel, JSplitPane.TOP);
 		
 		this.qbel = new QueueBrowserEventListener();
-				
-		domain.addListener(new DomainEventListener());
 	}
 
 	private JPanel createMessagesActionPanel() {
@@ -497,6 +493,34 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 			taskFactory.deleteMessages(queue, messages),
 			taskFactory.enumerateQueues((JMSBroker)brokerCombo.getSelectedItem(), null));
 	}
+
+	@SuppressWarnings("unchecked")
+	@Subscribe
+	public void handleDomainEvent(DomainEvent event) {
+		if(event == null) 
+			throw new IllegalArgumentException("event must not be null");
+		
+		switch(event.getId()) {
+		case BROKERS_ENUMERATED:
+			populateBrokerCombo((List<JMSBroker>)event.getInfo());
+			break;
+			
+		case QUEUES_ENUMERATED:
+			final List<JMSQueue> queueList = (List<JMSQueue>)event.getInfo();
+			if(queueList.size() > 0 && queueList.get(0).getBroker().equals(brokerCombo.getSelectedItem()))
+				populateQueueTable(queueList);
+			break;
+			
+		case BROKER_DISCONNECT:
+			Object info = event.getInfo();
+			if(info != null && info.equals(brokerCombo.getSelectedItem())) {
+				CommonUITasks.clear(messageTable);
+				CommonUITasks.clear(queueTable);
+				populateBrokerCombo(new ArrayList<JMSBroker>());
+			}
+			break;
+		}
+	}
 	
 	public String getUITabName() {
 		return "Queue browser";
@@ -534,36 +558,7 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 			}
 		}
 	}
-	
-	private class DomainEventListener implements EventListener<DomainEvent> {
-		@SuppressWarnings("unchecked")
-		public void processEvent(DomainEvent event) {
-			if(event == null) 
-				throw new IllegalArgumentException("event must not be null");
-			
-			switch(event.getId()) {
-			case BROKERS_ENUMERATED:
-				populateBrokerCombo((List<JMSBroker>)event.getInfo());
-				break;
-				
-			case QUEUES_ENUMERATED:
-				final List<JMSQueue> queueList = (List<JMSQueue>)event.getInfo();
-				if(queueList.size() > 0 && queueList.get(0).getBroker().equals(brokerCombo.getSelectedItem()))
-					populateQueueTable(queueList);
-				break;
-				
-			case BROKER_DISCONNECT:
-				Object info = event.getInfo();
-				if(info != null && info.equals(brokerCombo.getSelectedItem())) {
-					CommonUITasks.clear(messageTable);
-					CommonUITasks.clear(queueTable);
-					populateBrokerCombo(new ArrayList<JMSBroker>());
-				}
-				break;
-			}
-		}
-	}
-	
+		
 	private class QueueBrowserEventListener implements EventListener<QueueBrowserEvent> {
 		private volatile boolean canceled;
 		

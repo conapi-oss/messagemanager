@@ -24,11 +24,16 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import nl.queuemanager.core.events.AbstractEventSource;
+import javax.inject.Inject;
+
 import nl.queuemanager.core.events.EventListener;
 
-class MultiQueueTaskExecutor extends AbstractEventSource<TaskEvent> implements EventListener<TaskEvent>, TaskExecutor 
+import com.google.common.eventbus.EventBus;
+
+class MultiQueueTaskExecutor implements EventListener<TaskEvent>, TaskExecutor 
 {
+	private final EventBus eventBus;
+	
 	// List of Tasks that are waiting to run
 	private final List<Task> waitingTasks;
 	
@@ -38,7 +43,9 @@ class MultiQueueTaskExecutor extends AbstractEventSource<TaskEvent> implements E
 	// Protects access to both the executors Map and the waitingTasks List.
 	private final Object executorLock;
 		
-	public MultiQueueTaskExecutor() {
+	@Inject
+	public MultiQueueTaskExecutor(EventBus eventBus) {
+		this.eventBus = eventBus;
 		this.waitingTasks = new LinkedList<Task>();
 		this.executors = new HashMap<Object, ExecutorService>();
 		this.executorLock = new Object();
@@ -167,6 +174,6 @@ class MultiQueueTaskExecutor extends AbstractEventSource<TaskEvent> implements E
 	
 	public void processEvent(TaskEvent event) {
 		// Forward the task event from the task to the application
-		dispatchEvent(event);
+		eventBus.post(event);
 	}
 }

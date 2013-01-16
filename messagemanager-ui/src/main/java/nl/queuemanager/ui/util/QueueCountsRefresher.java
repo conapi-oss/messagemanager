@@ -9,15 +9,15 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import nl.queuemanager.core.Configuration;
-import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
-import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.tasks.TaskFactory;
 import nl.queuemanager.jms.JMSBroker;
 
+import com.google.common.eventbus.Subscribe;
+
 @Singleton
-public class QueueCountsRefresher implements EventListener<DomainEvent> {
+public class QueueCountsRefresher {
 	
 	private TaskExecutor worker;
 	private TaskFactory taskFactory;
@@ -25,7 +25,7 @@ public class QueueCountsRefresher implements EventListener<DomainEvent> {
 	private Timer timer;
 	
 	@Inject
-	QueueCountsRefresher(JMSDomain domain, TaskExecutor worker, Configuration configuration, TaskFactory taskFactory) {
+	QueueCountsRefresher(TaskExecutor worker, Configuration configuration, TaskFactory taskFactory) {
 		this.worker = worker;
 		this.taskFactory = taskFactory;
 		this.timer = new Timer();
@@ -33,8 +33,6 @@ public class QueueCountsRefresher implements EventListener<DomainEvent> {
 		timer.schedule(new RefreshTask(), 
 			Long.valueOf(configuration.getUserPref(Configuration.PREF_AUTOREFRESH_INTERVAL, "5000")), 
 			Long.valueOf(configuration.getUserPref(Configuration.PREF_AUTOREFRESH_INTERVAL, "5000")));
-			
-		domain.addListener(this);
 	}
 	
 	private synchronized void refreshBrokers() {
@@ -68,6 +66,7 @@ public class QueueCountsRefresher implements EventListener<DomainEvent> {
 		}
 	}
 
+	@Subscribe
 	public void processEvent(DomainEvent event) {
 		switch(event.getId()) {
 			case JMX_CONNECT:

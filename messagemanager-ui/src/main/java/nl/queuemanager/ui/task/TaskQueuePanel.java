@@ -21,6 +21,8 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import com.google.common.eventbus.Subscribe;
+
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.task.CancelableTask;
 import nl.queuemanager.core.task.Task;
@@ -36,7 +38,7 @@ import nl.queuemanager.ui.util.JStatusBar;
  *
  */
 @SuppressWarnings("serial")
-public class TaskQueuePanel extends JPanel implements EventListener<TaskEvent> {
+public class TaskQueuePanel extends JPanel {
 
 	private Map<Task, JStatusBar> statusbars = CollectionFactory.newHashMap();
 	
@@ -44,6 +46,7 @@ public class TaskQueuePanel extends JPanel implements EventListener<TaskEvent> {
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 	}
 
+	@Subscribe
 	public void processEvent(final TaskEvent event) {
 		final Task t = (Task)event.getSource();
 

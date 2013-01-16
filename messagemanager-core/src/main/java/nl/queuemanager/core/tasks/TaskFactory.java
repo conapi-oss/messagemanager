@@ -15,9 +15,11 @@ import nl.queuemanager.jms.JMSQueue;
 import com.google.inject.assistedinject.Assisted;
 
 public interface TaskFactory {
+
+	public abstract EnumerateBrokersTask enumerateBrokers();
 	
 	public abstract ConnectToBrokerTask connectToBroker(JMSBroker broker);
-	
+
 	public abstract ClearQueuesTask clearQueues(List<JMSQueue> queues);
 	public abstract EnumerateQueuesTask enumerateQueues(JMSBroker broker, String filter);
 	

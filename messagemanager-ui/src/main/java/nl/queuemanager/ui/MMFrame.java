@@ -12,43 +12,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.queuemanager.smm.ui;
+package nl.queuemanager.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
 import nl.queuemanager.core.jms.DomainEvent;
-import nl.queuemanager.core.task.TaskExecutor;
-import nl.queuemanager.smm.ConnectionModel;
-import nl.queuemanager.smm.Domain;
-import nl.queuemanager.smm.Version;
-import nl.queuemanager.ui.UITab;
+import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.ui.task.TaskQueuePanel;
 
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.sonicsw.ma.gui.util.JMAFrame;
 
 @SuppressWarnings("serial")
 @Singleton
-public class SMMFrame extends JMAFrame {
+public class MMFrame extends JFrame {
 	private static final String APP_NAME = "Message Manager";
 
 	private final JTabbedPane tabsPane;
 	private final SortedMap<Integer, UITab> tabs;
 	
 	@Inject
-	public SMMFrame(Domain sonic, TaskExecutor worker, Map<Integer, UITab> tabs, TaskQueuePanel taskQueuePanel) {
-		super("messagemanager");
-		
-		setTitle("");
+	public MMFrame(JMSDomain domain, Map<Integer, UITab> tabs, TaskQueuePanel taskQueuePanel) {
+		setTitle(APP_NAME);
 		
 		this.tabs = new TreeMap<Integer, UITab>(tabs);
 		
@@ -67,6 +62,9 @@ public class SMMFrame extends JMAFrame {
 
 		// Add the task queue panel
 		contentPane.add(taskQueuePanel, BorderLayout.SOUTH);
+		
+		setSize(new Dimension(800, 600));
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
 	private void setTabStates(UITab.ConnectionState state) {
@@ -87,10 +85,8 @@ public class SMMFrame extends JMAFrame {
 	public void processEvent(DomainEvent event) {
 		switch(event.getId()) {
 		case JMX_CONNECT:
-			final ConnectionModel model = (ConnectionModel)event.getInfo();
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					setTitle("(" + model.getConnectionName() + " - " + model.getDomainName() + "@" + model.getUrl() + ")");
 					setTabStates(UITab.ConnectionState.CONNECTED);
 					int nextIndex = tabsPane.getSelectedIndex() + 1;
 					if(nextIndex < tabsPane.getTabCount()) {
@@ -99,6 +95,7 @@ public class SMMFrame extends JMAFrame {
 				}
 			});
 			break;
+			
 		case BROKER_CONNECT:
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
@@ -122,19 +119,6 @@ public class SMMFrame extends JMAFrame {
 			});
 			break;
 		}
-	}	
-		
-	@Override 
-	public void setTitle(String title) {
-		super.setTitle(APP_NAME + " " + Version.getVersion() + " " + title);
-	}
-	
-	@Override
-	protected void maCleanup() {
-	}
-
-	@Override
-	protected void maInitialize() {
 	}
 	
 }

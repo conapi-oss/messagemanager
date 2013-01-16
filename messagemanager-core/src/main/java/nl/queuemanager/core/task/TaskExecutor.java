@@ -1,8 +1,7 @@
 package nl.queuemanager.core.task;
 
-import nl.queuemanager.core.events.EventSource;
 
-public interface TaskExecutor extends EventSource<TaskEvent> {
+public interface TaskExecutor {
 
 	/**
 	 * Clear the queue of this TaskExecutor. Any running tasks will be signalled to

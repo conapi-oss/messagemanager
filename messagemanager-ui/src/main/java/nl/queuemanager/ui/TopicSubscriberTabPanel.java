@@ -57,9 +57,9 @@ import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSTopic;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
-import nl.queuemanager.ui.UITab.ConnectionState;
 import nl.queuemanager.ui.message.MessageViewerPanel;
 
+import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
@@ -161,8 +161,6 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 		add(topPanel, JSplitPane.TOP);
 		
 		this.messageEventListener = new MessageEventListener();
-		
-		domain.addListener(new DomainEventListener());
 	}
 
 	private JPanel createMessagesActionPanel() {
@@ -533,7 +531,24 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 
 		return actionPanel;
 	}
-			
+
+	@Subscribe
+	@SuppressWarnings("unchecked")
+	public void handleDomainEvent(DomainEvent event) {
+		switch(event.getId()) {
+		case BROKERS_ENUMERATED:
+			populateBrokerCombo((List<JMSBroker>)event.getInfo());
+			break;
+		
+		case BROKER_DISCONNECT:
+			if(brokerCombo.getSelectedItem().equals(event.getInfo())) {
+				populateTopicTable(new ArrayList<JMSTopic>());
+				CommonUITasks.clear(messageTable);
+			}
+			break;
+		}			
+	}
+	
 	public String getUITabName() {
 		return "Topic subscriber";
 	}
@@ -544,24 +559,6 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 
 	public ConnectionState[] getUITabEnabledStates() {
 		return new ConnectionState[] {ConnectionState.CONNECTED};
-	}
-
-	private class DomainEventListener implements EventListener<DomainEvent> {
-		@SuppressWarnings("unchecked")
-		public void processEvent(DomainEvent event) {
-			switch(event.getId()) {
-			case BROKERS_ENUMERATED:
-				populateBrokerCombo((List<JMSBroker>)event.getInfo());
-				break;
-			
-			case BROKER_DISCONNECT:
-				if(brokerCombo.getSelectedItem().equals(event.getInfo())) {
-					populateTopicTable(new ArrayList<JMSTopic>());
-					CommonUITasks.clear(messageTable);
-				}
-				break;
-			}			
-		}
 	}
 	
 	private class MessageEventListener implements EventListener<MessageEvent> {

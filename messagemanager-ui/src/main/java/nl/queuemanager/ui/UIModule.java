@@ -35,6 +35,7 @@ public class UIModule extends AbstractModule {
 		bind(QueueCountsRefresher.class).in(Scopes.SINGLETON);
 		
 		MapBinder<Integer, UITab> tabsBinder = MapBinder.newMapBinder(binder(), Integer.class, UITab.class);
+		//tabsBinder.addBinding(10).to(ConnectionTabPanel.class);
 		tabsBinder.addBinding(20).to(QueuesTabPanel.class);
 		tabsBinder.addBinding(30).to(TopicSubscriberTabPanel.class);
 		tabsBinder.addBinding(40).to(MessageSendTabPanel.class);

@@ -19,6 +19,7 @@ public class CoreModule extends AbstractModule {
 	
 	@Override
 	protected void configure() {
+		// Bind the global EventBus and register all Guice created objects with it
 		bind(EventBus.class).toInstance(eventBus);
 		bindListener(Matchers.any(), new TypeListener() {
             public <I> void hear(TypeLiteral<I> typeLiteral, TypeEncounter<I> typeEncounter) {

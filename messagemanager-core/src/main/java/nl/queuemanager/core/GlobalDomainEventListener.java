@@ -2,10 +2,10 @@ package nl.queuemanager.core;
 
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
-import nl.queuemanager.core.jms.JMSDomain;
-import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskExecutor;
+import nl.queuemanager.core.tasks.TaskFactory;
 
+import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 
 /**
@@ -17,17 +17,16 @@ import com.google.inject.Inject;
  */
 public class GlobalDomainEventListener implements EventListener<DomainEvent> {
 
-	private final JMSDomain domain;
+	private final TaskFactory taskFactory;
 	private final TaskExecutor worker;
 
 	@Inject
-	public GlobalDomainEventListener(JMSDomain domain, TaskExecutor worker) {
-		this.domain = domain;
+	public GlobalDomainEventListener(TaskFactory taskFactory, TaskExecutor worker) {
+		this.taskFactory = taskFactory;
 		this.worker = worker;
-		
-		domain.addListener(this);
 	}
-	
+
+	@Subscribe
 	public void processEvent(DomainEvent event) {
 		switch(event.getId()) {
 		case JMX_CONNECT:
@@ -37,16 +36,7 @@ public class GlobalDomainEventListener implements EventListener<DomainEvent> {
 	}
 
 	private void enumerateBrokers() {
-		worker.execute(new Task(domain) {
-			@Override
-			public void execute() throws Exception {
-				domain.enumerateBrokers();
-			}
-			@Override
-			public String toString() {
-				return "Enumerating brokers";
-			}
-		});
+		worker.execute(taskFactory.enumerateBrokers());
 	}
 	
 }
