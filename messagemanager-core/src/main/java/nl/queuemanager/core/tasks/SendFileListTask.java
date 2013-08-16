@@ -170,7 +170,7 @@ public class SendFileListTask extends Task implements CancelableTask {
 			MessageFactory.copyProperties(template, message);
 		}
 		
-		// HACK This uses the JVM default encoding to convert to a String.
+		// FIXME This uses the JVM default encoding to convert to a String.
 		message.setText(new String(content));
 		
 		return message;

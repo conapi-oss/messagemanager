@@ -178,7 +178,7 @@ public class MessageFactory {
 		out.setJMSRedelivered(in.getJMSRedelivered());
 		out.setJMSReplyTo(copyDestination(in.getJMSReplyTo()));
 		out.setJMSTimestamp(in.getJMSTimestamp());
-		out.setJMSType(in.getJMSType());		
+		out.setJMSType(in.getJMSType());
 	}
 
 	@SuppressWarnings("unchecked")

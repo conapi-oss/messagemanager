@@ -151,7 +151,7 @@ class SonicMQMessageConverter {
 //		out.setJMSRedelivered(in.getJMSRedelivered());
 		out.setJMSReplyTo(convertDestination(session, in.getJMSReplyTo()));
 		out.setJMSTimestamp(in.getJMSTimestamp());
-//		out.setJMSType(in.getJMSType());
+		out.setJMSType(in.getJMSType());
 		
 		// Copy custom properties
 		for(Enumeration e = in.getPropertyNames(); e.hasMoreElements();) {
