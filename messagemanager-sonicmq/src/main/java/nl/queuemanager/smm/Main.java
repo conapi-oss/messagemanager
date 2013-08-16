@@ -90,7 +90,7 @@ public class Main {
 			}
 		}
 		
-		modules.add(loadModule("nl.queuemanager.scripting.ScriptingModule"));
+//		modules.add(loadModule("nl.queuemanager.scripting.ScriptingModule"));
 		
 		return modules;
 	}
