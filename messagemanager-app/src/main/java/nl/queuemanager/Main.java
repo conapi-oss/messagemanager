@@ -44,6 +44,7 @@ public class Main {
 		// Create the default modules
 		List<Module> modules = new ArrayList<Module>();
 		modules.add(new XmlConfigurationModule());
+		modules.add(new NullModule());
 		modules.add(new CoreModule());
 		modules.add(new UIModule());
 		
