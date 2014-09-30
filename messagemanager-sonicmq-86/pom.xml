@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<description>Sonic Message Manager for SonicMQ 7.0</description>
-	<url>http://www.queuemanager.nl/7.0</url>
+	<description>Sonic Message Manager for SonicMQ 2013</description>
+	<url>http://www.queuemanager.nl/8.6</url>
 	<parent>
 		<artifactId>messagemanager</artifactId>
 		<groupId>nl.queuemanager</groupId>
@@ -10,9 +10,9 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>messagemanager-sonicmq-70</artifactId>
+	<artifactId>messagemanager-sonicmq-86</artifactId>
 	<packaging>pom</packaging>
-	<name>Message Manager for SonicMQ 7.0</name>
+	<name>Message Manager for SonicMQ 2013</name>
 	<build>
 		<resources>
 		</resources>
@@ -50,6 +50,7 @@
 					<verbose>false</verbose>
 				</configuration>
 			</plugin>
+
 		</plugins>
 	</build>
 	<dependencies>
@@ -71,61 +72,56 @@
 		</dependency>
 		<dependency>
 			<groupId>com.progress.sonic.mq</groupId>
-			<artifactId>activation</artifactId>
-			<version>7.0</version>
-			<type>jar</type>
-		</dependency>
-		<dependency>
-			<groupId>com.progress.sonic.mq</groupId>
-			<artifactId>MFdirectory</artifactId>
-			<version>7.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.progress.sonic.mq</groupId>
 			<artifactId>mgmt_client</artifactId>
-			<version>7.0</version>
+			<version>8.6</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>com.progress.sonic.mq</groupId>
 			<artifactId>mgmt_config</artifactId>
-			<version>7.0</version>
+			<version>8.6</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>com.progress.sonic.mq</groupId>
 			<artifactId>smc</artifactId>
-			<version>7.0</version>
+			<version>8.6</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>com.progress.sonic.mq</groupId>
 			<artifactId>sonic_Client</artifactId>
-			<version>7.0</version>
+			<version>8.6</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>com.progress.sonic.mq</groupId>
 			<artifactId>sonic_Crypto</artifactId>
-			<version>7.0</version>
+			<version>8.6</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>com.progress.sonic.mq</groupId>
 			<artifactId>sonic_mgmt_client</artifactId>
-			<version>7.0</version>
+			<version>8.6</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>com.progress.sonic.mq</groupId>
 			<artifactId>sonic_XMessage</artifactId>
-			<version>7.0</version>
+			<version>8.6</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>com.progress.sonic.mq</groupId>
 			<artifactId>xercesImpl</artifactId>
-			<version>7.0</version>
+			<version>8.6</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>com.progress.sonic.mq</groupId>
+			<artifactId>mail</artifactId>
+			<version>8.6</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>

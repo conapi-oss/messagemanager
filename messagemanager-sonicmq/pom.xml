@@ -11,7 +11,7 @@
   <artifactId>messagemanager-sonicmq</artifactId>
   <name>Message Manager for SonicMQ</name>
   <properties>
-    <sonic.version>8.5</sonic.version>
+    <sonic.version>8.6</sonic.version>
   </properties>
   <build>
   	<plugins>
