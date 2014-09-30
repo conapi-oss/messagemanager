@@ -21,6 +21,12 @@ import java.awt.event.KeyEvent;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
+import org.fife.ui.rsyntaxtextarea.DocumentRange;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rtextarea.SearchContext;
+import org.fife.ui.rtextarea.SearchEngine;
+import org.fife.ui.rtextarea.SearchResult;
+
 /**
  * JTextArea with search option. The search option is enabled by default.
  * <p>
@@ -35,7 +41,7 @@ import javax.swing.JTextArea;
  *
  */
 @SuppressWarnings("serial")
-public class JSearchableTextArea extends JTextArea {
+public class JSearchableTextArea extends RSyntaxTextArea {
 	private boolean searchEnabled;
 
 	/**
@@ -81,13 +87,13 @@ public class JSearchableTextArea extends JTextArea {
 	 *
 	 */
 	private static class SearchKeyAdapter extends KeyAdapter {
-		private final JTextArea textArea;
+		private final JSearchableTextArea textArea;
 		
 		/**
 		 * Create a new SearchKeyAdapter for the indicated TextArea.
 		 * @param textArea
 		 */
-		public SearchKeyAdapter(final JTextArea textArea) {
+		public SearchKeyAdapter(final JSearchableTextArea textArea) {
 			this.textArea = textArea;
 		}
 		
@@ -163,17 +169,20 @@ public class JSearchableTextArea extends JTextArea {
 		 */
 		private void search(String searchString, int startPosition) {
 			if(searchString != null && searchString.length() > 0) {
-				searchString = searchString.toLowerCase();
-				
-				// Find the first occurance at or after the current 
-				// start position and select it.
-				int position = textArea.getText().toLowerCase().indexOf(
-						searchString, 
-						Math.max(startPosition, 0));
-				if(position >= 0) {
-					int endPosition = position + searchString.length();
-					textArea.setCaretPosition(endPosition);
-					textArea.select(position, endPosition);
+				SearchContext context = new SearchContext();
+				context.setSearchFor(searchString);
+				context.setMatchCase(false);
+				context.setRegularExpression(false);
+				context.setSearchForward(true);
+				context.setWholeWord(false);
+
+				textArea.setCaretPosition(startPosition);
+				SearchResult result = SearchEngine.find(textArea, context);
+				if(result.wasFound()) {
+					DocumentRange range = result.getMatchRange();
+					int caret = range.getStartOffset() + searchString.length();
+					textArea.setCaretPosition(caret);
+					textArea.select(range.getStartOffset(), caret);
 				} else if (startPosition > 0) {
 					// If not found and we were searching from a non-zero
 					// start position, retry from the top.

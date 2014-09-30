@@ -87,6 +87,10 @@ import nl.queuemanager.ui.util.JSearchableTextArea;
 import nl.queuemanager.ui.util.QueueCountsRefresher;
 import nl.queuemanager.ui.util.SpringUtilities;
 
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rtextarea.RTextScrollPane;
+
 import com.google.inject.Inject;
 
 @SuppressWarnings("serial")
@@ -103,7 +107,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 
 	private JTextField filenameField;
 	private JIntegerField numberOfMessagesField;
-	private JTextArea typingArea;
+	private JSearchableTextArea typingArea;
 	private boolean isFromImport;
 	private JTextField jmsCorrelationIDField;
 	private JMSDestinationField sendDestinationField;
@@ -495,13 +499,16 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		
 		typingArea = new JSearchableTextArea();
+		typingArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
+		typingArea.setCodeFoldingEnabled(true);
 		
 		// Set up drag & drop support for files
 		new DropTarget(typingArea, new FileDropTargetListener(typingArea));
 		
-		JScrollPane scrollPane = new JScrollPane(typingArea,
-				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		RTextScrollPane scrollPane = new RTextScrollPane(typingArea);
+		scrollPane.setLineNumbersEnabled(true);
+		scrollPane.setHorizontalScrollBarPolicy(RTextScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scrollPane.setVerticalScrollBarPolicy(RTextScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		
 		panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
 		
@@ -1067,8 +1074,13 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		}
 		
 		public void setDestination(JMSDestination destination) {
-			this.nameField.setText(destination.getName());
-			this.typeField.setSelectedItem(destination.getType());
+			if(destination != null) {
+				this.nameField.setText(destination.getName());
+				this.typeField.setSelectedItem(destination.getType());
+			} else {
+				this.nameField.setText("");
+				this.typeField.setSelectedItem(JMSDestination.TYPE.QUEUE);
+			}
 		}
 		
 		private class DTL extends DropTargetAdapter {
