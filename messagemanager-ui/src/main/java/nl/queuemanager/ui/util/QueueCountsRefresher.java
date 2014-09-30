@@ -28,7 +28,7 @@ public class QueueCountsRefresher {
 	QueueCountsRefresher(TaskExecutor worker, Configuration configuration, TaskFactory taskFactory) {
 		this.worker = worker;
 		this.taskFactory = taskFactory;
-		this.timer = new Timer();
+		this.timer = new Timer(true);
 		
 		timer.schedule(new RefreshTask(), 
 			Long.valueOf(configuration.getUserPref(Configuration.PREF_AUTOREFRESH_INTERVAL, "5000")), 

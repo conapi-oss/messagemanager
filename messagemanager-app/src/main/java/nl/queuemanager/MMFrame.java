@@ -32,6 +32,7 @@ import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.task.TaskQueuePanel;
 
+import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -44,7 +45,7 @@ public class MMFrame extends JFrame {
 	private final SortedMap<Integer, UITab> tabs;
 	
 	@Inject
-	public MMFrame(JMSDomain domain, TaskExecutor worker, Map<Integer, UITab> tabs, TaskQueuePanel taskQueuePanel) {
+	public MMFrame(Map<Integer, UITab> tabs, TaskQueuePanel taskQueuePanel) {
 		setTitle(APP_NAME);
 		
 		this.tabs = new TreeMap<Integer, UITab>(tabs);
@@ -64,8 +65,6 @@ public class MMFrame extends JFrame {
 
 		// Add the task queue panel
 		contentPane.add(taskQueuePanel, BorderLayout.SOUTH);
-		worker.addListener(taskQueuePanel);
-		domain.addListener(new DomainEventListener());
 		
 		setSize(new Dimension(800, 600));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -84,47 +83,45 @@ public class MMFrame extends JFrame {
 			tabsPane.setEnabledAt(index, false);
 		}
 	}
-		
-	private class DomainEventListener implements EventListener<DomainEvent> {
-		public void processEvent(DomainEvent event) {
-			switch(event.getId()) {
-			case JMX_CONNECT:
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						setTabStates(UITab.ConnectionState.CONNECTED);
-						int nextIndex = tabsPane.getSelectedIndex() + 1;
-						if(nextIndex < tabsPane.getTabCount()) {
-							tabsPane.setSelectedIndex(nextIndex);
-						}
+
+	@Subscribe
+	public void processEvent(DomainEvent event) {
+		switch(event.getId()) {
+		case JMX_CONNECT:
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					setTabStates(UITab.ConnectionState.CONNECTED);
+					int nextIndex = tabsPane.getSelectedIndex() + 1;
+					if(nextIndex < tabsPane.getTabCount()) {
+						tabsPane.setSelectedIndex(nextIndex);
 					}
-				});
-				break;
-				
-			case BROKER_CONNECT:
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						setTabStates(UITab.ConnectionState.CONNECTED);
-					}
-				});
-				break;
-			case BROKER_DISCONNECT:
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						setTabStates(UITab.ConnectionState.CONNECTED);
-					}
-				});
-				break;
-			case JMX_DISCONNECT:
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						setTitle("");
-						setTabStates(UITab.ConnectionState.CONNECTED);
-					}
-				});
-				break;
-			}
+				}
+			});
+			break;
+			
+		case BROKER_CONNECT:
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					setTabStates(UITab.ConnectionState.CONNECTED);
+				}
+			});
+			break;
+		case BROKER_DISCONNECT:
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					setTabStates(UITab.ConnectionState.CONNECTED);
+				}
+			});
+			break;
+		case JMX_DISCONNECT:
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					setTitle("");
+					setTabStates(UITab.ConnectionState.CONNECTED);
+				}
+			});
+			break;
 		}
-		
 	}
 	
 }

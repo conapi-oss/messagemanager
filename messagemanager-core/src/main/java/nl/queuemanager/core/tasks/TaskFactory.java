@@ -15,7 +15,6 @@ import nl.queuemanager.jms.JMSQueue;
 import com.google.inject.assistedinject.Assisted;
 
 public interface TaskFactory {
-
 	public abstract EnumerateBrokersTask enumerateBrokers();
 	
 	public abstract ConnectToBrokerTask connectToBroker(JMSBroker broker);
@@ -26,6 +25,7 @@ public interface TaskFactory {
 	public abstract EnumerateMessagesTask enumerateMessages(JMSQueue queue, EventListener<QueueBrowserEvent> listener);	
 	public abstract DeleteMessagesTask deleteMessages(JMSQueue queue, List<Message> messages);
 	public abstract MoveMessageListTask moveMessages(JMSQueue toQueue, List<Pair<JMSQueue, String>> messageList);
+	public abstract SaveMessagesToFileTask saveToFile(List<Pair<javax.jms.Message, File>> messages, boolean asESBMSG);
 	
 	// Send message (list) tasks
 	public abstract SendMessageListTask sendMessage(JMSDestination destination, Message message);
@@ -38,4 +38,5 @@ public interface TaskFactory {
 	public abstract SendFileListTask sendFile(JMSDestination destination, File file, Message template, @Assisted("repeats") int repeats, @Assisted("delay") int delay);
 	public abstract SendFileListTask sendFiles(JMSDestination destination, List<File> files, Message template);
 	public abstract SendFileListTask sendFiles(JMSDestination destination, List<File> files, Message template, @Assisted("repeats") int repeats, @Assisted("delay") int delay);
+	
 }

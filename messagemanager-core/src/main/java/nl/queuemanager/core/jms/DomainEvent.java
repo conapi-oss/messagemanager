@@ -17,8 +17,6 @@ package nl.queuemanager.core.jms;
 
 import java.util.EventObject;
 
-import nl.queuemanager.core.events.EventSource;
-
 @SuppressWarnings("serial")
 public class DomainEvent extends EventObject {
 
@@ -37,7 +35,7 @@ public class DomainEvent extends EventObject {
 	private final EVENT id;
 	private final Object info;
 	
-	public DomainEvent(EVENT id, Object info, EventSource<DomainEvent> source) {
+	public DomainEvent(EVENT id, Object info, JMSDomain source) {
 		super(source);
 		this.id = id;
 		this.info = info;
@@ -49,12 +47,6 @@ public class DomainEvent extends EventObject {
 
 	public EVENT getId() {
 		return id;
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public EventSource<DomainEvent> getSource() {
-		return (EventSource<DomainEvent>)super.getSource();
 	}
 
 	@Override

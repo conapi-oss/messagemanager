@@ -32,7 +32,7 @@ import javax.swing.filechooser.FileFilter;
 import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.Pair;
 import nl.queuemanager.core.task.TaskExecutor;
-import nl.queuemanager.core.tasks.SaveMessagesToFileTask;
+import nl.queuemanager.core.tasks.TaskFactory;
 import nl.queuemanager.core.util.Clearable;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.ui.util.SingleExtensionFileFilter;
@@ -93,7 +93,7 @@ public class CommonUITasks {
 	 * @param parent The parent GUI component for the dialog boxes
 	 * @param messagesToSave The messages to save
 	 */
-	public static void saveMessages(Component parent, List<Message> messagesToSave, TaskExecutor worker, Configuration config) {
+	public static void saveMessages(Component parent, List<Message> messagesToSave, TaskExecutor worker, TaskFactory taskFactory, Configuration config) {
 		final FileFilter esbmsgFileFilter = new SingleExtensionFileFilter(".esbmsg", "ESB Message File");
 		boolean saveAsESBMSG = false;
 		
@@ -149,7 +149,7 @@ public class CommonUITasks {
 		}
 		
 		if(messages.size() > 0) {
-			worker.execute(new SaveMessagesToFileTask(messages, saveAsESBMSG));
+			worker.execute(taskFactory.saveToFile(messages, saveAsESBMSG));
 		}
 	}
 

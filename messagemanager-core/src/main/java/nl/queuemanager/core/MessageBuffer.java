@@ -42,6 +42,10 @@ public class MessageBuffer extends AbstractEventSource<MessageEvent> implements 
 	
 	private int maximumNumberOfMessages = 50;
 	
+	public MessageBuffer() {
+		super(null);
+	}
+	
 	public void onMessage(Message message) {
 		synchronized(lock) {
 			makeRoomForNewMessage();

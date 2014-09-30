@@ -2,6 +2,7 @@ package nl.queuemanager.core.tasks;
 
 import javax.jms.JMSSecurityException;
 
+import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
@@ -24,9 +25,10 @@ public class ConnectToBrokerTask extends Task {
 			JMSDomain domain, 
 			Configuration configuration,
 			BrokerCredentialsProvider credentialsProvider,
+			EventBus eventBus,
 			@Assisted JMSBroker broker) 
 	{
-		super(broker);
+		super(broker, eventBus);
 		this.domain = domain;
 		this.broker = broker;
 		this.configuration = configuration;

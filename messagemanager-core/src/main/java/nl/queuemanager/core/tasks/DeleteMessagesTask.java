@@ -9,6 +9,7 @@ import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.jms.JMSQueue;
 
+import com.google.common.eventbus.EventBus;
 import com.google.inject.assistedinject.Assisted;
 
 public class DeleteMessagesTask extends Task {
@@ -17,8 +18,8 @@ public class DeleteMessagesTask extends Task {
 	private final List<Message> messages;
 	
 	@Inject
-	DeleteMessagesTask(JMSDomain domain, @Assisted JMSQueue queue, @Assisted List<Message> messages) {
-		super(queue.getBroker());
+	DeleteMessagesTask(JMSDomain domain, EventBus eventBus, @Assisted JMSQueue queue, @Assisted List<Message> messages) {
+		super(queue.getBroker(), eventBus);
 		this.domain = domain;
 		this.queue = queue;
 		this.messages = messages;

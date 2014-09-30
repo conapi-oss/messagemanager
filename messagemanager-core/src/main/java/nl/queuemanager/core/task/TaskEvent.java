@@ -17,8 +17,6 @@ package nl.queuemanager.core.task;
 
 import java.util.EventObject;
 
-import nl.queuemanager.core.events.EventSource;
-
 @SuppressWarnings("serial")
 public class TaskEvent extends EventObject {
 	public static enum EVENT {
@@ -67,7 +65,7 @@ public class TaskEvent extends EventObject {
 	private final EVENT id;
 	private final Object info;
 	
-	public TaskEvent(EVENT id, Object info, EventSource<TaskEvent> source) {
+	public TaskEvent(EVENT id, Object info, Task source) {
 		super(source);
 		this.id = id;
 		this.info = info;
@@ -79,12 +77,6 @@ public class TaskEvent extends EventObject {
 
 	public EVENT getId() {
 		return id;
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public EventSource<TaskEvent> getSource() {
-		return (EventSource<TaskEvent>)super.getSource();
 	}
 
 	@Override

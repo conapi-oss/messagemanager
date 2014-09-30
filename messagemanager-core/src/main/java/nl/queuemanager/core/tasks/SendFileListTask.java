@@ -39,6 +39,7 @@ import nl.queuemanager.jms.impl.MessageFactory;
 
 import org.xml.sax.SAXException;
 
+import com.google.common.eventbus.EventBus;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
@@ -53,23 +54,23 @@ public class SendFileListTask extends Task implements CancelableTask {
 	private volatile boolean canceled;
 
 	@AssistedInject
-	SendFileListTask(@Assisted JMSDestination queue, @Assisted File file, @Nullable @Assisted Message template, JMSDomain sonic) {
-		this(queue, Collections.singletonList(file), template, 1, 0, sonic);
+	SendFileListTask(@Assisted JMSDestination queue, @Assisted File file, @Nullable @Assisted Message template, JMSDomain sonic, EventBus eventBus) {
+		this(queue, Collections.singletonList(file), template, 1, 0, sonic, eventBus);
 	}
 	
 	@AssistedInject
-	SendFileListTask(@Assisted JMSDestination queue, @Assisted File file, @Assisted @Nullable Message template, @Assisted("repeats") int repeats, @Assisted("delay") int delay, JMSDomain sonic) {
-		this(queue, Collections.singletonList(file), template, repeats, delay, sonic);
+	SendFileListTask(@Assisted JMSDestination queue, @Assisted File file, @Assisted @Nullable Message template, @Assisted("repeats") int repeats, @Assisted("delay") int delay, JMSDomain sonic, EventBus eventBus) {
+		this(queue, Collections.singletonList(file), template, repeats, delay, sonic, eventBus);
 	}
 	
 	@AssistedInject
-	SendFileListTask(@Assisted JMSDestination queue, @Assisted List<File> files, @Assisted @Nullable Message template, JMSDomain sonic) {
-		this(queue, files, template, 1, 0, sonic);
+	SendFileListTask(@Assisted JMSDestination queue, @Assisted List<File> files, @Assisted @Nullable Message template, JMSDomain sonic, EventBus eventBus) {
+		this(queue, files, template, 1, 0, sonic, eventBus);
 	}
 	
 	@AssistedInject
-	SendFileListTask(@Assisted JMSDestination queue, @Assisted List<File> files, @Assisted @Nullable Message template, @Assisted("repeats") int repeats, @Assisted("delay") int delay, JMSDomain sonic) {
-		super(queue.getBroker());
+	SendFileListTask(@Assisted JMSDestination queue, @Assisted List<File> files, @Assisted @Nullable Message template, @Assisted("repeats") int repeats, @Assisted("delay") int delay, JMSDomain sonic, EventBus eventBus) {
+		super(queue.getBroker(), eventBus);
 		
 		this.queue = queue;
 		this.template = template;

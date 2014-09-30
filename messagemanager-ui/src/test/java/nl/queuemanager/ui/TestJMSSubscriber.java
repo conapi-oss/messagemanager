@@ -57,7 +57,7 @@ public class TestJMSSubscriber {
 		
 		worker = new SynchronousTaskExecutor();
 		buffer = new MessageBuffer();
-		subscriber = new JMSSubscriber(null, worker, config, destination, buffer);
+		subscriber = new JMSSubscriber(null, worker, config, null, destination, buffer);
 		verify(config).getUserPref(Configuration.PREF_MAX_BUFFERED_MSG, "50");
 		
 		observer = mock(Observer.class);

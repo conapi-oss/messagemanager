@@ -17,8 +17,6 @@
     <module>messagemanager-sonicmq-76</module>
     <module>messagemanager-sonicmq-80</module>
     <module>messagemanager-sonicmq-85</module>
-    <module>messagemanager-groovy</module>
-    <module>messagemanager-scripting</module>
     <module>messagemanager-fakemq</module>
     <module>messagemanager-app</module>
   </modules>

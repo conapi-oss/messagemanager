@@ -28,26 +28,27 @@ public abstract class AbstractEventSource<T> implements EventSource<T> {
 	
 	private static final boolean DEBUG = "TRUE".equalsIgnoreCase(System.getProperty("developer"));
 
-	public AbstractEventSource() {
-	}
-	
 	public AbstractEventSource(EventBus eventBus) {
 		this.eventBus = eventBus;
 	}
 	
 	public void addListener(EventListener<T> listener) {
 		if(!listeners.contains(listener)) {
+			if(DEBUG) System.out.println(Thread.currentThread() + " -> Subscribe " + listener + " to " + this);
 			listeners.add(listener);
 		}
 	}
 	
 	public void removeListener(EventListener<T> listener) {
 		if(listeners.contains(listener)) {
+			if(DEBUG) System.out.println(Thread.currentThread() + " -> Unsubscribe " + listener + " from " + this);
 			listeners.remove(listener);
 		}
 	}
 	
 	protected void dispatchEvent(T event) {
+		// For the moment, until everything is converted to eventBus, we have to dispatch to EventBus and
+		// the listeners that have been added. No getting around that for the moment.
 		if(eventBus != null) {
 			if(DEBUG) System.out.println(Thread.currentThread() + " -> Dispatch event: " + event + " to eventbus");
 			eventBus.post(event);

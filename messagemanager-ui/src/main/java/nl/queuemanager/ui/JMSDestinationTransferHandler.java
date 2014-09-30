@@ -37,6 +37,7 @@ import nl.queuemanager.core.tasks.TaskFactory;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSQueue;
 
+import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
@@ -46,6 +47,7 @@ class JMSDestinationTransferHandler extends TransferHandler {
 	
 	private final TaskExecutor worker;
 	private final TaskFactory taskFactory;
+	private final EventBus eventBus;
 
 	// The object to read JMSDestinations from
 	private final JMSDestinationHolder destinationHolder;
@@ -64,12 +66,14 @@ class JMSDestinationTransferHandler extends TransferHandler {
 	public JMSDestinationTransferHandler(
 			TaskExecutor worker, 
 			TaskFactory taskFactory,
+			EventBus eventBus,
 			@Assisted JMSDestinationHolder destinationHolder) 
 	{
 		setSourceActions(COPY);
 		this.worker = worker;
 		this.destinationHolder = destinationHolder;
 		this.taskFactory = taskFactory;
+		this.eventBus = eventBus;
 	}
 
 	/**
@@ -172,7 +176,7 @@ class JMSDestinationTransferHandler extends TransferHandler {
 		worker.executeInOrder(
 			taskFactory.moveMessages(toQueue, messageList),
 			taskFactory.enumerateQueues(toQueue.getBroker(), null),
-		new FireRefreshRequiredTask(null, destinationHolder, toQueue));
+			new FireRefreshRequiredTask(null, eventBus, destinationHolder, toQueue));
 		
 		return true;
 	}
@@ -190,7 +194,7 @@ class JMSDestinationTransferHandler extends TransferHandler {
 		worker.executeInOrder(
 			taskFactory.sendMessages(destination, messageList),
 			taskFactory.enumerateQueues(destination.getBroker(), null),
-			new FireRefreshRequiredTask(null, destinationHolder, destination));
+			new FireRefreshRequiredTask(null, eventBus, destinationHolder, destination));
 		
 		return true;
 	}
@@ -208,7 +212,7 @@ class JMSDestinationTransferHandler extends TransferHandler {
 		worker.executeInOrder(
 			taskFactory.sendFiles(destination, fileList, null),
 			taskFactory.enumerateQueues(destination.getBroker(), null),
-			new FireRefreshRequiredTask(null, destinationHolder, destination));
+			new FireRefreshRequiredTask(null, eventBus, destinationHolder, destination));
 		
 		return true;
 	}
@@ -238,8 +242,8 @@ class JMSDestinationTransferHandler extends TransferHandler {
 		private final JMSDestinationHolder target;
 		private final JMSDestination destination;
 		
-		protected FireRefreshRequiredTask(Object resource, JMSDestinationHolder target, JMSDestination destination) {
-			super(resource);
+		protected FireRefreshRequiredTask(Object resource, EventBus eventBus, JMSDestinationHolder target, JMSDestination destination) {
+			super(resource, eventBus);
 			this.target = target;
 			this.destination = destination;
 		}

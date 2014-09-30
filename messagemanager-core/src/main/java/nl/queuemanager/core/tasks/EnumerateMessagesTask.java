@@ -28,6 +28,7 @@ import nl.queuemanager.core.task.BackgroundTask;
 import nl.queuemanager.core.task.CancelableTask;
 import nl.queuemanager.jms.JMSQueue;
 
+import com.google.common.eventbus.EventBus;
 import com.google.inject.assistedinject.Assisted;
 
 public class EnumerateMessagesTask extends BackgroundTask implements CancelableTask {
@@ -41,9 +42,10 @@ public class EnumerateMessagesTask extends BackgroundTask implements CancelableT
 	EnumerateMessagesTask(
 			@Assisted final JMSQueue queue, 
 			@Assisted final EventListener<QueueBrowserEvent> listener,
-			final JMSDomain sonic) 
+			final JMSDomain sonic,
+			EventBus eventBus) 
 	{
-		super(queue.getBroker());
+		super(queue.getBroker(), eventBus);
 		
 		this.queue = queue;
 		this.sonic = sonic;
@@ -107,6 +109,10 @@ public class EnumerateMessagesTask extends BackgroundTask implements CancelableT
 	}
 	
 	private class QueueBrowserEventSource extends AbstractEventSource<QueueBrowserEvent> {
+		public QueueBrowserEventSource() {
+			super(null);
+		}
+		
 		public void fireBrowsingStarted(EnumerateMessagesTask source) {
 			dispatchEvent(new QueueBrowserEvent(QueueBrowserEvent.EVENT.BROWSING_STARTED, source, getQueue()));
 		}

@@ -22,6 +22,10 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.swing.SwingUtilities;
 
+import com.google.common.eventbus.EventBus;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.MessageBuffer;
 import nl.queuemanager.core.MessageEvent;
@@ -44,13 +48,16 @@ public class JMSSubscriber extends Observable implements EventSource<MessageEven
 	private final TaskExecutor worker;
 	private final JMSDestination destination;
 	private final MessageBuffer buffer;
+	private final EventBus eventBus;
 	private MessageConsumer consumer;
 	
-	public JMSSubscriber(JMSDomain sonic, TaskExecutor worker, Configuration config, JMSDestination destination, MessageBuffer buffer) {
+	@Inject
+	public JMSSubscriber(JMSDomain sonic, TaskExecutor worker, Configuration config, EventBus eventBus, @Assisted JMSDestination destination, @Assisted MessageBuffer buffer) {
 		this.sonic = sonic;
 		this.worker = worker;
 		this.destination = destination;
 		this.buffer = buffer;
+		this.eventBus = eventBus;
 		
 		buffer.setMaximumNumberOfMessages(Integer.parseInt(config.getUserPref(
 				Configuration.PREF_MAX_BUFFERED_MSG, "50")));
@@ -144,7 +151,7 @@ public class JMSSubscriber extends Observable implements EventSource<MessageEven
 			final MessageConsumer toClose = consumer;
 			
 			// Deactivate the consumer
-			worker.execute(new BackgroundTask(null) {
+			worker.execute(new BackgroundTask(null, eventBus) {
 				@Override
 				public void execute() throws Exception {
 					toClose.close();
@@ -162,7 +169,7 @@ public class JMSSubscriber extends Observable implements EventSource<MessageEven
 		
 		if(!isActive() && active) {
 			// Activate the consumer
-			worker.execute(new BackgroundTask(destination.getBroker()) {
+			worker.execute(new BackgroundTask(destination.getBroker(), eventBus) {
 				@Override
 				public void execute() throws Exception {
 					setConsumer(sonic.openConsumer(destination, buffer));

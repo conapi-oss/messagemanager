@@ -36,7 +36,7 @@ public class MessageEvent extends EventObject {
 	private final EVENT id;
 	private final Object info;
 		
-	public MessageEvent(EVENT id, Object info, EventSource<MessageEvent> source) {
+	public MessageEvent(EVENT id, Object info, Object source) {
 		super(source);
 		this.id = id;
 		this.info = info;
@@ -48,12 +48,6 @@ public class MessageEvent extends EventObject {
 
 	public EVENT getId() {
 		return id;
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public EventSource<MessageEvent> getSource() {
-		return (EventSource<MessageEvent>)super.getSource();
 	}
 
 	@Override

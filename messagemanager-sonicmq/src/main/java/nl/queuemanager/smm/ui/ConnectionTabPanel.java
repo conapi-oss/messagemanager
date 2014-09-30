@@ -56,6 +56,7 @@ import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.util.DesktopHelper;
 
+import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import com.sonicsw.ma.gui.PreferenceManager;
 import com.sonicsw.ma.gui.domain.DomainConnectionModel;
@@ -70,14 +71,16 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 	private       ConnectionModelTable connectionTable;
 	private final PreferenceManager prefs = PreferenceManager.getInstance();
 	private final ConnectionDialogProvider connectionDialogProvider;
+	private final EventBus eventBus;
 	
 	@Inject
-	public ConnectionTabPanel(Domain sonic, TaskExecutor worker, SMMConfiguration config, DesktopHelper desktop, ConnectionDialogProvider connectionDialogProvider) {
+	public ConnectionTabPanel(Domain sonic, TaskExecutor worker, SMMConfiguration config, DesktopHelper desktop, ConnectionDialogProvider connectionDialogProvider, EventBus eventBus) {
 		this.sonic = sonic;
 		this.worker = worker;
 		this.config = config;
 		this.desktop = desktop;
 		this.connectionDialogProvider = connectionDialogProvider;
+		this.eventBus = eventBus;
 
 		JPanel brandingPanel = createBrandingPanel();
 		JPanel connectionsPanel = createConnectionsPanel();
@@ -342,7 +345,7 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 	}
 	
 	private void disconnect() {
-		worker.execute(new Task(sonic) {
+		worker.execute(new Task(sonic, eventBus) {
 			@Override
 			public void execute() throws Exception {
 				sonic.disconnect();
@@ -377,7 +380,7 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 	}
 
 	public void connectSonic(final ConnectionModel model) {
-		worker.execute(new Task(sonic) {
+		worker.execute(new Task(sonic, eventBus) {
 			@Override
 			public void execute() throws Exception {
 				sonic.connect(model);

@@ -26,6 +26,7 @@ import nl.queuemanager.core.task.CancelableTask;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.jms.JMSDestination;
 
+import com.google.common.eventbus.EventBus;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
@@ -39,23 +40,23 @@ public class SendMessageListTask extends Task implements CancelableTask {
 	private volatile boolean canceled;
 	
 	@AssistedInject
-	SendMessageListTask(@Assisted JMSDestination queue, @Assisted Message message, JMSDomain domain) {
-		this(queue, Collections.singletonList(message), 1, 0, domain);
+	SendMessageListTask(@Assisted JMSDestination queue, @Assisted Message message, JMSDomain domain, EventBus eventBus) {
+		this(queue, Collections.singletonList(message), 1, 0, domain, eventBus);
 	}
 	
 	@AssistedInject
-	SendMessageListTask(@Assisted JMSDestination queue, @Assisted Message message, @Assisted("repeats") int repeats, @Assisted("delay") int delay, JMSDomain domain) {
-		this(queue, Collections.singletonList(message), repeats, delay, domain);
+	SendMessageListTask(@Assisted JMSDestination queue, @Assisted Message message, @Assisted("repeats") int repeats, @Assisted("delay") int delay, JMSDomain domain, EventBus eventBus) {
+		this(queue, Collections.singletonList(message), repeats, delay, domain, eventBus);
 	}
 	
 	@AssistedInject
-	SendMessageListTask(@Assisted JMSDestination queue, @Assisted List<Message> messages, JMSDomain domain) {
-		this(queue, messages, 1, 0, domain);
+	SendMessageListTask(@Assisted JMSDestination queue, @Assisted List<Message> messages, JMSDomain domain, EventBus eventBus) {
+		this(queue, messages, 1, 0, domain, eventBus);
 	}
 
 	@AssistedInject
-	SendMessageListTask(@Assisted JMSDestination queue, @Assisted List<Message> messages, @Assisted("repeats") int repeats, @Assisted("delay") int delay, JMSDomain domain) {
-		super(queue.getBroker());
+	SendMessageListTask(@Assisted JMSDestination queue, @Assisted List<Message> messages, @Assisted("repeats") int repeats, @Assisted("delay") int delay, JMSDomain domain, EventBus eventBus) {
+		super(queue.getBroker(), eventBus);
 		
 		this.repeats = repeats;
 		this.delay = delay;

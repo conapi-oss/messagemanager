@@ -11,7 +11,7 @@
   <artifactId>messagemanager-sonicmq</artifactId>
   <name>Message Manager for SonicMQ</name>
   <properties>
-    <sonic.version>8.5</sonic.version>
+    <sonic.version>8.6</sonic.version>
   </properties>
   <build>
   	<plugins>
@@ -95,13 +95,6 @@
     	<groupId>nl.queuemanager</groupId>
     	<artifactId>messagemanager-ui</artifactId>
     	<version>3.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-    	<groupId>com.progress.sonic.mq</groupId>
-    	<artifactId>activation</artifactId>
-    	<version>${sonic.version}</version>
-    	<type>jar</type>
-    	<scope>provided</scope>
     </dependency>
     <dependency>
     	<groupId>com.progress.sonic.mq</groupId>

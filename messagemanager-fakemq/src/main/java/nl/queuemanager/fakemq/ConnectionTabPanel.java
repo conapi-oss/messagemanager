@@ -28,17 +28,20 @@ import nl.queuemanager.ui.CommonUITasks;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.UITab;
 
+import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 
 @SuppressWarnings("serial")
 public class ConnectionTabPanel extends JPanel implements UITab {
 	private final FakeMQDomain domain;
 	private final TaskExecutor worker;
+	private final EventBus eventBus;
 	
 	@Inject
-	public ConnectionTabPanel(FakeMQDomain domain, TaskExecutor worker) {
+	public ConnectionTabPanel(FakeMQDomain domain, TaskExecutor worker, EventBus eventBus) {
 		this.domain = domain;
 		this.worker = worker;
+		this.eventBus = eventBus;
 		
 		add(createNewConnectionButton());
 	}
@@ -55,7 +58,7 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 	}
 
 	public void connect() {
-		worker.execute(new Task(domain) {
+		worker.execute(new Task(domain, eventBus) {
 			@Override
 			public void execute() throws Exception {
 				domain.connect();

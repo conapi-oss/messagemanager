@@ -21,7 +21,9 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
 
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.task.CancelableTask;
@@ -40,10 +42,14 @@ import nl.queuemanager.ui.util.JStatusBar;
 @SuppressWarnings("serial")
 public class TaskQueuePanel extends JPanel {
 
+	// FIXME This should not be here. StatusBarManipulators must be constructed by Guice
+	private final EventBus eventBus;
 	private Map<Task, JStatusBar> statusbars = CollectionFactory.newHashMap();
 	
-	public TaskQueuePanel() {
+	@Inject
+	public TaskQueuePanel(EventBus eventBus) {
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		this.eventBus = eventBus;
 	}
 
 	@Subscribe
@@ -59,8 +65,8 @@ public class TaskQueuePanel extends JPanel {
 		case TASK_STARTED:
 			if(!statusbars.containsKey(t)) {
 				final JStatusBar bar = new JStatusBar();
-				final StatusBarManipulator manipulator = new StatusBarManipulator(bar);
-				t.addListener(manipulator);
+				final StatusBarManipulator manipulator = new StatusBarManipulator(bar, t);
+				eventBus.register(manipulator);
 				manipulator.processEvent(event);
 				statusbars.put(t, bar);
 				
@@ -87,15 +93,21 @@ public class TaskQueuePanel extends JPanel {
 	}
 }
 
-class StatusBarManipulator implements EventListener<TaskEvent> {
+class StatusBarManipulator {
 	private final JStatusBar statusBar;
+	private final Task myTask;
 	
-	public StatusBarManipulator(JStatusBar statusBar) {
+	public StatusBarManipulator(JStatusBar statusBar, Task task) {
 		this.statusBar = statusBar;
+		this.myTask = task;
 	}
-	
+
+	@Subscribe
 	public void processEvent(final TaskEvent event) {	
 		final Task task = (Task)event.getSource();
+		if(task != myTask) {
+			return;
+		}
 		
 		switch(event.getId()) {
 		case TASK_WAITING:

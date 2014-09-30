@@ -10,6 +10,7 @@ import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskEvent;
 import nl.queuemanager.jms.JMSQueue;
 
+import com.google.common.eventbus.EventBus;
 import com.google.inject.assistedinject.Assisted;
 
 public class MoveMessageListTask extends Task {
@@ -18,8 +19,13 @@ public class MoveMessageListTask extends Task {
 	private final List<Pair<JMSQueue, String>> messageList;
 
 	@Inject
-	private MoveMessageListTask(@Assisted JMSQueue toQueue, @Assisted List<Pair<JMSQueue, String>> messageList, JMSDomain domain) {
-		super(toQueue.getBroker());
+	private MoveMessageListTask(
+			@Assisted JMSQueue toQueue, 
+			@Assisted List<Pair<JMSQueue, String>> messageList, 
+			JMSDomain domain, 
+			EventBus eventBus) 
+	{
+		super(toQueue.getBroker(), eventBus);
 		this.toQueue = toQueue;
 		this.messageList = messageList;
 		this.domain = domain;
@@ -32,7 +38,7 @@ public class MoveMessageListTask extends Task {
 			final JMSQueue fromDst = messageInfo.first();
 			final String messageID = messageInfo.second();
 			domain.forwardMessage(fromDst, toQueue, messageID);
-			dispatchEvent(new TaskEvent(TaskEvent.EVENT.TASK_PROGRESS, i++, this));
+			eventBus.post(new TaskEvent(TaskEvent.EVENT.TASK_PROGRESS, i++, this));
 		}
 	}
 

@@ -8,6 +8,7 @@ import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.jms.JMSQueue;
 
+import com.google.common.eventbus.EventBus;
 import com.google.inject.assistedinject.Assisted;
 
 public class ClearQueuesTask extends Task {
@@ -15,8 +16,8 @@ public class ClearQueuesTask extends Task {
 	private final List<JMSQueue> queueList;
 
 	@Inject
-	ClearQueuesTask(JMSDomain domain, @Assisted List<JMSQueue> queueList) {
-		super(domain);
+	ClearQueuesTask(JMSDomain domain, EventBus eventBus, @Assisted List<JMSQueue> queueList) {
+		super(domain, eventBus);
 		this.domain = domain;
 		this.queueList = queueList;
 	}

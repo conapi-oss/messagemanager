@@ -444,7 +444,7 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 			messages.add(messageTable.getRowItem(i));
 		}
 		
-		CommonUITasks.saveMessages(this, messages, worker, config);
+		CommonUITasks.saveMessages(this, messages, worker, taskFactory, config);
 	}	
 	
 	private void displayMessage(final Message message) {

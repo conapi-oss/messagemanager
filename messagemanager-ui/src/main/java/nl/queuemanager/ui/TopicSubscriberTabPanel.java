@@ -59,6 +59,7 @@ import nl.queuemanager.jms.JMSTopic;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.message.MessageViewerPanel;
 
+import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -76,7 +77,9 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 	private JComboBox brokerCombo;
 	private final JMSDomain domain;
 	private final TaskExecutor worker;
+	private final TaskFactory taskFactory;
 	private final Configuration config;
+	private final JMSSubscriberFactory jmsSubscriberFactory;
 	
 	private final TopicSubscriberTable subscriberTable;
 	private final MessagesTable messageTable;
@@ -84,19 +87,26 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 	
 	private final MessageEventListener messageEventListener;
 	
-	private final Injector injector;
-	
 	@Inject
-	public TopicSubscriberTabPanel(Injector injector) {
-		// FIXME This is against DI best practices
-		this.injector = injector;
-		this.domain = injector.getInstance(JMSDomain.class);
-		this.worker = injector.getInstance(TaskExecutor.class);
-		this.config = injector.getInstance(Configuration.class);
+	public TopicSubscriberTabPanel(
+			JMSDomain domain, 
+			TaskExecutor worker, 
+			TaskFactory taskFactory,
+			TopicSubscriberTable topicSubscriberTable,
+			MessageViewerPanel messageViewer,
+			Configuration config, 
+			EventBus eventBus,
+			JMSSubscriberFactory jmsSubscriberFactory) 
+	{
+		this.domain = domain;
+		this.worker = worker;
+		this.taskFactory = taskFactory;
+		this.config = config;
+		this.jmsSubscriberFactory = jmsSubscriberFactory;
 		
-		subscriberTable = createTopicTable(injector);
+		subscriberTable = createTopicTable(topicSubscriberTable);
 		messageTable = createMessageTable();
-		messageViewer = injector.getInstance(MessageViewerPanel.class);
+		this.messageViewer = messageViewer; 
 		messageViewer.setDragEnabled(true);
 		
 		brokerCombo = createBrokerCombo();
@@ -206,7 +216,7 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 			messages.add(messageTable.getRowItem(i));
 		}
 		
-		CommonUITasks.saveMessages(this, messages, worker, config);
+		CommonUITasks.saveMessages(this, messages, worker, taskFactory, config);
 	}
 
 	/**
@@ -272,7 +282,7 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 	
 	private void connectToBroker(final JMSBroker broker) {
 		// Connect to the broker
-		worker.execute(injector.getInstance(TaskFactory.class).connectToBroker(broker));
+		worker.execute(taskFactory.connectToBroker(broker));
 	}
 
 	/**
@@ -330,9 +340,7 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 		});
 	}
 	
-	private TopicSubscriberTable createTopicTable(Injector injector) {
-		final TopicSubscriberTable table = injector.getInstance(TopicSubscriberTable.class);
-		
+	private TopicSubscriberTable createTopicTable(TopicSubscriberTable table) {
 		// Give the table an empty list in case TOPICS_ENUMERATED never fires or there
 		// are no topics to enumerate.
 		table.setData(new ArrayList<JMSSubscriber>());
@@ -391,7 +399,7 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 	private void populateTopicTable(final List<JMSTopic> topics) {
 		final List<JMSSubscriber> entries = CollectionFactory.newArrayList();
 		for(JMSTopic t: topics) {
-			entries.add(new JMSSubscriber(domain, worker, config, t, new MessageBuffer()));
+			entries.add(jmsSubscriberFactory.newSubscriber(t, new MessageBuffer()));
 		}
 		
 		SwingUtilities.invokeLater(new Runnable() {
@@ -492,7 +500,7 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 					
 					JMSSubscriber subscriber = subscriberTable.getItemForDestination(topic); 
 					if(subscriber == null) {
-						subscriber = new JMSSubscriber(domain, worker, config, topic, new MessageBuffer());
+						subscriber = jmsSubscriberFactory.newSubscriber(topic, new MessageBuffer());
 						subscriber.setActive(true);
 						subscriberTable.addItem(subscriber);
 						config.addTopicSubscriber((JMSTopic)subscriber.getDestination());

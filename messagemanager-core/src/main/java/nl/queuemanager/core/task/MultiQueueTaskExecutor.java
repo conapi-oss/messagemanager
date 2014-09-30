@@ -26,14 +26,10 @@ import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
-import nl.queuemanager.core.events.EventListener;
+import com.google.common.eventbus.Subscribe;
 
-import com.google.common.eventbus.EventBus;
-
-class MultiQueueTaskExecutor implements EventListener<TaskEvent>, TaskExecutor 
+class MultiQueueTaskExecutor implements TaskExecutor 
 {
-	private final EventBus eventBus;
-	
 	// List of Tasks that are waiting to run
 	private final List<Task> waitingTasks;
 	
@@ -44,8 +40,7 @@ class MultiQueueTaskExecutor implements EventListener<TaskEvent>, TaskExecutor
 	private final Object executorLock;
 		
 	@Inject
-	public MultiQueueTaskExecutor(EventBus eventBus) {
-		this.eventBus = eventBus;
+	public MultiQueueTaskExecutor() {
 		this.waitingTasks = new LinkedList<Task>();
 		this.executors = new HashMap<Object, ExecutorService>();
 		this.executorLock = new Object();
@@ -83,20 +78,20 @@ class MultiQueueTaskExecutor implements EventListener<TaskEvent>, TaskExecutor
 	}
 	
 	/**
-	 * Called by Tasks to signal that they have finished executing. Called after all
-	 * listeners have been notified of this event.
+	 * When a task has finished executing, process the waiting tasks to see if any are ready
 	 */
-	void afterExecute(final Task task) {
-		processWaitingTasks();
+	@Subscribe
+	void processTaskEvent(final TaskEvent event) {
+		if(event.getId() == TaskEvent.EVENT.TASK_FINISHED) {
+			processWaitingTasks();
+		}
 	}
 	
 	/* (non-Javadoc)
 	 * @see nl.queuemanager.core.task.TaskExecutor#execute(nl.queuemanager.core.task.Task)
 	 */
 	public void execute(final Task task) {
-		task.setExecutor(this);
-		task.addListener(this);
-				
+		task.setExecutor(this);	
 		task.dispatchTaskWaiting();
 		
 		if(task.getDependencyCount() == 0) {
@@ -172,8 +167,4 @@ class MultiQueueTaskExecutor implements EventListener<TaskEvent>, TaskExecutor
 		}
 	}
 	
-	public void processEvent(TaskEvent event) {
-		// Forward the task event from the task to the application
-		eventBus.post(event);
-	}
 }

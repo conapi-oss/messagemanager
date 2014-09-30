@@ -17,10 +17,11 @@ package nl.queuemanager.core.task;
 
 import java.util.Set;
 
-import nl.queuemanager.core.events.AbstractEventSource;
-import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.task.TaskEvent.EVENT;
 import nl.queuemanager.core.util.WeakHashSet;
+
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 
 /**
  * This class is the base class for all tasks to be executed on the TaskExecutor. 
@@ -30,11 +31,9 @@ import nl.queuemanager.core.util.WeakHashSet;
  * @author gerco
  *
  */
-public abstract class Task extends AbstractEventSource<TaskEvent> implements Runnable {
+public abstract class Task implements Runnable {
 
 	private MultiQueueTaskExecutor executor;
-	
-	private DependencyRemover dependencyRemover = new DependencyRemover();
 	
 	/**
 	 * The resource object that this tasks wants to be available. A Task may
@@ -54,6 +53,11 @@ public abstract class Task extends AbstractEventSource<TaskEvent> implements Run
 	 */
 	private final Object dependenciesLock = new Object();
 	
+	/**
+	 * EventBus to send all task events on. This is most-likely the application-wide bus.
+	 */
+	protected final EventBus eventBus;
+	
 	protected long startTime;
 
 	/**
@@ -62,8 +66,9 @@ public abstract class Task extends AbstractEventSource<TaskEvent> implements Run
 	 * @param resource
 	 */
 	@SuppressWarnings("unchecked")
-	protected Task(Object resource) {
+	protected Task(Object resource, EventBus eventBus) {
 		this.resource = resource;
+		this.eventBus = eventBus;
 		
 		/*
 		 * This must be a Weak Set because when the queue is cleared by the Executors,
@@ -89,7 +94,6 @@ public abstract class Task extends AbstractEventSource<TaskEvent> implements Run
 	 */
 	public void addDependency(Task task) {
 		synchronized(dependenciesLock) {
-			task.addListener(dependencyRemover);
 			dependencies.add(task);
 		}
 	}
@@ -136,27 +140,26 @@ public abstract class Task extends AbstractEventSource<TaskEvent> implements Run
 		}
 		
 		dispatchTaskFinished();
-		getExecutor().afterExecute(this);
 	}
 
 	protected void dispatchTaskWaiting() {
-		dispatchEvent(new TaskEvent(EVENT.TASK_WAITING, getInfo(), this));
+		eventBus.post(new TaskEvent(EVENT.TASK_WAITING, getInfo(), this));
 	}
 	
 	protected void dispatchTaskStarted() {
-		dispatchEvent(new TaskEvent(EVENT.TASK_STARTED, getInfo(), this));
+		eventBus.post(new TaskEvent(EVENT.TASK_STARTED, getInfo(), this));
 	}
 
 	protected void dispatchTaskError(Exception e) {
-		dispatchEvent(new TaskEvent(EVENT.TASK_ERROR, e, this));
+		eventBus.post(new TaskEvent(EVENT.TASK_ERROR, e, this));
 	}
 	
 	protected void dispatchTaskFinished() {
-		dispatchEvent(new TaskEvent(EVENT.TASK_FINISHED, getInfo(), this));
+		eventBus.post(new TaskEvent(EVENT.TASK_FINISHED, getInfo(), this));
 	}
 	
 	void dispatchTaskDiscarded() {
-		dispatchEvent(new TaskEvent(EVENT.TASK_DISCARDED, null, this));
+		eventBus.post(new TaskEvent(EVENT.TASK_DISCARDED, null, this));
 	}
 	
 	/**
@@ -205,7 +208,7 @@ public abstract class Task extends AbstractEventSource<TaskEvent> implements Run
 	 * @param current The amount of progress that has been made (in total)
 	 */
 	protected void reportProgress(int current) {
-		dispatchEvent(new TaskEvent(EVENT.TASK_PROGRESS, current, this));
+		eventBus.post(new TaskEvent(EVENT.TASK_PROGRESS, current, this));
 	}
 	
 	/**
@@ -229,12 +232,10 @@ public abstract class Task extends AbstractEventSource<TaskEvent> implements Run
 	 * When a Task that this Task depends on has sent it's TASK_FINISHED event. Remove
 	 * that task as a dependency.
 	 */
-	private class DependencyRemover implements EventListener<TaskEvent> {
-		public void processEvent(TaskEvent event) {
-			if(event.getId() == EVENT.TASK_FINISHED) {
-				Task.this.removeDependency((Task)event.getSource());
-				event.getSource().removeListener(this);
-			}
+	@Subscribe
+	public void processEvent(TaskEvent event) {
+		if(event.getId() == EVENT.TASK_FINISHED) {
+			removeDependency((Task)event.getSource());
 		}
 	}
 }

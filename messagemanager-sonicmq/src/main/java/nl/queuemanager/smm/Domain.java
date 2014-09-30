@@ -42,10 +42,9 @@ import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
 import nl.queuemanager.core.Configuration;
-import nl.queuemanager.core.events.AbstractEventSource;
 import nl.queuemanager.core.jms.DomainEvent;
-import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.jms.DomainEvent.EVENT;
+import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
@@ -55,6 +54,7 @@ import nl.queuemanager.jms.JMSTopic;
 import progress.message.jclient.MultipartMessage;
 import progress.message.jclient.XMLMessage;
 
+import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.sonicsw.ma.mgmtapi.config.IMgmtBeanBase;
@@ -70,25 +70,27 @@ import com.sonicsw.mq.common.runtime.IQueueData;
 import com.sonicsw.mq.common.runtime.ReplicationStateConstants;
 import com.sonicsw.mq.mgmtapi.config.IAcceptorTcpsBean;
 import com.sonicsw.mq.mgmtapi.config.IAcceptorsBean;
+import com.sonicsw.mq.mgmtapi.config.IAcceptorsBean.IAcceptorMapType;
+import com.sonicsw.mq.mgmtapi.config.IAcceptorsBean.IDefaultAcceptorsType;
 import com.sonicsw.mq.mgmtapi.config.IBackupBrokerBean;
 import com.sonicsw.mq.mgmtapi.config.IBrokerBean;
 import com.sonicsw.mq.mgmtapi.config.MQMgmtBeanFactory;
-import com.sonicsw.mq.mgmtapi.config.IAcceptorsBean.IAcceptorMapType;
-import com.sonicsw.mq.mgmtapi.config.IAcceptorsBean.IDefaultAcceptorsType;
 import com.sonicsw.mq.mgmtapi.config.constants.IBackupBrokerConstants;
 import com.sonicsw.mq.mgmtapi.config.constants.IBrokerConstants;
 
 @Singleton
-public class Domain extends AbstractEventSource<DomainEvent> implements JMSDomain {
+public class Domain implements JMSDomain {
 	private final Configuration config;
+	private final EventBus eventBus;
 	private       ConnectionModel model;
 	private final ArrayList<SonicMQBroker> brokerList = CollectionFactory.newArrayList();
 	
 	private Map<SonicMQBroker, SonicMQConnection> brokerConnections;
 
 	@Inject
-	public Domain(SMMConfiguration configuration) {
+	public Domain(SMMConfiguration configuration, EventBus eventBus) {
 		this.config = configuration;
+		this.eventBus = eventBus;
 	}
 	
 	/* (non-Javadoc)
@@ -692,6 +694,10 @@ public class Domain extends AbstractEventSource<DomainEvent> implements JMSDomai
 			}
 		}
 	}	
+	
+	private void dispatchEvent(Object event) {
+		eventBus.post(event);
+	}
 	
 	private static class SonicExceptionListener implements ExceptionListener {
 		public void onException(JMSException ex) {

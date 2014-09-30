@@ -21,6 +21,7 @@ import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.BackgroundTask;
 import nl.queuemanager.jms.JMSBroker;
 
+import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
@@ -33,10 +34,11 @@ public class EnumerateQueuesTask extends BackgroundTask {
 	@Inject
 	EnumerateQueuesTask(
 			JMSDomain sonic, 
+			EventBus eventBus,
 			@Assisted JMSBroker broker, 
 			@Nullable @Assisted String filter) 
 	{
-		super(sonic);
+		super(sonic, eventBus);
 		
 		this.domain = sonic;
 		this.broker = broker;

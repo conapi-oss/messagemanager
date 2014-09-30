@@ -27,6 +27,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
+import com.google.common.eventbus.EventBus;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 import nl.queuemanager.core.ESBMessage;
 import nl.queuemanager.core.Pair;
 import nl.queuemanager.core.task.CancelableTask;
@@ -41,8 +45,12 @@ public class SaveMessagesToFileTask extends Task implements CancelableTask {
 	private final boolean asESBMSG;
 	private volatile boolean canceled;
 	
-	public SaveMessagesToFileTask(List<Pair<javax.jms.Message, File>> messages, boolean asESBMSG) {
-		super(null);
+	@Inject
+	public SaveMessagesToFileTask(
+			@Assisted List<Pair<javax.jms.Message, File>> messages, 
+			@Assisted boolean asESBMSG, 
+			EventBus eventBus) {
+		super(null, eventBus);
 		
 		this.messages = messages;
 		this.asESBMSG = asESBMSG;
@@ -55,7 +63,7 @@ public class SaveMessagesToFileTask extends Task implements CancelableTask {
 		for(Pair<javax.jms.Message, File> pair: messages) {
 			if(canceled) return;
 			saveSingleMessage(pair.first(), pair.second());
-			dispatchEvent(new TaskEvent(TaskEvent.EVENT.TASK_PROGRESS, i++, this));
+			eventBus.post(new TaskEvent(TaskEvent.EVENT.TASK_PROGRESS, i++, this));
 		}
 	}
 

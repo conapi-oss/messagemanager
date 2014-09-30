@@ -15,10 +15,12 @@
  */
 package nl.queuemanager.core.task;
 
+import com.google.common.eventbus.EventBus;
+
 public abstract class BackgroundTask extends Task {
 
-	protected BackgroundTask(Object resource) {
-		super(resource);
+	protected BackgroundTask(Object resource, EventBus eventBus) {
+		super(resource, eventBus);
 	}
 
 	@Override

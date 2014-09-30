@@ -37,6 +37,7 @@ public class CoreModule extends AbstractModule {
 		install(new FactoryModuleBuilder().build(TaskFactory.class));
 		
 		bind(GlobalDomainEventListener.class).in(Scopes.SINGLETON);
+		bind(DeadEventListener.class).in(Scopes.SINGLETON);
 	}
 
 }

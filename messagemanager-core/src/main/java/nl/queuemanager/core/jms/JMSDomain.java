@@ -28,7 +28,6 @@ import javax.management.MBeanException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ReflectionException;
 
-import nl.queuemanager.core.events.EventSource;
 import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
@@ -41,7 +40,7 @@ import nl.queuemanager.jms.JMSTopic;
  * @author Gerco Dries (gdr@progaia-rs.nl)
  *
  */
-public interface JMSDomain extends EventSource<DomainEvent> {
+public interface JMSDomain {
 
 	public abstract List<? extends JMSBroker> enumerateBrokers() throws MalformedObjectNameException, JMException;
 

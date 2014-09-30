@@ -19,6 +19,8 @@ import java.util.List;
 
 import javax.swing.SwingUtilities;
 
+import com.google.common.eventbus.EventBus;
+
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.BackgroundTask;
 import nl.queuemanager.jms.JMSBroker;
@@ -34,8 +36,9 @@ public class RefreshMessageCountsTask extends BackgroundTask {
 	public RefreshMessageCountsTask(
 			JMSDomain sonic,
 			JMSBroker broker,
+			EventBus eventBus,
 			ListTableModel<JMSQueue> tableModel) {
-		super(broker);
+		super(broker, eventBus);
 		
 		this.sonic = sonic;
 		this.broker = broker;
