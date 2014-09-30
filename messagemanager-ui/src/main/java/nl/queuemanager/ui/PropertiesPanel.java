@@ -19,6 +19,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -49,15 +51,14 @@ public class PropertiesPanel extends JPanel {
 		Integer.class.getSimpleName(), 
 		Long.class.getSimpleName(), 
 		Float.class.getSimpleName(), 
-		Double.class.getSimpleName()
-		};
+		Double.class.getSimpleName()};
 	
 	// TODO Replace these constants with some kind of provider-dependent list
 	private static final String[] PATTERNS = {
+			"JMSType",
             "JMS_SonicMQ_preserveUndelivered",
             "JMS_SonicMQ_notifyUndelivered",
-            "JMS_SonicMQ_destinationUndelivered"
-            };
+            "JMS_SonicMQ_destinationUndelivered"};
 
 	private final MessagePropertiesTable messagePropertiesTable;
 	private final JComboBox propNameCombo;
@@ -117,6 +118,17 @@ public class PropertiesPanel extends JPanel {
 		propertiesEditPanel.add(propValueLabel);
 		propValueField = new JTextField();
 		propValueField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 	propValueField.getPreferredSize().height));
+		propValueField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+					e.consume();
+					setButton.doClick();
+				}
+				
+				super.keyPressed(e);
+			}
+		});
 		propertiesEditPanel.add(propValueField);
 		propertiesEditPanel.add(new JLabel());	// empty label to fill in the gap
 		

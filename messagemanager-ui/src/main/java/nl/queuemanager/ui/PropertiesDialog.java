@@ -18,12 +18,15 @@ package nl.queuemanager.ui;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.util.Map;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.KeyStroke;
 
 import nl.queuemanager.core.util.CollectionFactory;
 
@@ -52,6 +55,14 @@ public class PropertiesDialog extends JDialog {
 		
 		getContentPane().add(okButton);
 		getContentPane().add(Box.createVerticalStrut(5));
+
+		getRootPane().setDefaultButton(okButton);
+		getRootPane().registerKeyboardAction(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setVisible(false);
+			}
+		}, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+		
 		pack();
 	}
 	

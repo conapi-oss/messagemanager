@@ -55,7 +55,7 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 	private JTree structureTree = null;
 	
 	private Message message = null;
-	private JScrollPane infoScrollPane = null;
+	private JPanel emptyPanel = new JPanel();
 
 	private final SortedMap<Integer, MessageContentViewer> messageContentViewers;
 	private final SortedMap<Integer, MessagePartContentViewer> partContentViewers;
@@ -103,7 +103,7 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 			new DefaultMutableTreeNode(
 				new TreeNodeInfo(
 					"JMS Headers", 
-					messagePropertiesTable)));
+					new JScrollPane(messagePropertiesTable))));
 		
 		MessagePropertiesTable messageHeadersTable = new MessagePropertiesTable();
 		messageHeadersTable.setMessage(this.message);
@@ -111,7 +111,7 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 			new DefaultMutableTreeNode(
 				new TreeNodeInfo(
 					"Properties", 
-					messageHeadersTable)));
+					new JScrollPane(messageHeadersTable))));
 		
 		if(message != null) try {
 			if(message instanceof JMSMultipartMessage) {
@@ -187,8 +187,6 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 	}
 
 	public void valueChanged(TreeSelectionEvent event) {
-		infoScrollPane.setViewportView(null);
-		
 		DefaultMutableTreeNode node = 
 			(DefaultMutableTreeNode)structureTree.getLastSelectedPathComponent();
 		
@@ -213,7 +211,10 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 			}
 		    
 			if(data instanceof JComponent) {
-				infoScrollPane.setViewportView((JComponent)data);
+				int location = jSplitPane.getDividerLocation();
+				jSplitPane.setRightComponent((JComponent)data);
+				jSplitPane.setDividerLocation(location);
+				jSplitPane.revalidate();
 			} 
 		} 
 	}
@@ -244,7 +245,7 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 		if (jSplitPane == null) {
 			jSplitPane = new JSplitPane();
 			jSplitPane.setLeftComponent(getTreeScrollPane());
-			jSplitPane.setRightComponent(getInfoScrollPane());
+			jSplitPane.setRightComponent(emptyPanel);
 		}
 		return jSplitPane;
 	}
@@ -291,18 +292,6 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 			structureTree.setTransferHandler(new StructureTreeTransferHandler());
 		}
 		return structureTree;
-	}
-
-	/**
-	 * This method initializes infoScrollPane	
-	 * 	
-	 * @return javax.swing.JScrollPane	
-	 */
-	private JScrollPane getInfoScrollPane() {
-		if (infoScrollPane == null) {
-			infoScrollPane = new JScrollPane();
-		}
-		return infoScrollPane;
 	}
 	
 	public void setDragEnabled(boolean dragEnabled) {

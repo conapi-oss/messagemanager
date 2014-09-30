@@ -1,22 +1,24 @@
 package nl.queuemanager.ui.message;
 
-import javax.swing.JComponent;
-import javax.swing.JTextArea;
-
 import nl.queuemanager.ui.util.JSearchableTextArea;
+
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rtextarea.RTextScrollPane;
 
 abstract class TextAreaContentViewer<T> implements ContentViewer<T> {
 	
 	protected abstract String getContent(T object);
 	
-	public JComponent createUI(T object) {
-		final JTextArea textArea = new JSearchableTextArea();
-		textArea.setEditable(false);
-		textArea.setText(getContent(object));
-		textArea.setCaretPosition(0);
+	public RTextScrollPane createUI(T object) {
+		final RSyntaxTextArea textArea = createTextArea(object);
+		return new RTextScrollPane(textArea);
+	}
 
-		textArea.setToolTipText("Type to search");
-		
+	protected RSyntaxTextArea createTextArea(T object) {
+		final RSyntaxTextArea textArea = new JSearchableTextArea();
+		textArea.setText(getContent(object));
+		textArea.setEditable(false);
+		textArea.setCaretPosition(0);
 		return textArea;
 	}
 }

@@ -18,13 +18,10 @@ package nl.queuemanager.ui.util;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URL;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -41,7 +38,6 @@ import nl.queuemanager.ui.progress.Throbber;
  */
 @SuppressWarnings("serial")
 public class JStatusBar extends JPanel {
-	private final Icon errorIcon;
 	private final JLabel statusLabel;
 	private final JButton cancelButton;
 	private final JProgressBar progressBar;
@@ -53,8 +49,6 @@ public class JStatusBar extends JPanel {
 	 * Create a new JStatusBar object.
 	 */
 	public JStatusBar() {
-		errorIcon = loadErrorIcon();
-		
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		setPreferredSize(new Dimension(10, 23));
@@ -87,16 +81,6 @@ public class JStatusBar extends JPanel {
 	}
 	
 	/**
-	 * Load the error icon. This needs to be altered to allow different error icons.
-	 * 
-	 * @return
-	 */
-	private Icon loadErrorIcon() {
-		URL iconURL = getClass().getResource("error_16x16.gif");
-		return new ImageIcon(iconURL, "Error");
-	}
-
-	/**
 	 * Set the text in the status bar and clear the error icon.
 	 * 
 	 * @param text
@@ -113,17 +97,6 @@ public class JStatusBar extends JPanel {
 	 */
 	public void setBusy(boolean busy) {
 		throbber.setVisible(busy);
-	}
-
-	/**
-	 * Set text in the status bar and display the error icon.
-	 * 
-	 * @param message
-	 */
-	public void setErrorText(String message) {
-		statusLabel.setText(message);
-		if(errorIcon != null)
-			statusLabel.setIcon(errorIcon);
 	}
 	
 	/**

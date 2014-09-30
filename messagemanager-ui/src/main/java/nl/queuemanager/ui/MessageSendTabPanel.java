@@ -35,8 +35,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
@@ -56,7 +58,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
@@ -84,6 +85,9 @@ import nl.queuemanager.ui.util.JSearchableTextArea;
 import nl.queuemanager.ui.util.QueueCountsRefresher;
 import nl.queuemanager.ui.util.SpringUtilities;
 
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rtextarea.RTextScrollPane;
+
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 
@@ -91,7 +95,7 @@ import com.google.inject.Inject;
 public class MessageSendTabPanel extends JPanel implements UITab {
 	private final String[] deliveryModes = {"PERSISTENT", "NON-PERSISTENT"};
 	
-	private final JComboBox brokerCombo;
+	private final JComboBox<JMSBroker> brokerCombo;
 	private final JMSDestinationTable destinationTable;
 	private final JMSDomain sonic;
 	private final TaskExecutor worker;
@@ -101,13 +105,13 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 
 	private JTextField filenameField;
 	private JIntegerField numberOfMessagesField;
-	private JTextArea typingArea;
+	private JSearchableTextArea typingArea;
 	private boolean isFromImport;
 	private JTextField jmsCorrelationIDField;
 	private JMSDestinationField sendDestinationField;
 	private JMSDestinationField jmsReplyToField;
 	private JIntegerField jmsTTLField;
-	private JComboBox deliveryModeCombo;
+	private JComboBox<String> deliveryModeCombo;
 	private JTextField customPropertiesField;
 	private JIntegerField delayPerMessageField;
 	private JButton sendButton;
@@ -177,8 +181,8 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		add(splitPane);
 	}
 	
-	private JComboBox createBrokerCombo() {
-		JComboBox cmb = new JComboBox();
+	private JComboBox<JMSBroker> createBrokerCombo() {
+		JComboBox<JMSBroker> cmb = new JComboBox<JMSBroker>();
 		cmb.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
 		cmb.setAlignmentX(Component.CENTER_ALIGNMENT);
 		cmb.addItemListener(new ItemListener() {
@@ -359,7 +363,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		formPanel.add(createLabelFor(jmsTTLField, "Time to live (sec):"));
 		formPanel.add(jmsTTLField);
 		
-		deliveryModeCombo = new JComboBox(deliveryModes);
+		deliveryModeCombo = new JComboBox<String>(deliveryModes);
 		deliveryModeCombo.setMaximumSize(new Dimension(
 				Integer.MAX_VALUE, 
 				deliveryModeCombo.getPreferredSize().height));
@@ -491,13 +495,16 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		
 		typingArea = new JSearchableTextArea();
+		typingArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
+		typingArea.setCodeFoldingEnabled(true);
 		
 		// Set up drag & drop support for files
 		new DropTarget(typingArea, new FileDropTargetListener(typingArea));
 		
-		JScrollPane scrollPane = new JScrollPane(typingArea,
-				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		RTextScrollPane scrollPane = new RTextScrollPane(typingArea);
+		scrollPane.setLineNumbersEnabled(true);
+		scrollPane.setHorizontalScrollBarPolicy(RTextScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scrollPane.setVerticalScrollBarPolicy(RTextScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		
 		panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
 		
@@ -670,8 +677,14 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		
 		message.setJMSDeliveryMode(deliveryMode);
 		
+		Map<String, Object> propsCopy = CollectionFactory.newHashMap();
+		propsCopy.putAll(props);
+		
+		// Special handling for some properties
+		setSpecialJMSProperties(propsCopy, message);
+		
 		//Set custom properties
-		setMessageProperties(props, message);
+		setMessageProperties(propsCopy, message);
 		
 		// Send the file(list) and schedule a refresh of the destination table
 		worker.executeInOrder(
@@ -710,8 +723,15 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 
 		message.setText(messageContent);
 		message.setJMSDeliveryMode(deliveryMode);
-		//Set custom properties
-		setMessageProperties(props, message);
+		
+		Map<String, Object> propsCopy = CollectionFactory.newHashMap();
+		propsCopy.putAll(props);
+		
+		// Special handling for some properties
+		setSpecialJMSProperties(propsCopy, message);
+		
+		// Set custom properties
+		setMessageProperties(propsCopy, message);
 		
 		// Create the tasks for sending and browsing messages
 		worker.executeInOrder(
@@ -813,6 +833,16 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		return message;
 	}
 
+	private void setSpecialJMSProperties(final Map<String, Object> props, Message message) throws JMSException {
+		for(Iterator<Map.Entry<String, Object>> it = props.entrySet().iterator(); it.hasNext();) {
+			Entry<String, Object> entry = it.next();
+			if("JMSType".equals(entry.getKey()) && entry.getValue() != null) {
+				message.setJMSType(entry.getValue().toString());
+				it.remove();
+			}
+		}
+	}
+	
 	private void setMessageProperties(final Map<String, ? extends Object> props, Message message) throws JMSException {
 		for(Map.Entry<String, ? extends Object> entry: props.entrySet()) {
 			message.setObjectProperty(entry.getKey(), entry.getValue());
@@ -989,14 +1019,14 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 	
 	private static class JMSDestinationField extends Box {
 		private final JTextField nameField;
-		private final JComboBox typeField;
+		private final JComboBox<?> typeField;
 		
 		public JMSDestinationField() {
 			super(BoxLayout.X_AXIS);
 			nameField = new JTextField();
 			nameField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 
 					(int)nameField.getPreferredSize().getHeight()));
-			typeField = new JComboBox(new TYPE[] {
+			typeField = new JComboBox<Object>(new TYPE[] {
 					JMSDestination.TYPE.QUEUE, JMSDestination.TYPE.TOPIC});
 			typeField.setMaximumSize(typeField.getPreferredSize());
 //			typeField.setPrototypeDisplayValue(JMSDestination.TYPE.QUEUE);
@@ -1038,8 +1068,13 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		}
 		
 		public void setDestination(JMSDestination destination) {
-			this.nameField.setText(destination.getName());
-			this.typeField.setSelectedItem(destination.getType());
+			if(destination != null) {
+				this.nameField.setText(destination.getName());
+				this.typeField.setSelectedItem(destination.getType());
+			} else {
+				this.nameField.setText("");
+				this.typeField.setSelectedItem(JMSDestination.TYPE.QUEUE);
+			}
 		}
 		
 		private class DTL extends DropTargetAdapter {

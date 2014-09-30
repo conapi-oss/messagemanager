@@ -1,6 +1,7 @@
 package nl.queuemanager.ui.message;
 
 import javax.swing.JComponent;
+import javax.swing.JScrollPane;
 
 import com.jhe.hexed.JHexEditor;
 
@@ -11,6 +12,6 @@ abstract class HexEditorContentViewer<T> implements ContentViewer<T> {
 	public JComponent createUI(T object) {
 		JHexEditor hexEditor = new JHexEditor(getContent(object));
 		hexEditor.setReadOnly(true);
-		return hexEditor;
+		return new JScrollPane(hexEditor);
 	}
 }

@@ -48,20 +48,18 @@
                 <goals>
                   <goal>generate-javahelp</goal>
                 </goals>
-                <phase>generate-sources</phase>
-                <configuration>
-                	<targetDirectory>${project.build.directory}/classes/javahelp</targetDirectory>
-                </configuration>
+                <phase>process-resources</phase>
               </execution>
             </executions>
-            <dependencies>
-              <dependency>
-                <groupId>org.docbook</groupId>
-                <artifactId>docbook-xml</artifactId>
-                <version>4.4</version>
-                <scope>runtime</scope>
-              </dependency>
-            </dependencies>
+            <configuration>
+	        	<includes>smm.xml</includes>
+	        	<targetDirectory>${project.build.directory}/classes/javahelp</targetDirectory>
+				<preProcess>
+					<copy todir="${project.build.directory}/classes/javahelp/figure">
+						<fileset dir="src/docbkx/figure"/>
+					</copy>
+				</preProcess>
+			</configuration>
   		  </plugin>
   	  </plugins>
   	<resources>

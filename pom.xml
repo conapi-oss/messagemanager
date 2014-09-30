@@ -17,6 +17,7 @@
     <module>messagemanager-sonicmq-76</module>
     <module>messagemanager-sonicmq-80</module>
     <module>messagemanager-sonicmq-85</module>
+    <module>messagemanager-sonicmq-86</module>
     <module>messagemanager-fakemq</module>
     <module>messagemanager-app</module>
   </modules>
@@ -26,7 +27,7 @@
   </properties>
   
   <scm>
-  	<developerConnection>scm:git:${project.basedir}</developerConnection>
+  	<developerConnection>scm:hg:${project.basedir}</developerConnection>
   </scm>
   
   <build>
@@ -34,7 +35,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-	<version>2.3.2</version>
+		<version>2.3.2</version>
         <configuration>
           <source>1.5</source>
           <target>1.5</target>

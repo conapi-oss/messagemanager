@@ -1,6 +1,5 @@
+syntax: glob
+target
+.settings
 .project
 .classpath
-.settings
-target
-.DS_Store
-
