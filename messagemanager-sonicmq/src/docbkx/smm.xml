@@ -1,0 +1,1059 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book lang="en">
+  <bookinfo>
+    <title>Sonic Message Manager Manual</title>
+    
+    <date>2008-06-10</date>
+
+    <legalnotice>
+      <para>Sonic Message Manager is freeware, you may use it for any purpose (commercial
+      or otherwise) but only with a valid license for any supported version of Sonic MQ 
+      (it won’t do you any good without anyway). Sonic™ Message Manager is not supported, 
+      endorsed by or affiliated with Aurea Software in any way. Do not contact Aurea Software 
+      with questions or remarks. Instead, e-mail one of the developers mentioned in the chapter
+      "developer contact information".</para>
+      <para>You may not modify or redistribute Sonic Message Manager in any way without prior 
+      written consent from the author. Distribution and use within a company network is permitted 
+      without limitations.</para>
+      <para>Sonic is a trademark of Aurea Software.</para>
+    </legalnotice>
+  </bookinfo>
+
+  <chapter>
+    <title>Introduction</title>
+
+    <para>The SMM is an application aimed at replacing the JMS Test Client
+    provided with Sonic MQ for general use. It does not support the most
+    advanced features of the JMS Test Client, but provides many other features
+    that the JMS Test Client lacks.</para>
+  </chapter>
+
+  <chapter>
+    <title>Running SMM</title>
+
+    <para>To work with SMM you first need to make a connection to a Sonic
+    Domain. After you connected to the Domain, automatically all active
+    brokers are discovered including all queue's for each broker.</para>
+
+    <section>
+      <title>Connection</title>
+
+      <para><phrase role="GEN_PAGE">When you start SMM you get a connection
+      dialog to setup a connection to the Sonic domain. Make sure you fill in
+      all entries.</phrase></para>
+
+      <para><phrase role="GEN_PAGE"/></para>
+
+      <para><phrase role="GEN_PAGE"> <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="figure/ConnectionDialog.png" format="PNG"
+                       srccredit="embed" />
+          </imageobject>
+        </inlinemediaobject> </phrase></para>
+
+      <para><itemizedlist mark="disc" spacing="normal">
+          <listitem>
+            <para><phrase role="GEN_PAGE">Connection name =
+            Required</phrase></para>
+          </listitem>
+
+          <listitem>
+            <para><phrase role="GEN_PAGE">Domain Name =
+            Required</phrase></para>
+          </listitem>
+
+          <listitem>
+            <para><phrase role="GEN_PAGE">Connection URL(s) =
+            Required</phrase></para>
+          </listitem>
+
+          <listitem>
+            <para><phrase role="GEN_PAGE">User Name = Required (if security is
+            enabled)</phrase></para>
+          </listitem>
+
+          <listitem>
+            <para><phrase role="GEN_PAGE">Password = Required (if security is
+            enabled)</phrase></para>
+          </listitem>
+        </itemizedlist></para>
+
+      <!--                <informaltable frame="bottom">
+                    <tgroup cols="3">
+                        <colspec colname="col1" colwidth="148.8pt" colnum="1"/>
+                        <colspec colname="col2" colwidth="148.8pt" colnum="2"/>
+                        <colspec colname="col3" colwidth="0.5pt" colnum="3"/>
+                        <tbody>
+                            <row>
+                                <entry colname="col1" valign="top" rowsep="0" colsep="0" align="left">
+                                    <para>
+                                        <phrase role="GEN_PAGE">Item</phrase>
+                                    </para>
+                                </entry>
+                                <entry colname="col2" valign="top" rowsep="0" colsep="0" namest="col2" nameend="col3" align="left">
+                                    <para>
+                                        <phrase role="GEN_PAGE">Mandatory</phrase>
+                                    </para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry colname="col1" valign="top" rowsep="0" colsep="0" align="left">
+                                    <para>
+                                        <phrase role="GEN_PAGE"/>
+                                    </para>
+                                </entry>
+                                <entry colname="col2" valign="top" rowsep="0" colsep="0" namest="col2" nameend="col3" align="left">
+                                    <para>
+                                        <phrase role="GEN_PAGE"/>
+                                    </para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry colname="col1" valign="top" rowsep="0" colsep="0" align="left">
+                                    <para>
+                                        <phrase role="GEN_PAGE">Connection name</phrase>
+                                    </para>
+                                </entry>
+                                <entry colname="col2" valign="top" rowsep="0" colsep="0" namest="col2" nameend="col3" align="left">
+                                    <para>
+                                        <phrase role="GEN_PAGE">Required</phrase>
+                                    </para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry colname="col1" valign="top" rowsep="0" colsep="0" align="left">
+                                    <para>
+                                        <phrase role="GEN_PAGE">Domain Name</phrase>
+                                    </para>
+                                </entry>
+                                <entry colname="col2" valign="top" rowsep="0" colsep="0" namest="col2" nameend="col3" align="left">
+                                    <para>
+                                        <phrase role="GEN_PAGE">Required</phrase>
+                                    </para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry colname="col1" valign="top" rowsep="0" colsep="0" align="left">
+                                    <para>
+                                        <phrase role="GEN_PAGE">Connection URL(s)</phrase>
+                                    </para>
+                                </entry>
+                                <entry colname="col2" valign="top" rowsep="0" colsep="0" namest="col2" nameend="col3" align="left">
+                                    <para>
+                                        <phrase role="GEN_PAGE">Required</phrase>
+                                    </para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry colname="col1" valign="top" rowsep="0" colsep="0" align="left">
+                                    <para>
+                                        <phrase role="GEN_PAGE">User Name</phrase>
+                                    </para>
+                                </entry>
+                                <entry colname="col2" valign="top" rowsep="0" colsep="0" namest="col2" nameend="col3" align="left">
+                                    <para>
+                                        <phrase role="GEN_PAGE">Required</phrase>
+                                    </para>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry colname="col1" valign="top" rowsep="0" colsep="0" align="left">
+                                    <para>
+                                        <phrase role="GEN_PAGE">Password</phrase>
+                                    </para>
+                                </entry>
+                                <entry colname="col2" valign="top" rowsep="0" colsep="0" namest="col2" nameend="col3" align="left">
+                                    <para>
+                                        <phrase role="GEN_PAGE">Required</phrase>
+                                    </para>
+                                </entry>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </informaltable>-->
+
+      <para><phrase role="GEN_PAGE"/></para>
+    </section>
+
+    <section>
+      <title><phrase lang=""> <phrase role="GEN_PAGE"> <anchor
+      id="_toc437" />Connection overview</phrase> </phrase></title>
+
+      <para><phrase role="GEN_PAGE">SMM can also store you earlier
+      connections, just like the Sonic Management Console. </phrase></para>
+
+      <para>One of all your connections can be set as default
+      connection.</para>
+
+      <para><phrase role="GEN_PAGE"/></para>
+
+      <para><phrase role="GEN_PAGE"> <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="figure/ConnectionTabOverview.PNG" format="PNG"
+                       srccredit="embed" />
+          </imageobject>
+        </inlinemediaobject> </phrase></para>
+
+      <para><phrase role="GEN_PAGE"/></para>
+
+      <para><phrase role="GEN_PAGE">After you successfully connected to a
+      Sonic Domain you automatically switch to the next tab, "Queue
+      browser".</phrase></para>
+    </section>
+
+    <section id="permissions_required">
+      <title>Required permissions for using SMM</title>
+
+      <para>Since SMM uses management requests to determine the available
+      brokers and queues, you need to have certain permissons on the Sonic
+      domain you are trying to connect to. Any member of the Administrators
+      group already has these permissions but any other user (by default) does
+      not. The required ACLs (for the management broker) are:</para>
+
+      <segmentedlist>
+        <?dbhtml list-presentation="table"?>
+
+        <segtitle>Resource type</segtitle>
+
+        <segtitle>Resource name</segtitle>
+
+        <segtitle>Principal</segtitle>
+
+        <segtitle>Principal type</segtitle>
+
+        <segtitle>Permission</segtitle>
+
+        <segtitle>Action</segtitle>
+
+        <seglistitem>
+          <seg>topic</seg>
+
+          <seg>SonicMQ.mf</seg>
+
+          <seg>SMMUsers</seg>
+
+          <seg>group</seg>
+
+          <seg>GRANT</seg>
+
+          <seg>Subscribe</seg>
+        </seglistitem>
+
+        <seglistitem>
+          <seg>topic</seg>
+
+          <seg>SonicMQ.mf</seg>
+
+          <seg>SMMUsers</seg>
+
+          <seg>group</seg>
+
+          <seg>GRANT</seg>
+
+          <seg>Publish</seg>
+        </seglistitem>
+      </segmentedlist>
+
+      <para>This will allow any user in the group SMMUsers to connect to the
+      domain. If you do not use management security (available from Sonic MQ
+      7.0), this will also allow these users to perform most management
+      operations using the <application>Sonic Management
+      Console</application>!. If you are using management security, be sure to
+      allow the following operations:</para>
+
+      <segmentedlist>
+        <?dbhtml list-presentation="table"?>
+
+        <segtitle>Type</segtitle>
+
+        <segtitle>Resource</segtitle>
+
+        <segtitle>Group</segtitle>
+
+        <segtitle>Permissions</segtitle>
+
+        <seglistitem>
+          <seg>Configure permissions</seg>
+
+          <seg>/Brokers</seg>
+
+          <seg>SMMUsers</seg>
+
+          <seg>Read</seg>
+        </seglistitem>
+
+        <seglistitem>
+          <seg>Configure permissions</seg>
+
+          <seg>/Containers</seg>
+
+          <seg>SMMUsers</seg>
+
+          <seg>Read</seg>
+        </seglistitem>
+
+        <seglistitem>
+          <seg>Manage permissions</seg>
+
+          <seg>/Containers</seg>
+
+          <seg>SMMUsers</seg>
+
+          <seg>Get information</seg>
+        </seglistitem>
+
+        <seglistitem>
+          <seg>Manage permissions</seg>
+
+          <seg>/Containers</seg>
+
+          <seg>SMMUsers</seg>
+
+          <seg>Other actions <footnote>
+              <para>Only required to allow the "Clear messages" button to
+              work. This will allow the user to clear any queue they have read
+              access to!</para>
+            </footnote></seg>
+        </seglistitem>
+
+        <seglistitem>
+          <seg>Manage permissions</seg>
+
+          <seg>/Containers/DomainManager/AGENT MANAGER</seg>
+
+          <seg>SMMUsers</seg>
+
+          <seg>Subscribe to notifications</seg>
+        </seglistitem>
+      </segmentedlist>
+    </section>
+  </chapter>
+
+  <chapter>
+    <title>Short overview</title>
+
+    <para>In this chapter you find a short overview / description about the
+    different tabs in this application and what you see on those tabs.</para>
+
+    <section>
+      <title>General</title>
+
+      <para>After the application is started and connected, the title bar of
+      the window will include the name of the connection together with the
+      Sonic Domain name and the Domain's connection URL.</para>
+    </section>
+
+    <section>
+      <title>Queue browser tab</title>
+
+      <para>The queue browser tab is used to view messages while they are
+      still on the broker. An overview:</para>
+
+      <para><inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="figure/QueueBrowserTabWithExamples.PNG"
+                       format="JPG" srccredit="embed" />
+          </imageobject>
+        </inlinemediaobject></para>
+
+      <para><phrase role="GEN_PAGE">Upper left: List of active brokers within
+      your Sonic Domain</phrase></para>
+
+      <para><phrase role="GEN_PAGE">Upper left: List of queue's that is
+      available on selected broker</phrase></para>
+
+      <para><phrase role="GEN_PAGE">Upper right: List of messages that are
+      saved on the selected queue</phrase></para>
+
+      <para><phrase role="GEN_PAGE">Lower half: Message information from the
+      selected message (JMS properties / parts / body)</phrase></para>
+    </section>
+
+    <section>
+      <title>Topic subscriber tab</title>
+
+      <para>The topic subscriber tab allows you to subscribe to topics on the
+      selected broker. For each subscriber, a message buffer is kept to store
+      the received messages.</para>
+
+      <para><inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="figure/TopicSubscriberTabOWithActiveSubscriptions.PNG"/>
+          </imageobject>
+        </inlinemediaobject></para>
+
+      <para>On the upper left you see the broker selection box to select a
+      broker to work with. This does not have to be the same broker as on any
+      of the other tabs, SMM can connect to multiple brokers at the same
+      time.</para>
+
+      <para>On the upper left, below the broker selector, is the list of
+      subscribers. A checkbox before the subscriber name indicated whether
+      this particular subscriber is active or not. An inactive subscriber will
+      not receive new messages.</para>
+
+      <para>The lower half of the window is occupied by the message viewer.
+      This displays the details about the currently selected message.</para>
+    </section>
+
+    <section>
+      <title><phrase lang=""> <phrase role="GEN_PAGE"> <anchor
+      id="_toc458" />Message sender</phrase> tab</phrase></title>
+
+      <para><phrase role="GEN_PAGE">Here we explain what you see on this
+      tab:</phrase></para>
+
+      <para><phrase role="GEN_PAGE"><inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="figure/MessageSenderTabWithSample.PNG"/>
+          </imageobject>
+        </inlinemediaobject></phrase></para>
+
+      <para><phrase role="GEN_PAGE">At the upper left, again, is the broker
+      selector. Below it is the destination list containing both queue and
+      topic names. </phrase></para>
+
+      <para><phrase role="GEN_PAGE">At the right side of the window is the
+      message composer, you can select a file to send or type/paste/drag a
+      message into the text field.</phrase></para>
+    </section>
+  </chapter>
+
+  <chapter>
+    <title>Viewing messages</title>
+
+    <para>Once you are connected to a Sonic Domain you select the tab "Queue
+    browser" or "Topic subscriber", depending on the whether the messages you
+    want to view are on a queue or are published to a topic. Once on this tab
+    you can select a broker that is available and online in your Sonic Domain.
+    On the queue browser tab, the queues for that broker will be discovered.
+    On the topic subscriber tab, your previously created subscribers (if any)
+    for this broker will be reloaded.</para>
+
+    <para>Only the active brokers are shown in SMM (in case of FT brokers, the
+    backup brokers are not shown because they are in standby mode)</para>
+
+    <para>If there are messages on a queue or in a topic buffer, the number of
+    messages turns red. You can then select the queue or topic to view the
+    messages.</para>
+
+    <para><inlinemediaobject>
+        <imageobject>
+          <imagedata fileref="figure/QueueBrowserTabWithExamples.PNG"
+                     format="PNG" srccredit="embed" />
+        </imageobject>
+      </inlinemediaobject></para>
+
+    <para>Once you selected the queue or topic you see on the right the list
+    of messages that are on the queue or in the topic buffer (in this example
+    there is one message on the queue Sample.Q1).</para>
+
+    <para>When you select a message you can view all message details in the
+    viewer at the bottom. The refresh button will refresh the entire list of
+    queues and all message counts. The "Clear messages" button will remove all
+    messages from the currently selected queues (you need RECEIVE permissions
+    on the queue before you are allowed to do this).</para>
+
+    <para><inlinemediaobject>
+        <imageobject>
+          <imagedata fileref="figure/TopicSubscriberTabOWithActiveSubscriptions.PNG"
+                     format="PNG" srccredit="embed" />
+        </imageobject>
+      </inlinemediaobject></para>
+
+    <para>You can view the properties and the content of the message. The
+    content field also has a simple search function. Click the field to focus
+    it and type some text. If that text appears anywhere in the message, it
+    will be selected.</para>
+
+    <para>Hit <keycap>F3</keycap> to search for the next occurrance of the
+    currently selected text. This also works if you select the text manually
+    instead of searching for something. You may also hit <keycombo><keycap>CTRL</keycap>
+    <keycap>F</keycap></keycombo> to pop up a search dialog if you like.</para>
+
+    <para>The "Refresh" button refreshes the message table for the currently
+    selected queue and the "Delete" button will remove the selected messages.
+    You may also press the <keycode>DELETE</keycode> key to do the same.</para>
+  </chapter>
+
+  <chapter>
+    <title>Sending messages</title>
+
+    <para>With SMM you can easily send messages to a queue or topic. You can
+    do this in different ways, for now the following is supported:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>Drag &amp; drop a file onto a queue/topic</para>
+      </listitem>
+
+      <listitem>
+        <para>Select a file or directory and send to a queue/topic</para>
+      </listitem>
+
+      <listitem>
+        <para>Type your a message and sent to a queue/topic</para>
+      </listitem>
+
+      <listitem>
+        <para>Move message between queues/topics by drag &amp; drop</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>When you drag &amp; drop a message to a queue/topic, you cannot use
+    the extra functionality like sending the same message multiple times or
+    setting JMS properties. To use these extra functionality you must use the
+    "message sender" tab and select a file or type a message.</para>
+
+    <para>When you drag or select an xml file, the file will be sent as an
+    XMLMessage. When dragging or selecting any other type of file, it will be
+    send as a TextMessage. BytesMessages are not supported. If you select or
+    drag multiple files, each file will be examined and sent as the
+    appropriate message type for that file.</para>
+
+    <section>
+      <title>Drag &amp; drop to send a message</title>
+
+      <para>To send a message to a queue/topic it doesn't matter witch tab
+      (queue browser, topic subscriber or message sender) is selected. Just
+      select the necessary file and drag it to the desired queue or topic and
+      drop the file. You can also drop directories on a queue or topic and all
+      files in that directory will be sent. Sending directories is not
+      recursive so only the files in the top level directory will be
+      sent.</para>
+
+      <para>This also works if you select more than one file from disk and
+      drag these files to the queue or topic. All selected files will be
+      sent.</para>
+    </section>
+
+    <section>
+      <title>Select a file to send</title>
+
+      <para><inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="figure/MessageSenderTabImport2.PNG"
+                       format="PNG" srccredit="embed" />
+          </imageobject>
+        </inlinemediaobject></para>
+
+      <para><phrase role="GEN_PAGE">Select the destination where you would
+      send your message and select the "Send a file" radio button. Use
+      <command>browse'</command> to select your file and press the
+      <command>send'</command> button to send the message. You also can
+      select a directory, this will send all files in that
+      directory.</phrase></para>
+
+      <informaltable frame="bottom">
+        <tgroup cols="2">
+          <colspec colname="col1" colnum="1" colwidth="118.8pt"/>
+
+          <colspec colname="col2" colnum="2" colwidth="333.2pt"/>
+
+          <colspec colname="col3" colnum="3" colwidth="0.5pt"/>
+
+          <tbody>
+            <row>
+              <entry align="left" colname="col1" colsep="1" rowsep="1"
+              valign="top"><para> <phrase role="GEN_PAGE">Item</phrase>
+              </para></entry>
+
+              <entry align="left" colname="col2" colsep="1" nameend="col3"
+              namest="col2" rowsep="1" valign="top"><para> <phrase
+              role="GEN_PAGE">description</phrase> </para></entry>
+            </row>
+
+            <row>
+              <entry align="left" colname="col1" colsep="0" rowsep="1"
+              valign="top"><para><phrase role="GEN_PAGE"/><phrase
+              role="GEN_PAGE"/></para></entry>
+            </row>
+
+            <row>
+              <entry align="left" colname="col1" colsep="1" rowsep="1"
+              valign="top"><para> <phrase role="GEN_PAGE">Number of
+              messages</phrase> </para></entry>
+
+              <entry align="left" colname="col2" colsep="1" nameend="col3"
+              namest="col2" rowsep="1" valign="top"><para> <phrase
+              role="GEN_PAGE">Minimum value is 1. Changing this number allows
+              you to send the same message multiple times with the same
+              conditions</phrase> </para></entry>
+            </row>
+
+            <row>
+              <entry align="left" colname="col1" colsep="1" rowsep="1"
+              valign="top"><para> <phrase role="GEN_PAGE">Delay (ms)</phrase>
+              </para></entry>
+
+              <entry align="left" colname="col2" colsep="1" nameend="col3"
+              namest="col2" rowsep="1" valign="top"><para> <phrase
+              role="GEN_PAGE">The number of milliseconds to wait between
+              sending messages. This allows for simple performance tests to be
+              done.</phrase> </para></entry>
+            </row>
+
+            <row>
+              <entry align="left" colname="col1" colsep="1" rowsep="1"
+              valign="top"><para> <phrase role="GEN_PAGE">JMS Correlation
+              ID</phrase> </para></entry>
+
+              <entry align="left" colname="col2" colsep="1" nameend="col3"
+              namest="col2" rowsep="1" valign="top"><para> <phrase
+              role="GEN_PAGE">Enter your desired JMScorrelationID here. You
+              may include %i to represent a sequence number. This number will
+              be incremented by 1 for each message sent.</phrase>
+              </para></entry>
+            </row>
+
+            <row>
+              <entry align="left" colname="col1" colsep="1" rowsep="1"
+              valign="top"><para> <phrase role="GEN_PAGE">JMS Reply
+              to</phrase> </para></entry>
+
+              <entry align="left" colname="col2" colsep="1" nameend="col3"
+              namest="col2" rowsep="1" valign="top"><para> <phrase
+              role="GEN_PAGE">Type here the address for ReplyTo. You can also
+              drag &amp; drop a queue from the queue table into this
+              field</phrase> </para></entry>
+            </row>
+
+            <row>
+              <entry align="left" colname="col1" colsep="1" rowsep="1"
+              valign="top"><para> <phrase role="GEN_PAGE">Custom JMS
+              properties</phrase> </para></entry>
+
+              <entry align="left" colname="col2" colsep="1" nameend="col3"
+              namest="col2" rowsep="1" valign="top"><para> <phrase
+              role="GEN_PAGE">If you want to set your own JMS Header
+              properties you can define them here.</phrase> </para> <para>
+              <phrase role="GEN_PAGE">The format is PropertyName=PropertyValue
+              separated with a comma (,)</phrase> </para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </informaltable>
+
+      <para><phrase role="GEN_PAGE"/></para>
+    </section>
+
+    <section>
+      <title><phrase lang=""> <phrase role="GEN_PAGE"> Compose a
+      message<anchor id="_toc563"/></phrase></phrase></title>
+
+      <para><phrase role="GEN_PAGE"> <inlinemediaobject>
+          <imageobject>
+            <imagedata fileref="figure/MessageSenderTabWithSample.PNG"
+                       format="PNG" srccredit="embed" />
+          </imageobject>
+        </inlinemediaobject> </phrase></para>
+
+      <para><phrase role="GEN_PAGE"/></para>
+
+      <para><phrase role="GEN_PAGE">Select the destination for your message,
+      you may need to add a publisher if the desired topic is not yet in the
+      list.</phrase></para>
+
+      <para><phrase role="GEN_PAGE"/></para>
+
+      <para><phrase role="GEN_PAGE">Type your message or drag a file into the
+      text field and click the <command>send'</command> button to send the
+      message.</phrase></para>
+
+      <para><phrase role="GEN_PAGE"/></para>
+
+      <informaltable frame="bottom">
+        <tgroup cols="2">
+          <colspec colname="col1" colnum="1" colwidth="118.8pt"/>
+
+          <colspec colname="col2" colnum="2" colwidth="333.2pt"/>
+
+          <colspec colname="col3" colnum="3" colwidth="0.5pt"/>
+
+          <tbody>
+            <row>
+              <entry align="left" colname="col1" colsep="1" rowsep="1"
+              valign="top"><para> <phrase role="GEN_PAGE">Item</phrase>
+              </para></entry>
+
+              <entry align="left" colname="col2" colsep="1" nameend="col3"
+              namest="col2" rowsep="1" valign="top"><para> <phrase
+              role="GEN_PAGE">description</phrase> </para></entry>
+            </row>
+
+            <row>
+              <entry align="left" colname="col1" colsep="0" rowsep="1"
+              valign="top"><para> <phrase role="GEN_PAGE"/>
+              </para></entry>
+
+              <entry align="left" colname="col2" colsep="0" nameend="col3"
+              namest="col2" rowsep="1" valign="top"><para> <phrase
+              role="GEN_PAGE"/> </para></entry>
+            </row>
+
+            <row>
+              <entry align="left" colname="col1" colsep="1" rowsep="1"
+              valign="top"><para> <phrase role="GEN_PAGE">Number of
+              messages</phrase> </para></entry>
+
+              <entry align="left" colname="col2" colsep="1" nameend="col3"
+              namest="col2" rowsep="1" valign="top"><para> <phrase
+              role="GEN_PAGE">Minimum value is 1. Changing this dumber allows
+              you to send the same message multiple times with the same
+              conditions</phrase> </para></entry>
+            </row>
+
+            <row>
+              <entry align="left" colname="col1" colsep="1" rowsep="1"
+              valign="top"><para> <phrase role="GEN_PAGE">JMS Correlation
+              ID</phrase> </para></entry>
+
+              <entry align="left" colname="col2" colsep="1" nameend="col3"
+              namest="col2" rowsep="1" valign="top"><para> <phrase
+              role="GEN_PAGE">Type here your value that will be set as
+              JMScorrelationID</phrase> </para></entry>
+            </row>
+
+            <row>
+              <entry align="left" colname="col1" colsep="1" rowsep="1"
+              valign="top"><para> <phrase role="GEN_PAGE">JMS Reply
+              to</phrase> </para></entry>
+
+              <entry align="left" colname="col2" colsep="1" nameend="col3"
+              namest="col2" rowsep="1" valign="top"><para> <phrase
+              role="GEN_PAGE">Type here the address for ReplyTo. You can also
+              drag &amp; drop a queue from the queue table into this
+              field</phrase> </para></entry>
+            </row>
+
+            <row>
+              <entry align="left" colname="col1" colsep="1" rowsep="1"
+              valign="top"><para> <phrase role="GEN_PAGE">Custom JMS
+              properties</phrase> </para></entry>
+
+              <entry align="left" colname="col2" colsep="1" nameend="col3"
+              namest="col2" rowsep="1" valign="top"><para> <phrase
+              role="GEN_PAGE">If you want to set your own JMS Header
+              properties you can define them here.</phrase> </para> <para>
+              <phrase role="GEN_PAGE">The format is PropertyName=PropertyValue
+              separated with a comma (,)</phrase> </para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </informaltable>
+
+      <para><phrase role="GEN_PAGE"/></para>
+    </section>
+
+    <section>
+      <title><phrase lang=""> <phrase role="GEN_PAGE"> <anchor
+      id="_toc610" />Move message between queue's</phrase> </phrase></title>
+
+      <para><phrase role="GEN_PAGE">With SMM it is possible to move a message
+      from the queue to another queue. Just select your message and drag it to
+      the destination queue and drop it there. This also works when you select
+      multiple messages on a queue.</phrase></para>
+
+      <para><phrase role="GEN_PAGE"/></para>
+
+      <para><phrase role="GEN_PAGE">It is also possible to select a message
+      part of the message and drag this part to another queue. This works for
+      text, xml messages and also for multipart messages.</phrase></para>
+
+      <para><phrase role="GEN_PAGE"/></para>
+
+      <para><phrase role="GEN_PAGE">Also you can select a message part and
+      drag that part into an application like Stylus Studio.</phrase></para>
+
+      <para><phrase role="GEN_PAGE"/></para>
+
+      <para><phrase role="GEN_PAGE">Only messages can be moved between queues
+      on the same broker!!</phrase></para>
+    </section>
+
+    <section>
+      <title><phrase lang=""><phrase role="GEN_PAGE">Other instances of
+      message manager</phrase> </phrase></title>
+
+      <para>You can drag &amp; drop messages between different instances of
+      SMM as you see fit. They don't have to be connected to the same Sonic
+      environment. When you drag a message to another instance of SMM, the
+      message is copied, not moved.</para>
+
+      <para>You can also drag messages from SMM to any other application that
+      accepts text drags (most editors do). When you drag a multi part
+      message, all parts of the message will be copied into the application
+      with blank lines in between the parts. You may also drag a single
+      message part to another application or another instance of SMM (in which
+      case the part will be considered a message by itself).</para>
+
+      <para>You can drag any file onto the "Type my own message" field and the
+      contents will be loaded into that field. This works best for text- or
+      xml files, but SMM will attempt to insert any content you drop there, be
+      careful not to drop a multi-megabyte binary file, the results will not
+      be pretty.</para>
+    </section>
+  </chapter>
+
+  <chapter>
+    <title><phrase lang=""><phrase role="GEN_PAGE">Saving messages</phrase>
+    </phrase></title>
+
+    <para><phrase role="GEN_PAGE">You can download messages to a file on your
+    machine.Just select your message or select multiple messages and click on
+    the save button. Now just select a directory to save the
+    files.</phrase></para>
+
+    <para><phrase role="GEN_PAGE"/></para>
+
+    <note>
+      <para><phrase role="GEN_PAGE">You can save messages to disk in XML, TXT
+      or in .esbmsg format.</phrase></para>
+    </note>
+
+    <section>
+      <title><phrase lang=""> <phrase role="GEN_PAGE"> <anchor
+      id="_toc628" />Save a single message</phrase> </phrase></title>
+
+      <para><phrase role="GEN_PAGE">When you selected one message and you
+      click the <command>save'</command> button, you will be asked to enter a
+      filename for the message to be saved.</phrase></para>
+    </section>
+
+    <section>
+      <title><phrase lang=""> <phrase role="GEN_PAGE"> <anchor
+      id="_toc630" />Save multiple messages</phrase> </phrase></title>
+
+      <para><phrase role="GEN_PAGE">When you selected multiple messages and
+      you click the <command>save'</command> button, you will be asked to
+      select a destination directory. SMM will save the messages to disk with
+      a filename same as the JMS MessageId of the message.</phrase></para>
+    </section>
+
+    <section>
+      <title><phrase lang=""> <phrase role="GEN_PAGE"> <anchor
+      id="_toc632" />Save multipart message(s)</phrase> </phrase></title>
+
+      <para><phrase role="GEN_PAGE">When you select one or more multipart
+      messages SMM will save each part of that multipart message as a separate
+      file. Using the file name you provided (or the JMS MessageId when you
+      selected multiple files) SMM will ad a suffix to the message filename
+      with the partnumber.</phrase> SMM can also save multipart message to
+      .esbmsg format, to do this just enter .esbmsg as the file extension or
+      select the "ESB Message" file type in the save as dialog box.</para>
+    </section>
+  </chapter>
+
+  <chapter>
+    <title>Developer contact information</title>
+
+    <para>The following people contributed to Sonic Message Manager in some 
+    way (in no particular order). Some are developers, some are valued testers 
+    and yet others have done extensive work on the manual or web site.</para>
+
+    <informaltable frame="all">
+      <tgroup cols="1">
+        <colspec colname="col1" colnum="1" colwidth="146.5pt"/>
+
+        <tbody>
+          <row>
+            <entry align="left" colname="col1" colsep="1" rowsep="1"
+            valign="top"><para role="Table Contents"> <phrase
+            role="GEN_PAGE">Name</phrase> </para></entry>
+          </row>
+
+          <row>
+            <entry align="left" colname="col1" colsep="1" rowsep="1"
+            valign="top"><para role="Table Contents"> <phrase
+            role="GEN_PAGE">Gerco Dries (gerco@gdries.nl)</phrase> </para></entry>
+          </row>
+
+          <row>
+            <entry align="left" colname="col1" colsep="1" rowsep="1"
+            valign="top"><para role="Table Contents"> <phrase
+            role="GEN_PAGE">Tako Grijpma</phrase> </para></entry>
+          </row>
+
+          <row>
+            <entry align="left" colname="col1" colsep="1" rowsep="1"
+            valign="top"><para role="Table Contents"> <phrase
+            role="GEN_PAGE">Hai Nguyen</phrase> </para></entry>
+          </row>
+
+          <row>
+            <entry align="left" colname="col1" colsep="1" rowsep="1"
+            valign="top"><para role="Table Contents"> <phrase
+            role="GEN_PAGE">Maurice Klein Breteler</phrase> </para></entry>
+          </row>
+
+          <row>
+            <entry align="left" colname="col1" colsep="1" rowsep="1"
+            valign="top"><para role="Table Contents"> <phrase
+            role="GEN_PAGE">Humphrey Lopez</phrase> </para></entry>
+          </row>
+
+          <row>
+            <entry align="left" colname="col1" colsep="1" rowsep="1"
+            valign="top"><para role="Table Contents"> <phrase
+            role="GEN_PAGE">Raymond Meester</phrase> </para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </informaltable>
+  </chapter>
+  
+  <appendix id="configfile">
+    <title>Configuration file</title>
+      <para>Sonic Message Manager is somewhat configurable through it's configuration file.
+      This file is called <filename>.SonicMessageManager.xml</filename> and is located in your
+      user home directory (<filename>C:\Documents and settings\Username</filename> on Windows
+      XP, <filename>C:\Users\Username</filename> on Windows Vista/7, <filename>/home/username</filename>
+      on various flavors of unix and linux, etc).
+      </para>
+      
+      <segmentedlist>
+        <title>Available configuration parameters</title>
+        <?dbhtml list-presentation="table"?>
+        
+        <segtitle>Scope</segtitle>
+        <segtitle>Name</segtitle>
+        <segtitle>Description</segtitle>
+
+        <seglistitem>
+          <seg>Global</seg>
+          <seg>browseDirectory</seg>
+          <seg>The last-used directory to browse for files.</seg>
+        </seglistitem>
+        <seglistitem>
+          <seg>Global</seg>
+          <seg>saveDirectory</seg>
+          <seg>The last-used directory to save something to.</seg>
+        </seglistitem>
+        <seglistitem>
+          <seg>Global</seg>
+          <seg>mailingListStatus</seg>
+          <seg>The address you used to subscribe to the mailing list or
+          "deny" when you declined to subscribe.</seg>
+        </seglistitem>
+        <seglistitem>
+          <seg>Global</seg>
+          <seg>maxBufferedMessages</seg>
+          <seg>The number of messages kept in a topic buffer when receiving
+          messages from topics.</seg>
+        </seglistitem>
+        <seglistitem>
+          <seg>Global</seg>
+          <seg>autoRefreshInterval</seg>
+          <seg>The interval in milliseconds to auto-refresh message counts.</seg>
+        </seglistitem>
+        <seglistitem>
+          <seg>Broker</seg>
+          <seg>alternateUrl</seg>
+          <seg>The url used to connect to a broker. Use this to provide an alternate
+          URL in case the auto-detect function doesn't correctly resolve the
+          broker URL.</seg>
+        </seglistitem>
+      </segmentedlist>
+
+  </appendix>
+
+  <appendix>
+    <title>Third party licenses</title>
+
+    <section>
+      <title>MiG InfoCom AB</title>
+
+      <para>Sonic Message Manager uses a Base64 encoding utility class from
+      MiG InfoCom AB under the following license:</para>
+
+      <blockquote>
+        <para>Copyright (c) 2004, Mikael Grev, MiG InfoCom AB. (base64 @
+        miginfocom . com)</para>
+
+        <para>All rights reserved.</para>
+
+        <para>Redistribution and use in source and binary forms, with or
+        without modification, are permitted provided that the following
+        conditions are met: <itemizedlist>
+            <listitem>
+              <para>Redistributions of source code must retain the above
+              copyright notice, this list of conditions and the following
+              disclaimer.</para>
+            </listitem>
+
+            <listitem>
+              <para>Redistributions in binary form must reproduce the above
+              copyright notice, this list of conditions and the following
+              disclaimer in the documentation and/or other materials provided
+              with the distribution.</para>
+            </listitem>
+
+            <listitem>
+              <para>Neither the name of the MiG InfoCom AB nor the names of
+              its contributors may be used to endorse or promote products
+              derived from this software without specific prior written
+              permission.</para>
+            </listitem>
+          </itemizedlist>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS
+        AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+        INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+        MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+        IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+        ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+        DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+        GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+        INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+        IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+        OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+        ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</para>
+      </blockquote>
+    </section>
+    
+    <section>
+    	<title>RSyntaxTextArea</title>
+
+		<para>Sonic Message Manager uses RSyntaxTextArea in the message viewer and editor.</para>
+    	
+    	<blockquote>
+			<para>Copyright (c) 2012, Robert Futrell All rights reserved.</para>
+
+			<para>			
+			Redistribution and use in source and binary forms, with or without
+			modification, are permitted provided that the following conditions are met:
+			</para>
+			
+			<itemizedlist>
+            	<listitem>
+            		<para>Redistributions of source code must retain the above copyright notice, 
+            		this list of conditions and the following disclaimer.</para>
+            	</listitem>
+            	
+		       	<listitem>
+			    	<para>Redistributions in binary form must reproduce the above copyright
+			      notice, this list of conditions and the following disclaimer in the
+			      documentation and/or other materials provided with the distribution.</para>
+			    </listitem>
+			    
+			    <listitem>
+			    	<para>Neither the name of the author nor the names of its contributors may
+			      be used to endorse or promote products derived from this software
+			      without specific prior written permission.</para>
+				</listitem>
+			</itemizedlist>
+
+			<para>				
+			THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+			ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+			WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+			DISCLAIMED. IN NO EVENT SHALL &lt;COPYRIGHT HOLDER&gt; BE LIABLE FOR ANY
+			DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+			(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+			LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+			ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+			(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+			SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+			</para>
+		</blockquote>
+    </section>
+  </appendix>  
+</book>
