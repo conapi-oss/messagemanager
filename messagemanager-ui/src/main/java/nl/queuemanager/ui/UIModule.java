@@ -21,13 +21,9 @@ public class UIModule extends AbstractModule {
 		install(new SettingsModule());
 
 		// Assisted inject for JMSDestinationTransferHandlers
-		install(new FactoryModuleBuilder()
-//			.implement(JMSDestinationTransferHandler.class, JMSDestinationTransferHandler.class)
-			.build(JMSDestinationTransferHandlerFactory.class));
+		install(new FactoryModuleBuilder().build(JMSDestinationTransferHandlerFactory.class));
 		
-		install(new FactoryModuleBuilder()
-//			.implement(JMSSubscriber.class, JMSSubscriber.class)
-			.build(JMSSubscriberFactory.class));
+		install(new FactoryModuleBuilder().build(JMSSubscriberFactory.class));
 		
 		// The broker credentials provider
 		bind(BrokerCredentialsProvider.class).to(BrokerCredentialsDialog.class).in(Scopes.SINGLETON);

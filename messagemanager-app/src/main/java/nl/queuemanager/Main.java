@@ -45,13 +45,12 @@ public class Main {
 		// Create the default modules
 		List<Module> modules = new ArrayList<Module>();
 		modules.add(new XmlConfigurationModule());
-		modules.add(new NullModule());
 		modules.add(new CoreModule());
 		modules.add(new UIModule());
 		
 		// Load plugin modules
 		modules.addAll(createPluginModules());
-		modules.add(loadModule("nl.queuemanager.fakemq.FakeMQModule"));
+		modules.add(loadModule("nl.queuemanager.activemq.ActiveMQModule"));
 		
 		// Now that the module list is complete, create the injector
 		Injector injector = Guice.createInjector(Stage.PRODUCTION, modules);

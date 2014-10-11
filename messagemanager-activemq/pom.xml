@@ -1,22 +1,30 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>messagemanager</artifactId>
     <groupId>nl.queuemanager</groupId>
+    <artifactId>messagemanager</artifactId>
     <version>3.0-SNAPSHOT</version>
-    <relativePath>..</relativePath>
   </parent>
-  <artifactId>messagemanager-app</artifactId>
+  <artifactId>messagemanager-activemq</artifactId>
   <dependencies>
+  	<dependency>
+  		<groupId>com.google.inject</groupId>
+  		<artifactId>guice</artifactId>
+  	</dependency>
+  	<dependency>
+  		<groupId>nl.queuemanager</groupId>
+  		<artifactId>messagemanager-core</artifactId>
+  		<version>3.0-SNAPSHOT</version>
+  	</dependency>
   	<dependency>
   		<groupId>nl.queuemanager</groupId>
   		<artifactId>messagemanager-ui</artifactId>
   		<version>3.0-SNAPSHOT</version>
   	</dependency>
   	<dependency>
-  		<groupId>nl.queuemanager</groupId>
-  		<artifactId>messagemanager-activemq</artifactId>
-  		<version>3.0-SNAPSHOT</version>
+  		<groupId>org.apache.activemq</groupId>
+  		<artifactId>activemq-client</artifactId>
+  		<version>5.10.0</version>
   	</dependency>
   </dependencies>
 </project>

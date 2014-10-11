@@ -15,6 +15,7 @@
  */
 package nl.queuemanager.core.jms;
 
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -42,7 +43,7 @@ import nl.queuemanager.jms.JMSTopic;
  */
 public interface JMSDomain {
 
-	public abstract List<? extends JMSBroker> enumerateBrokers() throws MalformedObjectNameException, JMException;
+	public abstract List<? extends JMSBroker> enumerateBrokers() throws Exception;
 
 	/**
 	 * Enumerate the queues on a particular JMS broker. Dispatches a QUEUES_ENUMERATED event
@@ -51,8 +52,9 @@ public interface JMSDomain {
 	 * @param broker
 	 * @param filter
 	 * @return
+	 * @throws Exception 
 	 */
-	public abstract void enumerateQueues(JMSBroker broker, String filter);
+	public abstract void enumerateQueues(JMSBroker broker, String filter) throws Exception;
 
 	/**
 	 * Enumerates the queues on a JMSBroker without raising a QUEUES_ENUMERATED event.
@@ -60,8 +62,9 @@ public interface JMSDomain {
 	 * @param broker
 	 * @param filter
 	 * @return
+	 * @throws IOException 
 	 */
-	public abstract List<JMSQueue> getQueueList(JMSBroker broker, String filter);
+	public abstract List<JMSQueue> getQueueList(JMSBroker broker, String filter) throws Exception;
 
 	/**
 	 * Create a JMSTopic object for use with this Domain
@@ -86,9 +89,9 @@ public interface JMSDomain {
 	 * 
 	 * @param queue
 	 * @return Enumeration of Messages
-	 * @throws JMSException
+	 * @throws Exception 
 	 */
-	public abstract Enumeration<Message> enumerateMessages(JMSQueue queue) throws JMSException;
+	public abstract Enumeration<Message> enumerateMessages(JMSQueue queue) throws Exception;
 
 	/**
 	 * Open a consumer for the specified destination and associate the specified MessageListener.

@@ -20,6 +20,7 @@
     <module>messagemanager-sonicmq-86</module>
     <module>messagemanager-fakemq</module>
     <module>messagemanager-app</module>
+    <module>messagemanager-activemq</module>
   </modules>
   
   <properties>
