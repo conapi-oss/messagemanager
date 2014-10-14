@@ -23,11 +23,6 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
-import javax.management.InstanceNotFoundException;
-import javax.management.JMException;
-import javax.management.MBeanException;
-import javax.management.MalformedObjectNameException;
-import javax.management.ReflectionException;
 
 import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
@@ -120,29 +115,26 @@ public interface JMSDomain {
 	 * @param from
 	 * @param to
 	 * @param messageID
-	 * @throws JMSException
+	 * @throws Exception 
 	 */
-	public abstract void forwardMessage(JMSQueue from, JMSDestination to, String messageID) throws JMSException;
+	public abstract void forwardMessage(JMSQueue from, JMSDestination to, String messageID) throws Exception;
 
 	/**
 	 * Delete all messages on the given list of queues. All queues must be created by this Domain instance.
 	 * 
 	 * @param queueList
-	 * @throws JMSException
-	 * @throws InstanceNotFoundException
-	 * @throws MBeanException
-	 * @throws ReflectionException
+	 * @throws Exception 
 	 */
-	public abstract void deleteMessages(List<JMSQueue> queueList) throws JMSException, JMException;
+	public abstract void deleteMessages(List<JMSQueue> queueList) throws Exception;
 
 	/**
 	 * Delete the given set of messages from the queue.
 	 * 
 	 * @param queue
 	 * @param messages
-	 * @throws JMSException
+	 * @throws Exception 
 	 */
-	public abstract void deleteMessages(JMSQueue queue, List<Message> messages) throws JMSException;
+	public abstract void deleteMessages(JMSQueue queue, List<Message> messages) throws Exception;
 	
 	/**
 	 * Connects to a JMSBroker using the specified Credentials and creates a JMS 

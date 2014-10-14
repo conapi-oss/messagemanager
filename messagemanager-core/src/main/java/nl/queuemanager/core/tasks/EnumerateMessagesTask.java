@@ -33,7 +33,7 @@ import com.google.inject.assistedinject.Assisted;
 
 public class EnumerateMessagesTask extends BackgroundTask implements CancelableTask {
 	private final JMSQueue queue;
-	private final JMSDomain sonic;
+	private final JMSDomain domain;
 	private QueueBrowserEventSource eventSource;
 	
 	private volatile boolean canceled = false;
@@ -42,13 +42,13 @@ public class EnumerateMessagesTask extends BackgroundTask implements CancelableT
 	EnumerateMessagesTask(
 			@Assisted final JMSQueue queue, 
 			@Assisted final EventListener<QueueBrowserEvent> listener,
-			final JMSDomain sonic,
+			final JMSDomain domain,
 			EventBus eventBus) 
 	{
 		super(queue.getBroker(), eventBus);
 		
 		this.queue = queue;
-		this.sonic = sonic;
+		this.domain = domain;
 		this.eventSource = new QueueBrowserEventSource();
 		this.eventSource.addListener(listener);
 	}
@@ -59,11 +59,18 @@ public class EnumerateMessagesTask extends BackgroundTask implements CancelableT
 		
 		eventSource.fireBrowsingStarted(this);
 
-		for(Enumeration<Message> e = sonic.enumerateMessages(getQueue()); e.hasMoreElements();) {
+		Enumeration<Message> e = domain.enumerateMessages(getQueue());
+		while(e.hasMoreElements()) {
+			System.out.println("  Message message = e.nextElement()");
 			Message message = e.nextElement();
+			System.out.println("  eventSource.fireMessageFound(this, message)");
 			eventSource.fireMessageFound(this, message);
-			if(canceled)
+			System.out.println("  if(canceled)");
+			if(canceled) {
+				System.out.println("    break;");
 				break;
+			}
+			System.out.println("while(e.hasMoreElements())");
 		}
 		
 		eventSource.fireBrowsingComplete(this);

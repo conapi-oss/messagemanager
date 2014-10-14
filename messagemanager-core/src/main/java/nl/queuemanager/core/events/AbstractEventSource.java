@@ -16,32 +16,31 @@
 package nl.queuemanager.core.events;
 
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import nl.queuemanager.core.util.CollectionFactory;
 
 import com.google.common.eventbus.EventBus;
 
 public abstract class AbstractEventSource<T> implements EventSource<T> {
+	private final Logger log = Logger.getLogger(getClass().getName());
 	private final ArrayList<EventListener<T>> listeners = CollectionFactory.newArrayList();
-
-	private EventBus eventBus;
+	private final EventBus eventBus;
 	
-	private static final boolean DEBUG = "TRUE".equalsIgnoreCase(System.getProperty("developer"));
-
 	public AbstractEventSource(EventBus eventBus) {
 		this.eventBus = eventBus;
 	}
 	
 	public void addListener(EventListener<T> listener) {
 		if(!listeners.contains(listener)) {
-			if(DEBUG) System.out.println(Thread.currentThread() + " -> Subscribe " + listener + " to " + this);
+			log.fine("Subscribe " + listener + " to " + this);
 			listeners.add(listener);
 		}
 	}
 	
 	public void removeListener(EventListener<T> listener) {
 		if(listeners.contains(listener)) {
-			if(DEBUG) System.out.println(Thread.currentThread() + " -> Unsubscribe " + listener + " from " + this);
+			log.fine("Unsubscribe " + listener + " from " + this);
 			listeners.remove(listener);
 		}
 	}
@@ -50,12 +49,12 @@ public abstract class AbstractEventSource<T> implements EventSource<T> {
 		// For the moment, until everything is converted to eventBus, we have to dispatch to EventBus and
 		// the listeners that have been added. No getting around that for the moment.
 		if(eventBus != null) {
-			if(DEBUG) System.out.println(Thread.currentThread() + " -> Dispatch event: " + event + " to eventbus");
+			log.fine("Dispatch event: " + event + " to eventbus");
 			eventBus.post(event);
 		}
 		
 		for(EventListener<T> listener: CollectionFactory.newArrayList(listeners)) {
-			if(DEBUG) System.out.println(Thread.currentThread() + " -> Dispatch event: " + event + " to listener " + listener);
+			log.fine("Dispatch event: " + event + " to listener " + listener);
 			listener.processEvent(event);
 		}
 	}

@@ -53,5 +53,10 @@ class ActiveMQQueue implements JMSQueue {
 	public int getMessageCount() {
 		return (int)queueSize;
 	}
+	
+	@Override
+	public String toString() {
+		return getName();
+	}
 
 }

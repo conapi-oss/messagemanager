@@ -73,6 +73,7 @@ class XmlConfiguration implements Configuration {
 	private final XPathFactory xpf;
 	private final XPath xp;
 	
+	// FIXME Should be dependent on application name
 	private static final File prefsFile = 
 		new File(System.getProperty("user.home"), ".SonicMessageManager.xml");
 		

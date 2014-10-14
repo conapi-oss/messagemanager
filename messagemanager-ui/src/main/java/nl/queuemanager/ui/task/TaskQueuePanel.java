@@ -21,16 +21,15 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
-import com.google.inject.Inject;
-
-import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.task.CancelableTask;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskEvent;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.ui.util.JStatusBar;
+
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
 
 /**
  * JPanel subclass that displays the currently executing or waiting tasks using a list
@@ -42,9 +41,9 @@ import nl.queuemanager.ui.util.JStatusBar;
 @SuppressWarnings("serial")
 public class TaskQueuePanel extends JPanel {
 
-	// FIXME This should not be here. StatusBarManipulators must be constructed by Guice
 	private final EventBus eventBus;
 	private Map<Task, JStatusBar> statusbars = CollectionFactory.newHashMap();
+	private static final boolean DEBUG = Boolean.parseBoolean(System.getProperty("developer"));
 	
 	@Inject
 	public TaskQueuePanel(EventBus eventBus) {
@@ -56,8 +55,8 @@ public class TaskQueuePanel extends JPanel {
 	public void processEvent(final TaskEvent event) {
 		final Task t = (Task)event.getSource();
 
-		// Do not display background tasks
-		if(t.isBackground())
+		// Do not display background tasks (except in dev mode)
+		if(!DEBUG && t.isBackground())
 			return;
 		
 		switch(event.getId()) {

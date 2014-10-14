@@ -17,7 +17,7 @@ class ActiveMQBroker implements JMSBroker {
 	}
 	
 	public String toString() {
-		return String.format("%s (hhh %s)", getObjectName().getKeyProperty("brokerName"), getConnectionURI());
+		return String.format("%s (%s)", getObjectName().getKeyProperty("brokerName"), getConnectionURI());
 	}
 	
 	@Override

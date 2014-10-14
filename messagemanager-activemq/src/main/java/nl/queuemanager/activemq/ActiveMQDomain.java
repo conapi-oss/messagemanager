@@ -19,6 +19,7 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
+import javax.jms.MessageProducer;
 import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.management.AttributeChangeNotification;
@@ -133,8 +134,10 @@ class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements JMSDoma
 		List<JMSQueue> queues = new ArrayList<JMSQueue>();
 
 		try {
+			log.fine(String.format("Enumerating queues on %s with filter %s", broker, filter));
 			Set<ObjectName> names = mbeanServer.queryNames(new ObjectName(b.getObjectName() + ",destinationType=Queue,destinationName=*"), null);
 			for(ObjectName name: names) {
+				log.fine(String.format("Getting queue size for %s", name));
 				Long queueSize = (Long)mbeanServer.getAttribute(name, "QueueSize");
 				queues.add(new ActiveMQQueue(b, name, queueSize));
 			}
@@ -167,23 +170,47 @@ class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements JMSDoma
 	}
 	
 	public MessageConsumer openConsumer(JMSDestination destination, MessageListener listener) throws JMSException {
+		// FIXME
 		return new ActiveMQMessageConsumer();
 	}
 
 	public void sendMessage(JMSDestination destination, Message messageToSend) throws JMSException {
-		// Let's not and say we did
+		ActiveMQConnection connection = brokerConnections.get(destination.getBroker());
+		Session session = connection.getSyncSession();
+		
+		Message jmsMessage = 
+			ActiveMQMessageConverter.convertMessage(session, messageToSend);
+		
+		MessageProducer producer = connection.getMessageProducer(destination);
+		long timetolive = producer.getTimeToLive();
+		if(messageToSend.getJMSExpiration() != 0) {
+			timetolive = messageToSend.getJMSExpiration() - messageToSend.getJMSTimestamp();
+		}
+		producer.send(jmsMessage, jmsMessage.getJMSDeliveryMode(), jmsMessage.getJMSPriority(), timetolive);
 	}
 
-	public void forwardMessage(JMSQueue from, JMSDestination to, String messageID) throws JMSException {
-		// Let's not and say we did
+	public void forwardMessage(JMSQueue from, JMSDestination to, String messageID) throws Exception {
+		mbeanServer.invoke(
+				((ActiveMQQueue) from).getObjectName(), 
+				"moveMessageTo", 
+				new Object[] {messageID, to.getName()}, 
+				new String[] {String.class.getName(), String.class.getName()});
 	}
 
-	public void deleteMessages(List<JMSQueue> queueList) throws JMSException, JMException {
-		// Let's not and say we did
+	public void deleteMessages(List<JMSQueue> queueList) throws Exception {
+		for(JMSQueue queue: queueList) {
+			mbeanServer.invoke(((ActiveMQQueue) queue).getObjectName(), "purge", null, null);
+		}
 	}
 
-	public void deleteMessages(JMSQueue queue, List<Message> messages) throws JMSException {
-		// Let's not and say we did
+	public void deleteMessages(JMSQueue queue, List<Message> messages) throws Exception {
+		for(Message message: messages) {
+			mbeanServer.invoke(
+					((ActiveMQQueue) queue).getObjectName(), 
+					"removeMessage", 
+					new Object[] {message.getJMSMessageID()}, 
+					new String[] {String.class.getName()});
+		}
 	}
 
 	public void connectToBroker(JMSBroker aBroker, Credentials credentials) throws JMSException {
