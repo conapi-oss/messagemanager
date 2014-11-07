@@ -15,6 +15,7 @@
  */
 package nl.queuemanager.ui.task;
 
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 import javax.swing.BoxLayout;
@@ -24,7 +25,6 @@ import javax.swing.SwingUtilities;
 import nl.queuemanager.core.task.CancelableTask;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskEvent;
-import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.ui.util.JStatusBar;
 
 import com.google.common.eventbus.EventBus;
@@ -42,7 +42,7 @@ import com.google.inject.Inject;
 public class TaskQueuePanel extends JPanel {
 
 	private final EventBus eventBus;
-	private Map<Task, JStatusBar> statusbars = CollectionFactory.newHashMap();
+	private Map<Task, JStatusBar> statusbars = new IdentityHashMap<Task, JStatusBar>();
 	private static final boolean DEBUG = Boolean.parseBoolean(System.getProperty("developer"));
 	
 	@Inject
@@ -53,6 +53,18 @@ public class TaskQueuePanel extends JPanel {
 
 	@Subscribe
 	public void processEvent(final TaskEvent event) {
+		// Always run this logic on the EDT to make sure updates to the panel are not clobbering 
+		// each other and this method can remain lock free. Tasks can run on and send events from
+		// any thread.
+		if(!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					processEvent(event);
+				}
+			});
+			return;
+		}
+		
 		final Task t = (Task)event.getSource();
 
 		// Do not display background tasks (except in dev mode)
@@ -69,24 +81,18 @@ public class TaskQueuePanel extends JPanel {
 				manipulator.processEvent(event);
 				statusbars.put(t, bar);
 				
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						TaskQueuePanel.this.add(bar);
-						TaskQueuePanel.this.revalidate();
-					}
-				});
+				add(bar);
+				revalidate();
 			}
 			break;
 			
 		case TASK_DISCARDED:
 		case TASK_FINISHED:
 			final JStatusBar bar = statusbars.remove(t);
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					TaskQueuePanel.this.remove(bar);
-					TaskQueuePanel.this.revalidate();
-				}
-			});
+			if(bar != null) {
+				remove(bar);
+				revalidate();
+			}
 			break;
 		}
 	}

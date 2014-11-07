@@ -92,11 +92,11 @@ class MultiQueueTaskExecutor implements TaskExecutor
 	 */
 	public void execute(final Task task) {
 		task.setExecutor(this);	
-		task.dispatchTaskWaiting();
 		
 		if(task.getDependencyCount() == 0) {
 			executeNow(task);
 		} else synchronized(executorLock) {
+			task.dispatchTaskWaiting();
 			waitingTasks.add(task);
 		}
 	}
