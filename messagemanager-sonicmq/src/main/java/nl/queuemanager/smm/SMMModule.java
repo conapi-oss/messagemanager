@@ -1,5 +1,6 @@
 package nl.queuemanager.smm;
 
+import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.jms.JMSDomain;
 
 import com.google.inject.AbstractModule;

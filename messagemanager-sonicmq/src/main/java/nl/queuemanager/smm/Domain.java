@@ -88,7 +88,7 @@ public class Domain implements JMSDomain {
 	private Map<SonicMQBroker, SonicMQConnection> brokerConnections;
 
 	@Inject
-	public Domain(SMMConfiguration configuration, EventBus eventBus) {
+	public Domain(Configuration configuration, EventBus eventBus) {
 		this.config = configuration;
 		this.eventBus = eventBus;
 	}

@@ -25,9 +25,11 @@ import javax.swing.UIManager;
 import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.CoreModule;
 import nl.queuemanager.core.configuration.XmlConfigurationModule;
+import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.ui.MMFrame;
 import nl.queuemanager.ui.UIModule;
 
+import com.google.common.eventbus.EventBus;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
@@ -41,15 +43,19 @@ public class Main {
 	public static void main(String[] args) {
 		// Set look & feel to native
 		setNativeLAF();
+
+		// Create the configuration module
+		// FIXME set a correct filename, etc
+		XmlConfigurationModule configurationModule = new XmlConfigurationModule("config.xml", "urn:blah");
 		
 		// Create the default modules
 		List<Module> modules = new ArrayList<Module>();
-		modules.add(new XmlConfigurationModule());
+		modules.add(configurationModule);
 		modules.add(new CoreModule());
 		modules.add(new UIModule());
 		
 		// Load plugin modules
-		modules.addAll(createPluginModules());
+		modules.addAll(createPluginModules(configurationModule));
 		modules.add(loadModule("nl.queuemanager.activemq.ActiveMQModule"));
 		
 		// Now that the module list is complete, create the injector
@@ -60,6 +66,9 @@ public class Main {
 		
 		// Make the frame visible
 		frame.setVisible(true);
+		
+		// Send the ApplicationInitializedEvent
+		injector.getInstance(EventBus.class).post(new ApplicationInitializedEvent());
 	}
 	
 	/**
@@ -69,8 +78,8 @@ public class Main {
 	 * injector and configuration object after use and use it only to retrieve the
 	 * list of plugin modules to load.
 	 */
-	private static List<Module> createPluginModules() {
-		Injector configInjector = Guice.createInjector(Stage.PRODUCTION, new XmlConfigurationModule());
+	private static List<Module> createPluginModules(Module configurationModule) {
+		Injector configInjector = Guice.createInjector(Stage.PRODUCTION, configurationModule);
 		Configuration config = configInjector.getInstance(Configuration.class);
 		
 		String[] moduleNameList = config.getUserPref(Configuration.PREF_PLUGIN_MODULES, "").split(",");

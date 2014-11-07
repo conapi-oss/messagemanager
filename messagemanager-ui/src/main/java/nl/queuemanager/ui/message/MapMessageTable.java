@@ -68,7 +68,6 @@ public class MapMessageTable extends JTable {
 					data.add(Pair.create(name, message.getObject(name)));
 				}
 			} catch (JMSException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

@@ -120,7 +120,7 @@ class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements JMSDoma
 	}
 
 	private boolean isConnectorTypeSupported(String type) {
-		// FIXME Dynamically determine support for connector types (via classpath?)
+		// TODO Dynamically determine support for connector types (via classpath?)
 		return type.equals("openwire");
 	}
 

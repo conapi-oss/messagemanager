@@ -1,17 +1,28 @@
 package nl.queuemanager.core.configuration;
 
+import javax.inject.Singleton;
+
 import nl.queuemanager.core.Configuration;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Scopes;
+import com.google.inject.Provides;
 
 public class XmlConfigurationModule extends AbstractModule {
 
-	@Override
-	protected void configure() {
-		// We use an Xml file for configuration
-		bind(XmlConfiguration.class).in(Scopes.SINGLETON);
-		bind(Configuration.class).to(XmlConfiguration.class);
+	private final String configFile;
+	private final String namespaceUri;
+	
+	public XmlConfigurationModule(final String configFile, final String namespaceUri) {
+		this.configFile = configFile;
+		this.namespaceUri = namespaceUri;
+	}
+	
+	public void configure() {
+	}
+	
+	@Provides @Singleton
+	public Configuration createConfiguration() {
+		return new XmlConfiguration(configFile, namespaceUri);
 	}
 
 }

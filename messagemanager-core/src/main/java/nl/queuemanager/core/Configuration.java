@@ -20,13 +20,23 @@ import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSTopic;
 
 public interface Configuration {
+	public static final String PREF_UNIQUE_ID = "uniqueId";
 	public static final String PREF_BROWSE_DIRECTORY = "browseDirectory";
 	public static final String PREF_SAVE_DIRECTORY = "saveDirectory";
 	public static final String PREF_MAX_BUFFERED_MSG = "maxBufferedMessages";
 	public static final String PREF_AUTOREFRESH_INTERVAL = "autoRefreshInterval";
 	public static final String PREF_BROKER_ALTERNATE_URL = "alternateUrl";
 	public static final String PREF_PLUGIN_MODULES = "pluginModules";
+	public static final String PREF_LAST_RUN_BUILD = "lastRunBuild";
+	public static final String PREF_LAST_MOTD_NUMBER = "lastMotdNumber";
+	public static final String PREF_LAST_MOTD_CHECK_TIME = "lastMotdCheckTime";
 
+	/**
+	 * Return a unique identifier for this configuration
+	 * @return
+	 */
+	public abstract String getUniqueId();
+	
 	/**
 	 * Get a per-user preference value.
 	 * 

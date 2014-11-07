@@ -16,6 +16,9 @@
 package nl.queuemanager.smm;
 
 import java.awt.Toolkit;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,15 +26,21 @@ import javax.swing.UIManager;
 
 import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.CoreModule;
-import nl.queuemanager.smm.ui.ConnectionTabPanel;
+import nl.queuemanager.core.configuration.XmlConfigurationModule;
+import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.smm.ui.SMMFrame;
 import nl.queuemanager.smm.ui.SMMUIModule;
 import nl.queuemanager.ui.UIModule;
 
+import com.google.common.eventbus.EventBus;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Stage;
+import com.google.inject.grapher.GrapherModule;
+import com.google.inject.grapher.InjectorGrapher;
+import com.google.inject.grapher.graphviz.GraphvizModule;
+import com.google.inject.grapher.graphviz.GraphvizRenderer;
 
 public class Main {
 
@@ -41,29 +50,33 @@ public class Main {
 	public static void main(String[] args) {
 		// Set look & feel to native
 		setNativeLAF();
-		
+
+		// Create the configuration module
+		String configFile = new File(System.getProperty("user.home"), ".SonicMessageManager.xml").getAbsolutePath(); 
+		XmlConfigurationModule configurationModule = new XmlConfigurationModule(configFile,	"urn:SonicMessageManagerConfig");
+
 		// Create the default modules
 		List<Module> modules = new ArrayList<Module>();
-		modules.add(new SMMConfigurationModule());
+		modules.add(configurationModule);
 		modules.add(new CoreModule());
 		modules.add(new UIModule());
 		modules.add(new SMMModule());
 		modules.add(new SMMUIModule());
 		
 		// Load plugin modules
-		modules.addAll(createPluginModules());
+		modules.addAll(createPluginModules(configurationModule));
 		
 		// Now that the module list is complete, create the injector
 		Injector injector = Guice.createInjector(Stage.PRODUCTION, modules);
-		
+
 		// Create the main application frame
 		final SMMFrame frame = injector.getInstance(SMMFrame.class);
 		
 		// Make the frame visible
 		frame.setVisible(true);
 		
-		// Pop up the connection dialog
-		injector.getInstance(ConnectionTabPanel.class).showDefaultConnectionDialog();
+		// Send the ApplicationInitializedEvent
+		injector.getInstance(EventBus.class).post(new ApplicationInitializedEvent());
 	}
 	
 	/**
@@ -73,8 +86,8 @@ public class Main {
 	 * injector and configuration object after use and use it only to retrieve the
 	 * list of plugin modules to load.
 	 */
-	private static List<Module> createPluginModules() {
-		Injector configInjector = Guice.createInjector(Stage.PRODUCTION, new SMMConfigurationModule());
+	private static List<Module> createPluginModules(Module configurationModule) {
+		Injector configInjector = Guice.createInjector(Stage.PRODUCTION, configurationModule);
 		Configuration config = configInjector.getInstance(Configuration.class);
 		
 		String[] moduleNameList = config.getUserPref(Configuration.PREF_PLUGIN_MODULES, "").split(",");

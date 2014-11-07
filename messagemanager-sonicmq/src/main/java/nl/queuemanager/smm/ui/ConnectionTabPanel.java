@@ -44,6 +44,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
+import nl.queuemanager.core.Configuration;
+import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.util.CollectionFactory;
@@ -53,10 +55,12 @@ import nl.queuemanager.smm.SMCConnectionModel;
 import nl.queuemanager.smm.SMMConfiguration;
 import nl.queuemanager.ui.CommonUITasks;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
+import nl.queuemanager.ui.MOTDPanel;
 import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.util.DesktopHelper;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.sonicsw.ma.gui.PreferenceManager;
 import com.sonicsw.ma.gui.domain.DomainConnectionModel;
@@ -66,83 +70,87 @@ import com.sonicsw.ma.gui.domain.JDomainConnectionDialog;
 public class ConnectionTabPanel extends JPanel implements UITab {
 	private final Domain sonic;
 	private final TaskExecutor worker;
-	private final SMMConfiguration config;
-	private final DesktopHelper desktop;
+	private final Configuration config;
 	private       ConnectionModelTable connectionTable;
 	private final PreferenceManager prefs = PreferenceManager.getInstance();
 	private final ConnectionDialogProvider connectionDialogProvider;
 	private final EventBus eventBus;
 	
 	@Inject
-	public ConnectionTabPanel(Domain sonic, TaskExecutor worker, SMMConfiguration config, DesktopHelper desktop, ConnectionDialogProvider connectionDialogProvider, EventBus eventBus) {
+	public ConnectionTabPanel(Domain sonic, TaskExecutor worker, Configuration config, 
+			DesktopHelper desktop, ConnectionDialogProvider connectionDialogProvider, 
+			EventBus eventBus, MOTDPanel motdPanel) 
+	{
 		this.sonic = sonic;
 		this.worker = worker;
 		this.config = config;
-		this.desktop = desktop;
 		this.connectionDialogProvider = connectionDialogProvider;
 		this.eventBus = eventBus;
-
-		JPanel brandingPanel = createBrandingPanel();
+		
+		JPanel brandingPanel = createBrandingPanel(desktop);
 		JPanel connectionsPanel = createConnectionsPanel();
 		
 		// Now add the panels to this panel
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(brandingPanel);
-		setupMailingList();
+		JComponent mailingListPanel = createMailingListPanel();
+		if(mailingListPanel != null) {
+			add(mailingListPanel);
+		}
+		add(motdPanel);
 		add(connectionsPanel);
 	}
 
-	private void setupMailingList() {		
-		if("unknown".equals(config.getUserPref(SMMConfiguration.PREF_MAILINGLIST_STATUS, "unknown"))) {
-			final JTextField emailAddressField;
-			final JButton subscribeButton;
-			final JButton denyButton;
-			final Box box = Box.createHorizontalBox();
-			
-			box.setBorder(new TitledBorder("Mailing list"));
-			box.add(new JLabel("To subscribe to our mailing list, enter your e-mail address:"));
-			box.add(Box.createHorizontalStrut(5));
-			box.add(emailAddressField = new JTextField(15));
-			emailAddressField.setMaximumSize(new Dimension(
-					Integer.MAX_VALUE,
-					emailAddressField.getPreferredSize().height));
-			box.add(Box.createHorizontalStrut(10));
-			box.add(subscribeButton = new JButton("Subscribe"));
-			box.add(Box.createHorizontalStrut(5));
-			box.add(denyButton = new JButton("No, thank you"));
-			add(box);
-			
-			subscribeButton.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					if(emailAddressField.getText() != null && emailAddressField.getText().length() > 0) {
-						try {
-							URL url = new URL("http://queuemanager.nl/subscribe.php?email=" + 
-									emailAddressField.getText());
-							URLConnection c = url.openConnection();
-							c.connect();
-							c.getContent();
-						} catch (MalformedURLException e1) {
-							// This URL cannot be malformed since it is static.
-							throw new RuntimeException(e1);
-						} catch (IOException e1) {
-							// If an IOException occurs. Ignore it.
-							return;
-						}
-						config.setUserPref(SMMConfiguration.PREF_MAILINGLIST_STATUS, 
-								emailAddressField.getText());
-						remove(box);
-						revalidate();
+	private JComponent createMailingListPanel() {		
+		if(!"unknown".equals(config.getUserPref(SMMConfiguration.PREF_MAILINGLIST_STATUS, "unknown"))) {
+			return null;
+		}
+		
+		final JTextField emailAddressField;
+		final JButton subscribeButton;
+		final JButton denyButton;
+		final Box box = Box.createHorizontalBox();
+		
+		box.setBorder(new TitledBorder("Mailing list"));
+		box.add(new JLabel("To subscribe to our mailing list, enter your e-mail address:"));
+		box.add(Box.createHorizontalStrut(5));
+		box.add(emailAddressField = new JTextField(15));
+		emailAddressField.setMaximumSize(new Dimension(Integer.MAX_VALUE, emailAddressField.getPreferredSize().height));
+		box.add(Box.createHorizontalStrut(10));
+		box.add(subscribeButton = new JButton("Subscribe"));
+		box.add(Box.createHorizontalStrut(5));
+		box.add(denyButton = new JButton("No, thank you"));
+		
+		subscribeButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(emailAddressField.getText() != null && emailAddressField.getText().length() > 0) {
+					try {
+						URL url = new URL("http://queuemanager.nl/subscribe.php?email=" + emailAddressField.getText());
+						URLConnection c = url.openConnection();
+						c.connect();
+						c.getContent();
+					} catch (MalformedURLException e1) {
+						// This URL cannot be malformed since it is static.
+						throw new RuntimeException(e1);
+					} catch (IOException e1) {
+						// If an IOException occurs. Ignore it.
+						return;
 					}
-				}
-			});
-			denyButton.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					config.setUserPref(SMMConfiguration.PREF_MAILINGLIST_STATUS, "deny");
+					config.setUserPref(SMMConfiguration.PREF_MAILINGLIST_STATUS, emailAddressField.getText());
 					remove(box);
 					revalidate();
 				}
-			});
-		}
+			}
+		});
+		denyButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				config.setUserPref(SMMConfiguration.PREF_MAILINGLIST_STATUS, "deny");
+				remove(box);
+				revalidate();
+			}
+		});
+			
+		return box;
 	}
 
 	private JPanel createConnectionsPanel() {
@@ -169,7 +177,7 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		return connectionsPanel;
 	}
 
-	private JPanel createBrandingPanel() {
+	private JPanel createBrandingPanel(DesktopHelper desktop) {
 		// Create the branding area
 		JPanel brandingPanel = new JPanel();
 		brandingPanel.setLayout(new BoxLayout(brandingPanel, BoxLayout.X_AXIS));
@@ -272,7 +280,7 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		return button;
 	}
 	
-	public JButton createDisconnectButton() {
+	private JButton createDisconnectButton() {
 		JButton button = CommonUITasks.createButton("Disconnect", 
 		new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -379,7 +387,7 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		}
 	}
 
-	public void connectSonic(final ConnectionModel model) {
+	private void connectSonic(final ConnectionModel model) {
 		worker.execute(new Task(sonic, eventBus) {
 			@Override
 			public void execute() throws Exception {
@@ -392,11 +400,11 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		});
 	}
 
-	public DomainConnectionModel getConnectionModel() {
+	private DomainConnectionModel getConnectionModel() {
 		return getConnectionModel(new DomainConnectionModel(prefs));
 	}
 	
-	public DomainConnectionModel getConnectionModel(DomainConnectionModel model) {
+	private DomainConnectionModel getConnectionModel(DomainConnectionModel model) {
 		JDomainConnectionDialog connectionDialog = connectionDialogProvider.get();
 		try {
 			connectionDialog.editInstance(null, model, true);
@@ -420,11 +428,16 @@ public class ConnectionTabPanel extends JPanel implements UITab {
         return model;
 	}
 	
-	public void showDefaultConnectionDialog() {
+	private void showDefaultConnectionDialog() {
 		final DomainConnectionModel model = getConnectionModel();
 		if(model != null) {
 			connectSonic(new SMCConnectionModel(model));
 		}		
+	}
+	
+	@Subscribe
+	public void applicationInitialized(ApplicationInitializedEvent e) {
+		showDefaultConnectionDialog();
 	}
 
 	public String getUITabName() {

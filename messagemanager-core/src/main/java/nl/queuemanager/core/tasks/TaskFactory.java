@@ -39,4 +39,7 @@ public interface TaskFactory {
 	public abstract SendFileListTask sendFiles(JMSDestination destination, List<File> files, Message template);
 	public abstract SendFileListTask sendFiles(JMSDestination destination, List<File> files, Message template, @Assisted("repeats") int repeats, @Assisted("delay") int delay);
 	
+	// Release note & motd tasks
+	public abstract CheckMotdTask checkMotdTask(@Assisted("uniqueId") String uniqueId, @Assisted("hostname") String hostname);
+	public abstract CheckReleaseNoteTask checkReleaseNote(@Assisted("hostname") String hostname, @Assisted("buildId") String buildId);
 }

@@ -19,8 +19,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.prefs.Preferences;
 
+import javax.inject.Inject;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -62,8 +64,6 @@ import org.xml.sax.SAXException;
 class XmlConfiguration implements Configuration {
 	private static final String ROOT_ELEMENT = "Configuration";
 
-	private static final String NAMESPACE_URI = "urn:SonicMessageManagerConfig";
-	
 	private final DocumentBuilderFactory dbf;
 	private final DocumentBuilder db;
 	
@@ -73,11 +73,20 @@ class XmlConfiguration implements Configuration {
 	private final XPathFactory xpf;
 	private final XPath xp;
 	
-	// FIXME Should be dependent on application name
-	private static final File prefsFile = 
-		new File(System.getProperty("user.home"), ".SonicMessageManager.xml");
+	private final File configFile;
+	private final String namespaceUri;
+	
+	@Inject
+	XmlConfiguration(String configFile, String namespaceUri) {
+		if(configFile == null)
+			throw new IllegalArgumentException("configFile");
 		
-	XmlConfiguration() {
+		if(namespaceUri == null)
+			throw new IllegalArgumentException("namespaceUri");
+		
+		this.configFile = new File(configFile);
+		this.namespaceUri = namespaceUri;
+		
 		// Initialize the XML Parser
 		dbf = DocumentBuilderFactory.newInstance();
 		dbf.setNamespaceAware(true);
@@ -99,8 +108,17 @@ class XmlConfiguration implements Configuration {
 		xpf = XPathFactory.newInstance();
 		xp = xpf.newXPath();
 		MapNamespaceContext nsContext = new MapNamespaceContext();
-		nsContext.add("c", NAMESPACE_URI);
+		nsContext.add("c", namespaceUri);
 		xp.setNamespaceContext(nsContext);
+	}
+	
+	public synchronized String getUniqueId() {
+		String uniqueId = getUserPref(PREF_UNIQUE_ID, null);
+		if(uniqueId == null) {
+			uniqueId = UUID.randomUUID().toString();
+			setUserPref(PREF_UNIQUE_ID, uniqueId);
+		}
+		return uniqueId;
 	}
 	
 	/* (non-Javadoc)
@@ -357,7 +375,7 @@ class XmlConfiguration implements Configuration {
 			Node potential = (Node)xp.evaluate("c:" + cur, curNode, XPathConstants.NODE);
 			if(potential == null) {
 				// Create the node and add to the document. Then use as the current node.
-				potential = curNode.getOwnerDocument().createElementNS(NAMESPACE_URI, cur);
+				potential = curNode.getOwnerDocument().createElementNS(namespaceUri, cur);
 				curNode.appendChild(potential);
 			}
 			curNode = potential;
@@ -374,7 +392,7 @@ class XmlConfiguration implements Configuration {
 	 * @param nodeValue
 	 */
 	private void addElement(final Node context, final String nodeName, final String nodeValue) {
-		Node newNode = context.getOwnerDocument().createElementNS(NAMESPACE_URI, nodeName);
+		Node newNode = context.getOwnerDocument().createElementNS(namespaceUri, nodeName);
 		newNode.setTextContent(nodeValue);
 		context.appendChild(newNode);
 	}
@@ -414,7 +432,7 @@ class XmlConfiguration implements Configuration {
 				String.format("/c:%s/c:Broker[@name='%s']", ROOT_ELEMENT, brokerName),
 				prefs.getDocumentElement(), XPathConstants.NODE);
 		if(brokerElement == null) {
-			brokerElement = prefs.createElementNS(NAMESPACE_URI, "Broker");
+			brokerElement = prefs.createElementNS(namespaceUri, "Broker");
 			Attr nameAttribute = prefs.createAttribute("name");
 			nameAttribute.setTextContent(brokerName);
 			brokerElement.getAttributes().setNamedItem(nameAttribute);
@@ -430,13 +448,13 @@ class XmlConfiguration implements Configuration {
 	 * @return
 	 */
 	private Document readPrefs() {		
-		if(!prefsFile.exists()) {
+		if(!configFile.exists()) {
 			// The file does not exist. Create a new Document.
 			return newConfig();
 		}
 		
 		try {
-			return db.parse(prefsFile);
+			return db.parse(configFile);
 		} catch (IOException e) {
 			System.out.println("IOException getting configuration, creating new document." + e);
 			e.printStackTrace();
@@ -455,7 +473,7 @@ class XmlConfiguration implements Configuration {
 	 */
 	private void savePrefs(Document doc) {
 		try {
-			StreamResult r = new StreamResult(prefsFile);
+			StreamResult r = new StreamResult(configFile);
 			Source s = new DOMSource(doc);
 			
 			tf.transform(s, r);
@@ -472,7 +490,7 @@ class XmlConfiguration implements Configuration {
 	 */
 	private Document newConfig() {
 		Document d = db.newDocument();
-		Element configElement = d.createElementNS(NAMESPACE_URI, ROOT_ELEMENT);
+		Element configElement = d.createElementNS(namespaceUri, ROOT_ELEMENT);
 		d.appendChild(configElement);
 		
 		// Read possibly existing settings from the java.util.Preferences store and copy them to
@@ -493,7 +511,7 @@ class XmlConfiguration implements Configuration {
 	private void convertOldUserPref(final Element configElement, final String key) {
 		final String browseDir = getOldUserPref(key);
 		if(browseDir != null) {
-			Element e = configElement.getOwnerDocument().createElementNS(NAMESPACE_URI, key);
+			Element e = configElement.getOwnerDocument().createElementNS(namespaceUri, key);
 			e.setTextContent(browseDir);
 			configElement.appendChild(e);
 			removeOldUserPref(key);
