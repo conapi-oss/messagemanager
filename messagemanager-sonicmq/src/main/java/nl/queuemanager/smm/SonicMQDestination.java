@@ -53,6 +53,6 @@ abstract class SonicMQDestination implements JMSDestination {
 	}
 	
 	public int compareTo(JMSDestination o) {
-		return toString().toLowerCase().compareTo(o.toString().toLowerCase());
+		return toString().compareToIgnoreCase(o.toString());
 	}
 }

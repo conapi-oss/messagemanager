@@ -15,9 +15,15 @@ public class MessageCountComparator implements Comparator<JMSQueue>, Serializabl
 	}
 	
 	public int compare(JMSQueue o1, JMSQueue o2) {
-		return descending ? 
+		int res = descending ? 
 			o2.getMessageCount() - o1.getMessageCount() : 
 			o1.getMessageCount() - o2.getMessageCount();
+			
+		if(res == 0) { // If the message counts are equal, sort by name (always ascending)
+			return o1.getName().compareTo(o2.getName());
+		} else {
+			return res;
+		}
 	}
 
 }
