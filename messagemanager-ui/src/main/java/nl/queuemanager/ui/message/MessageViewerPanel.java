@@ -31,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
+import javax.swing.ListSelectionModel;
 import javax.swing.TransferHandler;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -106,6 +107,7 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 					new JScrollPane(messagePropertiesTable))));
 		
 		MessagePropertiesTable messageHeadersTable = new MessagePropertiesTable();
+		messageHeadersTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		messageHeadersTable.setMessage(this.message);
 		root.add(
 			new DefaultMutableTreeNode(

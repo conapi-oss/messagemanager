@@ -16,6 +16,7 @@
 package nl.queuemanager.ui.message;
 
 import java.awt.Dimension;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -92,6 +93,12 @@ public class MessagePropertiesTable extends JTable {
 		public PropertyTableModel() {
 			setColumnNames(new String[] {"Name", "Value", "Type"});
 			setColumnTypes(new Class[] {String.class, String.class, String.class});
+		}
+		
+ 		@Override
+		public void setData(List<Pair<String, Object>> data) {
+			Collections.sort(data, Pair.compareFirst(String.CASE_INSENSITIVE_ORDER));
+			super.setData(data);
 		}
 		
 		@Override

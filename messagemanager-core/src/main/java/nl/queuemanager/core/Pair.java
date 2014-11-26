@@ -15,7 +15,8 @@
  */
 package nl.queuemanager.core;
 
-@SuppressWarnings("serial")
+import java.util.Comparator;
+
 public class Pair<First, Second> implements java.io.Serializable {
 	private final First one;
 	private final Second two;
@@ -54,7 +55,7 @@ public class Pair<First, Second> implements java.io.Serializable {
 			return true;
 		
 		if (o instanceof Pair) {
-			Pair p = (Pair) o;
+			Pair<First, Second> p = (Pair<First, Second>) o;
 			return p.one.equals(one) && p.two.equals(two);
 		}
 		
@@ -71,5 +72,27 @@ public class Pair<First, Second> implements java.io.Serializable {
 	 */
 	public static <First, Second> Pair<First, Second> create(First first, Second second) {
 		return new Pair<First, Second>(first, second);
+	}
+	
+	/**
+	 * Wrap a comparator such to create a new comparator that operates on the first() component of a Pair
+	 */
+	public static <First, Second> Comparator<Pair<First, Second>> compareFirst(final Comparator<First> comp) {
+		return new Comparator<Pair<First,Second>>() {
+			public int compare(Pair<First, Second> o1, Pair<First, Second> o2) {
+				return comp.compare(o1.first(), o2.first());
+			}
+		};
+	}
+	
+	/**
+	 * Wrap a comparator such to create a new comparator that operates on the second() component of a Pair
+	 */
+	public static <First, Second> Comparator<Pair<First, Second>> compareSecond(final Comparator<Second> comp) {
+		return new Comparator<Pair<First,Second>>() {
+			public int compare(Pair<First, Second> o1, Pair<First, Second> o2) {
+				return comp.compare(o1.second(), o2.second());
+			}
+		};
 	}
 }
