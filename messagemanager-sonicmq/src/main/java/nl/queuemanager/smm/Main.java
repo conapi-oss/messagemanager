@@ -22,6 +22,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import nl.queuemanager.core.Configuration;
@@ -67,16 +68,21 @@ public class Main {
 		modules.addAll(createPluginModules(configurationModule));
 		
 		// Now that the module list is complete, create the injector
-		Injector injector = Guice.createInjector(Stage.PRODUCTION, modules);
+		final Injector injector = Guice.createInjector(Stage.PRODUCTION, modules);
 
-		// Create the main application frame
-		final SMMFrame frame = injector.getInstance(SMMFrame.class);
-		
-		// Make the frame visible
-		frame.setVisible(true);
-		
-		// Send the ApplicationInitializedEvent
-		injector.getInstance(EventBus.class).post(new ApplicationInitializedEvent());
+		// Invoke initializing the GUI on the EDT
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				// Create the main application frame
+				final SMMFrame frame = injector.getInstance(SMMFrame.class);
+				
+				// Make the frame visible
+				frame.setVisible(true);
+				
+				// Send the ApplicationInitializedEvent
+				injector.getInstance(EventBus.class).post(new ApplicationInitializedEvent());
+			}
+		});
 	}
 	
 	/**
