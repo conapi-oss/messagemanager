@@ -42,7 +42,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import nl.queuemanager.core.util.EnumerationIterator;
 import nl.queuemanager.jms.JMSMultipartMessage;
 import nl.queuemanager.jms.JMSPart;
 import nl.queuemanager.jms.MessageType;
@@ -85,7 +84,7 @@ import com.miginfocom.Base64;
  */
 public final class ESBMessage {
 	private static final String CONTENT_ANYTEXT = "text/";
-
+	private static String[] contentIds; 
 	private static final String ESBMSG_PREFIX = "sonic_esbmsg";
 	private static final String ESBMSG_NAMESPACE = "http://sonicsw.com/tools/esbmsg/namespace";
 
@@ -175,7 +174,8 @@ public final class ESBMessage {
 		}
 	}
 
-	private static void saveBody(Element messageElement, javax.jms.Message message) throws JMSException {
+	@SuppressWarnings("unchecked")
+    private static void saveBody(Element messageElement, javax.jms.Message message) throws JMSException {
 		Element e = messageElement.getOwnerDocument().createElement("body");
 		e.setAttribute("content-id", "body-part");
 		e.setAttribute("file-ref", "");
@@ -188,35 +188,49 @@ public final class ESBMessage {
 			byte[] bytes = new byte[(int)bm.getBodyLength()];
 			bm.readBytes(bytes);
 			e.setTextContent(Base64.encodeToString(bytes, true));
+		//MAPStart
 		} else if(MapMessage.class.isAssignableFrom(message.getClass())) {
-			MapMessage mapMessage = (MapMessage)message;
-			for(String name: new EnumerationIterator<String>(mapMessage.getMapNames())) {
-				Object value = mapMessage.getObject(name);
-				
-				Element entry = e.getOwnerDocument().createElement("entry");
-				entry.setAttribute("name", name);
-				entry.setAttribute("type", value.getClass().getName());
-				entry.setTextContent(convertObjectToString(value));
-				e.appendChild(entry);
-			}
-		} else {
+		        MapMessage mm = (MapMessage)message;
+		        Enumeration<String> mapNames = mm.getMapNames();
+	                
+	                while(mapNames.hasMoreElements()) {
+	                        String name = mapNames.nextElement();
+	                        
+	                        final Object value = mm.getObject(name);
+	                        if(value != null) {
+	                                Element k = e.getOwnerDocument().createElement("key");
+	                                k.setAttribute("name", name);
+	                                k.setAttribute("value", buildValue(value));
+	                                k.setAttribute("type", buildType(value));
+	                                e.appendChild(k);
+	                        }
+	                }
+		}
+		//MAPEnd
+		else {
 			throw new RuntimeException("Unsupported message type: " + message.getClass());
 		}
 		messageElement.appendChild(e);
 	}
 	
-	private static String convertObjectToString(Object value) {
-		if(value instanceof Byte) {
-			return Base64.encodeToString(new byte[] {((Byte)value).byteValue()}, true);
-		}
-		
-		if(value instanceof byte[]) {
-			return Base64.encodeToString((byte[])value, true);
-		}
-		
-		return value.toString();
+	private static String buildValue( Object obj){
+	    //if object is of byte[] then base 64 encoding should be returned
+	    if(obj instanceof byte[]){
+	        return Base64.encodeToString((byte[])obj, true);
+	    }else{
+	        return obj.toString();
+	    }
 	}
-				
+	
+	private static String buildType( Object obj){
+            //if object is of byte[] getClass returns [B
+            if(obj instanceof byte[]){
+                return "byte[]";
+            }else{
+                return obj.getClass().getName();
+            }
+        }
+	
 	private static void savePart(Element messageElement, JMSPart part, int partIndex){
 		String contentType = part.getContentType();
 		Element e = messageElement.getOwnerDocument().createElement("part");
@@ -234,7 +248,7 @@ public final class ESBMessage {
 	
 	/**
 	 * Serialize the properties of a {@link Message} object into a DOM Element.
-,m	 * 
+	 * 
 	 * @param messageElement
 	 * @param message
 	 */
@@ -346,8 +360,10 @@ public final class ESBMessage {
 			return MessageFactory.createXMLMessage();
 		case BYTES_MESSAGE:
 			return MessageFactory.createBytesMessage();
+		//MAPStart
 		case MAP_MESSAGE:
-			return MessageFactory.createMapMessage();
+                    return MessageFactory.createMapMessage();
+            	//MAPEnd
 		case MULTIPART_MESSAGE:
 			return MessageFactory.createMultipartMessage();
 		}
@@ -378,16 +394,42 @@ public final class ESBMessage {
 		case BYTES_MESSAGE:
 			readBytesBody(esbmsgFile, doc, (BytesMessage)message);
 			break;
-			
+		//MAPStart
 		case MAP_MESSAGE:
-			readMapBody(esbmsgFile, doc, (MapMessage)message);
-			break;
-			
+                    readMapBody(esbmsgFile, doc, (MapMessage)message);
+                    break;
+		//MAPEnd	
 		case MULTIPART_MESSAGE:
 			readMultipartBody(esbmsgFile, doc, (JMSMultipartMessage)message);
 		}
 	}
-
+	//MAPStart
+	/**
+         * Read the the Map content of the message from the Document.
+         * 
+         * @param doc
+         * @param message
+         * @throws JMSException
+         * @throws XPathExpressionException
+         * @throws IOException
+         */
+        private static void readMapBody(File esbmsgFile, Document doc, MapMessage message)
+            throws JMSException, XPathExpressionException, IOException {
+            XPath xpath = getXPath();
+            NodeList propertyNodes = (NodeList) xpath.evaluate("/sonic_esbmsg:esbmsg/body/key",
+                doc, XPathConstants.NODESET);
+            for (int i = 0; i < propertyNodes.getLength(); i++) {
+                Node propertyNode = propertyNodes.item(i);
+    
+                String propertyName = getAttributeValue(propertyNode, "name");
+                String propertyValue = getAttributeValue(propertyNode, "value");
+                String propertyType = getAttributeValue(propertyNode, "type");
+    
+                if (propertyName != null && propertyName.length() > 0)
+                    message.setObject(propertyName, createPropertyObject(propertyType, propertyValue));
+            }
+        }
+	//MAPEnd
 	/**
 	 * Read the the text content of the message from the Document.
 	 * 
@@ -446,50 +488,6 @@ public final class ESBMessage {
 	}
 
 	/**
-	 * Read the map content of the message from the Document.
-	 * 
-	 * @param doc
-	 * @param message
-	 * @throws JMSException
-	 * @throws XPathExpressionException
-	 * @throws IOException
-	 */
-	private static void readMapBody(File esbmsgFile, Document doc, MapMessage message) throws JMSException, XPathExpressionException, IOException {
-		XPath xpath = getXPath();
-		NodeList entries = (NodeList) xpath.evaluate("/sonic_esbmsg:esbmsg/body/entry", doc, XPathConstants.NODESET);
-		
-		if(entries == null)
-			return;
-		
-		for(int i=0; i<entries.getLength(); i++) {
-			Element entry = (Element)entries.item(i);
-			String name = entry.getAttribute("name");
-			String type = entry.getAttribute("type");
-			String value = entry.getTextContent();
-			
-			if(Byte.class.getName().equals(type)) {
-				message.setByte(name, Base64.decode(value)[0]);
-			} else if(Byte[].class.getName().equals(type)) {
-				message.setBytes(name, Base64.decode(value));
-			} else if(String.class.getName().equals(type)) {
-				message.setString(name, value);
-			} else if(Short.class.getName().equals(type)) {
-				message.setShort(name, Short.valueOf(value));
-			} else if(Integer.class.getName().equals(type)) {
-				message.setInt(name, Integer.valueOf(value));
-			} else if(Long.class.getName().equals(type)) {
-				message.setLong(name, Long.valueOf(value));
-			} else if(Float.class.getName().equals(type)) {
-				message.setFloat(name, Float.valueOf(value));
-			} else if(Double.class.getName().equals(type)) {
-				message.setDouble(name, Double.valueOf(value));
-			} else if(Boolean.class.getName().equals(type)) {
-				message.setBoolean(name, Boolean.valueOf(value));
-			}
-		}
-	}
-	
-	/**
 	 * Read a multi-part ESBMessage from the Document and store in {@link Message}.
 	 * 
 	 * @param doc
@@ -503,26 +501,34 @@ public final class ESBMessage {
 		NodeList partNodes = (NodeList) xpath.evaluate(
 				"/sonic_esbmsg:esbmsg/part", doc, XPathConstants.NODESET);
 		
-		for(int i=0; i<partNodes.getLength(); i++) {
+		int numberOfParts = partNodes.getLength();
+		contentIds= new String[numberOfParts];
+		
+		for(int i=0; i<numberOfParts; i++) {
 			Node partNode = partNodes.item(i);
 			
 			String contentType = getAttributeValue(partNode, "content-type");
 			String fileRef = getAttributeValue(partNode, "file-ref");
-			boolean useFileRef = Boolean.parseBoolean(getAttributeValue(partNode, "use-file-ref"));
 			
+			String contentID =  getAttributeValue(partNode, "content-id");
+			
+			boolean useFileRef = Boolean.parseBoolean(getAttributeValue(partNode, "use-file-ref"));
+			JMSPart messagePart;
 			if(useFileRef) {
 				if (contentType.startsWith(CONTENT_ANYTEXT)) {
-					message.addPart(message.createPart(new String(resolveFileRef(esbmsgFile, fileRef)), contentType));
+					message.addPart(messagePart=message.createPart(new String(resolveFileRef(esbmsgFile, fileRef)), contentType));
 				} else {
-					message.addPart(message.createPart(resolveFileRef(esbmsgFile, fileRef), contentType));
+					message.addPart(messagePart=message.createPart(resolveFileRef(esbmsgFile, fileRef), contentType));
 				}
 			} else {
 				if (contentType.startsWith(CONTENT_ANYTEXT)) {
-					message.addPart(message.createPart(partNode.getTextContent(), contentType));
+					message.addPart(messagePart=message.createPart(partNode.getTextContent(), contentType));
 				} else {
-					message.addPart(message.createPart(Base64.decode(partNode.getTextContent()), contentType));
+					message.addPart(messagePart=message.createPart(Base64.decode(partNode.getTextContent()), contentType));
+					
 				}
 			}
+			messagePart.setHeaderField("Content-ID", contentID);
 		}
 	}
 
@@ -571,7 +577,8 @@ public final class ESBMessage {
 			return Float.parseFloat(value);
 		if (type.equalsIgnoreCase(Double.class.getName()))
 			return Double.parseDouble(value);
-		
+		if (type.equalsIgnoreCase("byte[]"))
+		        return Base64.decode(value);
 		return value;
 	}
 	
