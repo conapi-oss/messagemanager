@@ -63,7 +63,7 @@ public class CheckReleaseNoteTask extends BackgroundTask {
 		// Check if we've run this build before. If we have not, show the release note
 		String lastBuild = config.getUserPref(Configuration.PREF_LAST_RUN_BUILD, "");
 		if(!buildId.equals(lastBuild)) {
-			log.info(String.format("This is the first time build %d was launched, show release note", buildId));
+			log.info(String.format("This is the first time build %s was launched, show release note", buildId));
 			return true;
 		}
 		
