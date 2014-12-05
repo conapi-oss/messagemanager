@@ -81,7 +81,7 @@ class MultiQueueTaskExecutor implements TaskExecutor
 	 * When a task has finished executing, process the waiting tasks to see if any are ready
 	 */
 	@Subscribe
-	void processTaskEvent(final TaskEvent event) {
+	public void processTaskEvent(final TaskEvent event) {
 		if(event.getId() == TaskEvent.EVENT.TASK_FINISHED) {
 			processWaitingTasks();
 		}
