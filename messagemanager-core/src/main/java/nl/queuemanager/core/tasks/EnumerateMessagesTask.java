@@ -61,16 +61,16 @@ public class EnumerateMessagesTask extends BackgroundTask implements CancelableT
 
 		Enumeration<Message> e = domain.enumerateMessages(getQueue());
 		while(e.hasMoreElements()) {
-			System.out.println("  Message message = e.nextElement()");
+			//System.out.println("  Message message = e.nextElement()");
 			Message message = e.nextElement();
-			System.out.println("  eventSource.fireMessageFound(this, message)");
+			//System.out.println("  eventSource.fireMessageFound(this, message)");
 			eventSource.fireMessageFound(this, message);
-			System.out.println("  if(canceled)");
+			//System.out.println("  if(canceled)");
 			if(canceled) {
-				System.out.println("    break;");
+				//System.out.println("    break;");
 				break;
 			}
-			System.out.println("while(e.hasMoreElements())");
+			//System.out.println("while(e.hasMoreElements())");
 		}
 		
 		eventSource.fireBrowsingComplete(this);
