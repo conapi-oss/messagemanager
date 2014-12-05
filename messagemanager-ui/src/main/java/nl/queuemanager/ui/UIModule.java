@@ -26,6 +26,7 @@ public class UIModule extends AbstractModule {
 		install(new FactoryModuleBuilder().build(JMSSubscriberFactory.class));
 		
 		// The broker credentials provider
+		// FIXME This causes the dialog to be instantiated at application load time. No need to do this, it's slow.
 		bind(BrokerCredentialsProvider.class).to(BrokerCredentialsDialog.class).in(Scopes.SINGLETON);
 		
 		// To display errors to the user, we need a global error listener for the task executor
