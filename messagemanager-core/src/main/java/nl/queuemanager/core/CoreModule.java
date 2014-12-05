@@ -25,7 +25,12 @@ public class CoreModule extends AbstractModule {
             public <I> void hear(TypeLiteral<I> typeLiteral, TypeEncounter<I> typeEncounter) {
                 typeEncounter.register(new InjectionListener<I>() {
                     public void afterInjection(I i) {
-                        eventBus.register(i);
+                    	// Only register objects in our own package(s) to prevent accidentally
+                    	// sending events to places they shouldn't go
+                    	if(i.getClass().getName().startsWith("nl.queuemanager")) {
+	                        eventBus.register(i);
+	                        System.out.println("Registered " + i.getClass().getName() + "@" + i.hashCode());
+                    	}
                     }
                 });
             }
