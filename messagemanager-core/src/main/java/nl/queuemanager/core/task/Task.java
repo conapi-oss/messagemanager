@@ -59,6 +59,12 @@ public abstract class Task implements Runnable {
 	protected final EventBus eventBus;
 	
 	protected long startTime;
+	
+	/**
+	 * The task's current status. 
+	 */
+	protected TaskStatus status = TaskStatus.NEW;
+	private final Object statusLock = new Object();
 
 	/**
 	 * Construct a Task with the specified object as it's resource, may be null.
@@ -143,23 +149,33 @@ public abstract class Task implements Runnable {
 	}
 
 	protected void dispatchTaskWaiting() {
-		eventBus.post(new TaskEvent(EVENT.TASK_WAITING, getInfo(), this));
+		if(transitionTo(TaskStatus.WAITING)) {
+			eventBus.post(new TaskEvent(EVENT.TASK_WAITING, getInfo(), this));
+		}
 	}
 	
 	protected void dispatchTaskStarted() {
-		eventBus.post(new TaskEvent(EVENT.TASK_STARTED, getInfo(), this));
+		if(transitionTo(TaskStatus.STARTED)) {
+			eventBus.post(new TaskEvent(EVENT.TASK_STARTED, getInfo(), this));
+		}
 	}
 
 	protected void dispatchTaskError(Exception e) {
-		eventBus.post(new TaskEvent(EVENT.TASK_ERROR, e, this));
+		if(transitionTo(TaskStatus.ERROR)) {
+			eventBus.post(new TaskEvent(EVENT.TASK_ERROR, e, this));
+		}
 	}
 	
 	protected void dispatchTaskFinished() {
-		eventBus.post(new TaskEvent(EVENT.TASK_FINISHED, getInfo(), this));
+		if(transitionTo(TaskStatus.FINISHED)) {
+			eventBus.post(new TaskEvent(EVENT.TASK_FINISHED, getInfo(), this));
+		}
 	}
 	
 	void dispatchTaskDiscarded() {
-		eventBus.post(new TaskEvent(EVENT.TASK_DISCARDED, null, this));
+		if(transitionTo(TaskStatus.DISCARDED)) {
+			eventBus.post(new TaskEvent(EVENT.TASK_DISCARDED, null, this));
+		}
 	}
 	
 	/**
@@ -238,4 +254,24 @@ public abstract class Task implements Runnable {
 			removeDependency((Task)event.getSource());
 		}
 	}
+	
+	private boolean transitionTo(TaskStatus newStatus) {
+		synchronized(statusLock) {
+			if(status.transitionAllowed(newStatus)) {
+				status = newStatus;
+				return true;
+			}
+			
+			return false;
+		}
+	}
+	
+	public enum TaskStatus {
+		NEW, WAITING, DISCARDED, STARTED, ERROR, FINISHED;
+
+		public boolean transitionAllowed(TaskStatus newStatus) {
+			return newStatus.ordinal() > this.ordinal();
+		}
+	}
+	
 }

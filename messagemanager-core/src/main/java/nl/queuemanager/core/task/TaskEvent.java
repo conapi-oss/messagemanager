@@ -81,6 +81,6 @@ public class TaskEvent extends EventObject {
 
 	@Override
 	public String toString() {
-		return getSource() + ": " + getId() + " (" + getInfo() + ")";
+		return "[" + getSource().hashCode() + "] " + getSource() + ": " + getId() + " (" + getInfo() + ")";
 	}
 }

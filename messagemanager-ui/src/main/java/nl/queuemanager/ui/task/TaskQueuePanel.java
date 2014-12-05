@@ -42,7 +42,7 @@ import com.google.inject.Inject;
 public class TaskQueuePanel extends JPanel {
 
 	private final EventBus eventBus;
-	private Map<Task, JStatusBar> statusbars = new IdentityHashMap<Task, JStatusBar>();
+	private Map<Task, StatusBarManipulator> statusBarManipulators = new IdentityHashMap<Task, StatusBarManipulator>();
 	private static final boolean DEBUG = Boolean.parseBoolean(System.getProperty("developer"));
 	
 	@Inject
@@ -74,12 +74,12 @@ public class TaskQueuePanel extends JPanel {
 		switch(event.getId()) {
 		case TASK_WAITING:
 		case TASK_STARTED:
-			if(!statusbars.containsKey(t)) {
+			if(!statusBarManipulators.containsKey(t)) {
 				final JStatusBar bar = new JStatusBar();
 				final StatusBarManipulator manipulator = new StatusBarManipulator(bar, t);
 				eventBus.register(manipulator);
 				manipulator.processEvent(event);
-				statusbars.put(t, bar);
+				statusBarManipulators.put(t, manipulator);
 				
 				add(bar);
 				revalidate();
@@ -88,11 +88,13 @@ public class TaskQueuePanel extends JPanel {
 			
 		case TASK_DISCARDED:
 		case TASK_FINISHED:
-			final JStatusBar bar = statusbars.remove(t);
-			if(bar != null) {
-				remove(bar);
+			final StatusBarManipulator manipulator = statusBarManipulators.remove(t);
+			if(manipulator != null) {
+				eventBus.unregister(manipulator);
+				remove(manipulator.getStatusBar());
 				revalidate();
 			}
+			
 			break;
 		}
 	}
@@ -118,55 +120,59 @@ class StatusBarManipulator {
 		case TASK_WAITING:
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					statusBar.setText(event.getSource().toString() + " (waiting)");
-					statusBar.setBusy(false);
+					getStatusBar().setText(event.getSource().toString() + " (waiting)");
+					getStatusBar().setBusy(false);
 					
 					if(task instanceof CancelableTask) {
-						statusBar.setCancelEnabled(true);
+						getStatusBar().setCancelEnabled(true);
 					}
 				}
 			});
 			break;
 		
 		case TASK_STARTED:
-			if(statusBar.getCancelPressed()) {
+			if(getStatusBar().getCancelPressed()) {
 				((CancelableTask)task).cancel();
 			}
 			
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					statusBar.setText(task.getStatus());
-					statusBar.setBusy(true);
+					getStatusBar().setText(task.getStatus());
+					getStatusBar().setBusy(true);
 					
 					if(task.getProgressMaximum() != 1) {
-						statusBar.enableProgressBar(0, task.getProgressMaximum());
+						getStatusBar().enableProgressBar(0, task.getProgressMaximum());
 					}
 					
 					if(task instanceof CancelableTask) {
-						statusBar.setCancelEnabled(true);
+						getStatusBar().setCancelEnabled(true);
 					}
 				}
 			});
 			break;
 			
 		case TASK_PROGRESS:
-			if(statusBar.getCancelPressed()) {
+			if(getStatusBar().getCancelPressed()) {
 				((CancelableTask)task).cancel();
 			}
 			
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					statusBar.setText(task.getStatus());
-					statusBar.setBusy(true);
+					getStatusBar().setText(task.getStatus());
+					getStatusBar().setBusy(true);
 					
 					if(task.getProgressMaximum() != 1) {
-						statusBar.setProgressAmount((Integer)event.getInfo());
+						getStatusBar().setProgressAmount((Integer)event.getInfo());
 					}
 				}
 			});
 			
 			break;
 		}
+	}
+
+	public JStatusBar getStatusBar() {
+		return statusBar;
 	}
 
 }
