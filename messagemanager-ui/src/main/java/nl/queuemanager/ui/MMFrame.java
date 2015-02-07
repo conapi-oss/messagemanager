@@ -26,7 +26,9 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
 import nl.queuemanager.core.jms.DomainEvent;
-import nl.queuemanager.core.jms.JMSDomain;
+import nl.queuemanager.core.platform.AboutEvent;
+import nl.queuemanager.core.platform.PlatformHelper;
+import nl.queuemanager.core.platform.PreferencesEvent;
 import nl.queuemanager.ui.task.TaskQueuePanel;
 
 import com.google.common.eventbus.Subscribe;
@@ -40,10 +42,14 @@ public class MMFrame extends JFrame {
 
 	private final JTabbedPane tabsPane;
 	private final SortedMap<Integer, UITab> tabs;
+	private final PlatformHelper platformHelper;
 	
 	@Inject
-	public MMFrame(JMSDomain domain, Map<Integer, UITab> tabs, TaskQueuePanel taskQueuePanel) {
+	public MMFrame(Map<Integer, UITab> tabs, TaskQueuePanel taskQueuePanel, PlatformHelper platformHelper) {
 		setTitle(APP_NAME);
+
+		this.platformHelper = platformHelper;
+		platformHelper.setFullScreenEnabled(this, true);
 		
 		this.tabs = new TreeMap<Integer, UITab>(tabs);
 		
@@ -65,6 +71,29 @@ public class MMFrame extends JFrame {
 		
 		setSize(new Dimension(800, 600));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+	
+	/**
+	 *  Select the "Help" tab, if any
+	 */
+	@Subscribe
+	public void onAboutEvent(AboutEvent e) {
+		for(UITab tab: tabs.values()) {
+			if(tab.getUITabName().equals("Help")) {
+				tabsPane.setSelectedIndex(tabsPane.indexOfComponent(tab.getUITabComponent()));
+			}
+			
+		}
+	}
+	
+	@Subscribe
+	public void onPreferencesEvent(PreferencesEvent e) {
+		for(UITab tab: tabs.values()) {
+			if(tab.getUITabName().equals("Settings")) {
+				tabsPane.setSelectedIndex(tabsPane.indexOfComponent(tab.getUITabComponent()));
+			}
+			
+		}
 	}
 	
 	private void setTabStates(UITab.ConnectionState state) {

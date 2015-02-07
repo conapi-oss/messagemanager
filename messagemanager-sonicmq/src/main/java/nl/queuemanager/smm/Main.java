@@ -17,8 +17,6 @@ package nl.queuemanager.smm;
 
 import java.awt.Toolkit;
 import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +27,7 @@ import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.CoreModule;
 import nl.queuemanager.core.configuration.XmlConfigurationModule;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
+import nl.queuemanager.core.platform.PlatformHelper;
 import nl.queuemanager.smm.ui.SMMFrame;
 import nl.queuemanager.smm.ui.SMMUIModule;
 import nl.queuemanager.ui.UIModule;
@@ -38,10 +37,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Stage;
-import com.google.inject.grapher.GrapherModule;
-import com.google.inject.grapher.InjectorGrapher;
-import com.google.inject.grapher.graphviz.GraphvizModule;
-import com.google.inject.grapher.graphviz.GraphvizRenderer;
 
 public class Main {
 
@@ -49,9 +44,8 @@ public class Main {
 	private Main() {}
 	
 	public static void main(String[] args) {
-		// Set look & feel to native
 		setNativeLAF();
-
+		
 		// Create the configuration module
 		String configFile = new File(System.getProperty("user.home"), ".SonicMessageManager.xml").getAbsolutePath(); 
 		XmlConfigurationModule configurationModule = new XmlConfigurationModule(configFile,	"urn:SonicMessageManagerConfig");
@@ -73,6 +67,10 @@ public class Main {
 		// Invoke initializing the GUI on the EDT
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
+				// Set some platform properties before the UI really loads
+				PlatformHelper helper = injector.getInstance(PlatformHelper.class);
+				helper.setApplicationName("Sonic Message Manager");
+				
 				// Create the main application frame
 				final SMMFrame frame = injector.getInstance(SMMFrame.class);
 				
@@ -124,7 +122,7 @@ public class Main {
 		}
 		return null;
 	}
-
+	
 	private static void setNativeLAF() { 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -134,6 +132,4 @@ public class Main {
 			e.printStackTrace();
 		}
 	}
-
-	
 }

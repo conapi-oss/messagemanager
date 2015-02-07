@@ -20,12 +20,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.CoreModule;
 import nl.queuemanager.core.configuration.XmlConfigurationModule;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
+import nl.queuemanager.core.platform.PlatformHelper;
 import nl.queuemanager.ui.MMFrame;
 import nl.queuemanager.ui.UIModule;
 
@@ -59,16 +61,25 @@ public class Main {
 		modules.add(loadModule("nl.queuemanager.activemq.ActiveMQModule"));
 		
 		// Now that the module list is complete, create the injector
-		Injector injector = Guice.createInjector(Stage.PRODUCTION, modules);
+		final Injector injector = Guice.createInjector(Stage.PRODUCTION, modules);
 		
-		// Create the main application frame
-		final JFrame frame = injector.getInstance(MMFrame.class);
-		
-		// Make the frame visible
-		frame.setVisible(true);
-		
-		// Send the ApplicationInitializedEvent
-		injector.getInstance(EventBus.class).post(new ApplicationInitializedEvent());
+		// Invoke initializing the GUI on the EDT
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				// Set some platform properties before the UI really loads
+				PlatformHelper helper = injector.getInstance(PlatformHelper.class);
+				helper.setApplicationName("Message Manager");
+				
+				// Create the main application frame
+				final JFrame frame = injector.getInstance(MMFrame.class);
+				
+				// Make the frame visible
+				frame.setVisible(true);
+				
+				// Send the ApplicationInitializedEvent
+				injector.getInstance(EventBus.class).post(new ApplicationInitializedEvent());
+			}
+		});
 	}
 	
 	/**

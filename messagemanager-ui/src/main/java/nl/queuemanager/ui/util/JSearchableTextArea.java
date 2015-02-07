@@ -15,11 +15,11 @@
  */
 package nl.queuemanager.ui.util;
 
+import java.awt.Toolkit;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 import javax.swing.JOptionPane;
-import javax.swing.JTextArea;
 
 import org.fife.ui.rsyntaxtextarea.DocumentRange;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -110,12 +110,14 @@ public class JSearchableTextArea extends RSyntaxTextArea {
 				}
 				search(searchString, textArea.getSelectionEnd()+1);
 			}
-			
-			if(e.getKeyCode() == KeyEvent.VK_F && e.isControlDown()) {
+
+			if(e.getKeyCode() == KeyEvent.VK_F && isModifierPressed(e)) {
 				String searchString = textArea.getSelectedText();
 				searchString = getSearchString(searchString);
 				search(searchString, 0);
 			}
+			
+			super.keyPressed(e);
 		}
 		
 		/**
@@ -135,16 +137,17 @@ public class JSearchableTextArea extends RSyntaxTextArea {
 				textArea.select(0,0);
 			}
 			
-			String searchString = textArea.getSelectedText();
-								
-			if(searchString == null)
-				searchString = "";
-			
-			if(!e.isActionKey()) {
+			if(!e.isActionKey() && !isModifierPressed(e)) {
+				String searchString = textArea.getSelectedText();
+				
+				if(searchString == null)
+					searchString = "";
+				
 				searchString += e.getKeyChar();
+				search(searchString, textArea.getSelectionStart());
 			}
 			
-			search(searchString, textArea.getSelectionStart());
+			super.keyTyped(e);
 		}
 		
 		/**
@@ -189,6 +192,10 @@ public class JSearchableTextArea extends RSyntaxTextArea {
 					search(searchString, 0);
 				}
 			}
+		}
+		
+		private static boolean isModifierPressed(KeyEvent e) {
+			return (e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0;
 		}
 	}
 }

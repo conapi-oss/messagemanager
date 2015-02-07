@@ -1,5 +1,7 @@
 package nl.queuemanager.core;
 
+import nl.queuemanager.core.platform.PlatformHelper;
+import nl.queuemanager.core.platform.PlatformHelperOSX;
 import nl.queuemanager.core.task.MultiQueueTaskExecutorModule;
 import nl.queuemanager.core.tasks.TaskFactory;
 
@@ -43,6 +45,15 @@ public class CoreModule extends AbstractModule {
 		
 		bind(GlobalDomainEventListener.class).in(Scopes.SINGLETON);
 		bind(DeadEventListener.class).in(Scopes.SINGLETON);
+		
+		if(isOSX()) {
+			bind(PlatformHelper.class).to(PlatformHelperOSX.class).in(Scopes.SINGLETON);
+		}
 	}
 
+	// From https://developer.apple.com/library/mac/technotes/tn2002/tn2110.html
+	private static boolean isOSX() {
+	    String osName = System.getProperty("os.name");
+	    return osName.contains("OS X");
+	}
 }
