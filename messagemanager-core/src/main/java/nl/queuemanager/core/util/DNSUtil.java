@@ -33,6 +33,8 @@ public class DNSUtil {
 			        }
 		        }
 	        }
+	    } catch (java.lang.NumberFormatException e) {
+	    	log.log(Level.WARNING, String.format("JVM BUG! Unable to handle IPv6 nameservers: See https://bugs.openjdk.java.net/browse/JDK-6991580"), e);
 	    } catch (javax.naming.NamingException e) {
 	    	log.log(Level.WARNING, String.format("Unable to retrieve first TXT record for %s", hostname), e);
 	    }
