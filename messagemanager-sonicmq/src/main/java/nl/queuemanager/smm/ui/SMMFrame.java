@@ -24,6 +24,9 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
 import nl.queuemanager.core.jms.DomainEvent;
+import nl.queuemanager.core.platform.AboutEvent;
+import nl.queuemanager.core.platform.PlatformHelper;
+import nl.queuemanager.core.platform.PreferencesEvent;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.smm.ConnectionModel;
 import nl.queuemanager.smm.Domain;
@@ -44,11 +47,16 @@ public class SMMFrame extends JMAFrame {
 	private final JTabbedPane tabsPane;
 	private final SortedMap<Integer, UITab> tabs;
 	
+	private final PlatformHelper platformHelper;
+	
 	@Inject
-	public SMMFrame(Domain sonic, TaskExecutor worker, Map<Integer, UITab> tabs, TaskQueuePanel taskQueuePanel) {
+	public SMMFrame(Domain sonic, TaskExecutor worker, Map<Integer, UITab> tabs, TaskQueuePanel taskQueuePanel, PlatformHelper platformHelper) {
 		super("messagemanager");
 		
 		setTitle("");
+		
+		this.platformHelper = platformHelper;
+		platformHelper.setFullScreenEnabled(this, true);
 		
 		this.tabs = new TreeMap<Integer, UITab>(tabs);
 		
@@ -67,6 +75,29 @@ public class SMMFrame extends JMAFrame {
 
 		// Add the task queue panel
 		contentPane.add(taskQueuePanel, BorderLayout.SOUTH);
+	}
+	
+	/**
+	 *  Select the "Help" tab, if any
+	 */
+	@Subscribe
+	public void onAboutEvent(AboutEvent e) {
+		for(UITab tab: tabs.values()) {
+			if(tab.getUITabName().equals("Help")) {
+				tabsPane.setSelectedIndex(tabsPane.indexOfComponent(tab.getUITabComponent()));
+			}
+			
+		}
+	}
+	
+	@Subscribe
+	public void onPreferencesEvent(PreferencesEvent e) {
+		for(UITab tab: tabs.values()) {
+			if(tab.getUITabName().equals("Settings")) {
+				tabsPane.setSelectedIndex(tabsPane.indexOfComponent(tab.getUITabComponent()));
+			}
+			
+		}
 	}
 	
 	private void setTabStates(UITab.ConnectionState state) {
