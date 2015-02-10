@@ -1,7 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<description>Sonic Message Manager for SonicMQ 7.0</description>
-	<url>http://www.queuemanager.nl/7.0</url>
 	<parent>
 		<artifactId>messagemanager</artifactId>
 		<groupId>nl.queuemanager</groupId>
@@ -11,45 +9,32 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>messagemanager-sonicmq-70</artifactId>
-	<packaging>pom</packaging>
-	<name>Message Manager for SonicMQ 7.0</name>
+	<packaging>jar</packaging>
 	<build>
-		<resources>
-		</resources>
 		<plugins>
 			<plugin>
-				<groupId>org.codehaus.mojo.webstart</groupId>
-				<artifactId>webstart-maven-plugin</artifactId>
-				<version>1.0-alpha-2</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>jnlp-inline</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<!-- JNLP generation -->
-					<jnlp>
-						<j2seVersion>1.5+</j2seVersion>
-
-						<inputTemplate>src/main/jnlp/template.vm</inputTemplate> <!-- relative to inputTemplateResourcePath -->
-						<outputFile>SonicMessageManager.jnlp</outputFile> <!-- defaults to launch.jnlp -->
-
-						<mainClass>nl.queuemanager.smm.Main</mainClass>
-					</jnlp>
-
-					<!-- SIGNING -->
-					<!--
-						<sign> <keystore>${basedir}/src/main/jnlp/keystore.jks</keystore>
-						<storepass>keystore</storepass> <alias>gdries</alias>
-						<keypass>gdries</keypass> <verify>true</verify> </sign>
-					-->
-
-					<verbose>false</verbose>
+				<groupId>org.apache.maven.plugins</groupId>
+	            <artifactId>maven-assembly-plugin</artifactId>
+	            <configuration>
+	                <descriptorRefs>
+	                    <descriptorRef>jar-with-dependencies</descriptorRef>
+	                </descriptorRefs>
+					<archive>
+            			<manifest>
+              				<mainClass>nl.queuemanager.smm.Main</mainClass>
+            			</manifest>
+          			</archive>
 				</configuration>
-			</plugin>
+	            <executions>
+	                <execution>
+	                    <id>assemble-all</id>
+	                    <phase>package</phase>
+	                    <goals>
+	                        <goal>single</goal>
+	                    </goals>
+	                </execution>
+	            </executions>
+	        </plugin>
 		</plugins>
 	</build>
 	<dependencies>

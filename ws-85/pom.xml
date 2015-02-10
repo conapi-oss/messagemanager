@@ -1,0 +1,40 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+		
+	<parent>
+		<groupId>nl.queuemanager</groupId>
+		<artifactId>ws-base</artifactId>
+		<version>3.0-SNAPSHOT</version>
+		<relativePath>../ws-base</relativePath>
+	</parent>
+	
+	<name>Message Manager for SonicMQ (${sonic.displayVersion}) ${suffix}</name>
+	<url>http://www.queuemanager.nl</url>
+
+	<artifactId>ws-85</artifactId>
+	<packaging>pom</packaging>
+	
+	<properties>
+		<sonic.version>8.5</sonic.version>
+		<sonic.displayVersion>8.5</sonic.displayVersion>
+	</properties>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>webstart-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+	
+	<dependencies>
+		<dependency>
+			<groupId>nl.queuemanager</groupId>
+			<artifactId>messagemanager-sonicmq-85</artifactId>
+			<version>${project.version}</version>
+			<classifier>jar-with-dependencies</classifier>
+		</dependency>
+	</dependencies>
+</project>

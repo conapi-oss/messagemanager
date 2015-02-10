@@ -7,9 +7,13 @@
   <packaging>pom</packaging>
   
   <modules>
+    <module>jmsmessages</module>
     <module>messagemanager-core</module>
     <module>messagemanager-ui</module>
-    <module>jmsmessages</module>
+    <module>messagemanager-fakemq</module>
+    <module>messagemanager-app</module>
+    <module>messagemanager-activemq</module>
+    
     <module>messagemanager-sonicmq</module>
     <module>messagemanager-sonicmq-61</module>
     <module>messagemanager-sonicmq-70</module>
@@ -18,9 +22,15 @@
     <module>messagemanager-sonicmq-80</module>
     <module>messagemanager-sonicmq-85</module>
     <module>messagemanager-sonicmq-86</module>
-    <module>messagemanager-fakemq</module>
-    <module>messagemanager-app</module>
-    <module>messagemanager-activemq</module>
+    
+    <module>ws-base</module>
+    <module>ws-61</module>
+    <module>ws-70</module>
+    <module>ws-75</module>
+    <module>ws-76</module>
+    <module>ws-80</module>
+    <module>ws-85</module>
+    <module>ws-86</module>
   </modules>
   
   <properties>
@@ -40,6 +50,8 @@
         <configuration>
           <source>1.5</source>
           <target>1.5</target>
+          <debug>true</debug>
+          <debuglevel>lines,source</debuglevel>
         </configuration>
       </plugin>
       <plugin>
@@ -58,16 +70,13 @@
     </plugins>
   </build>
 
-	<dependencies>
-	 <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-            <version>1.3.9</version>
-        </dependency>
-	</dependencies>
-
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+	            <groupId>com.google.code.findbugs</groupId>
+	            <artifactId>jsr305</artifactId>
+	            <version>1.3.9</version>
+	        </dependency>
 			<dependency>
 				<groupId>com.google.inject</groupId>
 				<artifactId>guice</artifactId>
