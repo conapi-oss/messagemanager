@@ -12,12 +12,12 @@
 	<name>Message Manager for SonicMQ (${sonic.displayVersion}) ${suffix}</name>
 	<url>http://www.queuemanager.nl</url>
 
-	<artifactId>ws-61</artifactId>
+	<artifactId>ws-100</artifactId>
 	<packaging>pom</packaging>
 	
 	<properties>
-		<sonic.version>6.1</sonic.version>
-		<sonic.displayVersion>6.1</sonic.displayVersion>
+		<sonic.version>10.0</sonic.version>
+		<sonic.displayVersion>2015</sonic.displayVersion>
 	</properties>
 	
 	<build>
@@ -32,7 +32,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>nl.queuemanager</groupId>
-			<artifactId>messagemanager-sonicmq-61</artifactId>
+			<artifactId>messagemanager-sonicmq-100</artifactId>
 			<version>${project.version}</version>
 			<classifier>jar-with-dependencies</classifier>
 		</dependency>

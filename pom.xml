@@ -15,22 +15,22 @@
     <module>messagemanager-activemq</module>
     
     <module>messagemanager-sonicmq</module>
-    <module>messagemanager-sonicmq-61</module>
     <module>messagemanager-sonicmq-70</module>
     <module>messagemanager-sonicmq-75</module>
     <module>messagemanager-sonicmq-76</module>
     <module>messagemanager-sonicmq-80</module>
     <module>messagemanager-sonicmq-85</module>
     <module>messagemanager-sonicmq-86</module>
+    <module>messagemanager-sonicmq-100</module>
     
     <module>ws-base</module>
-    <module>ws-61</module>
     <module>ws-70</module>
     <module>ws-75</module>
     <module>ws-76</module>
     <module>ws-80</module>
     <module>ws-85</module>
     <module>ws-86</module>
+    <module>ws-100</module>
   </modules>
   
   <properties>
@@ -48,8 +48,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
 		<version>2.3.2</version>
         <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
+          <source>1.7</source>
+          <target>1.7</target>
           <debug>true</debug>
           <debuglevel>lines,source</debuglevel>
         </configuration>
