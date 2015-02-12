@@ -20,6 +20,7 @@ import java.awt.event.MouseEvent;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -27,6 +28,8 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
+import nl.queuemanager.core.jms.JMSDomain;
+import nl.queuemanager.core.jms.JMSFeature;
 import nl.queuemanager.core.util.Clearable;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.jms.JMSQueue;
@@ -51,18 +54,21 @@ class QueueTable extends JTable implements Clearable {
 	private FilteredTableModel<JMSQueue> filteredModel;
 	private QueueTableModel realModel; 
 	
-	public QueueTable() {
+	@Inject
+	public QueueTable(JMSDomain domain) {
 		super();
 		
-		setModel(new QueueTableModel());
+		boolean enableMessageSizeColumn = domain.isFeatureSupported(JMSFeature.QUEUE_MESSAGES_SIZE);
+		
+		setModel(new QueueTableModel(enableMessageSizeColumn));
 		
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		getTableHeader().setReorderingAllowed(false);
-		TableColumn col = getColumnModel().getColumn(1);
-		col.setMinWidth(70);
-		col.setMaxWidth(70);
-		col.setPreferredWidth(70);
+		setColumnWidth(1, 70);
+		if(enableMessageSizeColumn) {
+			setColumnWidth(2, 50);
+		}
 		
 		TableCellRenderer renderer = new MessageCountTableCellRenderer();
 		setDefaultRenderer(Integer.class, renderer);
@@ -72,6 +78,13 @@ class QueueTable extends JTable implements Clearable {
 		
 		// Add sort column listener on the messages column
 		getTableHeader().addMouseListener(new SortColumnListener(1)); 
+	}
+	
+	private void setColumnWidth(int column, int width) {
+		TableColumn col = getColumnModel().getColumn(column);
+		col.setMinWidth(width);
+		col.setMaxWidth(width);
+		col.setPreferredWidth(width);
 	}
 	
 	public void setModel(QueueTableModel model) {
@@ -197,9 +210,14 @@ class QueueTable extends JTable implements Clearable {
 	 *
 	 */
 	private static class QueueTableModel extends ListTableModel<JMSQueue> {
-		public QueueTableModel() {
-			setColumnNames(new String[] {"Queue name", "Messages"});
-			setColumnTypes(new Class[] {String.class, Integer.class});
+		public QueueTableModel(boolean includeSizeColumn) {
+			if(includeSizeColumn) {
+				setColumnNames(new String[] {"Queue name", "Messages", "Size"});
+				setColumnTypes(new Class[] {String.class, Integer.class, Long.class});
+			} else {
+				setColumnNames(new String[] {"Queue name", "Messages"});
+				setColumnTypes(new Class[] {String.class, Integer.class});
+			}
 		}
 		
 		@Override
@@ -209,9 +227,15 @@ class QueueTable extends JTable implements Clearable {
 				return queue.getName();
 			case 1:
 				return queue.getMessageCount();
+			case 2:
+				return humanReadableSize(queue.getMessageSize());
 			default:
 				return null;					
 			}
+		}
+		
+		private String humanReadableSize(long bytes) {
+			return String.format("%dkB",  bytes/1024);
 		}
 	}	
 	

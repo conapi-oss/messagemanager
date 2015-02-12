@@ -70,7 +70,7 @@ import com.google.inject.Inject;
 
 @SuppressWarnings("serial")
 public class QueuesTabPanel extends JSplitPane implements UITab {
-	private JComboBox brokerCombo;
+	private JComboBox<JMSBroker> brokerCombo;
 	private QueueTable queueTable;
 	private MessagesTable messageTable;
 	private MessageViewerPanel messageViewer;
@@ -85,6 +85,7 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 	public QueuesTabPanel(
 			TaskExecutor worker,
 			Configuration config,
+			QueueTable queueTable,
 			JMSDestinationTransferHandlerFactory jmsDestinationTransferHandlerFactory,
 			MessageViewerPanel messageViewer,
 			TaskFactory taskFactory,
@@ -92,7 +93,7 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 	{
 		this.worker = worker;
 		this.config = config;
-		this.queueTable = createQueueTable(jmsDestinationTransferHandlerFactory);
+		this.queueTable = configureQueueTable(queueTable, jmsDestinationTransferHandlerFactory);
 		this.taskFactory = taskFactory;
 		this.qcRefresher = refresher;
 		
@@ -254,9 +255,7 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 		return queuesActionPanel;
 	}
 
-	private QueueTable createQueueTable(JMSDestinationTransferHandlerFactory transferHandlerfactory) {
-		final QueueTable table = new QueueTable();
-		
+	private QueueTable configureQueueTable(QueueTable table, JMSDestinationTransferHandlerFactory transferHandlerfactory) {
 		table.setTransferHandler(transferHandlerfactory.create(new InternalDestinationHolder()));
 		
 		final Holder<Boolean> shouldBrowse = new Holder<Boolean>();
@@ -331,8 +330,8 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 		return table;
 	}
 	
-	private JComboBox createBrokerCombo() {
-		JComboBox cmb = new JComboBox();
+	private JComboBox<JMSBroker> createBrokerCombo() {
+		JComboBox<JMSBroker> cmb = new JComboBox<JMSBroker>();
 //		cmb.setMinimumSize(new Dimension(370, 30));
 		cmb.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
 		cmb.setAlignmentX(Component.CENTER_ALIGNMENT);

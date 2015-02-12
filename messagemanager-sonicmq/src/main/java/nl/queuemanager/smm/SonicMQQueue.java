@@ -41,6 +41,10 @@ class SonicMQQueue extends SonicMQDestination implements JMSQueue {
 	public int getMessageCount() {
 		return queue.getMessageCount();
 	}
+	
+	public long getMessageSize() {
+		return queue.getTotalMessageSize();
+	}
 
 	public String getName() {
 		return queue.getQueueName();

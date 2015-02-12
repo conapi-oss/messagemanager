@@ -37,7 +37,9 @@ import nl.queuemanager.jms.JMSTopic;
  *
  */
 public interface JMSDomain {
-
+	
+	public boolean isFeatureSupported(JMSFeature feature);
+	
 	public abstract List<? extends JMSBroker> enumerateBrokers() throws Exception;
 
 	/**

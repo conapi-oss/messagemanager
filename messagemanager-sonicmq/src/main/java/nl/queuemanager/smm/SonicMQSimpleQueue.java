@@ -43,4 +43,8 @@ class SonicMQSimpleQueue extends SonicMQDestination implements JMSQueue {
 		return getName();
 	}
 
+	public long getMessageSize() {
+		return -1;
+	}
+
 }

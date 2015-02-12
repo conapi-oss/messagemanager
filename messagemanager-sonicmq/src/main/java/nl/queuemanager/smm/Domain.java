@@ -45,6 +45,7 @@ import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.DomainEvent.EVENT;
 import nl.queuemanager.core.jms.JMSDomain;
+import nl.queuemanager.core.jms.JMSFeature;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
@@ -86,11 +87,30 @@ public class Domain implements JMSDomain {
 	private final ArrayList<SonicMQBroker> brokerList = CollectionFactory.newArrayList();
 	
 	private Map<SonicMQBroker, SonicMQConnection> brokerConnections;
+	
+	{
+		// Version 2.1 == Sonic MQ 6.1
+		// Version 3.0 == Sonic MQ 7.0
+		// SonicMQ 7.5 and onwards report their marketing version number
+		System.out.println(String.format("Sonic version: %d.%d", 
+				com.sonicsw.mf.common.Version.getMajorVersion(),
+				com.sonicsw.mf.common.Version.getMinorVersion()));
+	}
 
 	@Inject
 	public Domain(Configuration configuration, EventBus eventBus) {
 		this.config = configuration;
 		this.eventBus = eventBus;
+	}
+		
+	public boolean isFeatureSupported(JMSFeature feature) {
+		switch(feature) {
+		case QUEUE_MESSAGES_SIZE:
+			return com.sonicsw.mf.common.Version.getMajorVersion() >= 7;
+			
+		default:
+			return false;
+		}
 	}
 	
 	/* (non-Javadoc)

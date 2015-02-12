@@ -29,4 +29,9 @@ public interface JMSQueue extends JMSDestination, Queue {
 	 * The number of messages currently on the queue. -1 for unknown.
 	 */
 	public int getMessageCount();
+	
+	/**
+	 * The total size of all messages on the queue.
+	 */
+	public long getMessageSize();
 }

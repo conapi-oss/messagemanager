@@ -50,4 +50,8 @@ class JMSQueueImpl extends JMSDestinationImpl implements nl.queuemanager.jms.JMS
 		return getName();
 	}
 
+	public long getMessageSize() {
+		return -1;
+	}
+
 }
