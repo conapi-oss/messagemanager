@@ -2,7 +2,6 @@ package nl.queuemanager.ui;
 
 import nl.queuemanager.core.jms.BrokerCredentialsProvider;
 import nl.queuemanager.ui.message.MessageViewerModule;
-import nl.queuemanager.ui.settings.SettingsModule;
 import nl.queuemanager.ui.util.DesktopHelper;
 import nl.queuemanager.ui.util.DesktopHelperJRE5;
 import nl.queuemanager.ui.util.DesktopHelperJRE6;
@@ -18,7 +17,7 @@ public class UIModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		install(new MessageViewerModule());
-		install(new SettingsModule());
+		// install(new SettingsModule());
 
 		// Assisted inject for JMSDestinationTransferHandlers
 		install(new FactoryModuleBuilder().build(JMSDestinationTransferHandlerFactory.class));
