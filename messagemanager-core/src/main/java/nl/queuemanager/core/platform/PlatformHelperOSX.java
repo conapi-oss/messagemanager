@@ -7,7 +7,6 @@ import com.apple.eawt.AboutHandler;
 import com.apple.eawt.Application;
 import com.apple.eawt.FullScreenUtilities;
 import com.apple.eawt.PreferencesHandler;
-import com.apple.eawt.QuitStrategy;
 import com.google.common.eventbus.EventBus;
 
 @SuppressWarnings("restriction")
@@ -20,7 +19,7 @@ public class PlatformHelperOSX extends PlatformHelper implements AboutHandler, P
 	public PlatformHelperOSX(EventBus eventBus) {
 		this.eventBus = eventBus;
 		this.application = Application.getApplication();
-		application.setQuitStrategy(QuitStrategy.CLOSE_ALL_WINDOWS);
+		//application.setQuitStrategy(QuitStrategy.CLOSE_ALL_WINDOWS);
 		application.setAboutHandler(this);
 		application.setPreferencesHandler(this);
 	}
