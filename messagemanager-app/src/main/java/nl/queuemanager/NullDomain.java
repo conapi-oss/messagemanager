@@ -13,6 +13,7 @@ import javax.management.MalformedObjectNameException;
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.JMSDomain;
+import nl.queuemanager.core.jms.JMSFeature;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
@@ -22,6 +23,10 @@ import nl.queuemanager.jms.JMSTopic;
 
 public class NullDomain implements JMSDomain {
 
+	public boolean isFeatureSupported(JMSFeature feature) {
+		return false;
+	}
+	
 	public void addListener(EventListener<DomainEvent> listener) {
 	}
 

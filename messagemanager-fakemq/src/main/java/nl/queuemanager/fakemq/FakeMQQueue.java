@@ -38,4 +38,9 @@ public class FakeMQQueue implements JMSQueue {
 		return 0;
 	}
 
+	public long getMessageSize() {
+		// TODO Auto-generated method stub
+		return -1;
+	}
+
 }

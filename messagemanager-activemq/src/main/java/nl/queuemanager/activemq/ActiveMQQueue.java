@@ -59,4 +59,9 @@ class ActiveMQQueue implements JMSQueue {
 		return getName();
 	}
 
+	@Override
+	public long getMessageSize() {
+		return -1;
+	}
+
 }

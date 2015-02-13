@@ -38,6 +38,7 @@ import nl.queuemanager.core.events.AbstractEventSource;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.DomainEvent.EVENT;
 import nl.queuemanager.core.jms.JMSDomain;
+import nl.queuemanager.core.jms.JMSFeature;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
@@ -282,5 +283,10 @@ class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements JMSDoma
 			// only notify of the connection being broken.
 			System.out.println(ex);
 		}
+	}
+
+	@Override
+	public boolean isFeatureSupported(JMSFeature feature) {
+		return false;
 	}
 }
