@@ -56,7 +56,7 @@
 						<codebase>${project.Url}/${subdir}${sonic.version}</codebase>
 						<templateDirectory>${basedir}/../${project.parent.artifactId}/src/main/jnlp</templateDirectory>
 						<jnlp>
-							<j2seVersion>1.5+</j2seVersion>
+							<j2seVersion>1.7+</j2seVersion>
 							<type>application</type>
 							<inputTemplate>jnlp-template.vm</inputTemplate>
 							<outputFile>SonicMessageManager.jnlp</outputFile>
@@ -66,12 +66,12 @@
 						</jnlp>
 						<signJnlp>true</signJnlp>
 						<sign>
-							<keystore>${basedir}/../${project.parent.artifactId}/certum.p12</keystore>
-							<keypass>${keypass}</keypass>
-							<storepass>${storepass}</storepass>
-							<storetype>${storetype}</storetype>
-							<alias>${keyalias}</alias>
-							<tsaLocation>${tsaurl}</tsaLocation>
+							<keystore>${codesign.keystore}</keystore>
+							<keypass>${codesign.keypass}</keypass>
+							<storepass>${codesign.storepass}</storepass>
+							<storetype>${codesign.storetype}</storetype>
+							<alias>${codesign.keyalias}</alias>
+							<tsaLocation>${codesign.tsaurl}</tsaLocation>
 
 							<!-- verify that the signing operation succeeded -->
 							<verify>true</verify>
