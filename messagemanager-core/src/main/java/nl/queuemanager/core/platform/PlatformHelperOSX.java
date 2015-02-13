@@ -5,11 +5,10 @@ import javax.swing.JFrame;
 
 import com.apple.eawt.AboutHandler;
 import com.apple.eawt.Application;
-import com.apple.eawt.FullScreenUtilities;
 import com.apple.eawt.PreferencesHandler;
 import com.google.common.eventbus.EventBus;
 
-@SuppressWarnings("restriction")
+//@SuppressWarnings("restriction")
 public class PlatformHelperOSX extends PlatformHelper implements AboutHandler, PreferencesHandler {
 
 	private final Application application;
@@ -36,7 +35,7 @@ public class PlatformHelperOSX extends PlatformHelper implements AboutHandler, P
 	}
 	
 	public void setFullScreenEnabled(JFrame frame, boolean enabled) {
-		FullScreenUtilities.setWindowCanFullScreen(frame, enabled);
+		// FullScreenUtilities.setWindowCanFullScreen(frame, enabled);
 	}
 
 	public void handleAbout(com.apple.eawt.AppEvent.AboutEvent e) {
