@@ -1,5 +1,8 @@
 package nl.queuemanager.activemq;
 
+import nl.queuemanager.activemq.incompat.VirtualMachineProcessFinder;
+import nl.queuemanager.activemq.ui.ConnectionTabPanel;
+import nl.queuemanager.activemq.ui.JavaProcessFinder;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.ui.UITab;
 
@@ -19,6 +22,8 @@ public class ActiveMQModule extends AbstractModule {
 		 * a major refactoring of the events mechanism in the application.
 		 */
 		bind(ConnectionTabPanel.class).in(Scopes.SINGLETON);
+
+		bind(JavaProcessFinder.class).to(VirtualMachineProcessFinder.class).in(Scopes.SINGLETON);
 		
 		// Bind the UI tabs specific to AMM
 		MapBinder<Integer, UITab> tabsBinder = MapBinder.newMapBinder(binder(), Integer.class, UITab.class);

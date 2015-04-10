@@ -15,6 +15,7 @@
  */
 package nl.queuemanager;
 
+import java.awt.AWTEvent;
 import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +46,8 @@ public class Main {
 	public static void main(String[] args) {
 		// Set look & feel to native
 		setNativeLAF();
-
+		enableSwingDebug();
+		
 		// Create the configuration module
 		// FIXME set a correct filename, etc
 		XmlConfigurationModule configurationModule = new XmlConfigurationModule("config.xml", "urn:blah");
@@ -132,5 +134,9 @@ public class Main {
 		}
 	}
 
+	private static void enableSwingDebug() {
+		Toolkit.getDefaultToolkit().addAWTEventListener(new DebugEventListener(), AWTEvent.MOUSE_EVENT_MASK);
+		Toolkit.getDefaultToolkit().getSystemEventQueue().push(new TracingEventQueue());
+	}
 	
 }

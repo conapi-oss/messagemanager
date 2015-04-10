@@ -52,7 +52,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import com.google.common.eventbus.EventBus;
 
 @Singleton
-class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements JMSDomain, NotificationListener {
+public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements JMSDomain, NotificationListener {
 
 	private final Logger log = Logger.getLogger(getClass().getName());
 
@@ -170,9 +170,21 @@ class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements JMSDoma
 		return session.createBrowser(session.createQueue(queue.getName()));
 	}
 	
+	/**
+	 * Open an asynchronous consumer for the specified destination.
+	 * 
+	 * @param destination
+	 * @param listener
+	 */
+	private MessageConsumer openASyncConsumer(JMSDestination destination) throws JMSException {
+		ActiveMQConnection connection = brokerConnections.get(destination.getBroker());
+		return connection.getASyncConsumer(destination);
+	}
+
 	public MessageConsumer openConsumer(JMSDestination destination, MessageListener listener) throws JMSException {
-		// FIXME
-		return new ActiveMQMessageConsumer();
+		MessageConsumer consumer = openASyncConsumer(destination);
+		consumer.setMessageListener(listener);
+		return consumer;
 	}
 
 	public void sendMessage(JMSDestination destination, Message messageToSend) throws JMSException {
