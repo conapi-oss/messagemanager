@@ -27,5 +27,8 @@ public class EnumerationIterator<T> implements Iterator<T>, Iterable<T> {
 		return new EnumerationIterator<T>(delegate);
 	}
 
+	public static <T> EnumerationIterator<T> of(Enumeration<T> e) {
+		return new EnumerationIterator<>(e);
+	}
 
 }

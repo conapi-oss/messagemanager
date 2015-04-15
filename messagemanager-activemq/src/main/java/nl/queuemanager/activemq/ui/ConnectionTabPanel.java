@@ -2,6 +2,7 @@ package nl.queuemanager.activemq.ui;
 
 import java.awt.GridBagLayout;
 
+import javax.inject.Inject;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
@@ -9,6 +10,7 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 
 import javax.swing.JComponent;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -17,7 +19,11 @@ import javax.swing.border.TitledBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
+import javax.swing.table.DefaultTableModel;
 
+import nl.queuemanager.activemq.ActiveMQDomain;
+import nl.queuemanager.core.task.Task;
+import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.ui.UITab;
 
 import java.awt.Color;
@@ -30,6 +36,8 @@ import java.awt.event.ActionListener;
 
 import javax.swing.Action;
 
+import com.google.common.eventbus.EventBus;
+
 public class ConnectionTabPanel extends JPanel implements UITab {
 	private JTable localProcessTable;
 	private JTextField jmxServiceURLField;
@@ -39,11 +47,20 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 	private JRadioButton localProcess;
 	private JRadioButton remoteProcess;
 	private JButton connectButton;
+
+	private final ActiveMQDomain domain;
+	private final TaskExecutor worker;
+	private final EventBus eventBus;
 	
 	/**
 	 * Create the panel.
 	 */
-	public ConnectionTabPanel() {
+	@Inject
+	public ConnectionTabPanel(JavaProcessFinder processFinder, ActiveMQDomain domain, TaskExecutor worker, EventBus eventBus) {
+		this.domain = domain;
+		this.worker = worker;
+		this.eventBus = eventBus;
+		
 		setBorder(new CompoundBorder(new EmptyBorder(5, 5, 5, 5), new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Connect to ActiveMQ Broker", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{136, 0};
@@ -80,7 +97,21 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		gbc_table.fill = GridBagConstraints.BOTH;
 		gbc_table.gridx = 0;
 		gbc_table.gridy = 1;
-		add(localProcessTable, gbc_table);
+		add(new JScrollPane(localProcessTable), gbc_table);
+
+		DefaultTableModel model = new DefaultTableModel() {
+			public boolean isCellEditable(int rowIndex, int mColIndex) {
+				return false;
+			}
+		};
+		model.setColumnIdentifiers(new String[] {"PID", "Description"});
+		for(JavaProcessDescriptor javaProcess: processFinder.find()) {
+			model.addRow(new Object[] {
+					javaProcess.id(),
+					javaProcess.displayName()
+			});
+		}
+		localProcessTable.setModel(model);
 		
 		remoteProcess = new JRadioButton("Remote Process");
 		remoteProcess.addActionListener(radioButtonChangedAction);
@@ -134,9 +165,15 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		gbc_table_1.fill = GridBagConstraints.BOTH;
 		gbc_table_1.gridx = 0;
 		gbc_table_1.gridy = 6;
-		add(remoteProcessTable, gbc_table_1);
+		add(new JScrollPane(remoteProcessTable), gbc_table_1);
 		
 		connectButton = new JButton("Connect");
+		connectButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				connect();
+			}
+		});
 		GridBagConstraints gbc_connectButton = new GridBagConstraints();
 		gbc_connectButton.anchor = GridBagConstraints.WEST;
 		gbc_connectButton.insets = new Insets(0, 0, 0, 5);
@@ -153,6 +190,26 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 
 		localProcess.setSelected(true);
 		radioButtonChangedAction.actionPerformed(null);
+	}
+	
+	private void connect() {
+		if(localProcess.isSelected()) {
+			int row = localProcessTable.getSelectedRow();
+			if(row != -1) {
+				final String pid = (String)localProcessTable.getModel().getValueAt(row, 0);
+				worker.execute(new Task(domain, eventBus) {
+					@Override
+					public void execute() throws Exception {
+						final String url = sun.management.ConnectorAddressLink.importFrom(Integer.valueOf(pid));
+						domain.connect(url);
+					}
+					@Override
+					public String toString() {
+						return "Connecting to ActiveMQ";
+					}
+				});
+			}
+		}
 	}
 	
 	@Override

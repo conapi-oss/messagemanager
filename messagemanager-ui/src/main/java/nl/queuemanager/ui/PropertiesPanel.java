@@ -17,11 +17,17 @@ package nl.queuemanager.ui;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.StringReader;
+import java.util.Enumeration;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -38,6 +44,7 @@ import javax.swing.SpringLayout;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import nl.queuemanager.core.util.EnumerationIterator;
 import nl.queuemanager.ui.message.MessagePropertiesTable;
 import nl.queuemanager.ui.util.SpringUtilities;
 
@@ -195,8 +202,17 @@ public class PropertiesPanel extends JPanel {
 		});
 		propertiesTablePanel.add(clearButton);
 		
+		final JButton fromClipboardButton = new JButton();
+		fromClipboardButton.setText("From clipboard");
+		fromClipboardButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				loadPropertiesFromClipboard();
+			}
+		});
+		propertiesTablePanel.add(fromClipboardButton);
+		
 		SpringUtilities.makeCompactGrid(propertiesTablePanel, 
-				1, 2, 
+				3, 1, 
 				0, 0, 
 				5, 5);
 		
@@ -211,6 +227,24 @@ public class PropertiesPanel extends JPanel {
 		this.properties = properties;
 	}
 	
+	private void loadPropertiesFromClipboard() {
+		try {
+			String data = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
+			// Load the data like a properties file
+			Properties tmpprops = new Properties();
+			tmpprops.load(new StringReader(data));
+
+			for(String name: EnumerationIterator.of((Enumeration<String>)tmpprops.propertyNames())) {
+				properties.put(name, createPropertyObject("String", tmpprops.getProperty(name)));
+			}
+			
+			refreshTable();
+		} catch(Exception e) {
+			System.out.println(e);
+			e.printStackTrace();
+		}
+	}
+
 	public void refreshTable(){
 		messagePropertiesTable.setProperties(properties);
 	}
