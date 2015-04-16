@@ -10,10 +10,13 @@
     <module>jmsmessages</module>
     <module>messagemanager-core</module>
     <module>messagemanager-ui</module>
+
+    <!--
     <module>messagemanager-fakemq</module>
     <module>messagemanager-app</module>
     <module>messagemanager-activemq</module>
-    
+    -->
+
     <module>messagemanager-sonicmq</module>
     <module>messagemanager-sonicmq-70</module>
     <module>messagemanager-sonicmq-75</module>
