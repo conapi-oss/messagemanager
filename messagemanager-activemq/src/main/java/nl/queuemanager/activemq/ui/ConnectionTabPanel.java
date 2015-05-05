@@ -209,6 +209,17 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 					}
 				});
 			}
+		} else
+		if(remoteProcess.isSelected()) {
+			final String url = jmxServiceURLField.getText();
+			if(url.length() > 0) {
+				worker.execute(new Task(domain, eventBus) {
+					@Override
+					public void execute() throws Exception {
+						domain.connect(url);
+					}
+				});
+			}
 		}
 	}
 	
