@@ -12,12 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.queuemanager.ui;
+package nl.queuemanager.app;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -29,6 +28,7 @@ import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.platform.AboutEvent;
 import nl.queuemanager.core.platform.PlatformHelper;
 import nl.queuemanager.core.platform.PreferencesEvent;
+import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.task.TaskQueuePanel;
 
 import com.google.common.eventbus.Subscribe;
@@ -42,25 +42,22 @@ public class MMFrame extends JFrame {
 
 	private final JTabbedPane tabsPane;
 	private final SortedMap<Integer, UITab> tabs;
-	private final PlatformHelper platformHelper;
 	
 	@Inject
-	public MMFrame(Map<Integer, UITab> tabs, TaskQueuePanel taskQueuePanel, PlatformHelper platformHelper) {
+	public MMFrame(TaskQueuePanel taskQueuePanel, PlatformHelper platformHelper, ConnectionTabPanel connectionTab) {
 		setTitle(APP_NAME);
 
-		this.platformHelper = platformHelper;
 		platformHelper.setFullScreenEnabled(this, true);
 		
-		this.tabs = new TreeMap<Integer, UITab>(tabs);
+		this.tabs = new TreeMap<Integer, UITab>();
 		
 		Container contentPane = getContentPane();
 		
 		// Create the tabbedpane and add all the panels to it
 		tabsPane = new JTabbedPane();
 		tabsPane.setToolTipText("");
-		for(UITab tab: this.tabs.values()) {
-			tabsPane.addTab(tab.getUITabName(), tab.getUITabComponent());
-		}
+		
+		addTab(new AddUITabEvent(0, connectionTab));
 		
 		// Now add the TabbedPane to the layout
 		contentPane.add(tabsPane, BorderLayout.CENTER);
@@ -71,6 +68,22 @@ public class MMFrame extends JFrame {
 		
 		setSize(new Dimension(800, 600));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+	
+	@Subscribe
+	public void addTab(AddUITabEvent e) {
+		tabs.put(e.getKey(), e.getTab());
+		syncTabs();
+	}
+	
+	private void syncTabs() {
+		int pos = 0;
+		for(UITab tab: tabs.values()) {
+			if(tabsPane.getTabCount() <= pos || tabsPane.getTabComponentAt(pos) != tab.getUITabComponent()) {
+				tabsPane.insertTab(tab.getUITabName(), null, tab.getUITabComponent(), null, pos);
+			}
+			pos++;
+		}
 	}
 	
 	/**

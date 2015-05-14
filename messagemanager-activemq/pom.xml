@@ -13,18 +13,20 @@
   	</dependency>
   	<dependency>
   		<groupId>nl.queuemanager</groupId>
-  		<artifactId>messagemanager-core</artifactId>
-  		<version>3.0-SNAPSHOT</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>nl.queuemanager</groupId>
-  		<artifactId>messagemanager-ui</artifactId>
+  		<artifactId>messagemanager-app</artifactId>
   		<version>3.0-SNAPSHOT</version>
   	</dependency>
   	<dependency>
   		<groupId>org.apache.activemq</groupId>
   		<artifactId>activemq-client</artifactId>
   		<version>5.10.0</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>com.sun</groupId>
+  		<artifactId>tools</artifactId>
+  		<version>system</version>
+  		<scope>system</scope>
+  		<systemPath>${java.home}/../lib/tools.jar</systemPath>
   	</dependency>
   </dependencies>
 </project>

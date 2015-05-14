@@ -10,12 +10,11 @@
     <module>jmsmessages</module>
     <module>messagemanager-core</module>
     <module>messagemanager-ui</module>
-
-    <!--
-    <module>messagemanager-fakemq</module>
     <module>messagemanager-app</module>
+
+    <module>messagemanager-fakemq</module>
+
     <module>messagemanager-activemq</module>
-    -->
 
     <module>messagemanager-sonicmq</module>
     <module>messagemanager-sonicmq-70</module>
@@ -26,6 +25,7 @@
     <module>messagemanager-sonicmq-86</module>
     <module>messagemanager-sonicmq-100</module>
     
+    <!--
     <module>ws-base</module>
     <module>ws-70</module>
     <module>ws-75</module>
@@ -34,10 +34,11 @@
     <module>ws-85</module>
     <module>ws-86</module>
     <module>ws-100</module>
+    -->
   </modules>
   
   <properties>
-  	<guice-version>3.0</guice-version>
+  	<guice-version>4.0</guice-version>
   </properties>
   
   <scm>

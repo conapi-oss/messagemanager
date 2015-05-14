@@ -61,6 +61,8 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		this.worker = worker;
 		this.eventBus = eventBus;
 		
+		System.out.println(domain + " was loaded by " + domain.getClass().getClassLoader());
+		
 		setBorder(new CompoundBorder(new EmptyBorder(5, 5, 5, 5), new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Connect to ActiveMQ Broker", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{136, 0};
@@ -91,6 +93,7 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		add(localProcess, gbc_localProcess);
 		
 		localProcessTable = new JTable();
+		localProcessTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		GridBagConstraints gbc_table = new GridBagConstraints();
 		gbc_table.gridwidth = 2;
 		gbc_table.insets = new Insets(0, 25, 5, 0);
@@ -112,6 +115,8 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 			});
 		}
 		localProcessTable.setModel(model);
+		TableColumnAdjuster adjuster = new TableColumnAdjuster(localProcessTable, 15);
+		adjuster.adjustColumns();
 		
 		remoteProcess = new JRadioButton("Remote Process");
 		remoteProcess.addActionListener(radioButtonChangedAction);
@@ -200,12 +205,13 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 				worker.execute(new Task(domain, eventBus) {
 					@Override
 					public void execute() throws Exception {
+						@SuppressWarnings("restriction")
 						final String url = sun.management.ConnectorAddressLink.importFrom(Integer.valueOf(pid));
 						domain.connect(url);
 					}
 					@Override
 					public String toString() {
-						return "Connecting to ActiveMQ";
+						return "Connecting to ActiveMQ on PID " + pid;
 					}
 				});
 			}
@@ -217,6 +223,10 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 					@Override
 					public void execute() throws Exception {
 						domain.connect(url);
+					}
+					@Override
+					public String toString() {
+						return "Connecting to ActiveMQ on " + url;
 					}
 				});
 			}

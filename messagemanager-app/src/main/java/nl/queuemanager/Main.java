@@ -17,19 +17,27 @@ package nl.queuemanager;
 
 import java.awt.AWTEvent;
 import java.awt.Toolkit;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import nl.queuemanager.app.AppModule;
+import nl.queuemanager.app.MMFrame;
 import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.CoreModule;
+import nl.queuemanager.core.PreconnectCoreModule;
 import nl.queuemanager.core.configuration.XmlConfigurationModule;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.core.platform.PlatformHelper;
-import nl.queuemanager.ui.MMFrame;
+import nl.queuemanager.ui.PreconnectUIModule;
 import nl.queuemanager.ui.UIModule;
 
 import com.google.common.eventbus.EventBus;
@@ -55,12 +63,15 @@ public class Main {
 		// Create the default modules
 		List<Module> modules = new ArrayList<Module>();
 		modules.add(configurationModule);
-		modules.add(new CoreModule());
-		modules.add(new UIModule());
+		modules.add(new AppModule());
+		modules.add(new PreconnectCoreModule());
+		modules.add(new PreconnectUIModule());
+//		modules.add(new UIModule());
 		
 		// Load plugin modules
 		modules.addAll(createPluginModules(configurationModule));
-		modules.add(loadModule("nl.queuemanager.activemq.ActiveMQModule"));
+//		modules.add(loadModule("nl.queuemanager.activemq.ActiveMQModule"));
+//		modules.add(new NullModule());
 		
 		// Now that the module list is complete, create the injector
 		final Injector injector = Guice.createInjector(Stage.PRODUCTION, modules);
@@ -97,23 +108,32 @@ public class Main {
 		
 		String[] moduleNameList = config.getUserPref(Configuration.PREF_PLUGIN_MODULES, "").split(",");
 		List<Module> modules = new ArrayList<Module>(moduleNameList.length);
-		
-		for(String moduleName: moduleNameList) {
-			if(moduleName.length() == 0)
-				continue;
-			
-			Module module = loadModule(moduleName);
-			if(module != null && module instanceof Module) {
-				modules.add(module);
-			}
-		}
-		
+//		
+//		for(String moduleName: moduleNameList) {
+//			if(moduleName.length() == 0)
+//				continue;
+//			
+//			Module module = loadModule(moduleName);
+//			if(module != null && module instanceof Module) {
+//				modules.add(module);
+//			}
+//		}
+//		
 		return modules;
 	}
 
-	private static Module loadModule(String moduleName) {
+	private static Map<String, URLClassLoader> loadedModules = new HashMap<String, URLClassLoader>();
+	public static Module loadModule(String moduleName, URL[] urls) {
+		System.out.println("Loading module with URLs: " + Arrays.toString(urls));
+		
 		try {
-			return (Module) Class.forName(moduleName).newInstance();
+			URLClassLoader classLoader = new URLClassLoader(urls);
+			System.out.println("Created classloader: " + classLoader);
+			
+			Class<Module> moduleClass = (Class<Module>) classLoader.loadClass(moduleName);
+			Module module = moduleClass.newInstance();
+			loadedModules.put(moduleName, classLoader);
+			return module;
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
