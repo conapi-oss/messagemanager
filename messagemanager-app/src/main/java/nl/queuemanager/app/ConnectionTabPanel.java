@@ -2,8 +2,11 @@ package nl.queuemanager.app;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.swing.BoxLayout;
@@ -41,7 +44,14 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		activeMQ.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				initializeWithModule("nl.queuemanager.activemq.ActiveMQModule");
+				try {
+					initializeWithModule("nl.queuemanager.activemq.ActiveMQModule", new URL[] {
+						new URL("file:///Users/gerco/Projects/MessageManager/workspace/messagemanager/messagemanager-activemq/target/messagemanager-activemq-3.0-SNAPSHOT.jar"),
+						new URL("file:///Users/gerco/Projects/Technekes/apache-activemq-5.10.0/activemq-all-5.10.0.jar")
+					});
+				} catch (MalformedURLException ex) {
+					throw new RuntimeException(ex);
+				}
 			}
 		});
 		add("ActiveMQ", activeMQ);
@@ -50,24 +60,28 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		sonicMQ.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				initializeWithModule("nl.queuemanager.smm.SMMModule");
+				try {
+					File dir = new File("/Users/gerco/Projects/MessageManager/workspace/messagemanager-2.x/lib/8.6");
+					File[] files = dir.listFiles();
+					List<URL> urls = new ArrayList<URL>(files.length);
+					urls.add(new URL("file:///Users/gerco/Projects/MessageManager/workspace/messagemanager/messagemanager-sonicmq/target/messagemanager-sonicmq-3.0-SNAPSHOT.jar"));
+					for(File file: files) {
+						urls.add(file.toURL());
+					}
+					initializeWithModule("nl.queuemanager.smm.SMMModule", urls.toArray(new URL[urls.size()]));
+				} catch (MalformedURLException ex) {
+					throw new RuntimeException(ex);
+				}
 			}
 		});
 		add("SonicMQ", sonicMQ);
 	}
 
-	private void initializeWithModule(String moduleName) {
-		try {
-			Module module = Main.loadModule(moduleName, new URL[] {
-					new URL("file:///Users/gerco/Projects/MessageManager/workspace/messagemanager/messagemanager-activemq/target/messagemanager-activemq-3.0-SNAPSHOT.jar"),
-					new URL("file:///Users/gerco/Projects/Technekes/apache-activemq-5.10.0/activemq-all-5.10.0.jar")
-			});
-			final Injector injector = parentInjector.createChildInjector(new CoreModule(), new UIModule(), module);
-			ConnectivityProviderPlugin provider = injector.getInstance(ConnectivityProviderPlugin.class);
-			provider.initialize();
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
+	private void initializeWithModule(String moduleName, URL[] urls) {
+		Module module = Main.loadModule(moduleName, urls);
+		final Injector injector = parentInjector.createChildInjector(new CoreModule(), new UIModule(), module);
+		ConnectivityProviderPlugin provider = injector.getInstance(ConnectivityProviderPlugin.class);
+		provider.initialize();
 	}
 	
 	public String getUITabName() {

@@ -68,7 +68,7 @@
   <dependencies>
     <dependency>
       <groupId>nl.queuemanager</groupId>
-      <artifactId>messagemanager-core</artifactId>
+      <artifactId>messagemanager-app</artifactId>
       <version>3.0-SNAPSHOT</version>
       <scope>compile</scope>
       <exclusions>
@@ -91,7 +91,7 @@
     </dependency>
     <dependency>
     	<groupId>nl.queuemanager</groupId>
-    	<artifactId>messagemanager-ui</artifactId>
+    	<artifactId>messagemanager-core</artifactId>
     	<version>3.0-SNAPSHOT</version>
     </dependency>
     <dependency>

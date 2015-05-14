@@ -17,6 +17,8 @@
     <module>messagemanager-activemq</module>
 
     <module>messagemanager-sonicmq</module>
+
+    <!--
     <module>messagemanager-sonicmq-70</module>
     <module>messagemanager-sonicmq-75</module>
     <module>messagemanager-sonicmq-76</module>
@@ -25,7 +27,6 @@
     <module>messagemanager-sonicmq-86</module>
     <module>messagemanager-sonicmq-100</module>
     
-    <!--
     <module>ws-base</module>
     <module>ws-70</module>
     <module>ws-75</module>
