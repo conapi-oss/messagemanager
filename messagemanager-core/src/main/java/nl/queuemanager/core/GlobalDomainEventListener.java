@@ -1,6 +1,5 @@
 package nl.queuemanager.core;
 
-import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.tasks.TaskFactory;
@@ -15,7 +14,7 @@ import com.google.inject.Inject;
  * @author gerco
  *
  */
-public class GlobalDomainEventListener implements EventListener<DomainEvent> {
+public class GlobalDomainEventListener {
 
 	private final TaskFactory taskFactory;
 	private final TaskExecutor worker;
