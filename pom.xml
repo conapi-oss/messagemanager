@@ -13,12 +13,11 @@
     <module>messagemanager-app</module>
 
     <module>messagemanager-fakemq</module>
-
     <module>messagemanager-activemq</module>
+    <module>messagemanager-solace</module>
 
     <module>messagemanager-sonicmq</module>
 
-    <!--
     <module>messagemanager-sonicmq-70</module>
     <module>messagemanager-sonicmq-75</module>
     <module>messagemanager-sonicmq-76</module>
@@ -35,7 +34,6 @@
     <module>ws-85</module>
     <module>ws-86</module>
     <module>ws-100</module>
-    -->
   </modules>
   
   <properties>
@@ -110,5 +108,13 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+	
+	<repositories>
+    	<repository>
+      		<id>radon.gdries.nl</id>
+      		<url>https://radon.gdries.nl/m2</url>
+    	</repository>
+	</repositories>
+      	
 </project>
 

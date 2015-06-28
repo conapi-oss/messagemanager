@@ -20,10 +20,7 @@ import java.awt.Toolkit;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -31,14 +28,12 @@ import javax.swing.UIManager;
 
 import nl.queuemanager.app.AppModule;
 import nl.queuemanager.app.MMFrame;
-import nl.queuemanager.core.Configuration;
-import nl.queuemanager.core.CoreModule;
+import nl.queuemanager.app.PluginDescriptor;
 import nl.queuemanager.core.PreconnectCoreModule;
 import nl.queuemanager.core.configuration.XmlConfigurationModule;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.core.platform.PlatformHelper;
 import nl.queuemanager.ui.PreconnectUIModule;
-import nl.queuemanager.ui.UIModule;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Guice;
@@ -66,12 +61,6 @@ public class Main {
 		modules.add(new AppModule());
 		modules.add(new PreconnectCoreModule());
 		modules.add(new PreconnectUIModule());
-//		modules.add(new UIModule());
-		
-		// Load plugin modules
-		modules.addAll(createPluginModules(configurationModule));
-//		modules.add(loadModule("nl.queuemanager.activemq.ActiveMQModule"));
-//		modules.add(new NullModule());
 		
 		// Now that the module list is complete, create the injector
 		final Injector injector = Guice.createInjector(Stage.PRODUCTION, modules);
@@ -95,45 +84,18 @@ public class Main {
 		});
 	}
 	
-	/**
-	 * Load initial Injector to be able to read configuration for plugin loading.
-	 * For some reason, Guice complains about things already being injected when
-	 * child injectors are used. Until I find a solution for that, we dicard this
-	 * injector and configuration object after use and use it only to retrieve the
-	 * list of plugin modules to load.
-	 */
-	private static List<Module> createPluginModules(Module configurationModule) {
-		Injector configInjector = Guice.createInjector(Stage.PRODUCTION, configurationModule);
-		Configuration config = configInjector.getInstance(Configuration.class);
-		
-		String[] moduleNameList = config.getUserPref(Configuration.PREF_PLUGIN_MODULES, "").split(",");
-		List<Module> modules = new ArrayList<Module>(moduleNameList.length);
-//		
-//		for(String moduleName: moduleNameList) {
-//			if(moduleName.length() == 0)
-//				continue;
-//			
-//			Module module = loadModule(moduleName);
-//			if(module != null && module instanceof Module) {
-//				modules.add(module);
-//			}
-//		}
-//		
-		return modules;
-	}
-
-	private static Map<String, URLClassLoader> loadedModules = new HashMap<String, URLClassLoader>();
-	public static Module loadModule(String moduleName, URL[] urls) {
-		System.out.println("Loading module with URLs: " + Arrays.toString(urls));
-		
+	public static List<Module> loadPluginModules(List<PluginDescriptor> plugins, List<URL> classpath) {
 		try {
-			URLClassLoader classLoader = new URLClassLoader(urls);
+			URLClassLoader classLoader = new URLClassLoader(classpath.toArray(new URL[classpath.size()]));
 			System.out.println("Created classloader: " + classLoader);
-			
-			Class<Module> moduleClass = (Class<Module>) classLoader.loadClass(moduleName);
-			Module module = moduleClass.newInstance();
-			loadedModules.put(moduleName, classLoader);
-			return module;
+
+			List<Module> result = new ArrayList<Module>();
+			for(PluginDescriptor plugin: plugins) {
+				Class<Module> moduleClass = (Class<Module>) classLoader.loadClass(plugin.getModuleClassName());
+				Module module = moduleClass.newInstance();
+				result.add(module);
+			}
+			return result;
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
@@ -156,7 +118,7 @@ public class Main {
 
 	private static void enableSwingDebug() {
 		Toolkit.getDefaultToolkit().addAWTEventListener(new DebugEventListener(), AWTEvent.MOUSE_EVENT_MASK);
-		Toolkit.getDefaultToolkit().getSystemEventQueue().push(new TracingEventQueue());
+//		Toolkit.getDefaultToolkit().getSystemEventQueue().push(new TracingEventQueue());
 	}
 	
 }

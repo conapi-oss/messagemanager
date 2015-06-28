@@ -1,40 +1,33 @@
 package nl.queuemanager.activemq.ui;
 
+import java.awt.Color;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.inject.Inject;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-
-import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JLabel;
 import javax.swing.JTextField;
-import javax.swing.JButton;
-import javax.swing.border.TitledBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
 import nl.queuemanager.activemq.ActiveMQDomain;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.ui.UITab;
-
-import java.awt.Color;
-
-import javax.swing.ButtonGroup;
-import javax.swing.AbstractAction;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.Action;
+import nl.queuemanager.ui.util.TableColumnAdjuster;
 
 import com.google.common.eventbus.EventBus;
 
@@ -60,8 +53,6 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		this.domain = domain;
 		this.worker = worker;
 		this.eventBus = eventBus;
-		
-		System.out.println(domain + " was loaded by " + domain.getClass().getClassLoader());
 		
 		setBorder(new CompoundBorder(new EmptyBorder(5, 5, 5, 5), new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Connect to ActiveMQ Broker", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 		GridBagLayout gridBagLayout = new GridBagLayout();

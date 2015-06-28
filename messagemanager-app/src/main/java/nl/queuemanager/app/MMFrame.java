@@ -44,7 +44,7 @@ public class MMFrame extends JFrame {
 	private final SortedMap<Integer, UITab> tabs;
 	
 	@Inject
-	public MMFrame(TaskQueuePanel taskQueuePanel, PlatformHelper platformHelper, ConnectionTabPanel connectionTab) {
+	public MMFrame(TaskQueuePanel taskQueuePanel, PlatformHelper platformHelper, ProfileTabPanel profileTab) {
 		setTitle(APP_NAME);
 
 		platformHelper.setFullScreenEnabled(this, true);
@@ -57,7 +57,7 @@ public class MMFrame extends JFrame {
 		tabsPane = new JTabbedPane();
 		tabsPane.setToolTipText("");
 		
-		addTab(new AddUITabEvent(0, connectionTab));
+		addTab(new AddUITabEvent(0, profileTab));
 		
 		// Now add the TabbedPane to the layout
 		contentPane.add(tabsPane, BorderLayout.CENTER);
