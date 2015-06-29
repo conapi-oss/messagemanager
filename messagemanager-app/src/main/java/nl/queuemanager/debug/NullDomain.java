@@ -1,4 +1,4 @@
-package nl.queuemanager;
+package nl.queuemanager.debug;
 
 import java.util.Enumeration;
 import java.util.List;

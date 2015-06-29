@@ -1,5 +1,6 @@
 package nl.queuemanager.app;
 
+import java.awt.FileDialog;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -31,7 +32,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import nl.queuemanager.ConnectivityProviderPlugin;
-import nl.queuemanager.Main;
 import nl.queuemanager.core.CoreModule;
 import nl.queuemanager.ui.UIModule;
 import nl.queuemanager.ui.UITab;
@@ -45,6 +45,7 @@ public class ProfileTabPanel extends JPanel implements UITab {
 
 	private final Injector parentInjector;
 	private final EventBus eventBus;
+	private final PluginManager pluginManager;
 	
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
@@ -62,9 +63,11 @@ public class ProfileTabPanel extends JPanel implements UITab {
 	private JButton removePluginButton;
 	
 	@Inject
-	public ProfileTabPanel(final Injector injector, final EventBus eventBus) {
+	public ProfileTabPanel(final Injector injector, final EventBus eventBus, final PluginManager pluginManager) {
 		this.parentInjector = injector;
 		this.eventBus = eventBus;
+		this.pluginManager = pluginManager;
+		
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{81, 88, 0, 0, 0};
 		gridBagLayout.rowHeights = new int[]{0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -183,7 +186,7 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		addPluginButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				PluginDescriptor plugin = new AddPluginDialog().selectPlugin();
+				PluginDescriptor plugin = new AddPluginDialog(pluginManager).selectPlugin();
 				if(plugin != null) {
 					selectedProfile.getPlugins().add(plugin);
 					PluginListTableModel model = ((PluginListTableModel)pluginTable.getModel());
@@ -250,18 +253,21 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		btnAddClasspath.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-			      JFileChooser chooser = new JFileChooser();
-			      chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-			      int r = chooser.showOpenDialog(ProfileTabPanel.this);
-			      if (r == JFileChooser.APPROVE_OPTION) {
-			    	  try {
-			    		  URL url = chooser.getSelectedFile().toURI().toURL();
-			    		  selectedProfile.getClasspath().add(url);
-			    		  ((DefaultListModel<URL>)classpathList.getModel()).addElement(url);
-			    	  } catch (MalformedURLException ex) {
-			    		  logger.log(Level.WARNING, "Exception while choosing file", ex);
-			    	  }
-			      }
+				// Use java.awt.FileDialog so we can have native dialogs
+				FileDialog fd = new java.awt.FileDialog((java.awt.Frame) null);
+				fd.setMultipleMode(true);
+				fd.setVisible(true);
+				
+				File[] files = fd.getFiles();
+				for(File file: files) {
+					try {
+						URL url = file.toURI().toURL();
+						selectedProfile.getClasspath().add(url);
+						((DefaultListModel<URL>) classpathList.getModel()).addElement(url);
+					} catch (MalformedURLException ex) {
+						logger.log(Level.WARNING, "Exception while choosing file", ex);
+					}
+				}
 			}
 		});
 		
@@ -371,7 +377,7 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		List<Module> modules = new ArrayList<Module>();
 		modules.add(new CoreModule());
 		modules.add(new UIModule());
-		modules.addAll(Main.loadPluginModules(profile.getPlugins(), profile.getClasspath()));
+		modules.addAll(pluginManager.loadPluginModules(profile.getPlugins(), profile.getClasspath()));
 		final Injector injector = parentInjector.createChildInjector(modules);
 		ConnectivityProviderPlugin provider = injector.getInstance(ConnectivityProviderPlugin.class);
 		provider.initialize();

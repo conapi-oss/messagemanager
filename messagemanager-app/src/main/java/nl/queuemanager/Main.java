@@ -17,8 +17,6 @@ package nl.queuemanager;
 
 import java.awt.AWTEvent;
 import java.awt.Toolkit;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,13 +24,12 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import nl.queuemanager.app.AppModule;
 import nl.queuemanager.app.MMFrame;
-import nl.queuemanager.app.PluginDescriptor;
 import nl.queuemanager.core.PreconnectCoreModule;
 import nl.queuemanager.core.configuration.XmlConfigurationModule;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.core.platform.PlatformHelper;
+import nl.queuemanager.debug.DebugEventListener;
 import nl.queuemanager.ui.PreconnectUIModule;
 
 import com.google.common.eventbus.EventBus;
@@ -58,7 +55,6 @@ public class Main {
 		// Create the default modules
 		List<Module> modules = new ArrayList<Module>();
 		modules.add(configurationModule);
-		modules.add(new AppModule());
 		modules.add(new PreconnectCoreModule());
 		modules.add(new PreconnectUIModule());
 		
@@ -84,28 +80,6 @@ public class Main {
 		});
 	}
 	
-	public static List<Module> loadPluginModules(List<PluginDescriptor> plugins, List<URL> classpath) {
-		try {
-			URLClassLoader classLoader = new URLClassLoader(classpath.toArray(new URL[classpath.size()]));
-			System.out.println("Created classloader: " + classLoader);
-
-			List<Module> result = new ArrayList<Module>();
-			for(PluginDescriptor plugin: plugins) {
-				Class<Module> moduleClass = (Class<Module>) classLoader.loadClass(plugin.getModuleClassName());
-				Module module = moduleClass.newInstance();
-				result.add(module);
-			}
-			return result;
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
 	private static void setNativeLAF() { 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

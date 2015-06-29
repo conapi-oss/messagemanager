@@ -13,9 +13,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
 
-import nl.queuemanager.ui.util.ListTableModel;
 import nl.queuemanager.ui.util.TableColumnAdjuster;
 
 public class AddPluginDialog extends JDialog {
@@ -29,7 +27,7 @@ public class AddPluginDialog extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
-	public AddPluginDialog() {
+	public AddPluginDialog(PluginManager pluginManager) {
 		setTitle("Add plugin");
 		setModal(true);
 		setBounds(100, 100, 450, 300);
@@ -52,7 +50,7 @@ public class AddPluginDialog extends JDialog {
 					{
 						installedPluginsTable = new JTable();
 						PluginListTableModel model = new PluginListTableModel();
-						model.setData(PluginManager.getInstalledPlugins());
+						model.setData(pluginManager.getInstalledPlugins());
 						installedPluginsTable.setModel(model);
 						TableColumnAdjuster adjuster = new TableColumnAdjuster(installedPluginsTable, 15);
 						adjuster.adjustColumns();

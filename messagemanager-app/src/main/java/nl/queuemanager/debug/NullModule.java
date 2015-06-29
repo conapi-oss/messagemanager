@@ -1,4 +1,4 @@
-package nl.queuemanager;
+package nl.queuemanager.debug;
 
 import nl.queuemanager.core.jms.JMSDomain;
 
