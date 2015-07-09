@@ -76,6 +76,30 @@ public class MMFrame extends JFrame {
 		syncTabs();
 	}
 	
+	@Subscribe
+	public void removeTab(RemoveUITabEvent e) {
+		int sel = tabsPane.getSelectedIndex();
+		int pos = 0;
+		boolean wasSelected = false;
+		
+		for(UITab tab: tabs.values()) {
+			if(pos == e.getKey()) {
+				tabsPane.removeTabAt(pos);
+				if(pos == sel) {
+					wasSelected = true;
+				}
+			}
+			pos++;
+		}
+		
+		tabs.remove(e.getKey());
+		
+		// If we removed the selected tab, select the first one
+		if(wasSelected) {
+			tabsPane.setSelectedIndex(0);
+		}
+	}
+	
 	private void syncTabs() {
 		int pos = 0;
 		for(UITab tab: tabs.values()) {

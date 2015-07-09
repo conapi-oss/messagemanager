@@ -7,6 +7,7 @@ import java.util.List;
 public class Profile {
 
 	private String name;
+	private String description;
 	private List<PluginDescriptor> plugins = new ArrayList<PluginDescriptor>();
 	private List<URL> classpath = new ArrayList<URL>();
 	
@@ -16,6 +17,14 @@ public class Profile {
 	
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	public String getDescription() {
+		return description;
+	}
+	
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	
 	public List<PluginDescriptor> getPlugins() {

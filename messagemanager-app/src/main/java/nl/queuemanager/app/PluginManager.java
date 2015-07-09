@@ -5,14 +5,17 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.inject.Module;
 
 public class PluginManager {
+	private Map<String, PluginDescriptor> plugins = new HashMap<>();
 	private URLClassLoader pluginClassloader;
 	
-	public List<PluginDescriptor> getInstalledPlugins() {
+	public PluginManager() {
 		try {
 			PluginDescriptor amq = new PluginDescriptor();
 			amq.setName("ActiveMQ Plugin");
@@ -22,24 +25,32 @@ public class PluginManager {
 					new URL("file:///Users/gerco/Projects/MessageManager/workspace/messagemanager/messagemanager-activemq/target/messagemanager-activemq-3.0-SNAPSHOT.jar"),
 					new URL("file:///Users/gerco/Projects/Internal/apache-activemq-5.11.0/activemq-all-5.11.0.jar")
 			}));
+			plugins.put(amq.getModuleClassName(), amq);
 			
 			PluginDescriptor smq = new PluginDescriptor();
 			smq.setName("SonicMQ Plugin");
 			smq.setDescription("Allows connections to Sonic MQ");
-			smq.setModuleClass("nl.queuemanager.sonicmq.SMMModule");
+			smq.setModuleClass("nl.queuemanager.smm.SMMModule");
 			smq.setClasspath(Arrays.asList(new URL[] {
 					new URL("file:///Users/gerco/Projects/MessageManager/workspace/messagemanager/messagemanager-sonicmq/target/messagemanager-sonicmq-3.0-SNAPSHOT.jar")
 			}));
+			plugins.put(smq.getModuleClassName(), smq);
 			
 			PluginDescriptor solace = new PluginDescriptor();
 			solace.setName("Solace Plugin");
 			solace.setDescription("Allows connections to Solace");
 			solace.setModuleClass("nl.queuemanager.solace.SolaceModule");
-		
-			return Arrays.asList(amq, smq, solace);
+			plugins.put(solace.getModuleClassName(), solace);
 		} catch (MalformedURLException e) {
-			return null;
 		}
+	}
+	
+	public List<PluginDescriptor> getInstalledPlugins() {
+		return new ArrayList<>(plugins.values());
+	}
+	
+	public PluginDescriptor getPluginByClassName(String classname) {
+		return plugins.get(classname);
 	}
 	
 	public List<Module> loadPluginModules(List<PluginDescriptor> plugins, List<URL> classpath) {
@@ -55,7 +66,7 @@ public class PluginManager {
 			urls.addAll(classpath);
 			
 			pluginClassloader = new URLClassLoader(urls.toArray(new URL[urls.size()]));
-			System.out.println("Created classloader: " + pluginClassloader);
+			System.out.println("Created classloader: " + Arrays.toString(pluginClassloader.getURLs()));
 
 			List<Module> result = new ArrayList<Module>();
 			for(PluginDescriptor plugin: plugins) {

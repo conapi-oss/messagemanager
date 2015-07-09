@@ -18,7 +18,6 @@ import javax.inject.Inject;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -63,7 +62,7 @@ public class ProfileTabPanel extends JPanel implements UITab {
 	private JButton removePluginButton;
 	
 	@Inject
-	public ProfileTabPanel(final Injector injector, final EventBus eventBus, final PluginManager pluginManager) {
+	public ProfileTabPanel(final Injector injector, final EventBus eventBus, final PluginManager pluginManager, final ProfileManager profileManager) {
 		this.parentInjector = injector;
 		this.eventBus = eventBus;
 		this.pluginManager = pluginManager;
@@ -109,8 +108,12 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		gbc_scrollPane.gridx = 0;
 		gbc_scrollPane.gridy = 1;
 		add(scrollPane, gbc_scrollPane);
-		
-		profilesList = new JList<Profile>(new DefaultListModel<Profile>());
+
+		DefaultListModel<Profile> profilesModel = new DefaultListModel<Profile>();
+		for(Profile profile: profileManager.getAllProfiles()) {
+			profilesModel.addElement(profile);
+		}
+		profilesList = new JList<Profile>(profilesModel);
 		profilesList.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
@@ -171,6 +174,8 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		
 		txtDescription = new JTextArea();
 		txtDescription.setEnabled(false);
+		txtDescription.setLineWrap(true);
+		txtDescription.setWrapStyleWord(true);
 		lblDescription.setLabelFor(txtDescription);
 		scrollPane_1.setViewportView(txtDescription);
 		
@@ -326,7 +331,11 @@ public class ProfileTabPanel extends JPanel implements UITab {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(selectedProfile == null) { return; }
+				
 				activateProfile(selectedProfile);
+				
+				// FIXME This should be done some other way. The profiles tab doesn't and shouldn't know its own index
+				eventBus.post(new RemoveUITabEvent(0));
 			}
 		});
 		GridBagConstraints gbc_activateProfileButton = new GridBagConstraints();
@@ -340,7 +349,9 @@ public class ProfileTabPanel extends JPanel implements UITab {
 	
 	private void displaySelectedProfile() {
 		txtProfileName.setText(selectedProfile.getName());
+		txtDescription.setText(selectedProfile.getDescription());
 		((PluginListTableModel)pluginTable.getModel()).setData(selectedProfile.getPlugins());
+		pluginTableAdjuster.adjustColumns();
 
 		txtProfileName.setEnabled(true);
 		txtDescription.setEnabled(true);

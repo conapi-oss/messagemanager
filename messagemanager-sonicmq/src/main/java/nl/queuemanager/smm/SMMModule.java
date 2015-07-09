@@ -21,7 +21,7 @@ public class SMMModule extends AbstractModule {
 		// The JMSDomain implementation for SonicMQ
 		bind(JMSDomain.class).to(Domain.class).in(Scopes.SINGLETON);
 		
-		// Bind the UI tabs specific to AMM
+		// Bind the UI tabs specific to SMM
 		MapBinder<Integer, UITab> tabsBinder = MapBinder.newMapBinder(binder(), Integer.class, UITab.class);
 		tabsBinder.addBinding(10).to(ConnectionTabPanel.class);
 		tabsBinder.addBinding(20).to(QueuesTabPanel.class);
