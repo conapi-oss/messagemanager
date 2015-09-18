@@ -2,6 +2,7 @@ package nl.queuemanager.core;
 
 import nl.queuemanager.core.platform.PlatformHelper;
 import nl.queuemanager.core.platform.PlatformHelperOSX;
+import nl.queuemanager.core.platform.PlatformHelperWindows;
 import nl.queuemanager.core.task.MultiQueueTaskExecutorModule;
 
 import com.google.common.eventbus.EventBus;
@@ -42,12 +43,19 @@ public class PreconnectCoreModule extends AbstractModule {
 		
 		if(isOSX()) {
 			bind(PlatformHelper.class).to(PlatformHelperOSX.class).in(Scopes.SINGLETON);
-		}
+		} else if(isWindows()) {
+			bind(PlatformHelper.class).to(PlatformHelperWindows.class).in(Scopes.SINGLETON);
+		};
 	}
 
 	// From https://developer.apple.com/library/mac/technotes/tn2002/tn2110.html
 	private static boolean isOSX() {
 	    String osName = System.getProperty("os.name");
 	    return osName.contains("OS X");
+	}
+	
+	private static boolean isWindows() {
+	    String osName = System.getProperty("os.name");
+	    return osName.contains("Windows");
 	}
 }

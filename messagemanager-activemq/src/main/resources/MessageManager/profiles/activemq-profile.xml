@@ -1,0 +1,7 @@
+<profile>
+	<name>ActiveMQ</name>
+	<description>Use this profile to connect to Active MQ</description>
+	<plugins>
+		<plugin>nl.queuemanager.activemq.ActiveMQModule</plugin>
+	</plugins>
+</profile>

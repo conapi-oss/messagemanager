@@ -24,7 +24,10 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import nl.queuemanager.app.AppModule;
+import nl.queuemanager.app.EventBusDebugger;
 import nl.queuemanager.app.MMFrame;
+import nl.queuemanager.app.PluginManager;
 import nl.queuemanager.core.PreconnectCoreModule;
 import nl.queuemanager.core.configuration.XmlConfigurationModule;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
@@ -57,9 +60,16 @@ public class Main {
 		modules.add(configurationModule);
 		modules.add(new PreconnectCoreModule());
 		modules.add(new PreconnectUIModule());
+		modules.add(new AppModule());
 		
 		// Now that the module list is complete, create the injector
 		final Injector injector = Guice.createInjector(Stage.PRODUCTION, modules);
+		
+		// Enable the event debugger
+		injector.getInstance(EventBusDebugger.class);
+		
+		// FIXME Find all installed plugins and load their default profiles
+		injector.getInstance(PluginManager.class);
 		
 		// Invoke initializing the GUI on the EDT
 		SwingUtilities.invokeLater(new Runnable() {

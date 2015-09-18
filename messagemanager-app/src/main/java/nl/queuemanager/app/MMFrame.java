@@ -78,28 +78,35 @@ public class MMFrame extends JFrame {
 	
 	@Subscribe
 	public void removeTab(RemoveUITabEvent e) {
+		removeTab(e.getKey());
+	}
+	
+	@Subscribe
+	public void profileActivated(ProfileActivatedEvent e) {
+		removeTab(0);
+	}
+	
+	public void removeTab(int index) {
 		int sel = tabsPane.getSelectedIndex();
-		int pos = 0;
 		boolean wasSelected = false;
 		
-		for(UITab tab: tabs.values()) {
-			if(pos == e.getKey()) {
+		for(int pos = 0; pos < tabs.size(); pos++) {
+			if(pos == index) {
 				tabsPane.removeTabAt(pos);
 				if(pos == sel) {
 					wasSelected = true;
 				}
 			}
-			pos++;
 		}
 		
-		tabs.remove(e.getKey());
+		tabs.remove(index);
 		
 		// If we removed the selected tab, select the first one
 		if(wasSelected) {
 			tabsPane.setSelectedIndex(0);
 		}
 	}
-	
+		
 	private void syncTabs() {
 		int pos = 0;
 		for(UITab tab: tabs.values()) {

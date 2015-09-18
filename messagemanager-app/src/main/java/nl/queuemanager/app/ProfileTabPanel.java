@@ -9,8 +9,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,7 +20,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
@@ -30,27 +27,18 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import nl.queuemanager.ConnectivityProviderPlugin;
-import nl.queuemanager.core.CoreModule;
-import nl.queuemanager.ui.UIModule;
+import nl.queuemanager.app.tasks.TaskFactory;
+import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.ui.UITab;
-import nl.queuemanager.ui.util.TableColumnAdjuster;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Injector;
-import com.google.inject.Module;
 
+@SuppressWarnings("serial")
 public class ProfileTabPanel extends JPanel implements UITab {
-
-	private final Injector parentInjector;
-	private final EventBus eventBus;
-	private final PluginManager pluginManager;
-	
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
 	private JTextField txtProfileName;
-	private JTable pluginTable;
-	private TableColumnAdjuster pluginTableAdjuster;
 	
 	private Profile selectedProfile;
 	private JList<Profile> profilesList;
@@ -58,50 +46,30 @@ public class ProfileTabPanel extends JPanel implements UITab {
 	private JButton btnAddClasspath;
 	private JTextArea txtDescription;
 	private JList<URL> classpathList;
-	private JButton addPluginButton;
-	private JButton removePluginButton;
 	
 	@Inject
-	public ProfileTabPanel(final Injector injector, final EventBus eventBus, final PluginManager pluginManager, final ProfileManager profileManager) {
-		this.parentInjector = injector;
-		this.eventBus = eventBus;
-		this.pluginManager = pluginManager;
-		
+	public ProfileTabPanel(final ProfileManager profileManager, final TaskExecutor worker, final TaskFactory taskFactory) {
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{81, 88, 0, 0, 0};
-		gridBagLayout.rowHeights = new int[]{0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gridBagLayout.rowHeights = new int[]{0, 13, 0, 0, 0, 0, 0, 0, 0, 0};
 		gridBagLayout.columnWeights = new double[]{0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE};
-		gridBagLayout.rowWeights = new double[]{1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE};
+		gridBagLayout.rowWeights = new double[]{1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE};
 		setLayout(gridBagLayout);
 		
 		JLabel lblAvailableProfiles = new JLabel("Available profiles");
 		GridBagConstraints gbc_lblAvailableProfiles = new GridBagConstraints();
-		gbc_lblAvailableProfiles.anchor = GridBagConstraints.LINE_START;
+		gbc_lblAvailableProfiles.fill = GridBagConstraints.HORIZONTAL;
+		gbc_lblAvailableProfiles.anchor = GridBagConstraints.WEST;
 		gbc_lblAvailableProfiles.insets = new Insets(0, 0, 5, 5);
 		gbc_lblAvailableProfiles.gridx = 0;
 		gbc_lblAvailableProfiles.gridy = 0;
 		add(lblAvailableProfiles, gbc_lblAvailableProfiles);
 		
-		JScrollPane scrollPane_2 = new JScrollPane();
-		GridBagConstraints gbc_scrollPane_2 = new GridBagConstraints();
-		gbc_scrollPane_2.fill = GridBagConstraints.BOTH;
-		gbc_scrollPane_2.gridwidth = 2;
-		gbc_scrollPane_2.insets = new Insets(0, 0, 5, 0);
-		gbc_scrollPane_2.gridx = 2;
-		gbc_scrollPane_2.gridy = 6;
-		add(scrollPane_2, gbc_scrollPane_2);
-		
-		pluginTable = new JTable();
-		scrollPane_2.setViewportView(pluginTable);
-		pluginTable.setModel(new PluginListTableModel());
-		pluginTableAdjuster = new TableColumnAdjuster(pluginTable);
-		pluginTableAdjuster.adjustColumns();
-		
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
-		gbc_scrollPane.gridheight = 10;
+		gbc_scrollPane.gridheight = 7;
 		gbc_scrollPane.gridwidth = 2;
 		gbc_scrollPane.fill = GridBagConstraints.BOTH;
 		gbc_scrollPane.insets = new Insets(0, 0, 5, 5);
@@ -179,62 +147,12 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		lblDescription.setLabelFor(txtDescription);
 		scrollPane_1.setViewportView(txtDescription);
 		
-		JLabel lblActivePlugins = new JLabel("Active plugins");
-		GridBagConstraints gbc_lblActivePlugins = new GridBagConstraints();
-		gbc_lblActivePlugins.anchor = GridBagConstraints.LINE_START;
-		gbc_lblActivePlugins.insets = new Insets(0, 0, 5, 5);
-		gbc_lblActivePlugins.gridx = 2;
-		gbc_lblActivePlugins.gridy = 5;
-		add(lblActivePlugins, gbc_lblActivePlugins);
-		
-		addPluginButton = new JButton("Add plugin");
-		addPluginButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				PluginDescriptor plugin = new AddPluginDialog(pluginManager).selectPlugin();
-				if(plugin != null) {
-					selectedProfile.getPlugins().add(plugin);
-					PluginListTableModel model = ((PluginListTableModel)pluginTable.getModel());
-					model.setData(selectedProfile.getPlugins());
-					pluginTableAdjuster.adjustColumns();
-				}
-			}
-		});
-		addPluginButton.setEnabled(false);
-		GridBagConstraints gbc_addPluginButton = new GridBagConstraints();
-		gbc_addPluginButton.anchor = GridBagConstraints.LINE_START;
-		gbc_addPluginButton.insets = new Insets(0, 0, 5, 5);
-		gbc_addPluginButton.gridx = 2;
-		gbc_addPluginButton.gridy = 7;
-		add(addPluginButton, gbc_addPluginButton);
-		
-		removePluginButton = new JButton("Remove plugin");
-		removePluginButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				int row = pluginTable.getSelectedRow();
-				if(row != -1) {
-					PluginListTableModel model = ((PluginListTableModel)pluginTable.getModel());
-					PluginDescriptor plugin = model.getRowItem(row);
-					selectedProfile.getPlugins().remove(plugin);
-					model.removeRow(plugin);
-				}
-			}
-		});
-		removePluginButton.setEnabled(false);
-		GridBagConstraints gbc_removePluginButton = new GridBagConstraints();
-		gbc_removePluginButton.anchor = GridBagConstraints.LINE_START;
-		gbc_removePluginButton.insets = new Insets(0, 0, 5, 0);
-		gbc_removePluginButton.gridx = 3;
-		gbc_removePluginButton.gridy = 7;
-		add(removePluginButton, gbc_removePluginButton);
-		
 		JLabel lblClasspath = new JLabel("Classpath");
 		GridBagConstraints gbc_lblClasspath = new GridBagConstraints();
 		gbc_lblClasspath.anchor = GridBagConstraints.LINE_START;
 		gbc_lblClasspath.insets = new Insets(0, 0, 5, 5);
 		gbc_lblClasspath.gridx = 2;
-		gbc_lblClasspath.gridy = 8;
+		gbc_lblClasspath.gridy = 5;
 		add(lblClasspath, gbc_lblClasspath);
 		
 		JScrollPane scrollPane_3 = new JScrollPane();
@@ -246,7 +164,7 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		gbc_scrollPane_3.gridwidth = 2;
 		gbc_scrollPane_3.fill = GridBagConstraints.BOTH;
 		gbc_scrollPane_3.gridx = 2;
-		gbc_scrollPane_3.gridy = 9;
+		gbc_scrollPane_3.gridy = 6;
 		add(scrollPane_3, gbc_scrollPane_3);
 		
 		classpathList = new JList<URL>(new DefaultListModel<URL>());
@@ -280,7 +198,7 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		gbc_btnAdd.anchor = GridBagConstraints.LINE_START;
 		gbc_btnAdd.insets = new Insets(0, 0, 5, 5);
 		gbc_btnAdd.gridx = 2;
-		gbc_btnAdd.gridy = 10;
+		gbc_btnAdd.gridy = 7;
 		add(btnAddClasspath, gbc_btnAdd);
 		
 		btnRemoveClasspath = new JButton("Remove jar");
@@ -297,11 +215,11 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		gbc_btnRemove.insets = new Insets(0, 0, 5, 0);
 		gbc_btnRemove.anchor = GridBagConstraints.LINE_START;
 		gbc_btnRemove.gridx = 3;
-		gbc_btnRemove.gridy = 10;
+		gbc_btnRemove.gridy = 7;
 		add(btnRemoveClasspath, gbc_btnRemove);
 		
-		JButton newProfileButton = new JButton("New profile");
-		newProfileButton.addActionListener(new ActionListener() {
+		JButton duplicateProfileButton = new JButton("Duplicate");
+		duplicateProfileButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Profile profile = new Profile();
@@ -311,19 +229,19 @@ public class ProfileTabPanel extends JPanel implements UITab {
 				profilesList.setSelectedValue(profile, true);
 			}
 		});
-		GridBagConstraints gbc_newProfileButton = new GridBagConstraints();
-		gbc_newProfileButton.anchor = GridBagConstraints.LINE_START;
-		gbc_newProfileButton.insets = new Insets(0, 0, 0, 5);
-		gbc_newProfileButton.gridx = 0;
-		gbc_newProfileButton.gridy = 11;
-		add(newProfileButton, gbc_newProfileButton);
+		GridBagConstraints gbc_duplicateProfileButton = new GridBagConstraints();
+		gbc_duplicateProfileButton.anchor = GridBagConstraints.LINE_START;
+		gbc_duplicateProfileButton.insets = new Insets(0, 0, 0, 5);
+		gbc_duplicateProfileButton.gridx = 0;
+		gbc_duplicateProfileButton.gridy = 8;
+		add(duplicateProfileButton, gbc_duplicateProfileButton);
 		
-		JButton removeProfileButton = new JButton("Remove profile");
+		JButton removeProfileButton = new JButton("Remove");
 		GridBagConstraints gbc_removeProfileButton = new GridBagConstraints();
 		gbc_removeProfileButton.anchor = GridBagConstraints.LINE_START;
 		gbc_removeProfileButton.insets = new Insets(0, 0, 0, 5);
 		gbc_removeProfileButton.gridx = 1;
-		gbc_removeProfileButton.gridy = 11;
+		gbc_removeProfileButton.gridy = 8;
 		add(removeProfileButton, gbc_removeProfileButton);
 		
 		JButton activateProfileButton = new JButton("Activate profile");
@@ -331,18 +249,14 @@ public class ProfileTabPanel extends JPanel implements UITab {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(selectedProfile == null) { return; }
-				
-				activateProfile(selectedProfile);
-				
-				// FIXME This should be done some other way. The profiles tab doesn't and shouldn't know its own index
-				eventBus.post(new RemoveUITabEvent(0));
+
+				worker.execute(taskFactory.activateProfile(selectedProfile));
 			}
 		});
 		GridBagConstraints gbc_activateProfileButton = new GridBagConstraints();
 		gbc_activateProfileButton.anchor = GridBagConstraints.LINE_END;
-		gbc_activateProfileButton.insets = new Insets(0, 0, 0, 5);
 		gbc_activateProfileButton.gridx = 3;
-		gbc_activateProfileButton.gridy = 11;
+		gbc_activateProfileButton.gridy = 8;
 		
 		add(activateProfileButton, gbc_activateProfileButton);
 	}
@@ -350,50 +264,15 @@ public class ProfileTabPanel extends JPanel implements UITab {
 	private void displaySelectedProfile() {
 		txtProfileName.setText(selectedProfile.getName());
 		txtDescription.setText(selectedProfile.getDescription());
-		((PluginListTableModel)pluginTable.getModel()).setData(selectedProfile.getPlugins());
-		pluginTableAdjuster.adjustColumns();
 
 		txtProfileName.setEnabled(true);
 		txtDescription.setEnabled(true);
 
-		pluginTable.setEnabled(true);
-		addPluginButton.setEnabled(true);
-		removePluginButton.setEnabled(true);
-		
 		classpathList.setEnabled(true);
 		btnAddClasspath.setEnabled(true);
 		btnRemoveClasspath.setEnabled(true);
 	}
-	
-//	private void sonicmq() {
-//		try {
-//			File dir = new File("/Users/gerco/Projects/MessageManager/workspace/messagemanager-2.x/lib/8.6");
-//			File[] files = dir.listFiles();
-//			List<URL> urls = new ArrayList<URL>(files.length);
-//			urls.add(new URL("file:///Users/gerco/Projects/MessageManager/workspace/messagemanager/messagemanager-sonicmq/target/messagemanager-sonicmq-3.0-SNAPSHOT.jar"));
-//			for(File file: files) {
-//				urls.add(file.toURL());
-//			}
-//			initializeWithModule("nl.queuemanager.smm.SMMModule", urls.toArray(new URL[urls.size()]));
-//		} catch (MalformedURLException ex) {
-//			throw new RuntimeException(ex);
-//		}
-//	}
-//
-//	private void initializeWithModule(String moduleName, URL[] urls) {
-//	}
-	
-	private void activateProfile(Profile profile) {
-		// Load the configured plugin modules
-		List<Module> modules = new ArrayList<Module>();
-		modules.add(new CoreModule());
-		modules.add(new UIModule());
-		modules.addAll(pluginManager.loadPluginModules(profile.getPlugins(), profile.getClasspath()));
-		final Injector injector = parentInjector.createChildInjector(modules);
-		ConnectivityProviderPlugin provider = injector.getInstance(ConnectivityProviderPlugin.class);
-		provider.initialize();
-	}
-	
+		
 	public String getUITabName() {
 		return "Profile";
 	}

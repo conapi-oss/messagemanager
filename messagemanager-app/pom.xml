@@ -7,18 +7,30 @@
     <relativePath>..</relativePath>
   </parent>
   <artifactId>messagemanager-app</artifactId>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>templating-maven-plugin</artifactId>
+        <version>1.0-alpha-3</version> <!-- Be sure to use the last version. Check on the website's plugin -->
+        <executions>
+          <execution>
+            <id>filter-src</id>
+            <goals>
+              <goal>filter-sources</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+	</plugins>
+  </build>
+  
   <dependencies>
   	<dependency>
   		<groupId>nl.queuemanager</groupId>
   		<artifactId>messagemanager-ui</artifactId>
   		<version>3.0-SNAPSHOT</version>
   	</dependency>
-  	<!-- 
-  	<dependency>
-  		<groupId>nl.queuemanager</groupId>
-  		<artifactId>messagemanager-activemq</artifactId>
-  		<version>3.0-SNAPSHOT</version>
-  	</dependency>
-  	-->
   </dependencies>
 </project>

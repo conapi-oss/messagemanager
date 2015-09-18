@@ -5,10 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Profile {
-
 	private String name;
 	private String description;
-	private List<PluginDescriptor> plugins = new ArrayList<PluginDescriptor>();
+	private List<String> plugins = new ArrayList<String>();
 	private List<URL> classpath = new ArrayList<URL>();
 	
 	public String getName() {
@@ -27,11 +26,11 @@ public class Profile {
 		this.description = description;
 	}
 	
-	public List<PluginDescriptor> getPlugins() {
+	public List<String> getPlugins() {
 		return plugins;
 	}
 	
-	public void setPlugins(List<PluginDescriptor> plugins) {
+	public void setPlugins(List<String> plugins) {
 		this.plugins = plugins;
 	}
 	
@@ -46,5 +45,17 @@ public class Profile {
 	@Override
 	public String toString() {
 		return getName();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		return o != null
+			&& o instanceof Profile
+			&& ((Profile)o).getName().equals(getName());
+	}
+	
+	@Override
+	public int hashCode() {
+		return getName().hashCode();
 	}
 }

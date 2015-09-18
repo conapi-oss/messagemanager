@@ -1,5 +1,6 @@
 package nl.queuemanager.app;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,6 +11,7 @@ public class PluginDescriptor {
 	private String name;
 	private String description;
 	private String moduleClass;
+	private File file;
 	private List<URL> classpath = new ArrayList<URL>();
 	
 	public String getName() {
@@ -30,6 +32,12 @@ public class PluginDescriptor {
 	public void setModuleClass(String moduleClass) {
 		this.moduleClass = moduleClass;
 	}
+	public File getFile() {
+		return file;
+	}
+	public void setFile(File file) {
+		this.file = file;
+	}
 	public List<URL> getClasspath() {
 		return classpath;
 	}
@@ -37,6 +45,5 @@ public class PluginDescriptor {
 		ArrayList<URL> cp = new ArrayList<URL>();
 		cp.addAll(classpath);
 		this.classpath = Collections.unmodifiableList(cp);
-	}
-	
+	}	
 }

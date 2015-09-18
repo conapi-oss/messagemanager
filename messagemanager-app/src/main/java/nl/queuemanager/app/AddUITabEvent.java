@@ -18,4 +18,8 @@ public class AddUITabEvent {
 	public UITab getTab() {
 		return tab;
 	}
+	
+	public String toString() {
+		return getClass().getName() + "(" + key + ", " + tab.getUITabName() + ")";
+	}
 }

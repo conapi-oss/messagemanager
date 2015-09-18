@@ -77,8 +77,12 @@ public class PlatformHelperOSX extends PlatformHelper implements AboutHandler, P
 		application.setDockIconBadge(badge);
 	}
 	
-	public File getUserDataFolder() throws FileNotFoundException {
-		return new File(com.apple.eio.FileManager.findFolder(kUserDomain, getIntegerFromOsType(kApplicationSupportFolderType)));
+	public File getUserDataFolder() {
+		try {
+			return new File(com.apple.eio.FileManager.findFolder(kUserDomain, getIntegerFromOsType(kApplicationSupportFolderType)));
+		} catch (FileNotFoundException e) {
+			return new File(".messagemanager");
+		}
 	}
 
 	public static int getIntegerFromOsType(String typeStr) {
