@@ -21,8 +21,14 @@ public class ActiveMQModule extends AbstractModule {
 		bind(ConnectivityProviderPlugin.class).to(ActiveMQConnectivityProvider.class);
 		
 		bind(JMSDomain.class).to(ActiveMQDomain.class).in(Scopes.SINGLETON);
-		
-		bind(JavaProcessFinder.class).to(VirtualMachineProcessFinder.class).in(Scopes.SINGLETON);
+
+		try {
+			Class.forName("com.sun.tools.attach.VirtualMachine");
+			bind(JavaProcessFinder.class).to(VirtualMachineProcessFinder.class).in(Scopes.SINGLETON);
+		} catch (ClassNotFoundException e) {
+			// Class not supported on this JVM. Don't load the local process finder.
+			bind(JavaProcessFinder.class).to(DummyProcessFinder.class).in(Scopes.SINGLETON);
+		}
 		
 		// Bind the UI tabs specific to AMM
 		MapBinder<Integer, UITab> tabsBinder = MapBinder.newMapBinder(binder(), Integer.class, UITab.class);

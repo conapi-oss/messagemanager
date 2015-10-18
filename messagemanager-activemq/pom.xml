@@ -13,7 +13,7 @@
   	</dependency>
   	<dependency>
   		<groupId>nl.queuemanager</groupId>
-  		<artifactId>messagemanager-app</artifactId>
+  		<artifactId>messagemanager-plugin-api</artifactId>
   		<version>3.0-SNAPSHOT</version>
   	</dependency>
   	<dependency>

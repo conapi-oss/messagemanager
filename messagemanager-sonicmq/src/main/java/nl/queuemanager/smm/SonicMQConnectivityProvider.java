@@ -5,11 +5,11 @@ import java.util.Map.Entry;
 
 import javax.inject.Inject;
 
-import com.google.common.eventbus.EventBus;
-
+import nl.queuemanager.AddUITabEvent;
 import nl.queuemanager.ConnectivityProviderPlugin;
-import nl.queuemanager.app.AddUITabEvent;
 import nl.queuemanager.ui.UITab;
+
+import com.google.common.eventbus.EventBus;
 
 public class SonicMQConnectivityProvider implements ConnectivityProviderPlugin {
 

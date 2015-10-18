@@ -1,4 +1,4 @@
-package nl.queuemanager.app;
+package nl.queuemanager;
 
 import nl.queuemanager.ui.UITab;
 

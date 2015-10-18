@@ -146,6 +146,7 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		add(lblNewLabel, gbc_lblNewLabel);
 		
 		jmxServiceURLField = new JTextField();
+		jmxServiceURLField.setText("service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi");
 		GridBagConstraints gbc_textField = new GridBagConstraints();
 		gbc_textField.insets = new Insets(0, 0, 5, 0);
 		gbc_textField.fill = GridBagConstraints.HORIZONTAL;

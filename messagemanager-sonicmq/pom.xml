@@ -68,9 +68,8 @@
   <dependencies>
     <dependency>
       <groupId>nl.queuemanager</groupId>
-      <artifactId>messagemanager-app</artifactId>
+      <artifactId>messagemanager-plugin-api</artifactId>
       <version>3.0-SNAPSHOT</version>
-      <scope>compile</scope>
       <exclusions>
       	<exclusion>
       		<artifactId>geronimo-spec-jms</artifactId>

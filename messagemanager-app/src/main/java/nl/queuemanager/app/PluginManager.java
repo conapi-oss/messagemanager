@@ -1,18 +1,23 @@
 package nl.queuemanager.app;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -35,32 +40,93 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.google.common.io.Resources;
 import com.google.inject.Module;
 
 @Singleton
 public class PluginManager {
 	private final Logger logger = Logger.getLogger(getClass().getName());
-	private final PlatformHelper platform;
 	private final ProfileManager profileManager;
 	
+	private final File pluginsFolder;
 	private Map<String, PluginDescriptor> plugins = new HashMap<>();
 	private URLClassLoader pluginClassloader;
 	
 	@Inject
 	public PluginManager(PlatformHelper platform, ProfileManager profileManager) {
-		this.platform = platform;
 		this.profileManager = profileManager;
-		plugins.putAll(findInstalledPlugins());
+		
+		pluginsFolder = new File(new File(platform.getDataFolder(), "plugins"), Version.VERSION);
+		
+		installProvidedPluginsFromResources(pluginsFolder);
+		plugins.putAll(findInstalledPlugins(pluginsFolder));
 	}
 	
 	public List<PluginDescriptor> getInstalledPlugins() {
 		return new ArrayList<>(plugins.values());
 	}
+
+	/**
+	 * Find and install any provided-plugins that are on the classpath. This is to allow plugins to be 
+	 * provided in a JNLP file (packed inside a jar) and directly installed. There isn't going to be a 
+	 * download option at first so all plugins will have to be installed this way.
+	 */
+	private void installProvidedPluginsFromResources(File pluginsFolder) {
+		final String PROVIDED_PLUGINS_FILE = "MessageManager/provided-plugins";
+
+		try {
+			Enumeration<URL> urls = getClass().getClassLoader().getResources(PROVIDED_PLUGINS_FILE);
+			if(!urls.hasMoreElements()) {
+				urls = ClassLoader.getSystemResources(PROVIDED_PLUGINS_FILE);
+			}
+			if(!urls.hasMoreElements()) {
+				URL url = getClass().getResource(PROVIDED_PLUGINS_FILE);
+				if(url != null) {
+					urls = new Vector<URL>(Collections.singleton(url)).elements();
+				}
+			}
+			for(URL url: EnumerationIterator.of(urls)) {
+				try {
+					installProvidedPluginsFromResource(pluginsFolder, url);
+				} catch (IOException e) {
+					logger.log(Level.WARNING, String.format("Cannot install plugins! Unable to read %s", url.toString()), e);
+				}
+			}
+		} catch (IOException e) {
+			logger.log(Level.WARNING, "Cannot install plugins! Exception while finding provided-plugins file", e);
+		}
+	}
 	
-	public Map<String, PluginDescriptor> findInstalledPlugins() {
+	private void installProvidedPluginsFromResource(File pluginsFolder, URL providedPluginsList) throws IOException {
+		logger.info(String.format("Installing plugins from %s", providedPluginsList.toString()));
+		
+		// Open the file and read the names of the plugin jars
+		List<String> jarnames = Resources.readLines(providedPluginsList, Charset.defaultCharset());
+		for(String jar: jarnames) {
+			try {
+				installProvidedPlugin(pluginsFolder, jar);
+			} catch (IOException e) {
+				logger.log(Level.WARNING, String.format("Cannot install plugin %s", jar), e);
+			}
+		}
+	}
+	
+	private void installProvidedPlugin(File pluginsFolder, String jarName) throws IOException {
+		URL res = Resources.getResource(jarName);
+		if(res != null) {
+			logger.info(String.format("Installing plugin %s", res.toString()));
+			pluginsFolder.mkdirs(); // Ensure the directory exists
+			File pluginFile = new File(pluginsFolder, getLastPathComponent(res.getPath()));
+			if(!pluginFile.exists()) { // Only install plugin if it doesn't exist yet
+				FileOutputStream fos = new FileOutputStream(pluginFile);
+				Resources.copy(res, fos);
+			}
+		}
+	}
+	
+	public Map<String, PluginDescriptor> findInstalledPlugins(File pluginsFolder) {
 		Map<String, PluginDescriptor> ret = new HashMap<String, PluginDescriptor>();
 		
-		File pluginsFolder = new File(new File(platform.getDataFolder(), "plugins"), Version.VERSION);
 		pluginsFolder.mkdirs(); // Ensure the directory exists
 		logger.info("Looking for plugins in " + pluginsFolder.getAbsolutePath());
 		
@@ -116,6 +182,10 @@ public class PluginManager {
 			return zipFile.getInputStream(entry);
 		}
 		return null;
+	}
+	
+	private String getLastPathComponent(String path) {
+		return path.substring(path.lastIndexOf('/'));
 	}
 	
 	private PluginDescriptor readDescriptor(File pluginFile, InputStream stream) {

@@ -34,6 +34,8 @@
     <module>ws-85</module>
     <module>ws-86</module>
     <module>ws-100</module>
+    <module>messagemanager-plugins-package</module>
+    <module>messagemanager-plugin-api</module>
   </modules>
   
   <properties>
@@ -104,7 +106,7 @@
 			<dependency>
 			    <groupId>com.google.guava</groupId>
 			    <artifactId>guava</artifactId>
-			    <version>13.0.1</version>
+			    <version>18.0</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
