@@ -9,6 +9,9 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -222,9 +225,17 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		duplicateProfileButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				Profile source = profilesList.getSelectedValue();
+				
 				Profile profile = new Profile();
-				profile.setName("New profile");
-				((DefaultListModel<Profile>)profilesList.getModel()).addElement(profile);
+				profile.setName(source + " (copy)");
+				profile.setDescription(source.getDescription());
+				profile.getPlugins().addAll(source.getPlugins());
+				profile.getClasspath().addAll(source.getClasspath());
+				
+				// TODO inform ProfileManager. Perhaps replace the line below with a reactive substitute (automatically update
+				// the UI list based on the list in the ProfileManager).
+				((DefaultListModel<Profile>)profilesList.getModel()).insertElementAt(profile, profilesList.getSelectedIndex()+1);
 				
 				profilesList.setSelectedValue(profile, true);
 			}
@@ -237,6 +248,14 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		add(duplicateProfileButton, gbc_duplicateProfileButton);
 		
 		JButton removeProfileButton = new JButton("Remove");
+		removeProfileButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO inform ProfileManager. Perhaps replace the line below with a reactive substitute (automatically update
+				// the UI list based on the list in the ProfileManager).
+				((DefaultListModel<Profile>)profilesList.getModel()).removeElement(profilesList.getSelectedValue());
+			}
+		});
 		GridBagConstraints gbc_removeProfileButton = new GridBagConstraints();
 		gbc_removeProfileButton.anchor = GridBagConstraints.LINE_START;
 		gbc_removeProfileButton.insets = new Insets(0, 0, 0, 5);
@@ -279,6 +298,11 @@ public class ProfileTabPanel extends JPanel implements UITab {
 
 	public JComponent getUITabComponent() {
 		return this;
+	}
+
+	@Override
+	public String toString() {
+		return getUITabName();
 	}
 
 	public ConnectionState[] getUITabEnabledStates() {

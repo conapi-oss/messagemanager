@@ -17,6 +17,7 @@ package nl.queuemanager.app;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.util.Arrays;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -24,6 +25,7 @@ import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
+import nl.queuemanager.AddUITabEvent;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.platform.AboutEvent;
 import nl.queuemanager.core.platform.PlatformHelper;
@@ -71,7 +73,17 @@ public class MMFrame extends JFrame {
 	}
 	
 	@Subscribe
-	public void addTab(AddUITabEvent e) {
+	public void addTab(final AddUITabEvent e) {
+		if(!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					addTab(e);
+				}
+			});
+			return;
+		}
+		
 		tabs.put(e.getKey(), e.getTab());
 		syncTabs();
 	}
@@ -86,7 +98,17 @@ public class MMFrame extends JFrame {
 		removeTab(0);
 	}
 	
-	public void removeTab(int index) {
+	public void removeTab(final int index) {
+		if(!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					removeTab(index);
+				}
+			});
+			return;
+		}
+		
 		int sel = tabsPane.getSelectedIndex();
 		boolean wasSelected = false;
 		
@@ -96,24 +118,38 @@ public class MMFrame extends JFrame {
 				if(pos == sel) {
 					wasSelected = true;
 				}
+				
+				break;
 			}
 		}
-		
+
 		tabs.remove(index);
 		
 		// If we removed the selected tab, select the first one
 		if(wasSelected) {
 			tabsPane.setSelectedIndex(0);
 		}
+		
+		syncTabs();
 	}
 		
 	private void syncTabs() {
+		if(!SwingUtilities.isEventDispatchThread()) {
+			throw new IllegalStateException("Must run on EDT!");
+		}
+		
 		int pos = 0;
 		for(UITab tab: tabs.values()) {
-			if(tabsPane.getTabCount() <= pos || tabsPane.getTabComponentAt(pos) != tab.getUITabComponent()) {
+			if(tabsPane.getTabCount() <= pos) {
+				tabsPane.addTab(tab.getUITabName(), tab.getUITabComponent());
+			} else 
+			if(tabsPane.getComponentAt(pos) != tab.getUITabComponent()) {
 				tabsPane.insertTab(tab.getUITabName(), null, tab.getUITabComponent(), null, pos);
 			}
 			pos++;
+	
+			// TODO get current state for this call
+			setTabState(tab, UITab.ConnectionState.DISCONNECTED);
 		}
 	}
 	
@@ -141,17 +177,20 @@ public class MMFrame extends JFrame {
 	}
 	
 	private void setTabStates(UITab.ConnectionState state) {
-		tabs:
 		for(UITab tab: tabs.values()) {
-			int index = tabsPane.indexOfComponent(tab.getUITabComponent());
-			for(UITab.ConnectionState s: tab.getUITabEnabledStates()) {
-				if(s == state) {
-					tabsPane.setEnabledAt(index, true);
-					continue tabs;
-				}
-			}
-			tabsPane.setEnabledAt(index, false);
+			setTabState(tab, state);
 		}
+	}
+	
+	private void setTabState(UITab tab, UITab.ConnectionState state) {
+		int index = tabsPane.indexOfComponent(tab.getUITabComponent());
+		for(UITab.ConnectionState s: tab.getUITabEnabledStates()) {
+			if(s == state) {
+				tabsPane.setEnabledAt(index, true);
+				return;
+			}
+		}
+		tabsPane.setEnabledAt(index, false);
 	}
 	
 	@Subscribe
