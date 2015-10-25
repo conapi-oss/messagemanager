@@ -114,7 +114,7 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		gbc_txtProfileName.gridx = 2;
 		gbc_txtProfileName.gridy = 2;
 		add(txtProfileName, gbc_txtProfileName);
-		txtProfileName.setColumns(10);
+		txtProfileName.setColumns(50);
 		txtProfileName.getDocument().addDocumentListener(new DocumentAdapter() {
 			@Override
 			public void updated(DocumentEvent e) {
@@ -149,6 +149,12 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		txtDescription.setWrapStyleWord(true);
 		lblDescription.setLabelFor(txtDescription);
 		scrollPane_1.setViewportView(txtDescription);
+		txtDescription.getDocument().addDocumentListener(new DocumentAdapter() {
+			@Override
+			public void updated(DocumentEvent e) {
+				selectedProfile.setDescription(txtDescription.getText());
+			}
+		});
 		
 		JLabel lblClasspath = new JLabel("Classpath");
 		GridBagConstraints gbc_lblClasspath = new GridBagConstraints();
@@ -233,9 +239,9 @@ public class ProfileTabPanel extends JPanel implements UITab {
 				profile.getPlugins().addAll(source.getPlugins());
 				profile.getClasspath().addAll(source.getClasspath());
 				
-				// TODO inform ProfileManager. Perhaps replace the line below with a reactive substitute (automatically update
-				// the UI list based on the list in the ProfileManager).
 				((DefaultListModel<Profile>)profilesList.getModel()).insertElementAt(profile, profilesList.getSelectedIndex()+1);
+				profileManager.putProfileIfNotExist(profile);
+				profileManager.tryToSaveProfile(profile);
 				
 				profilesList.setSelectedValue(profile, true);
 			}

@@ -95,7 +95,7 @@ public class ProfileManager {
 		}
 	}
 	
-	private void tryToSaveProfile(Profile profile) {
+	public boolean tryToSaveProfile(Profile profile) {
 		profilesFolder.mkdirs();
 		File file = new File(profilesFolder, profile.getId() + ".xml");
 
@@ -129,9 +129,13 @@ public class ProfileManager {
 			Transformer transformer = tf.newTransformer();
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 			transformer.transform(new DOMSource(doc), result);
+			
+			return true;
 		} catch (ParserConfigurationException | TransformerException e) {
 			logger.log(Level.WARNING, "Unable to save profile " + profile.getName() + " to file " + file.getAbsolutePath(), e);
 		}
+		
+		return false;
 	}
 	
 	private void appendTextElement(Element parent, String name, String value) {

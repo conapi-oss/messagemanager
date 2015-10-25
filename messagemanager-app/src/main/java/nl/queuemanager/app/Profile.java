@@ -3,6 +3,7 @@ package nl.queuemanager.app;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class Profile {
 	private String id;
@@ -10,6 +11,10 @@ public class Profile {
 	private String description;
 	private List<String> plugins = new ArrayList<String>();
 	private List<URL> classpath = new ArrayList<URL>();
+	
+	public Profile() {
+		setId(UUID.randomUUID().toString());
+	}
 	
 	public String getId() {
 		return id;
