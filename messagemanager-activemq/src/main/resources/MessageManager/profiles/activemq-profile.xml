@@ -1,4 +1,5 @@
 <profile>
+	<id>42239f78-79d6-11e5-a560-7831c1c10182</id>
 	<name>ActiveMQ</name>
 	<description>Use this profile to connect to Active MQ</description>
 	<plugins>

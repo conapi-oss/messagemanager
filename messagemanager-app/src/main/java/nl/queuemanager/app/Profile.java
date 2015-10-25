@@ -5,11 +5,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Profile {
+	private String id;
 	private String name;
 	private String description;
 	private List<String> plugins = new ArrayList<String>();
 	private List<URL> classpath = new ArrayList<URL>();
 	
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -51,11 +60,12 @@ public class Profile {
 	public boolean equals(Object o) {
 		return o != null
 			&& o instanceof Profile
-			&& ((Profile)o).getName().equals(getName());
+			&& ((Profile)o).getId().equals(getId());
 	}
 	
 	@Override
 	public int hashCode() {
-		return getName().hashCode();
+		return getId().hashCode();
 	}
+
 }

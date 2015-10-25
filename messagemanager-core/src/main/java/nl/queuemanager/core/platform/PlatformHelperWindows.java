@@ -4,7 +4,7 @@ import java.io.File;
 
 public abstract class PlatformHelperWindows extends PlatformHelper {
 	
-	public File getUserDataFolder() {
+	protected File getUserDataFolder() {
 		return new File(System.getenv("APPDATA"));
 	}
 	

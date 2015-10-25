@@ -17,7 +17,6 @@ package nl.queuemanager.app;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.util.Arrays;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -44,6 +43,8 @@ public class MMFrame extends JFrame {
 
 	private final JTabbedPane tabsPane;
 	private final SortedMap<Integer, UITab> tabs;
+	
+	private UITab.ConnectionState currentState;
 	
 	@Inject
 	public MMFrame(TaskQueuePanel taskQueuePanel, PlatformHelper platformHelper, ProfileTabPanel profileTab) {
@@ -148,8 +149,7 @@ public class MMFrame extends JFrame {
 			}
 			pos++;
 	
-			// TODO get current state for this call
-			setTabState(tab, UITab.ConnectionState.DISCONNECTED);
+			setTabState(tab, currentState);
 		}
 	}
 	
@@ -177,6 +177,8 @@ public class MMFrame extends JFrame {
 	}
 	
 	private void setTabStates(UITab.ConnectionState state) {
+		currentState = state;
+		
 		for(UITab tab: tabs.values()) {
 			setTabState(tab, state);
 		}

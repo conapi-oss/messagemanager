@@ -117,7 +117,7 @@ public class PluginManager {
 			logger.info(String.format("Installing plugin %s", res.toString()));
 			pluginsFolder.mkdirs(); // Ensure the directory exists
 			File pluginFile = new File(pluginsFolder, getLastPathComponent(res.getPath()));
-			if(!pluginFile.exists()) { // Only install plugin if it doesn't exist yet
+			if(!pluginFile.exists() || Boolean.getBoolean("mm.forceInstallPlugins")) { // Only install plugin if it doesn't exist yet
 				FileOutputStream fos = new FileOutputStream(pluginFile);
 				Resources.copy(res, fos);
 			}
@@ -153,7 +153,7 @@ public class PluginManager {
 					{
 						PluginDescriptor descriptor = readDescriptor(pluginFile, descriptorStream);
 						if(descriptor != null) {
-							logger.info(String.format("Found plugin: %s (%s) in file %s", descriptor.getName(), descriptor.getModuleClassName(), pluginFile.getName()));
+							logger.fine(String.format("Found plugin: %s (%s) in file %s", descriptor.getName(), descriptor.getModuleClassName(), pluginFile.getName()));
 							ret.put(descriptor.getModuleClassName(), descriptor);
 						}
 					}
@@ -164,8 +164,8 @@ public class PluginManager {
 					{
 						Profile profile = profileManager.readDescriptor(stream);
 						if(profile != null) {
-							logger.info(String.format("Found profile: %s in file %s", profile.getName(), pluginFile.getName()));
-							profileManager.putProfile(profile);
+							logger.fine(String.format("Found profile: %s in file %s", profile.getName(), pluginFile.getName()));
+							profileManager.putProfileIfNotExist(profile);
 						}
 					}
 				}

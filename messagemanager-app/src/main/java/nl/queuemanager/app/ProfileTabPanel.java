@@ -209,7 +209,7 @@ public class ProfileTabPanel extends JPanel implements UITab {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				URL url = classpathList.getSelectedValue();
-				((DefaultListModel<Profile>)profilesList.getModel()).removeElement(url);
+				((DefaultListModel<URL>)classpathList.getModel()).removeElement(url);
 				selectedProfile.getClasspath().remove(url);
 			}
 		});
@@ -288,6 +288,11 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		txtDescription.setEnabled(true);
 
 		classpathList.setEnabled(true);
+		((DefaultListModel<URL>)classpathList.getModel()).clear();
+		for(URL url: selectedProfile.getClasspath()) {
+			((DefaultListModel<URL>)classpathList.getModel()).addElement(url);
+		}
+		
 		btnAddClasspath.setEnabled(true);
 		btnRemoveClasspath.setEnabled(true);
 	}
