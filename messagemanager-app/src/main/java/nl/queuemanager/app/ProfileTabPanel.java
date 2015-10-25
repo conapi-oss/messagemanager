@@ -118,7 +118,9 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		txtProfileName.getDocument().addDocumentListener(new DocumentAdapter() {
 			@Override
 			public void updated(DocumentEvent e) {
-				selectedProfile.setName(txtProfileName.getText());
+				if(selectedProfile != null) {
+					selectedProfile.setName(txtProfileName.getText());
+				}
 			}
 		});
 		txtProfileName.setEnabled(false);
@@ -152,7 +154,9 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		txtDescription.getDocument().addDocumentListener(new DocumentAdapter() {
 			@Override
 			public void updated(DocumentEvent e) {
-				selectedProfile.setDescription(txtDescription.getText());
+				if(selectedProfile != null) {
+					selectedProfile.setDescription(txtDescription.getText());
+				}
 			}
 		});
 		
@@ -257,9 +261,11 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		removeProfileButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO inform ProfileManager. Perhaps replace the line below with a reactive substitute (automatically update
-				// the UI list based on the list in the ProfileManager).
-				((DefaultListModel<Profile>)profilesList.getModel()).removeElement(profilesList.getSelectedValue());
+				Profile toRemove = profilesList.getSelectedValue();
+				if(toRemove != null) {
+					((DefaultListModel<Profile>)profilesList.getModel()).removeElement(toRemove);
+					profileManager.removeProfile(toRemove);
+				}
 			}
 		});
 		GridBagConstraints gbc_removeProfileButton = new GridBagConstraints();
@@ -287,20 +293,33 @@ public class ProfileTabPanel extends JPanel implements UITab {
 	}
 	
 	private void displaySelectedProfile() {
-		txtProfileName.setText(selectedProfile.getName());
-		txtDescription.setText(selectedProfile.getDescription());
-
-		txtProfileName.setEnabled(true);
-		txtDescription.setEnabled(true);
-
-		classpathList.setEnabled(true);
-		((DefaultListModel<URL>)classpathList.getModel()).clear();
-		for(URL url: selectedProfile.getClasspath()) {
-			((DefaultListModel<URL>)classpathList.getModel()).addElement(url);
+		if(selectedProfile != null) {
+			txtProfileName.setText(selectedProfile.getName());
+			txtDescription.setText(selectedProfile.getDescription());
+	
+			txtProfileName.setEnabled(true);
+			txtDescription.setEnabled(true);
+	
+			classpathList.setEnabled(true);
+			((DefaultListModel<URL>)classpathList.getModel()).clear();
+			for(URL url: selectedProfile.getClasspath()) {
+				((DefaultListModel<URL>)classpathList.getModel()).addElement(url);
+			}
+			
+			btnAddClasspath.setEnabled(true);
+			btnRemoveClasspath.setEnabled(true);
+		} else {
+			txtProfileName.setText("");
+			txtDescription.setText("");
+	
+			txtProfileName.setEnabled(false);
+			txtDescription.setEnabled(false);
+	
+			classpathList.setEnabled(false);
+			
+			btnAddClasspath.setEnabled(false);
+			btnRemoveClasspath.setEnabled(false);
 		}
-		
-		btnAddClasspath.setEnabled(true);
-		btnRemoveClasspath.setEnabled(true);
 	}
 		
 	public String getUITabName() {

@@ -73,6 +73,14 @@ public class ProfileManager {
 		profiles.add(profile);
 	}
 	
+	public void removeProfile(Profile profile) {
+		profiles.remove(profile);
+		File file = fileForProfile(profile);
+		if(file.exists()) {
+			file.delete();
+		}
+	}
+	
 	/**
 	 * Load existing profiles from disk
 	 */
@@ -97,7 +105,7 @@ public class ProfileManager {
 	
 	public boolean tryToSaveProfile(Profile profile) {
 		profilesFolder.mkdirs();
-		File file = new File(profilesFolder, profile.getId() + ".xml");
+		File file = fileForProfile(profile);
 
 		logger.info(String.format("Saving profile %s to file %s", profile.getName(), file.getAbsolutePath()));
 		
@@ -136,6 +144,11 @@ public class ProfileManager {
 		}
 		
 		return false;
+	}
+
+	private File fileForProfile(Profile profile) {
+		File file = new File(profilesFolder, profile.getId() + ".xml");
+		return file;
 	}
 	
 	private void appendTextElement(Element parent, String name, String value) {
