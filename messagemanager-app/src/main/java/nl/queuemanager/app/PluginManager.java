@@ -137,7 +137,12 @@ public class PluginManager {
 				return name.endsWith(".jar");
 			}
 		});
-
+		
+		if(pluginFiles == null) {
+			logger.warning("No plugins found");
+			return ret;
+		}
+		
 		// Now read their plugin descriptors to make sure we only consider actual plugin jars
 		for(final File pluginFile: pluginFiles) {
 			logger.fine(String.format("Reading potential plugin file %s", pluginFile.getAbsolutePath()));
@@ -149,7 +154,7 @@ public class PluginManager {
 					
 					// If entry is a plugin descriptor, read it
 					if(name.startsWith("MessageManager/plugins/") && name.endsWith(".xml")) try (
-						InputStream descriptorStream = openStreamForZipEntry(pluginZip, entry))
+						InputStream descriptorStream = ZipUtil.openStreamForZipEntry(pluginZip, entry))
 					{
 						PluginDescriptor descriptor = readDescriptor(pluginFile, descriptorStream);
 						if(descriptor != null) {
@@ -160,9 +165,9 @@ public class PluginManager {
 					
 					// If entry is a profile descriptor, read that
 					if(name.startsWith("MessageManager/profiles/") && name.endsWith(".xml")) try (
-						InputStream stream = openStreamForZipEntry(pluginZip, entry))
+						InputStream stream = ZipUtil.openStreamForZipEntry(pluginZip, entry))
 					{
-						Profile profile = profileManager.readDescriptor(stream);
+						Profile profile = profileManager.readDescriptor(stream, pluginZip);
 						if(profile != null) {
 							logger.fine(String.format("Found profile: %s in file %s", profile.getName(), pluginFile.getName()));
 							profileManager.putProfileIfNotExist(profile);
@@ -177,12 +182,6 @@ public class PluginManager {
 		return ret;
 	}
 	
-	private InputStream openStreamForZipEntry(ZipFile zipFile, ZipEntry entry) throws IOException {
-		if(entry != null) {
-			return zipFile.getInputStream(entry);
-		}
-		return null;
-	}
 	
 	private String getLastPathComponent(String path) {
 		return path.substring(path.lastIndexOf('/'));
@@ -243,10 +242,11 @@ public class PluginManager {
 			urls.addAll(classpath);
 			
 			URLClassLoader classLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]));
-			System.out.println("Created classloader: " + Arrays.toString(classLoader.getURLs()));
+			logger.finest("Created classloader: " + Arrays.toString(classLoader.getURLs()));
 
 			List<Module> result = new ArrayList<Module>();
 			for(PluginDescriptor plugin: plugins) {
+				@SuppressWarnings("unchecked")
 				Class<Module> moduleClass = (Class<Module>) classLoader.loadClass(plugin.getModuleClassName());
 				Module module = moduleClass.newInstance();
 				result.add(module);

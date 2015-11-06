@@ -1,6 +1,7 @@
 <profile>
 	<id>51c40d3c-79d6-11e5-8c47-7831c1c10182</id>
 	<name>SonicMQ</name>
+	<icon>MessageManager/profiles/sonicmq-logo.jpg</icon>
 	<description>Use this profile to connect to Sonic MQ. You will need to add the Sonic MQ jar files from your installation to the classpath list below before this profile will work.</description>
 	<plugins>
 		<plugin>nl.queuemanager.smm.SMMModule</plugin>

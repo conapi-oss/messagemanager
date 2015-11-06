@@ -5,9 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class Profile {
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+
+public class Profile implements Comparable<Profile> {
 	private String id;
 	private String name;
+	private byte[] iconData;
+	private Icon icon;
 	private String description;
 	private List<String> plugins = new ArrayList<String>();
 	private List<URL> classpath = new ArrayList<URL>();
@@ -32,6 +37,26 @@ public class Profile {
 		this.name = name;
 	}
 	
+	public byte[] getIconData() {
+		return iconData;
+	}
+
+	public void setIconData(byte[] iconData) {
+		this.iconData = iconData;
+	}
+
+	public Icon getIcon() {
+		if(icon != null) {
+			return icon;
+		}
+
+		if(getIconData() != null) {
+			return new ImageIcon(getIconData());
+		}
+		
+		return null;
+	}
+
 	public String getDescription() {
 		return description;
 	}
@@ -56,6 +81,20 @@ public class Profile {
 		this.classpath = classpath;
 	}
 	
+	/**
+	 * Create a copy of the source profile with a new Id.
+	 * @param source
+	 */
+	public static Profile copyOf(Profile source) {
+		final Profile profile = new Profile();
+		profile.setName(source + " (copy)");
+		profile.setIconData(source.getIconData());
+		profile.setDescription(source.getDescription());
+		profile.getPlugins().addAll(source.getPlugins());
+		profile.getClasspath().addAll(source.getClasspath());
+		return profile;
+	}
+	
 	@Override
 	public String toString() {
 		return getName();
@@ -71,6 +110,11 @@ public class Profile {
 	@Override
 	public int hashCode() {
 		return getId().hashCode();
+	}
+
+	@Override
+	public int compareTo(Profile o) {
+		return getName().compareTo(o.getName());
 	}
 
 }

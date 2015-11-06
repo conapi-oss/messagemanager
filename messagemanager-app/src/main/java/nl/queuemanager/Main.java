@@ -33,6 +33,7 @@ import nl.queuemanager.core.configuration.XmlConfigurationModule;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.core.platform.PlatformHelper;
 import nl.queuemanager.debug.DebugEventListener;
+import nl.queuemanager.debug.TracingEventQueue;
 import nl.queuemanager.ui.PreconnectUIModule;
 
 import com.google.common.eventbus.EventBus;
@@ -49,7 +50,10 @@ public class Main {
 	public static void main(String[] args) {
 		// Set look & feel to native
 		setNativeLAF();
-		enableSwingDebug();
+		
+		if(Boolean.getBoolean("mm.enableSwingDebug")) {
+			enableSwingDebug();
+		}
 		
 		// Create the configuration module
 		// FIXME set a correct filename, etc
@@ -102,7 +106,7 @@ public class Main {
 
 	private static void enableSwingDebug() {
 		Toolkit.getDefaultToolkit().addAWTEventListener(new DebugEventListener(), AWTEvent.MOUSE_EVENT_MASK);
-//		Toolkit.getDefaultToolkit().getSystemEventQueue().push(new TracingEventQueue());
+		Toolkit.getDefaultToolkit().getSystemEventQueue().push(new TracingEventQueue());
 	}
 	
 }

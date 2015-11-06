@@ -14,9 +14,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -43,6 +47,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.google.common.eventbus.Subscribe;
+import com.miginfocom.Base64;
 
 @Singleton
 public class ProfileManager {
@@ -93,10 +98,15 @@ public class ProfileManager {
 			
 		});
 		
+		if(files == null) {
+			logger.warning("files[] was null?");
+			return;
+		}
+		
 		for(File file: files) {
 			try {
 				logger.fine(String.format("Loading profile from file %s", file.getAbsolutePath()));
-				putProfileIfNotExist(readDescriptor(new FileInputStream(file)));
+				putProfileIfNotExist(readDescriptor(new FileInputStream(file), null));
 			} catch (FileNotFoundException e) {
 				logger.log(Level.WARNING, "Unable to load profile from file " + file.getAbsolutePath(), e);
 			}
@@ -117,6 +127,7 @@ public class ProfileManager {
 			Element profileElement = doc.createElement("profile");
 			appendTextElement(profileElement, "id", profile.getId());
 			appendTextElement(profileElement, "name", profile.getName());
+			appendTextElement(profileElement, "icon", "base64:" + Base64.encodeToString(profile.getIconData(), false));
 			appendTextElement(profileElement, "description", profile.getDescription());
 			
 			Element pluginListElement = doc.createElement("plugins");
@@ -157,7 +168,7 @@ public class ProfileManager {
 		parent.appendChild(e);
 	}
 
-	public Profile readDescriptor(InputStream stream) {
+	public Profile readDescriptor(InputStream stream, ZipFile pluginZip) {
 		if(stream == null) {
 			return null;
 		}
@@ -173,6 +184,7 @@ public class ProfileManager {
 			Profile profile = new Profile();
 			profile.setId(xpath.evaluate("/profile/id", doc));
 			profile.setName(xpath.evaluate("/profile/name", doc));
+			profile.setIconData(loadIcon(xpath.evaluate("/profile/icon", doc), pluginZip));
 			profile.setDescription(xpath.evaluate("/profile/description", doc));
 			profile.setPlugins(readPluginList((NodeList)xpath.evaluate("/profile/plugins/plugin", doc, XPathConstants.NODESET)));
 			profile.setClasspath(readClasspath((NodeList)xpath.evaluate("/profile/classpath/entry", doc, XPathConstants.NODESET)));
@@ -184,6 +196,39 @@ public class ProfileManager {
 		return null;
 	}
 	
+	private byte[] loadIcon(final String iconString, final ZipFile pluginZip) throws IOException {
+		if(iconString == null || "".equals(iconString.trim())) {
+			return null;
+		}
+
+		// If the data is base64 encoded, return the decoded version
+		if(iconString.startsWith("base64:")) {
+			return Base64.decode(iconString.substring(7));
+		}
+		
+		if(pluginZip == null) {
+			logger.warning("No zipfile provided!");
+			return null;
+		}
+		
+		final ZipEntry iconEntry = pluginZip.getEntry(iconString);
+		if(iconEntry == null) {
+			logger.warning("Unable to find icon at path " + iconString);
+			return null;
+		}
+		
+		// Grab the resource and load the image (if any)
+		try(InputStream iconStream = ZipUtil.openStreamForZipEntry(pluginZip, iconEntry)) {
+			byte[] data = new byte[(int) iconEntry.getSize()];
+			int offset = 0, n=0;
+			while((n = iconStream.read(data, offset, data.length-offset)) > 0) {
+				offset += n;
+				logger.finest("Reading icon: " + offset + "/" + data.length);
+			}
+			return data;
+		}
+	}
+
 	private List<String> readPluginList(NodeList nodes) {
 		List<String> ret = new ArrayList<String>();
 		
