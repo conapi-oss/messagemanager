@@ -1,18 +1,10 @@
 package nl.queuemanager.app.tasks;
 
-import java.lang.instrument.ClassDefinition;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
-import com.google.common.eventbus.EventBus;
-import com.google.inject.Injector;
-import com.google.inject.Module;
-import com.google.inject.assistedinject.Assisted;
 
 import nl.queuemanager.ConnectivityProviderPlugin;
 import nl.queuemanager.Profile;
@@ -23,6 +15,13 @@ import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.CoreModule;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.ui.UIModule;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
+import com.google.common.eventbus.EventBus;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.assistedinject.Assisted;
 
 public class ActivateProfileTask extends Task {
 	public static final String LAST_ACTIVE_PROFILE = "lastActiveProfile";

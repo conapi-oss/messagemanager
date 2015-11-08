@@ -286,6 +286,8 @@ public class ProfileTabPanel extends JPanel implements UITab {
 					((DefaultListModel<URL>)classpathList.getModel()).removeElement(url);
 					selectedProfile.getClasspath().remove(url);
 				}
+				
+				displaySelectedProfile();
 			}
 		});
 		
