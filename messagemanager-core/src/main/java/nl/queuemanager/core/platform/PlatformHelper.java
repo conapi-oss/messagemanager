@@ -2,7 +2,10 @@ package nl.queuemanager.core.platform;
 
 import java.io.File;
 
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.filechooser.FileFilter;
 
 public abstract class PlatformHelper {
 	
@@ -13,6 +16,14 @@ public abstract class PlatformHelper {
 	}
 
 	public void setBadge(String badge) {
+	}
+	
+	public File[] chooseFiles(final JComponent parent, final String approveButtonText, final boolean allowMultiple, final FileFilter filter) {
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setFileFilter(filter);
+		fileChooser.showDialog(parent, approveButtonText);
+		fileChooser.setMultiSelectionEnabled(allowMultiple);
+		return fileChooser.getSelectedFiles();
 	}
 
 	/**

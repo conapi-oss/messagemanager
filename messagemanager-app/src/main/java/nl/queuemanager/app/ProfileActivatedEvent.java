@@ -1,5 +1,7 @@
 package nl.queuemanager.app;
 
+import nl.queuemanager.Profile;
+
 public class ProfileActivatedEvent {
 
 	private final Profile profile;

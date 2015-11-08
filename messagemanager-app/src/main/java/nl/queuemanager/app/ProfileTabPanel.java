@@ -1,5 +1,6 @@
 package nl.queuemanager.app;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -7,12 +8,17 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,17 +42,23 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import nl.queuemanager.Profile;
+import nl.queuemanager.app.tasks.ActivateProfileTask;
 import nl.queuemanager.app.tasks.TaskFactory;
+import nl.queuemanager.core.Configuration;
+import nl.queuemanager.core.platform.PlatformHelper;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.ui.CommonUITasks;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.util.SingleExtensionFileFilter;
 
+import com.google.common.base.Strings;
+
 @SuppressWarnings("serial")
 public class ProfileTabPanel extends JPanel implements UITab {
 	private final Logger logger = Logger.getLogger(getClass().getName());
-	
+		
 	private JTextField txtProfileName;
 	
 	private Profile selectedProfile;
@@ -58,23 +70,28 @@ public class ProfileTabPanel extends JPanel implements UITab {
 
 	private JButton activateProfileButton;
 	
+	private PlatformHelper platform;
+	
 	@Inject
-	public ProfileTabPanel(final ProfileManager profileManager, final TaskExecutor worker, final TaskFactory taskFactory) {
+	public ProfileTabPanel(final ProfileManager profileManager, final TaskExecutor worker, final TaskFactory taskFactory, final PlatformHelper platform, final Configuration config) {
+		this.platform = platform;
+		
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[]{81, 88, 0, 0};
-		gridBagLayout.rowHeights = new int[]{0, 13, 0, 0, 0, 0, 0, 0, 0, 0};
-		gridBagLayout.columnWeights = new double[]{0.0, 1.0, 0.0, Double.MIN_VALUE};
-		gridBagLayout.rowWeights = new double[]{1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE};
+		gridBagLayout.columnWidths = new int[]{0, 0, 0, 0};
+		gridBagLayout.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gridBagLayout.columnWeights = new double[]{0.0, 0.5, 0.5, Double.MIN_VALUE};
+		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		setLayout(gridBagLayout);
 		
-		JLabel lblAvailableProfiles = new JLabel("Available profiles");
-		GridBagConstraints gbc_lblAvailableProfiles = new GridBagConstraints();
-		gbc_lblAvailableProfiles.fill = GridBagConstraints.HORIZONTAL;
-		gbc_lblAvailableProfiles.anchor = GridBagConstraints.WEST;
-		gbc_lblAvailableProfiles.insets = new Insets(0, 0, 5, 5);
-		gbc_lblAvailableProfiles.gridx = 0;
-		gbc_lblAvailableProfiles.gridy = 0;
-		add(lblAvailableProfiles, gbc_lblAvailableProfiles);
+		JLabel lblHeader = new JLabel("Select a profile");
+		lblHeader.setFont(lblHeader.getFont().deriveFont(32));
+		GridBagConstraints gbc_lblHeader = new GridBagConstraints();
+		gbc_lblHeader.fill = GridBagConstraints.HORIZONTAL;
+		gbc_lblHeader.anchor = GridBagConstraints.CENTER;
+		gbc_lblHeader.insets = new Insets(0, 0, 5, 5);
+		gbc_lblHeader.gridx = 0;
+		gbc_lblHeader.gridy = 0;
+		add(lblHeader, gbc_lblHeader);
 		
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -88,11 +105,17 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		gbc_scrollPane.gridy = 1;
 		add(scrollPane, gbc_scrollPane);
 
+		final String lastActiveProfileId = config.getUserPref(ActivateProfileTask.LAST_ACTIVE_PROFILE, "");
+		Profile lastActiveProfile = null;
+		
 		DefaultListModel<Profile> profilesModel = new DefaultListModel<Profile>();
 		List<Profile> profiles = new ArrayList<Profile>(profileManager.getAllProfiles());
 		Collections.sort(profiles);
 		for(Profile profile: profiles) {
 			profilesModel.addElement(profile);
+			if(profile.getId().equals(lastActiveProfileId)) {
+				lastActiveProfile = profile;
+			}
 		}
 		profilesList = new JList<Profile>(profilesModel);
 		profilesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -120,8 +143,8 @@ public class ProfileTabPanel extends JPanel implements UITab {
 			}
 		});
 		scrollPane.setViewportView(profilesList);
-		lblAvailableProfiles.setLabelFor(profilesList);
-		
+		lblHeader.setLabelFor(profilesList);
+				
 		JLabel lblProfileName = new JLabel("Profile name");
 		GridBagConstraints gbc_lblProfileName = new GridBagConstraints();
 		gbc_lblProfileName.anchor = GridBagConstraints.LINE_START;
@@ -200,13 +223,11 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		gbc_scrollPane_3.gridx = 2;
 		gbc_scrollPane_3.gridy = 6;
 		add(scrollPane_3, gbc_scrollPane_3);
-
-		final JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setMultiSelectionEnabled(true);
-		fileChooser.setFileFilter(new SingleExtensionFileFilter("jar", "Java Archive File"));
 		
 		classpathList = new JList<URL>(new DefaultListModel<URL>());
 		classpathList.setCellRenderer(new DefaultListCellRenderer() {
+			private final JFileChooser fileChooser = new JFileChooser();
+			
 			@Override
 			public Component getListCellRendererComponent(JList<?> list, final Object value, int index, boolean isSelected, boolean cellHasFocus) {
 				Component comp = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
@@ -218,6 +239,9 @@ public class ProfileTabPanel extends JPanel implements UITab {
 							setIcon(fileChooser.getIcon(file));
 							setText(file.getName() + (!file.exists()?" (missing)": ""));
 							setToolTipText(file.getAbsolutePath());
+							if(!file.exists()) {
+								setForeground(Color.red);
+							}
 						}
 					} catch (URISyntaxException e) {
 						// Ok then, no icon for you!
@@ -245,35 +269,28 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		btnAddClasspath.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				fileChooser.showDialog(ProfileTabPanel.this, "Add to classpath");
-				
-				File[] files = fileChooser.getSelectedFiles();
-				for(File file: files) {
-					try {
-						URL url = file.toURI().toURL();
-						selectedProfile.getClasspath().add(url);
-						((DefaultListModel<URL>) classpathList.getModel()).addElement(url);
-					} catch (MalformedURLException ex) {
-						logger.log(Level.WARNING, "Exception while choosing file", ex);
-					}
-				}
+				addJar(selectedProfile);
+				displaySelectedProfile();
 			}
 		});
 		
 		btnRemoveClasspath = new JButton("Remove jar");
 		classpathButtonsBox.add(btnRemoveClasspath);
 		CommonUITasks.makeSegmented(btnRemoveClasspath, Segmented.LAST);
-		
-		Component horizontalGlue = Box.createHorizontalGlue();
-		classpathButtonsBox.add(horizontalGlue);
 		btnRemoveClasspath.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				URL url = classpathList.getSelectedValue();
-				((DefaultListModel<URL>)classpathList.getModel()).removeElement(url);
-				selectedProfile.getClasspath().remove(url);
+				List<URL> urls = classpathList.getSelectedValuesList();
+				
+				for(URL url: urls) {
+					((DefaultListModel<URL>)classpathList.getModel()).removeElement(url);
+					selectedProfile.getClasspath().remove(url);
+				}
 			}
 		});
+		
+		Component horizontalGlue = Box.createHorizontalGlue();
+		classpathButtonsBox.add(horizontalGlue);
 		
 		Box profileButtonsBox = Box.createHorizontalBox();
 		GridBagConstraints gbc_profileButtonsBox = new GridBagConstraints();
@@ -332,8 +349,18 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		
 		add(activateProfileButton, gbc_activateProfileButton);
 		
-		// There is no selected profile. Make sure the UI is in disabled state.
+		// If we have a saved profile, select that
+		if(lastActiveProfile != null) {
+			selectedProfile = lastActiveProfile;
+			profilesList.setSelectedValue(lastActiveProfile, true);
+		}
+		
+		// Update the UI state
 		displaySelectedProfile();
+	}
+	
+	public JButton getDefaultButton() {
+		return activateProfileButton;
 	}
 	
 	private void displaySelectedProfile() {
@@ -352,14 +379,20 @@ public class ProfileTabPanel extends JPanel implements UITab {
 			
 			btnAddClasspath.setEnabled(true);
 			btnRemoveClasspath.setEnabled(true);
-			activateProfileButton.setEnabled(true);
+			if(selectedProfile.getClasspath().size() > 0) {
+				activateProfileButton.setEnabled(true);
+				activateProfileButton.setToolTipText("");
+			} else {
+				activateProfileButton.setEnabled(false);
+				activateProfileButton.setToolTipText("Please set the classpath before activating this profile");
+			}
 		} else {
 			txtProfileName.setText("");
 			txtDescription.setText("");
 	
 			txtProfileName.setEnabled(false);
 			txtDescription.setEnabled(false);
-	
+
 			classpathList.setEnabled(false);
 			
 			btnAddClasspath.setEnabled(false);
@@ -367,7 +400,62 @@ public class ProfileTabPanel extends JPanel implements UITab {
 			activateProfileButton.setEnabled(false);
 		}
 	}
+	
+	private void addJar(Profile profile) {
+		final File[] files = platform.chooseFiles(this, "Add to classpath", true, new SingleExtensionFileFilter("jar", "Java Archive File"));
+		final Set<File> expandedFiles = new HashSet<File>();
+				
+		// Expand the files list with the Class-Path: entries from the selected jar manifests and 
+		// any jars the profile suggests we add (if found).
+		int oldSize = 0;
+		do {
+			oldSize = expandedFiles.size();
+			
+			for(File file: files) {
+				// Add the user selected file to the set
+				expandedFiles.add(file);
+				
+				// Find and add profile-suggested jars that can be found relative to the current jar
+				for(String suggestion: profile.getJars()) {
+					File suggestionFile = new File(file.getParentFile(), suggestion);
+					if(suggestionFile.exists()) {
+						expandedFiles.add(suggestionFile);
+					}
+				}
+				
+				// Find and add any jars referenced by Class-Path of the current jars
+				try(JarFile jarFile = new JarFile(file)) {
+					Attributes attr = jarFile.getManifest().getMainAttributes();
+					if(attr != null) {
+						String classpath = attr.getValue("Class-Path");
+						if(!Strings.isNullOrEmpty(classpath)) {
+							String[] names = classpath.split("\\s");
+							for(String name: names) {
+								File extraJar = new File(file.getParentFile(), name);
+								if(extraJar.exists()) {
+									expandedFiles.add(extraJar);
+								}
+							}
+						}
+					}
+				} catch (IOException e) {
+					logger.log(Level.WARNING, "IOException while reading jar", e);
+				}
+			}
+			// Keep going until the Set of Files doesn't get bigger anymore
+		} while(oldSize != expandedFiles.size());
 		
+		for(File file: expandedFiles) {
+			try {
+				URL url = file.toURI().toURL();
+				profile.getClasspath().add(url);
+				((DefaultListModel<URL>) classpathList.getModel()).addElement(url);
+			} catch (MalformedURLException ex) {
+				logger.log(Level.WARNING, "Exception while choosing file", ex);
+			}
+		}
+	}
+	
 	public String getUITabName() {
 		return "Profile";
 	}

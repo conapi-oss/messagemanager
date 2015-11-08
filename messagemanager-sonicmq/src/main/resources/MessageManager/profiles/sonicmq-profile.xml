@@ -6,4 +6,24 @@
 	<plugins>
 		<plugin>nl.queuemanager.smm.SMMModule</plugin>
 	</plugins>
+	<jars>
+		<jar>MFdirectory.jar</jar>
+		<jar>activation.jar</jar>
+		<jar>ant-contrib.jar</jar>
+		<jar>javax.jms.jar</jar>
+		<jar>mail.jar</jar>
+		<jar>mgmt_agent.jar</jar>
+		<jar>mgmt_client.jar</jar>
+		<jar>mgmt_config.jar</jar>
+		<jar>smc.jar</jar>
+		<jar>sonic_Client.jar</jar>
+		<jar>sonic_Crypto.jar</jar>
+		<jar>sonic_XMessage.jar</jar>
+		<jar>sonic_mgmt_client.jar</jar>
+		<jar>xercesImpl.jar</jar>
+	</jars>
+	<requirements>
+		<jar></jar>
+		<class></class>
+	</requirements>
 </profile>

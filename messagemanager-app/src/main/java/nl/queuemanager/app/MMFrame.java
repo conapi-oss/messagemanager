@@ -61,6 +61,7 @@ public class MMFrame extends JFrame {
 		tabsPane.setToolTipText("");
 		
 		addTab(new AddUITabEvent(0, profileTab));
+		getRootPane().setDefaultButton(profileTab.getDefaultButton());
 		
 		// Now add the TabbedPane to the layout
 		contentPane.add(tabsPane, BorderLayout.CENTER);
@@ -97,6 +98,7 @@ public class MMFrame extends JFrame {
 	@Subscribe
 	public void profileActivated(ProfileActivatedEvent e) {
 		removeTab(0);
+		getRootPane().setDefaultButton(null);
 	}
 	
 	public void removeTab(final int index) {

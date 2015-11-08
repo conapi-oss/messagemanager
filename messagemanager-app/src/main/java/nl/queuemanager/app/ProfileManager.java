@@ -19,8 +19,6 @@ import java.util.zip.ZipFile;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -36,6 +34,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import nl.queuemanager.Profile;
 import nl.queuemanager.core.platform.PlatformHelper;
 
 import org.w3c.dom.DOMException;
@@ -130,17 +129,10 @@ public class ProfileManager {
 			appendTextElement(profileElement, "icon", "base64:" + Base64.encodeToString(profile.getIconData(), false));
 			appendTextElement(profileElement, "description", profile.getDescription());
 			
-			Element pluginListElement = doc.createElement("plugins");
-			for(String pluginClass: profile.getPlugins()) {
-				appendTextElement(pluginListElement, "plugin", pluginClass);
-			}
-			profileElement.appendChild(pluginListElement);
+			profileElement.appendChild(createListElement("jars", "jar", profile.getJars(), doc));
+			profileElement.appendChild(createListElement("plugins", "plugin", profile.getPlugins(), doc));
+			profileElement.appendChild(createListElement("classpath", "entry", profile.getClasspath(), doc));
 			
-			Element classpathElement = doc.createElement("classpath");
-			for(URL url: profile.getClasspath()) {
-				appendTextElement(classpathElement, "entry", url.toString());
-			}
-			profileElement.appendChild(classpathElement);
 			doc.appendChild(profileElement);
 			
 			Result result = new StreamResult(file);
@@ -156,12 +148,20 @@ public class ProfileManager {
 		
 		return false;
 	}
-
+	
 	private File fileForProfile(Profile profile) {
 		File file = new File(profilesFolder, profile.getId() + ".xml");
 		return file;
 	}
 	
+	private Element createListElement(String name, String entryName, List<?> objects, Document doc) {
+		Element listElement = doc.createElement(name);
+		for(Object obj: objects) {
+			appendTextElement(listElement, entryName, obj.toString());
+		}
+		return listElement;
+	}
+
 	private void appendTextElement(Element parent, String name, String value) {
 		Element e = parent.getOwnerDocument().createElement(name);
 		e.setTextContent(value);
@@ -186,7 +186,8 @@ public class ProfileManager {
 			profile.setName(xpath.evaluate("/profile/name", doc));
 			profile.setIconData(loadIcon(xpath.evaluate("/profile/icon", doc), pluginZip));
 			profile.setDescription(xpath.evaluate("/profile/description", doc));
-			profile.setPlugins(readPluginList((NodeList)xpath.evaluate("/profile/plugins/plugin", doc, XPathConstants.NODESET)));
+			profile.setJars(readStringList((NodeList)xpath.evaluate("/profile/jars/jar", doc, XPathConstants.NODESET)));
+			profile.setPlugins(readStringList((NodeList)xpath.evaluate("/profile/plugins/plugin", doc, XPathConstants.NODESET)));
 			profile.setClasspath(readClasspath((NodeList)xpath.evaluate("/profile/classpath/entry", doc, XPathConstants.NODESET)));
 			return profile;
 		} catch (ParserConfigurationException | SAXException | IOException | XPathExpressionException e) {
@@ -229,7 +230,7 @@ public class ProfileManager {
 		}
 	}
 
-	private List<String> readPluginList(NodeList nodes) {
+	private List<String> readStringList(NodeList nodes) {
 		List<String> ret = new ArrayList<String>();
 		
 		for(int i=0; i<nodes.getLength(); i++) {

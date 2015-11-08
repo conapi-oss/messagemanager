@@ -15,11 +15,13 @@
 			<groupId>nl.queuemanager</groupId>
 			<artifactId>messagemanager-activemq</artifactId>
 			<version>${project.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>nl.queuemanager</groupId>
 			<artifactId>messagemanager-sonicmq</artifactId>
 			<version>${project.version}</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 

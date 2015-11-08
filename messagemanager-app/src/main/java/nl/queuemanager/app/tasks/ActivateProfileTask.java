@@ -1,5 +1,6 @@
 package nl.queuemanager.app.tasks;
 
+import java.lang.instrument.ClassDefinition;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -14,26 +15,30 @@ import com.google.inject.Module;
 import com.google.inject.assistedinject.Assisted;
 
 import nl.queuemanager.ConnectivityProviderPlugin;
+import nl.queuemanager.Profile;
 import nl.queuemanager.app.PluginDescriptor;
 import nl.queuemanager.app.PluginManager;
-import nl.queuemanager.app.Profile;
 import nl.queuemanager.app.ProfileActivatedEvent;
+import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.CoreModule;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.ui.UIModule;
 
 public class ActivateProfileTask extends Task {
+	public static final String LAST_ACTIVE_PROFILE = "lastActiveProfile";
 
 	private final Injector parentInjector;
 	private final PluginManager pluginManager;
 	private final Profile profile;
+	private final Configuration config;
 	
 	@Inject
-	protected ActivateProfileTask(Injector parentInjector, EventBus eventBus, PluginManager pluginManager, @Assisted Profile profile) {
+	protected ActivateProfileTask(Injector parentInjector, EventBus eventBus, PluginManager pluginManager, Configuration config, @Assisted Profile profile) {
 		super(null, eventBus);
 		this.parentInjector = parentInjector;
 		this.pluginManager = pluginManager;
 		this.profile = profile;
+		this.config = config;
 	}
 
 	@Override
@@ -58,10 +63,20 @@ public class ActivateProfileTask extends Task {
 		modules.add(new CoreModule());
 		modules.add(new UIModule());
 		modules.addAll(pluginModules);
-		final Injector injector = parentInjector.createChildInjector(modules);
-		ConnectivityProviderPlugin provider = injector.getInstance(ConnectivityProviderPlugin.class);
-		provider.initialize();
+		try {
+			final Injector injector = parentInjector.createChildInjector(modules);
+			ConnectivityProviderPlugin provider = injector.getInstance(ConnectivityProviderPlugin.class);
+			provider.initialize();
+		} catch (NoClassDefFoundError e) {
+			// Report the missing class to the user
+			this.dispatchTaskError("Unable to activate profile. Class " + e.getMessage() + " could not be found");
+			return;
+		}
+
+		// Save the last active profile
+		config.setUserPref(LAST_ACTIVE_PROFILE, profile.getId());
 		
+		// Send the profile activated event
 		eventBus.post(new ProfileActivatedEvent(profile));
 	}
 	

@@ -32,6 +32,7 @@ import nl.queuemanager.core.PreconnectCoreModule;
 import nl.queuemanager.core.configuration.XmlConfigurationModule;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.core.platform.PlatformHelper;
+import nl.queuemanager.core.platform.PlatformModule;
 import nl.queuemanager.debug.DebugEventListener;
 import nl.queuemanager.debug.TracingEventQueue;
 import nl.queuemanager.ui.PreconnectUIModule;
@@ -55,13 +56,9 @@ public class Main {
 			enableSwingDebug();
 		}
 		
-		// Create the configuration module
-		// FIXME set a correct filename, etc
-		XmlConfigurationModule configurationModule = new XmlConfigurationModule("config.xml", "urn:blah");
-		
 		// Create the default modules
 		List<Module> modules = new ArrayList<Module>();
-		modules.add(configurationModule);
+		modules.add(new XmlConfigurationModule("config.xml", "urn:queuemanager-config"));
 		modules.add(new PreconnectCoreModule());
 		modules.add(new PreconnectUIModule());
 		modules.add(new AppModule());

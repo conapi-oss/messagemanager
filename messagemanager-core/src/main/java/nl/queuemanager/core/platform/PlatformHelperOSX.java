@@ -1,10 +1,17 @@
 package nl.queuemanager.core.platform;
 
+import java.awt.Component;
+import java.awt.FileDialog;
+import java.awt.Frame;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 
 import javax.inject.Inject;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileFilter;
 
 import com.apple.eawt.AboutHandler;
 import com.apple.eawt.Application;
@@ -76,6 +83,25 @@ public class PlatformHelperOSX extends PlatformHelper implements AboutHandler, P
 	public void setBadge(String badge) {
 		application.setDockIconBadge(badge);
 	}
+
+	/**
+	 * In OS X, the JFileChooser looks ugly so we use java.awt.FileDialog instead
+	 */
+	public File[] chooseFiles(final JComponent parent, final String approveButtonText, final boolean allowMultiple, final FileFilter filter) {
+		FileDialog dialog = new FileDialog(getOwnerFrame(parent));
+		if(filter != null) {
+			dialog.setFilenameFilter(new FilenameFilter() {
+				@Override
+				public boolean accept(File dir, String name) {
+					return filter.accept(new File(dir, name));
+				}
+			});
+		}
+		dialog.setMultipleMode(allowMultiple);
+		dialog.setVisible(true);
+		
+		return dialog.getFiles();
+	}
 	
 	protected File getUserDataFolder() {
 		try {
@@ -102,5 +128,16 @@ public class PlatformHelperOSX extends PlatformHelper implements AboutHandler, P
 		
 		return type;
 	}
+	
+	public static Frame getOwnerFrame(Component comp) {
+		if (comp == null) {
+			throw new IllegalArgumentException("null Component passed");
+		}
 
+		if (comp instanceof Frame) {
+			return (Frame) comp;
+		}
+		
+		return getOwnerFrame(SwingUtilities.windowForComponent(comp));
+	}
 }

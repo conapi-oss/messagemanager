@@ -1,4 +1,4 @@
-package nl.queuemanager.app;
+package nl.queuemanager;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -14,6 +14,13 @@ public class Profile implements Comparable<Profile> {
 	private byte[] iconData;
 	private Icon icon;
 	private String description;
+	
+	/**
+	 * This is a list of jar file names that should/could/may be present on the classpath
+	 * when loading this profile. The UI will search for these jars whenever an entry is
+	 * added to the classpath to help the user in selecting the correct jars.
+	 */
+	private List<String> jars = new ArrayList<String>();
 	private List<String> plugins = new ArrayList<String>();
 	private List<URL> classpath = new ArrayList<URL>();
 	
@@ -65,6 +72,14 @@ public class Profile implements Comparable<Profile> {
 		this.description = description;
 	}
 	
+	public List<String> getJars() {
+		return jars;
+	}
+
+	public void setJars(List<String> jars) {
+		this.jars = jars;
+	}
+
 	public List<String> getPlugins() {
 		return plugins;
 	}
@@ -90,6 +105,7 @@ public class Profile implements Comparable<Profile> {
 		profile.setName(source + " (copy)");
 		profile.setIconData(source.getIconData());
 		profile.setDescription(source.getDescription());
+		profile.getJars().addAll(source.getJars());
 		profile.getPlugins().addAll(source.getPlugins());
 		profile.getClasspath().addAll(source.getClasspath());
 		return profile;

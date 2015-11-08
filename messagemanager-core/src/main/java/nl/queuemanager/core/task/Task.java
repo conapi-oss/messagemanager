@@ -137,12 +137,12 @@ public abstract class Task implements Runnable {
 		
 		try {
 			execute();
-		} catch (Exception e) {
+		} catch (Throwable t) {
 			// Tell the executor to clear the task queue
 			getExecutor().clearQueue();
 			
 			// Tell the application that there was an error
-			dispatchTaskError(e);
+			dispatchTaskError("An unexpected error occurred in task " + toString(), t);
 		}
 		
 		dispatchTaskFinished();
@@ -159,10 +159,14 @@ public abstract class Task implements Runnable {
 			eventBus.post(new TaskEvent(EVENT.TASK_STARTED, getInfo(), this));
 		}
 	}
-
-	protected void dispatchTaskError(Exception e) {
+	
+	protected void dispatchTaskError(String message) {
+		dispatchTaskError(message, null);
+	}
+	
+	protected void dispatchTaskError(String message, Throwable t) {
 		if(transitionTo(TaskStatus.ERROR)) {
-			eventBus.post(new TaskEvent(EVENT.TASK_ERROR, e, this));
+			eventBus.post(new TaskEvent(EVENT.TASK_ERROR, t, this));
 		}
 	}
 	

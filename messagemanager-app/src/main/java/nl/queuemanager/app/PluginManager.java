@@ -32,6 +32,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import nl.queuemanager.Profile;
 import nl.queuemanager.Version;
 import nl.queuemanager.core.platform.PlatformHelper;
 import nl.queuemanager.core.util.EnumerationIterator;
