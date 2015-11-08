@@ -21,9 +21,12 @@ public abstract class PlatformHelper {
 	public File[] chooseFiles(final JComponent parent, final String approveButtonText, final boolean allowMultiple, final FileFilter filter) {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setFileFilter(filter);
-		fileChooser.showDialog(parent, approveButtonText);
 		fileChooser.setMultiSelectionEnabled(allowMultiple);
-		return fileChooser.getSelectedFiles();
+		if(fileChooser.showDialog(parent, approveButtonText) == JFileChooser.APPROVE_OPTION) {
+			return fileChooser.getSelectedFiles();
+		}
+		
+		return null;
 	}
 
 	/**
