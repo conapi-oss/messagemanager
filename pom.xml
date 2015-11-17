@@ -27,6 +27,7 @@
     <module>messagemanager-sonicmq-100</module>
     
     <module>ws-base</module>
+    <module>ws-app</module>
     <module>ws-70</module>
     <module>ws-75</module>
     <module>ws-76</module>
@@ -73,6 +74,16 @@
       	</executions>
       </plugin>
     </plugins>
+    
+    <pluginManagement>
+    	<plugins>
+	    	<plugin>
+	    		<groupId>org.apache.maven.plugins</groupId>
+	    		<artifactId>maven-jar-plugin</artifactId>
+	    		<version>2.4</version>
+	    	</plugin>
+    	</plugins>
+    </pluginManagement>
   </build>
 
 	<dependencyManagement>

@@ -1,0 +1,91 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<groupId>nl.queuemanager</groupId>
+		<artifactId>messagemanager</artifactId>
+		<version>3.0-SNAPSHOT</version>
+	</parent>
+	
+	<description>Message Manager ${suffix}</description>
+	<url>http://www.queuemanager.nl</url>
+	
+	<artifactId>ws-app</artifactId>
+	<packaging>pom</packaging>
+	<organization>
+		<name>Gerco Dries</name>
+	</organization>
+	
+	<properties>
+		<sonic.version>SONIC VERSION</sonic.version>
+		<sonic.displayVersion>SONIC VERSION</sonic.displayVersion>
+		<subdir>app</subdir>
+		<suffix></suffix>
+	</properties>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>webstart-maven-plugin</artifactId>
+				<version>1.0-beta-7-SNAPSHOT</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>jnlp-inline</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<verbose>false</verbose>
+					<canUnsign>true</canUnsign>
+					<updateManifestEntries>
+						<Permissions>all-permissions</Permissions>
+						<Codebase>*</Codebase>
+						<Application-Name>${project.Name}</Application-Name>
+					</updateManifestEntries>
+					<unsignAlreadySignedJars>true</unsignAlreadySignedJars>
+					<gzip>true</gzip>
+					<pack200>
+						<enabled>true</enabled>
+					</pack200>
+					<excludeTransitive>true</excludeTransitive>
+					<codebase>${project.Url}/${subdir}</codebase>
+					<templateDirectory>src/main/jnlp</templateDirectory>
+					<jnlp>
+						<j2seVersion>1.7+</j2seVersion>
+						<type>application</type>
+						<inputTemplate>jnlp-template.vm</inputTemplate>
+						<outputFile>MessageManager.jnlp</outputFile>
+						<mainClass>nl.queuemanager.Main</mainClass>
+						<allPermissions>true</allPermissions>
+						<offlineAllowed>true</offlineAllowed>
+					</jnlp>
+					<signJnlp>true</signJnlp>
+					<sign>
+						<keystore>${codesign.keystore}</keystore>
+						<keypass>${codesign.keypass}</keypass>
+						<storepass>${codesign.storepass}</storepass>
+						<storetype>${codesign.storetype}</storetype>
+						<alias>${codesign.keyalias}</alias>
+						<!-- tsaLocation>${codesign.tsaurl}</tsaLocation -->
+
+						<!-- verify that the signing operation succeeded -->
+						<verify>true</verify>
+					</sign>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
+	<dependencies>
+		<dependency>
+			<groupId>nl.queuemanager</groupId>
+			<artifactId>messagemanager-app</artifactId>
+			<version>${project.version}</version>
+			<classifier>jar-with-dependencies</classifier>
+		</dependency>
+	</dependencies>
+</project>

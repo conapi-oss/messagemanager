@@ -115,10 +115,11 @@ public class PluginManager {
 	private void installProvidedPlugin(File pluginsFolder, String jarName) throws IOException {
 		URL res = Resources.getResource(jarName);
 		if(res != null) {
-			logger.info(String.format("Installing plugin %s", res.toString()));
+			logger.info(String.format("Found plugin %s", res.toString()));
 			pluginsFolder.mkdirs(); // Ensure the directory exists
 			File pluginFile = new File(pluginsFolder, getLastPathComponent(res.getPath()));
 			if(!pluginFile.exists() || Boolean.getBoolean("mm.forceInstallPlugins")) { // Only install plugin if it doesn't exist yet
+				logger.info(String.format("Installing plugin %s", res.toString()));
 				FileOutputStream fos = new FileOutputStream(pluginFile);
 				Resources.copy(res, fos);
 			}
