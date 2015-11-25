@@ -17,6 +17,8 @@ package nl.queuemanager;
 
 import java.awt.AWTEvent;
 import java.awt.Toolkit;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +34,7 @@ import nl.queuemanager.core.PreconnectCoreModule;
 import nl.queuemanager.core.configuration.XmlConfigurationModule;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.core.platform.PlatformHelper;
-import nl.queuemanager.core.platform.PlatformModule;
+import nl.queuemanager.core.platform.QuitEvent;
 import nl.queuemanager.debug.DebugEventListener;
 import nl.queuemanager.debug.TracingEventQueue;
 import nl.queuemanager.ui.PreconnectUIModule;
@@ -72,6 +74,8 @@ public class Main {
 		// FIXME Find all installed plugins and load their default profiles
 		injector.getInstance(PluginManager.class);
 		
+		final EventBus eventBus = injector.getInstance(EventBus.class);
+		
 		// Invoke initializing the GUI on the EDT
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -81,12 +85,20 @@ public class Main {
 				
 				// Create the main application frame
 				final JFrame frame = injector.getInstance(MMFrame.class);
+
+				// When this frame closes, quit the application by posting a QuitEvent
+				frame.addWindowListener(new WindowAdapter() {
+					@Override
+					public void windowClosed(WindowEvent e) {
+						eventBus.post(new QuitEvent());
+					}
+				});
 				
 				// Make the frame visible
 				frame.setVisible(true);
 				
 				// Send the ApplicationInitializedEvent
-				injector.getInstance(EventBus.class).post(new ApplicationInitializedEvent());
+				eventBus.post(new ApplicationInitializedEvent());
 			}
 		});
 	}

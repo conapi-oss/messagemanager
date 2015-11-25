@@ -16,10 +16,12 @@ import javax.swing.filechooser.FileFilter;
 import com.apple.eawt.AboutHandler;
 import com.apple.eawt.Application;
 import com.apple.eawt.PreferencesHandler;
+import com.apple.eawt.QuitHandler;
+import com.apple.eawt.QuitResponse;
 import com.google.common.eventbus.EventBus;
 
 //@SuppressWarnings("restriction")
-public class PlatformHelperOSX extends PlatformHelper implements AboutHandler, PreferencesHandler {
+public class PlatformHelperOSX extends PlatformHelper implements AboutHandler, PreferencesHandler, QuitHandler {
 
 	public static final short kUserDomain = -32763; /* Read/write. Resources that are private to the user.*/
 	public static final short kSystemDomain = -32766; /* Read-only system hierarchy.*/
@@ -52,9 +54,9 @@ public class PlatformHelperOSX extends PlatformHelper implements AboutHandler, P
 	public PlatformHelperOSX(EventBus eventBus) {
 		this.eventBus = eventBus;
 		this.application = Application.getApplication();
-		//application.setQuitStrategy(QuitStrategy.CLOSE_ALL_WINDOWS);
 		application.setAboutHandler(this);
 		application.setPreferencesHandler(this);
+		application.setQuitHandler(this);
 	}
 
 	/**
@@ -78,6 +80,15 @@ public class PlatformHelperOSX extends PlatformHelper implements AboutHandler, P
 
 	public void handlePreferences(com.apple.eawt.AppEvent.PreferencesEvent e) {
 		eventBus.post(new PreferencesEvent());
+	}
+	
+	@Override
+	public void handleQuitRequestWith(com.apple.eawt.AppEvent.QuitEvent e, final QuitResponse resp) {
+		eventBus.post(new QuitEvent() {
+			public void quit() {
+				resp.performQuit();
+			}
+		});
 	}
 	
 	public void setBadge(String badge) {
@@ -140,4 +151,5 @@ public class PlatformHelperOSX extends PlatformHelper implements AboutHandler, P
 		
 		return getOwnerFrame(SwingUtilities.windowForComponent(comp));
 	}
+
 }
