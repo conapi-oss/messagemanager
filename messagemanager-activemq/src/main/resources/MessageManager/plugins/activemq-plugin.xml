@@ -1,0 +1,5 @@
+<plugin>
+	<name>ActiveMQ Plugin</name>
+	<description>Plugin for ActiveMQ</description>
+	<moduleClass>nl.queuemanager.activemq.ActiveMQModule</moduleClass>
+</plugin>

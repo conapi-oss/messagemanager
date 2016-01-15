@@ -17,6 +17,8 @@ package nl.queuemanager;
 
 import java.awt.AWTEvent;
 import java.awt.Toolkit;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,13 +26,18 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import nl.queuemanager.core.Configuration;
-import nl.queuemanager.core.CoreModule;
+import nl.queuemanager.app.AppModule;
+import nl.queuemanager.app.EventBusDebugger;
+import nl.queuemanager.app.MMFrame;
+import nl.queuemanager.app.PluginManager;
+import nl.queuemanager.core.PreconnectCoreModule;
 import nl.queuemanager.core.configuration.XmlConfigurationModule;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.core.platform.PlatformHelper;
-import nl.queuemanager.ui.MMFrame;
-import nl.queuemanager.ui.UIModule;
+import nl.queuemanager.core.platform.QuitEvent;
+import nl.queuemanager.debug.DebugEventListener;
+import nl.queuemanager.debug.TracingEventQueue;
+import nl.queuemanager.ui.PreconnectUIModule;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Guice;
@@ -46,24 +53,28 @@ public class Main {
 	public static void main(String[] args) {
 		// Set look & feel to native
 		setNativeLAF();
-		enableSwingDebug();
 		
-		// Create the configuration module
-		// FIXME set a correct filename, etc
-		XmlConfigurationModule configurationModule = new XmlConfigurationModule("config.xml", "urn:blah");
+		if(Boolean.getBoolean("mm.enableSwingDebug")) {
+			enableSwingDebug();
+		}
 		
 		// Create the default modules
 		List<Module> modules = new ArrayList<Module>();
-		modules.add(configurationModule);
-		modules.add(new CoreModule());
-		modules.add(new UIModule());
-		
-		// Load plugin modules
-		modules.addAll(createPluginModules(configurationModule));
-		modules.add(loadModule("nl.queuemanager.activemq.ActiveMQModule"));
+		modules.add(new XmlConfigurationModule("config.xml", "urn:queuemanager-config"));
+		modules.add(new PreconnectCoreModule());
+		modules.add(new PreconnectUIModule());
+		modules.add(new AppModule());
 		
 		// Now that the module list is complete, create the injector
 		final Injector injector = Guice.createInjector(Stage.PRODUCTION, modules);
+		
+		// Enable the event debugger
+		injector.getInstance(EventBusDebugger.class);
+		
+		// FIXME Find all installed plugins and load their default profiles
+		injector.getInstance(PluginManager.class);
+		
+		final EventBus eventBus = injector.getInstance(EventBus.class);
 		
 		// Invoke initializing the GUI on the EDT
 		SwingUtilities.invokeLater(new Runnable() {
@@ -74,56 +85,24 @@ public class Main {
 				
 				// Create the main application frame
 				final JFrame frame = injector.getInstance(MMFrame.class);
+
+				// When this frame closes, quit the application by posting a QuitEvent
+				frame.addWindowListener(new WindowAdapter() {
+					@Override
+					public void windowClosed(WindowEvent e) {
+						eventBus.post(new QuitEvent());
+					}
+				});
 				
 				// Make the frame visible
 				frame.setVisible(true);
 				
 				// Send the ApplicationInitializedEvent
-				injector.getInstance(EventBus.class).post(new ApplicationInitializedEvent());
+				eventBus.post(new ApplicationInitializedEvent());
 			}
 		});
 	}
 	
-	/**
-	 * Load initial Injector to be able to read configuration for plugin loading.
-	 * For some reason, Guice complains about things already being injected when
-	 * child injectors are used. Until I find a solution for that, we dicard this
-	 * injector and configuration object after use and use it only to retrieve the
-	 * list of plugin modules to load.
-	 */
-	private static List<Module> createPluginModules(Module configurationModule) {
-		Injector configInjector = Guice.createInjector(Stage.PRODUCTION, configurationModule);
-		Configuration config = configInjector.getInstance(Configuration.class);
-		
-		String[] moduleNameList = config.getUserPref(Configuration.PREF_PLUGIN_MODULES, "").split(",");
-		List<Module> modules = new ArrayList<Module>(moduleNameList.length);
-		
-		for(String moduleName: moduleNameList) {
-			if(moduleName.length() == 0)
-				continue;
-			
-			Module module = loadModule(moduleName);
-			if(module != null && module instanceof Module) {
-				modules.add(module);
-			}
-		}
-		
-		return modules;
-	}
-
-	private static Module loadModule(String moduleName) {
-		try {
-			return (Module) Class.forName(moduleName).newInstance();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
 	private static void setNativeLAF() { 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

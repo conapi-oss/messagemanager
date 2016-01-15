@@ -3,6 +3,8 @@ package nl.queuemanager.core.configuration;
 import javax.inject.Singleton;
 
 import nl.queuemanager.core.Configuration;
+import nl.queuemanager.core.platform.PlatformHelper;
+import nl.queuemanager.core.platform.PlatformModule;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -18,11 +20,12 @@ public class XmlConfigurationModule extends AbstractModule {
 	}
 	
 	public void configure() {
+		install(new PlatformModule());
 	}
 	
 	@Provides @Singleton
-	public Configuration createConfiguration() {
-		return new XmlConfiguration(configFile, namespaceUri);
+	public Configuration createConfiguration(PlatformHelper platform) {
+		return new XmlConfiguration(configFile, namespaceUri, platform);
 	}
 
 }

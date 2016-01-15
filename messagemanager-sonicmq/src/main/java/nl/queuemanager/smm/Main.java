@@ -25,11 +25,12 @@ import javax.swing.UIManager;
 
 import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.CoreModule;
+import nl.queuemanager.core.PreconnectCoreModule;
 import nl.queuemanager.core.configuration.XmlConfigurationModule;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.core.platform.PlatformHelper;
 import nl.queuemanager.smm.ui.SMMFrame;
-import nl.queuemanager.smm.ui.SMMUIModule;
+import nl.queuemanager.ui.PreconnectUIModule;
 import nl.queuemanager.ui.UIModule;
 
 import com.google.common.eventbus.EventBus;
@@ -53,10 +54,11 @@ public class Main {
 		// Create the default modules
 		List<Module> modules = new ArrayList<Module>();
 		modules.add(configurationModule);
+		modules.add(new PreconnectCoreModule());
 		modules.add(new CoreModule());
+		modules.add(new PreconnectUIModule());
 		modules.add(new UIModule());
 		modules.add(new SMMModule());
-		modules.add(new SMMUIModule());
 		
 		// Load plugin modules
 		modules.addAll(createPluginModules(configurationModule));

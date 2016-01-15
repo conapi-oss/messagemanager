@@ -40,6 +40,7 @@ import javax.xml.xpath.XPathFactory;
 
 import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.MapNamespaceContext;
+import nl.queuemanager.core.platform.PlatformHelper;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
@@ -77,14 +78,14 @@ class XmlConfiguration implements Configuration {
 	private final String namespaceUri;
 	
 	@Inject
-	XmlConfiguration(String configFile, String namespaceUri) {
+	XmlConfiguration(String configFile, String namespaceUri, PlatformHelper platform) {
 		if(configFile == null)
 			throw new IllegalArgumentException("configFile");
 		
 		if(namespaceUri == null)
 			throw new IllegalArgumentException("namespaceUri");
-		
-		this.configFile = new File(configFile);
+
+		this.configFile = configFile.contains("/") || configFile.contains("\\") ? new File(configFile) : new File(platform.getDataFolder(), configFile);
 		this.namespaceUri = namespaceUri;
 		
 		// Initialize the XML Parser

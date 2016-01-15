@@ -1,40 +1,33 @@
 package nl.queuemanager.activemq.ui;
 
+import java.awt.Color;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.inject.Inject;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-
-import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JLabel;
 import javax.swing.JTextField;
-import javax.swing.JButton;
-import javax.swing.border.TitledBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
 import nl.queuemanager.activemq.ActiveMQDomain;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.ui.UITab;
-
-import java.awt.Color;
-
-import javax.swing.ButtonGroup;
-import javax.swing.AbstractAction;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.Action;
+import nl.queuemanager.ui.util.TableColumnAdjuster;
 
 import com.google.common.eventbus.EventBus;
 
@@ -91,6 +84,7 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		add(localProcess, gbc_localProcess);
 		
 		localProcessTable = new JTable();
+		localProcessTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		GridBagConstraints gbc_table = new GridBagConstraints();
 		gbc_table.gridwidth = 2;
 		gbc_table.insets = new Insets(0, 25, 5, 0);
@@ -112,6 +106,8 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 			});
 		}
 		localProcessTable.setModel(model);
+		TableColumnAdjuster adjuster = new TableColumnAdjuster(localProcessTable, 15);
+		adjuster.adjustColumns();
 		
 		remoteProcess = new JRadioButton("Remote Process");
 		remoteProcess.addActionListener(radioButtonChangedAction);
@@ -202,12 +198,13 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 				worker.execute(new Task(domain, eventBus) {
 					@Override
 					public void execute() throws Exception {
+						@SuppressWarnings("restriction")
 						final String url = sun.management.ConnectorAddressLink.importFrom(Integer.valueOf(pid));
 						domain.connect(url);
 					}
 					@Override
 					public String toString() {
-						return "Connecting to ActiveMQ";
+						return "Connecting to ActiveMQ on PID " + pid;
 					}
 				});
 			}
@@ -219,6 +216,10 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 					@Override
 					public void execute() throws Exception {
 						domain.connect(url);
+					}
+					@Override
+					public String toString() {
+						return "Connecting to ActiveMQ on " + url;
 					}
 				});
 			}

@@ -68,8 +68,8 @@ public class TaskErrorListener {
 			}
 				
 //			if(!((Task)event.getSource()).isBackground()) {
-				String message = translateExceptionMessage((Exception)event.getInfo());
-				showMessage(parent, event.getSource().toString(), message, true);
+				String message = translateExceptionMessage((Throwable)event.getInfo());
+				showMessage(parent, "Error in task " + event.getSource().toString(), message, true);
 //			}
 			
 			break;

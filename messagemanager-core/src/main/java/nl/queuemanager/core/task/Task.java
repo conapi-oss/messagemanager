@@ -137,12 +137,12 @@ public abstract class Task implements Runnable {
 		
 		try {
 			execute();
-		} catch (Exception e) {
+		} catch (Throwable t) {
 			// Tell the executor to clear the task queue
 			getExecutor().clearQueue();
 			
 			// Tell the application that there was an error
-			dispatchTaskError(e);
+			dispatchTaskError(new Exception("An unexpected error occurred in task " + toString(), t));
 		}
 		
 		dispatchTaskFinished();
@@ -159,22 +159,33 @@ public abstract class Task implements Runnable {
 			eventBus.post(new TaskEvent(EVENT.TASK_STARTED, getInfo(), this));
 		}
 	}
-
-	protected void dispatchTaskError(Exception e) {
+	
+	protected void dispatchTaskError(Throwable t) {
 		if(transitionTo(TaskStatus.ERROR)) {
-			eventBus.post(new TaskEvent(EVENT.TASK_ERROR, e, this));
+			eventBus.post(new TaskEvent(EVENT.TASK_ERROR, t, this));
 		}
 	}
 	
 	protected void dispatchTaskFinished() {
 		if(transitionTo(TaskStatus.FINISHED)) {
 			eventBus.post(new TaskEvent(EVENT.TASK_FINISHED, getInfo(), this));
+			safeUnregister();
 		}
 	}
 	
 	void dispatchTaskDiscarded() {
 		if(transitionTo(TaskStatus.DISCARDED)) {
 			eventBus.post(new TaskEvent(EVENT.TASK_DISCARDED, null, this));
+			safeUnregister();
+		}
+	}
+	
+	private void safeUnregister() {
+		try {
+			eventBus.unregister(this);
+		} catch (IllegalArgumentException e) {
+			// Not all tasks will unregister properly, those that do not subscribe to any events will cause an Exception.
+			// Ignore that exception here.
 		}
 	}
 	

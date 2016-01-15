@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><Configuration xmlns="urn:blah">
+	<autoRefreshInterval>5000</autoRefreshInterval>
+	<Broker name="localhost (tcp://0.0.0.0:61616)">
+		<alternateUrl>tcp://0.0.0.0:61616</alternateUrl>
+	</Broker>
+	<Broker name="localhost (tcp://gdrpro:61616)">
+		<alternateUrl>tcp://localhost:61616</alternateUrl>
+	</Broker>
+<Broker name="localhost (tcp://gdrpro.local:61616)"><alternateUrl>tcp://gdrpro.local:61616</alternateUrl></Broker><mailingListStatus>unknown</mailingListStatus><lastActiveProfile>51c40d3c-79d6-11e5-8c47-7831c1c10182</lastActiveProfile></Configuration>

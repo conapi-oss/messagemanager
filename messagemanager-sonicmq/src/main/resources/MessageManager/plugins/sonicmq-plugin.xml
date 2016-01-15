@@ -1,0 +1,5 @@
+<plugin>
+	<name>SonicMQ Plugin</name>
+	<description>Allows connections to Sonic MQ</description>
+	<moduleClass>nl.queuemanager.smm.SMMModule</moduleClass>
+</plugin>

@@ -47,15 +47,12 @@ public class SMMFrame extends JMAFrame {
 	private final JTabbedPane tabsPane;
 	private final SortedMap<Integer, UITab> tabs;
 	
-	private final PlatformHelper platformHelper;
-	
 	@Inject
 	public SMMFrame(Domain sonic, TaskExecutor worker, Map<Integer, UITab> tabs, TaskQueuePanel taskQueuePanel, PlatformHelper platformHelper) {
 		super("messagemanager");
 		
 		setTitle("");
 		
-		this.platformHelper = platformHelper;
 		platformHelper.setFullScreenEnabled(this, true);
 		
 		this.tabs = new TreeMap<Integer, UITab>(tabs);

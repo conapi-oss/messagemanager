@@ -10,14 +10,14 @@
     <module>jmsmessages</module>
     <module>messagemanager-core</module>
     <module>messagemanager-ui</module>
-
-    <!--
-    <module>messagemanager-fakemq</module>
     <module>messagemanager-app</module>
+
+    <module>messagemanager-fakemq</module>
     <module>messagemanager-activemq</module>
-    -->
+    <module>messagemanager-solace</module>
 
     <module>messagemanager-sonicmq</module>
+
     <module>messagemanager-sonicmq-70</module>
     <module>messagemanager-sonicmq-75</module>
     <module>messagemanager-sonicmq-76</module>
@@ -27,6 +27,7 @@
     <module>messagemanager-sonicmq-100</module>
     
     <module>ws-base</module>
+    <module>ws-app</module>
     <module>ws-70</module>
     <module>ws-75</module>
     <module>ws-76</module>
@@ -34,10 +35,12 @@
     <module>ws-85</module>
     <module>ws-86</module>
     <module>ws-100</module>
+    <module>messagemanager-plugins-package</module>
+    <module>messagemanager-plugin-api</module>
   </modules>
   
   <properties>
-  	<guice-version>3.0</guice-version>
+  	<guice-version>4.0</guice-version>
   </properties>
   
   <scm>
@@ -71,6 +74,16 @@
       	</executions>
       </plugin>
     </plugins>
+    
+    <pluginManagement>
+    	<plugins>
+	    	<plugin>
+	    		<groupId>org.apache.maven.plugins</groupId>
+	    		<artifactId>maven-jar-plugin</artifactId>
+	    		<version>2.4</version>
+	    	</plugin>
+    	</plugins>
+    </pluginManagement>
   </build>
 
 	<dependencyManagement>
@@ -104,9 +117,17 @@
 			<dependency>
 			    <groupId>com.google.guava</groupId>
 			    <artifactId>guava</artifactId>
-			    <version>13.0.1</version>
+			    <version>18.0</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+	
+	<repositories>
+    	<repository>
+      		<id>radon.gdries.nl</id>
+      		<url>https://radon.gdries.nl/m2</url>
+    	</repository>
+	</repositories>
+      	
 </project>
 

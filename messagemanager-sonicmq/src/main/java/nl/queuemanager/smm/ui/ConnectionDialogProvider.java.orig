@@ -1,0 +1,30 @@
+package nl.queuemanager.smm.ui;
+
+import javax.inject.Singleton;
+
+import nl.queuemanager.ui.util.DesktopHelper;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.sonicsw.ma.gui.domain.JDomainConnectionDialog;
+
+/**
+ * This provider is used to be able to inject the JDomainConnectionDialog. We cannot annotate it
+ * with @Inject so we have to explicitly create it here.
+ */
+@Singleton
+public class ConnectionDialogProvider implements Provider<JDomainConnectionDialog> {
+	private final DesktopHelper desktop;
+	
+	@Inject
+	public ConnectionDialogProvider(DesktopHelper desktop) {
+		this.desktop = desktop;
+	}
+
+	public JDomainConnectionDialog get() {
+		JDomainConnectionDialog dialog = new JDomainConnectionDialog(null);
+		desktop.makeMacSheet(dialog);
+		return dialog;
+	}
+	
+}
