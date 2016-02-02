@@ -58,6 +58,11 @@ public abstract class Task implements Runnable {
 	 */
 	protected final EventBus eventBus;
 	
+	/**
+	 * Thread context classloader to use for the task
+	 */
+	protected ClassLoader contextClassLoader;
+	
 	protected long startTime;
 	
 	/**
@@ -131,6 +136,11 @@ public abstract class Task implements Runnable {
 	public final void run() {
 		if(getDependencyCount() != 0)
 			throw new IllegalStateException("Task started with non-zero dependency count!");
+
+		final ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
+		if(getContextClassLoader() != null) {
+			Thread.currentThread().setContextClassLoader(getContextClassLoader());
+		}
 		
 		startTime = System.currentTimeMillis();
 		dispatchTaskStarted();
@@ -143,6 +153,10 @@ public abstract class Task implements Runnable {
 			
 			// Tell the application that there was an error
 			dispatchTaskError(new Exception("An unexpected error occurred in task " + toString(), t));
+		} finally {
+			if(previousClassLoader != null) {
+				Thread.currentThread().setContextClassLoader(previousClassLoader);
+			}
 		}
 		
 		dispatchTaskFinished();
@@ -255,6 +269,14 @@ public abstract class Task implements Runnable {
 		return resource;
 	}
 	
+	public ClassLoader getContextClassLoader() {
+		return contextClassLoader;
+	}
+
+	public void setContextClassLoader(ClassLoader contextClassLoader) {
+		this.contextClassLoader = contextClassLoader;
+	}
+
 	/**
 	 * When a Task that this Task depends on has sent it's TASK_FINISHED event. Remove
 	 * that task as a dependency.

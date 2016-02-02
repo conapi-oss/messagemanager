@@ -24,5 +24,11 @@ public interface TaskExecutor {
 	 * @param tasks
 	 */
 	public abstract void executeInOrder(Task... tasks);
+	
+	/**
+	 * Set the default thread context ClassLoader to use when executing tasks.
+	 * @param contextClassLoader
+	 */
+	public void setContextClassLoader(ClassLoader contextClassLoader);
 
 }

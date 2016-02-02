@@ -38,6 +38,9 @@ class MultiQueueTaskExecutor implements TaskExecutor
 
 	// Protects access to both the executors Map and the waitingTasks List.
 	private final Object executorLock;
+	
+	// Default ClassLoader to set as the thread context ClassLoader before executing a task
+	private ClassLoader contextClassLoader;
 		
 	@Inject
 	public MultiQueueTaskExecutor() {
@@ -91,7 +94,10 @@ class MultiQueueTaskExecutor implements TaskExecutor
 	 * @see nl.queuemanager.core.task.TaskExecutor#execute(nl.queuemanager.core.task.Task)
 	 */
 	public void execute(final Task task) {
-		task.setExecutor(this);	
+		task.setExecutor(this);
+		if(task.getContextClassLoader() == null && getContextClassLoader() != null) {
+			task.setContextClassLoader(getContextClassLoader());
+		}
 		
 		if(task.getDependencyCount() == 0) {
 			executeNow(task);
@@ -165,6 +171,14 @@ class MultiQueueTaskExecutor implements TaskExecutor
 				}
 			}
 		}
+	}
+
+	public ClassLoader getContextClassLoader() {
+		return contextClassLoader;
+	}
+
+	public void setContextClassLoader(ClassLoader contextClassLoader) {
+		this.contextClassLoader = contextClassLoader;
 	}
 	
 }

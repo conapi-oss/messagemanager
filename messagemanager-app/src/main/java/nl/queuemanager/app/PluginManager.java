@@ -35,6 +35,7 @@ import javax.xml.xpath.XPathFactory;
 import nl.queuemanager.Profile;
 import nl.queuemanager.Version;
 import nl.queuemanager.core.platform.PlatformHelper;
+import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.util.EnumerationIterator;
 
 import org.w3c.dom.Document;
@@ -47,6 +48,7 @@ import com.google.inject.Module;
 @Singleton
 public class PluginManager {
 	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final TaskExecutor worker;
 	private final ProfileManager profileManager;
 	
 	private final File pluginsFolder;
@@ -54,7 +56,8 @@ public class PluginManager {
 	private URLClassLoader pluginClassloader;
 	
 	@Inject
-	public PluginManager(PlatformHelper platform, ProfileManager profileManager) {
+	public PluginManager(PlatformHelper platform, ProfileManager profileManager, TaskExecutor worker) {
+		this.worker = worker;
 		this.profileManager = profileManager;
 		
 		pluginsFolder = new File(new File(platform.getDataFolder(), "plugins"), Version.VERSION);
@@ -245,6 +248,12 @@ public class PluginManager {
 			
 			URLClassLoader classLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]));
 			logger.finest("Created classloader: " + Arrays.toString(classLoader.getURLs()));
+
+			// Set the ClassLoader on the worker and the current thread to make sure any class loading
+			// magic done by the plugins or any dependent classes (such as trying to use the context
+			// class loader directly) will hopefully work.
+			worker.setContextClassLoader(classLoader);
+			Thread.currentThread().setContextClassLoader(classLoader);
 
 			List<Module> result = new ArrayList<Module>();
 			for(PluginDescriptor plugin: plugins) {
