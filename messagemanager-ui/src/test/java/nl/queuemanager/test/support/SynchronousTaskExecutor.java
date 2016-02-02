@@ -52,4 +52,7 @@ public class SynchronousTaskExecutor implements TaskExecutor {
 
 	public void removeListener(EventListener<TaskEvent> listener) {
 	}
+	
+	public void setContextClassLoader(ClassLoader classLoader) {
+	}
 }
