@@ -245,9 +245,10 @@ public class PluginManager {
 				urls.addAll(plugin.getClasspath());
 			}
 			urls.addAll(classpath);
-			
-			URLClassLoader classLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]));
-			logger.finest("Created classloader: " + Arrays.toString(classLoader.getURLs()));
+
+			// Create the classloader for the plugins, using the "current" classloader as a parent.
+			URLClassLoader classLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]), getClass().getClassLoader());
+			logger.finest("Created classloader: " + Arrays.toString(classLoader.getURLs()) + " with parent " + classLoader.getParent());
 
 			// Set the ClassLoader on the worker and the current thread to make sure any class loading
 			// magic done by the plugins or any dependent classes (such as trying to use the context

@@ -9,7 +9,7 @@
 	</parent>
 	
 	<description>Message Manager ${suffix}</description>
-	<url>http://www.queuemanager.nl</url>
+	<url>http://queuemanager.nl</url>
 	
 	<artifactId>ws-app</artifactId>
 	<packaging>pom</packaging>
@@ -18,9 +18,7 @@
 	</organization>
 	
 	<properties>
-		<sonic.version>SONIC VERSION</sonic.version>
-		<sonic.displayVersion>SONIC VERSION</sonic.displayVersion>
-		<subdir>app</subdir>
+		<subdir></subdir>
 		<suffix></suffix>
 	</properties>
 	
@@ -52,7 +50,7 @@
 						<enabled>true</enabled>
 					</pack200>
 					<excludeTransitive>true</excludeTransitive>
-					<codebase>${project.Url}/${subdir}</codebase>
+					<codebase>${project.Url}/${subdir}/app</codebase>
 					<templateDirectory>src/main/jnlp</templateDirectory>
 					<jnlp>
 						<j2seVersion>1.7+</j2seVersion>
@@ -70,7 +68,7 @@
 						<storepass>${codesign.storepass}</storepass>
 						<storetype>${codesign.storetype}</storetype>
 						<alias>${codesign.keyalias}</alias>
-						<!-- tsaLocation>${codesign.tsaurl}</tsaLocation -->
+						<tsaLocation>${codesign.tsaurl}</tsaLocation>
 
 						<!-- verify that the signing operation succeeded -->
 						<verify>true</verify>
@@ -88,4 +86,5 @@
 			<classifier>jar-with-dependencies</classifier>
 		</dependency>
 	</dependencies>
+	<name>Message Manager</name>
 </project>

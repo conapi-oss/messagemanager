@@ -19,6 +19,11 @@ import java.awt.AWTEvent;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.security.AllPermission;
+import java.security.CodeSource;
+import java.security.PermissionCollection;
+import java.security.Permissions;
+import java.security.Policy;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,6 +56,8 @@ public class Main {
 	private Main() {}
 	
 	public static void main(String[] args) {
+		fixPolicyForWebStart();
+		
 		// Set look & feel to native
 		setNativeLAF();
 		
@@ -116,6 +123,23 @@ public class Main {
 	private static void enableSwingDebug() {
 		Toolkit.getDefaultToolkit().addAWTEventListener(new DebugEventListener(), AWTEvent.MOUSE_EVENT_MASK);
 		Toolkit.getDefaultToolkit().getSystemEventQueue().push(new TracingEventQueue());
+	}
+	
+	/**
+	 * When running in Web Start, the ClassLoaders created by the application do not inherit the permissions
+	 * of the web start Class Loader. This basically grants all permissions to anything. Not very secure, but
+	 * it works for the moment. As long as we don't load any untrusted plugins it should be fine.
+	 */
+	private static void fixPolicyForWebStart() {
+		Policy.setPolicy(new Policy() {
+			public PermissionCollection getPermissions(CodeSource codesource) {
+				Permissions perms = new Permissions();
+				perms.add(new AllPermission());
+				return(perms);
+			}
+			
+			public void refresh() {}
+		});
 	}
 	
 }
