@@ -1,7 +1,7 @@
 default:
 
 build-ws-app:
-	mvn -Pcodesign -Dsubdir=v3/nightly -Dsuffix=NIGHTLY clean package -pl ws-app -am
+	mvn -Pcodesign -Dsubdir=v3/nightly/ -Dsuffix=NIGHTLY clean package -pl ws-app -am
 	 
 run-ws-app:
 	 javaws -J-Ddeveloper=true \

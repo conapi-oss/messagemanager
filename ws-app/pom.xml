@@ -50,7 +50,7 @@
 						<enabled>true</enabled>
 					</pack200>
 					<excludeTransitive>true</excludeTransitive>
-					<codebase>${project.Url}/${subdir}/app</codebase>
+					<codebase>${project.Url}/${subdir}app</codebase>
 					<templateDirectory>src/main/jnlp</templateDirectory>
 					<jnlp>
 						<j2seVersion>1.7+</j2seVersion>
