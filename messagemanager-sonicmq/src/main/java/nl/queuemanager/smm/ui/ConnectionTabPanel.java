@@ -42,8 +42,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
+import nl.queuemanager.ProfileActivatedEvent;
 import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.core.task.Task;
@@ -62,6 +64,7 @@ import nl.queuemanager.ui.util.DesktopHelper;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.sonicsw.ma.gui.PreferenceManager;
 import com.sonicsw.ma.gui.domain.DomainConnectionModel;
 import com.sonicsw.ma.gui.domain.JDomainConnectionDialog;
@@ -73,12 +76,12 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 	private final Configuration config;
 	private       ConnectionModelTable connectionTable;
 	private final PreferenceManager prefs = PreferenceManager.getInstance();
-	private final ConnectionDialogProvider connectionDialogProvider;
+	private final Provider<JDomainConnectionDialog> connectionDialogProvider;
 	private final EventBus eventBus;
 	
 	@Inject
 	public ConnectionTabPanel(Domain sonic, TaskExecutor worker, Configuration config, 
-			DesktopHelper desktop, ConnectionDialogProvider connectionDialogProvider, 
+			DesktopHelper desktop, Provider<JDomainConnectionDialog> connectionDialogProvider, 
 			EventBus eventBus, MOTDPanel motdPanel) 
 	{
 		this.sonic = sonic;
@@ -436,10 +439,35 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 	}
 	
 	@Subscribe
-	public void applicationInitialized(ApplicationInitializedEvent e) {
+	public void applicationInitialized(final ApplicationInitializedEvent e) {
+		if(!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					applicationInitialized(e);
+				}
+			});
+			return;
+		}
+		
 		showDefaultConnectionDialog();
 	}
+	
+	@Subscribe
+	public void profileActivated(final ProfileActivatedEvent e) {
+		if(!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					profileActivated(e);
+				}
+			});
+			return;
+		}
 
+		showDefaultConnectionDialog();
+	}
+	
 	public String getUITabName() {
 		return "Connection";
 	}

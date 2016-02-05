@@ -8,9 +8,9 @@ import javax.inject.Inject;
 
 import nl.queuemanager.ConnectivityProviderPlugin;
 import nl.queuemanager.Profile;
+import nl.queuemanager.ProfileActivatedEvent;
 import nl.queuemanager.app.PluginDescriptor;
 import nl.queuemanager.app.PluginManager;
-import nl.queuemanager.app.ProfileActivatedEvent;
 import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.CoreModule;
 import nl.queuemanager.core.task.Task;

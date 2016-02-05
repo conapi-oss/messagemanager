@@ -28,6 +28,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
 import nl.queuemanager.AddUITabEvent;
+import nl.queuemanager.ProfileActivatedEvent;
 import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.platform.AboutEvent;
@@ -104,12 +105,30 @@ public class MMFrame extends JFrame {
 	}
 	
 	@Subscribe
-	public void removeTab(RemoveUITabEvent e) {
+	public void removeTab(final RemoveUITabEvent e) {
+		if(!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					removeTab(e);
+				}
+			});
+			return;
+		}
 		removeTab(e.getKey());
 	}
 	
 	@Subscribe
-	public void profileActivated(ProfileActivatedEvent e) {
+	public void profileActivated(final ProfileActivatedEvent e) {
+		if(!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					profileActivated(e);
+				}
+			});
+			return;
+		}
 		removeTab(0);
 		getRootPane().setDefaultButton(null);
 	}

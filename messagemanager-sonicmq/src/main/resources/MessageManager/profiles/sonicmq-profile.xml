@@ -4,7 +4,7 @@
 	<icon>MessageManager/profiles/sonicmq-logo.jpg</icon>
 	<description>Use this profile to connect to Sonic MQ. You will need to add the Sonic MQ jar files from your installation to the classpath list below before this profile will work.</description>
 	<plugins>
-		<plugin>nl.queuemanager.smm.SMMModule</plugin>
+		<plugin>nl.queuemanager.smm.SMMPluginModule</plugin>
 	</plugins>
 	<jars>
 		<jar>MFdirectory.jar</jar>

@@ -35,6 +35,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import nl.queuemanager.Profile;
+import nl.queuemanager.ProfileActivatedEvent;
 import nl.queuemanager.core.platform.PlatformHelper;
 
 import org.w3c.dom.DOMException;
