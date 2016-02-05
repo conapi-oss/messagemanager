@@ -34,6 +34,7 @@ import javax.xml.xpath.XPathFactory;
 
 import nl.queuemanager.Profile;
 import nl.queuemanager.Version;
+import nl.queuemanager.core.DebugProperty;
 import nl.queuemanager.core.platform.PlatformHelper;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.util.EnumerationIterator;
@@ -121,7 +122,7 @@ public class PluginManager {
 			logger.info(String.format("Found plugin %s", res.toString()));
 			pluginsFolder.mkdirs(); // Ensure the directory exists
 			File pluginFile = new File(pluginsFolder, getLastPathComponent(res.getPath()));
-			if(!pluginFile.exists() || Boolean.getBoolean("mm.forceInstallPlugins")) { // Only install plugin if it doesn't exist yet
+			if(!pluginFile.exists() || DebugProperty.forceInstallPlugins.isEnabled()) { // Only install plugin if it doesn't exist yet
 				logger.info(String.format("Installing plugin %s", res.toString()));
 				FileOutputStream fos = new FileOutputStream(pluginFile);
 				Resources.copy(res, fos);

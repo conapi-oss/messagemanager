@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import nl.queuemanager.core.Configuration;
+import nl.queuemanager.core.DebugProperty;
 import nl.queuemanager.core.task.BackgroundTask;
 import nl.queuemanager.core.util.DNSUtil;
 import nl.queuemanager.core.util.ReleasePropertiesEvent;
@@ -55,7 +56,7 @@ public class CheckReleaseNoteTask extends BackgroundTask {
 		
 	private boolean shouldShowReleaseNote() {
 		// If the check is forced, always do it
-		if(Boolean.parseBoolean(System.getProperty("mm.forceReleaseNoteCheck"))) {
+		if(DebugProperty.forceReleaseNoteCheck.isEnabled()) {
 			log.warning("Release note check forced by system property");
 			return true;
 		}

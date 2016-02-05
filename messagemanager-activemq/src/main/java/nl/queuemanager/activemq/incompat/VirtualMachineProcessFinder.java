@@ -22,5 +22,10 @@ public class VirtualMachineProcessFinder implements JavaProcessFinder {
         
         return ret;
 	}
+
+	@Override
+	public boolean isSupported() {
+		return true;
+	}
 	
 }

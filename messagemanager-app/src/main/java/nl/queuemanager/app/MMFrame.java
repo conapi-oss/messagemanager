@@ -29,6 +29,7 @@ import javax.swing.SwingUtilities;
 
 import nl.queuemanager.AddUITabEvent;
 import nl.queuemanager.ProfileActivatedEvent;
+import nl.queuemanager.Version;
 import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.platform.AboutEvent;
@@ -59,7 +60,7 @@ public class MMFrame extends JFrame {
 	public MMFrame(Configuration config, TaskQueuePanel taskQueuePanel, PlatformHelper platformHelper, ProfileTabPanel profileTab) {
 		this.config = config;
 		
-		setTitle(APP_NAME);
+		setTitle(String.format("%s %s", APP_NAME, Version.VERSION));
 
 		platformHelper.setFullScreenEnabled(this, true);
 		

@@ -13,4 +13,9 @@ public class DummyProcessFinder implements JavaProcessFinder {
 		return Collections.emptyList();
 	}
 
+	@Override
+	public boolean isSupported() {
+		return false;
+	}
+
 }

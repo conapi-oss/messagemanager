@@ -186,7 +186,13 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		gbc_removeConnectionButton.gridy = 7;
 		add(removeConnectionButton, gbc_removeConnectionButton);
 
-		localProcess.setSelected(true);
+		if(processFinder.isSupported()) {
+			localProcess.setSelected(true);
+		} else {
+			localProcess.setText(localProcess.getText() + " (not supported on this JVM)");
+			localProcess.setEnabled(false);
+			remoteProcess.setSelected(true);
+		}
 		radioButtonChangedAction.actionPerformed(null);
 	}
 	

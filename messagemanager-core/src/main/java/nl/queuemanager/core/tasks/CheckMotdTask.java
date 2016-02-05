@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import nl.queuemanager.core.Configuration;
+import nl.queuemanager.core.DebugProperty;
 import nl.queuemanager.core.task.BackgroundTask;
 import nl.queuemanager.core.util.DNSUtil;
 import nl.queuemanager.core.util.ReleasePropertiesEvent;
@@ -86,7 +87,7 @@ public class CheckMotdTask extends BackgroundTask {
 	
 	private boolean shouldCheckForMOTD() {
 		// If the check is forced, always do it
-		if(Boolean.parseBoolean(System.getProperty("mm.forceMotdCheck"))) {
+		if(DebugProperty.forceMotdCheck.isEnabled()) {
 			log.warning("MOTD check forced by system property");
 			return true;
 		}

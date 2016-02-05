@@ -35,6 +35,7 @@ import nl.queuemanager.app.AppModule;
 import nl.queuemanager.app.EventBusDebugger;
 import nl.queuemanager.app.MMFrame;
 import nl.queuemanager.app.PluginManager;
+import nl.queuemanager.core.DebugProperty;
 import nl.queuemanager.core.PreconnectCoreModule;
 import nl.queuemanager.core.configuration.XmlConfigurationModule;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
@@ -61,7 +62,7 @@ public class Main {
 		// Set look & feel to native
 		setNativeLAF();
 		
-		if(Boolean.getBoolean("mm.enableSwingDebug")) {
+		if(DebugProperty.enableSwingDebug.isEnabled()) {
 			enableSwingDebug();
 		}
 		
