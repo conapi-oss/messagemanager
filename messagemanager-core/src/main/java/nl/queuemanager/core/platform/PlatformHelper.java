@@ -7,7 +7,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
-public abstract class PlatformHelper {
+public class PlatformHelper {
 	
 	public void setApplicationName(String name) {
 	}
@@ -34,7 +34,9 @@ public abstract class PlatformHelper {
 	 * (AppData on Windows, ~/Library/Application Support on Mac, etc). Consumers
 	 * within this application should use the application-specific {@link getDataFolder}.
 	 */
-	protected abstract File getUserDataFolder();
+	protected File getUserDataFolder() {
+		return new File(System.getProperty("user.home"));
+	}
 	
 	public File getDataFolder() {
 		return new File(getUserDataFolder(), "MessageManager");
