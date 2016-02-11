@@ -15,12 +15,18 @@
  */
 package nl.queuemanager.core.configuration;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.prefs.Preferences;
 
 import javax.inject.Inject;
 import javax.xml.parsers.DocumentBuilder;
@@ -40,7 +46,6 @@ import javax.xml.xpath.XPathFactory;
 
 import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.MapNamespaceContext;
-import nl.queuemanager.core.platform.PlatformHelper;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
@@ -51,7 +56,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import com.google.common.base.Strings;
 
 /**
  * Preferences utility class. Handles the format and location of the preferences,
@@ -78,14 +86,14 @@ class XmlConfiguration implements Configuration {
 	private final String namespaceUri;
 	
 	@Inject
-	XmlConfiguration(String configFile, String namespaceUri, PlatformHelper platform) {
+	XmlConfiguration(File configFile, String namespaceUri) {
 		if(configFile == null)
 			throw new IllegalArgumentException("configFile");
 		
 		if(namespaceUri == null)
 			throw new IllegalArgumentException("namespaceUri");
 
-		this.configFile = configFile.contains("/") || configFile.contains("\\") ? new File(configFile) : new File(platform.getDataFolder(), configFile);
+		this.configFile = configFile;
 		this.namespaceUri = namespaceUri;
 		
 		// Initialize the XML Parser
@@ -125,109 +133,134 @@ class XmlConfiguration implements Configuration {
 	/* (non-Javadoc)
 	 * @see nl.queuemanager.core.ConfigurationManager#getUserPref(java.lang.String, java.lang.String)
 	 */
-	public synchronized String getUserPref(String key, String def) {
-		Document prefs = readPrefs();
-		String result = "";
-		
+	public String getUserPref(final String key, final String def) {
 		try {
-			result = xp.evaluate(String.format("/c:%s/c:%s", ROOT_ELEMENT, key), prefs.getDocumentElement());
-		} catch (XPathExpressionException e) {
-			System.err.println("Unable to get preference key " + key + ":");
+			final String res = readConfiguration(new Function<Element, String>() {
+				@Override
+				public String apply(Element prefs) throws Exception {
+					return xp.evaluate(String.format("/c:%s/c:%s", ROOT_ELEMENT, key), prefs);
+				}
+			});
+			
+			if(!Strings.isNullOrEmpty(res)) {
+				return res;
+			}
+			
+			// No value found for this pref, save the default value
+			if(!Strings.isNullOrEmpty(def)) {
+				setUserPref(key, def);
+			}
+			
+			return def;
+		} catch (ConfigurationException e) {
 			e.printStackTrace();
 			return def;
 		}
-		
-		if(result != null && result.length()>0)
-			return result;
-
-		// No value for this preference, save the default value
-		if(def != null && !"".equals(def))
-			setUserPref(key, def);
-		return def;
 	}
 		
 	/* (non-Javadoc)
 	 * @see nl.queuemanager.core.ConfigurationManager#setUserPref(java.lang.String, java.lang.String)
 	 */
-	public synchronized void setUserPref(String key, String value) {
-		Document prefs = readPrefs();
-		
+	public void setUserPref(final String key, final String value) {
 		try {
-			setElementValue(prefs.getDocumentElement(), new String[]{key}, value);
-			savePrefs(prefs);
-		} catch (XPathExpressionException e) {
+			mutateConfiguration(new Function<Element, Boolean>() {
+				@Override
+				public Boolean apply(Element prefs) throws Exception {
+					setElementValue(prefs, new String[]{key}, value);
+					return true;
+				}
+			});
+		} catch (ConfigurationException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public synchronized List<JMSBroker> listBrokers() {
-		Document prefs = readPrefs();
-		List<JMSBroker> brokers = new ArrayList<JMSBroker>();
-		
-		String expr = String.format("/c:%s/c:Broker", ROOT_ELEMENT);
+	public List<JMSBroker> listBrokers() {
 		try {
-			NodeList brokerNodes = (NodeList)xp.evaluate(expr, prefs.getDocumentElement(), XPathConstants.NODESET);
-			for(int i=0; i< brokerNodes.getLength(); i++) {
-				Element brokerElement = (Element) brokerNodes.item(i);
-				brokers.add(new JMSBrokerName(brokerElement.getAttribute("name")));
-			}
-		} catch (XPathExpressionException e) {
+			return readConfiguration(new Function<Element, List<JMSBroker>>() {
+				@Override
+				public List<JMSBroker> apply(Element prefs) throws Exception {
+					List<JMSBroker> brokers = new ArrayList<JMSBroker>();
+					
+					String expr = String.format("/c:%s/c:Broker", ROOT_ELEMENT);
+					NodeList brokerNodes = (NodeList)xp.evaluate(expr, prefs, XPathConstants.NODESET);
+					for(int i=0; i< brokerNodes.getLength(); i++) {
+						Element brokerElement = (Element) brokerNodes.item(i);
+						brokers.add(new JMSBrokerName(brokerElement.getAttribute("name")));
+					}
+					return brokers;
+				}
+			});
+		} catch (ConfigurationException e) {
 			e.printStackTrace();
+			return Collections.emptyList();
 		}
-		return brokers;
 	}
 	
 	/* (non-Javadoc)
 	 * @see nl.queuemanager.core.ConfigurationManager#getBrokerPref(nl.queuemanager.core.jms.JMSBroker, java.lang.String, java.lang.String)
 	 */
-	public synchronized String getBrokerPref(JMSBroker broker, String key, String def) {
-		Document prefs = readPrefs();
-		
-		String expr = String.format("/c:%s/c:Broker[@name='%s']/c:%s", 
-				ROOT_ELEMENT, broker.toString(), key);
+	public String getBrokerPref(final JMSBroker broker, final String key, String def) {
 		try {
-			String res = (String)xp.evaluate(expr, prefs.getDocumentElement(), XPathConstants.STRING);
-			if(res != null && !"".equals(res))
+			final String res = readConfiguration(new Function<Element, String>() {
+				@Override
+				public String apply(Element prefs) throws Exception {
+					final String expr = String.format("/c:%s/c:Broker[@name='%s']/c:%s", 
+							ROOT_ELEMENT, broker.toString(), key);
+					return (String)xp.evaluate(expr, prefs, XPathConstants.STRING);
+				}
+			});
+			
+			if(!Strings.isNullOrEmpty(res)) {
 				return res;
-		} catch (XPathExpressionException e) {
-			System.out.println(String.format(
-					"Unable to retrieve key %s for broker %s", key, broker.toString()));
+			}
+			
+			// No value found for this pref, save the default value
+			if(!Strings.isNullOrEmpty(def)) {
+				setBrokerPref(broker, key, def);
+			}
+			return def;
+		} catch(ConfigurationException e) {
 			e.printStackTrace();
+			return def;
 		}
-
-		// No value foud for this pref, save the default value
-		if(def != null && !"".equals(def))
-			setBrokerPref(broker, key, def);
-		return def;
 	}
 	
 	/* (non-Javadoc)
 	 * @see nl.queuemanager.core.ConfigurationManager#setBrokerPref(nl.queuemanager.core.jms.JMSBroker, java.lang.String, java.lang.String)
 	 */
-	public synchronized void setBrokerPref(JMSBroker broker, String key, String value) {
-		Document prefs = readPrefs();
-		
+	public void setBrokerPref(final JMSBroker broker, final String key, final String value) {
 		try {
-			setElementValue(getBrokerElement(prefs, broker.toString()), new String[]{key}, value);
-			savePrefs(prefs);
-		} catch (XPathExpressionException e) {
+			mutateConfiguration(new Function<Element, Boolean>() {
+				@Override
+				public Boolean apply(Element prefs) throws Exception {
+					setElementValue(getOrCreateBrokerElement(prefs, broker.toString()), new String[]{key}, value);
+					return true;
+				}
+			});
+		} catch (ConfigurationException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public void setBrokerCredentials(JMSBroker broker, Credentials credentials) {
-		Document prefs = readPrefs();
+	public void setBrokerCredentials(final JMSBroker broker, final Credentials credentials) {
 		try {
-			Element brokerElement = getBrokerElement(prefs, broker.toString());
-			setElementValue(brokerElement, new String[] { "DefaultUsername" }, credentials.getUsername());
-			setElementValue(brokerElement, new String[] { "DefaultPassword" }, credentials.getPassword());
-			savePrefs(prefs);
-		} catch (XPathExpressionException e) {
+			mutateConfiguration(new Function<Element, Boolean>() {
+				@Override
+				public Boolean apply(Element prefs) throws Exception {
+					Element brokerElement = getOrCreateBrokerElement(prefs, broker.toString());
+					setElementValue(brokerElement, new String[] { "DefaultUsername" }, credentials.getUsername());
+					setElementValue(brokerElement, new String[] { "DefaultPassword" }, credentials.getPassword());
+					return true;
+				}
+			});
+		} catch (ConfigurationException e) {
 			e.printStackTrace();
 		}
 	}
 
 	public Credentials getBrokerCredentials(JMSBroker broker) {
+		// TODO This will cause the file to be opened, locked, read, unlocked and closed twice. Hardly efficient.
 		String username = getBrokerPref(broker, "DefaultUsername", null);
 		String password = getBrokerPref(broker, "DefaultPassword", null);
 		if (username != null && password != null)
@@ -238,55 +271,64 @@ class XmlConfiguration implements Configuration {
 	/* (non-Javadoc)
 	 * @see nl.queuemanager.core.ConfigurationManager#getTopicSubscriberNames(nl.queuemanager.core.jms.JMSBroker)
 	 */
-	public synchronized List<String> getTopicSubscriberNames(JMSBroker broker) {
-		Document prefs = readPrefs();
-		
-		String expr = String.format("/c:%s/c:Broker[@name='%s']/c:Subscribers/c:Subscriber", 
-				ROOT_ELEMENT, broker.toString());
+	public List<String> getTopicSubscriberNames(final JMSBroker broker) {
 		try {
-			return getNodeValues(prefs.getDocumentElement(), expr);
-		} catch (XPathExpressionException e) {
-			System.out.println("Unable to retrieve topic subscriber names for broker " + broker);
+			return readConfiguration(new Function<Element, List<String>>() {
+				@Override
+				public List<String> apply(Element prefs) throws Exception {
+					String expr = String.format("/c:%s/c:Broker[@name='%s']/c:Subscribers/c:Subscriber", 
+							ROOT_ELEMENT, broker.toString());
+					return getNodeValues(prefs, expr);
+				}
+			});
+		} catch (ConfigurationException e) {
 			e.printStackTrace();
+			return Collections.emptyList();
 		}
-		
-		return CollectionFactory.newArrayList();
 	}
 
 	/* (non-Javadoc)
 	 * @see nl.queuemanager.core.ConfigurationManager#getTopicPublisherNames(nl.queuemanager.core.jms.JMSBroker)
 	 */
-	public synchronized List<String> getTopicPublisherNames(JMSBroker broker) {
-		Document prefs = readPrefs();
-		
-		String expr = String.format("/c:%s/c:Broker[@name='%s']/c:Publishers/c:Publisher", 
-				ROOT_ELEMENT, broker.toString());
+	public List<String> getTopicPublisherNames(final JMSBroker broker) {
 		try {
-			return getNodeValues(prefs.getDocumentElement(), expr);
-		} catch (XPathExpressionException e) {
-			System.out.println("Unable to retrieve topic publisher names for broker " + broker);
+			return readConfiguration(new Function<Element, List<String>>() {
+				@Override
+				public List<String> apply(Element prefs) throws Exception {
+					String expr = String.format("/c:%s/c:Broker[@name='%s']/c:Publishers/c:Publisher", 
+							ROOT_ELEMENT, broker.toString());
+					return getNodeValues(prefs, expr);
+				}
+			});
+		} catch (ConfigurationException e) {
 			e.printStackTrace();
+			return Collections.emptyList();
 		}
-		
-		return CollectionFactory.newArrayList();
 	}
 	
 	/* (non-Javadoc)
 	 * @see nl.queuemanager.core.ConfigurationManager#addTopicSubscriber(nl.queuemanager.core.jms.JMSTopic)
 	 */
-	public synchronized void addTopicSubscriber(JMSTopic topic) {
-		if(getTopicSubscriberNames(topic.getBroker()).contains(topic.getName()))
-			return;
-		
-		Document prefs = readPrefs();
-		
+	public void addTopicSubscriber(final JMSTopic topic) {
 		try {
-			Node brokerElement = getBrokerElement(prefs, topic.getBroker().toString()); 
-			Node subscribersElement = getOrCreateElementAtPath(brokerElement, new String[] {"Subscribers"});
-			addElement(subscribersElement, "Subscriber", topic.getName());
-			
-			savePrefs(prefs);
-		} catch (XPathExpressionException e) {
+			mutateConfiguration(new Function<Element, Boolean>() {
+				@Override
+				public Boolean apply(Element prefs) throws Exception {
+					Node brokerElement = getOrCreateBrokerElement(prefs, topic.getBroker().toString()); 
+					Node subscribersElement = getOrCreateElementAtPath(brokerElement, new String[] {"Subscribers"});
+					
+					// Check to see if this topic is already saved. Ignore if it already exists.
+					for(Node child = subscribersElement.getFirstChild(); child != null; child = child.getNextSibling()) {
+						if(child.getNodeType() == Node.ELEMENT_NODE && topic.getName().equals(child.getTextContent())) {
+							return false;
+						}
+					}
+					
+					addElement(subscribersElement, "Subscriber", topic.getName());
+					return true;
+				}
+			});
+		} catch (ConfigurationException e) {
 			e.printStackTrace();
 		}
 	}
@@ -294,19 +336,26 @@ class XmlConfiguration implements Configuration {
 	/* (non-Javadoc)
 	 * @see nl.queuemanager.core.ConfigurationManager#addTopicPublisher(nl.queuemanager.core.jms.JMSTopic)
 	 */
-	public synchronized void addTopicPublisher(JMSTopic topic) {
-		if(getTopicPublisherNames(topic.getBroker()).contains(topic.getName()))
-			return;
-		
-		Document prefs = readPrefs();
-		
+	public void addTopicPublisher(final JMSTopic topic) {
 		try {
-			Node brokerElement = getBrokerElement(prefs, topic.getBroker().toString()); 
-			Node subscribersElement = getOrCreateElementAtPath(brokerElement, new String[] {"Publishers"});
-			addElement(subscribersElement, "Publisher", topic.getName());
-			
-			savePrefs(prefs);
-		} catch (XPathExpressionException e) {
+			mutateConfiguration(new Function<Element, Boolean>() {
+				@Override
+				public Boolean apply(Element prefs) throws Exception {
+					Node brokerElement = getOrCreateBrokerElement(prefs, topic.getBroker().toString()); 
+					Node publishersElement = getOrCreateElementAtPath(brokerElement, new String[] {"Publishers"});
+					
+					// Check to see if this topic is already saved. Ignore if it already exists.
+					for(Node child = publishersElement.getFirstChild(); child != null; child = child.getNextSibling()) {
+						if(child.getNodeType() == Node.ELEMENT_NODE && topic.getName().equals(child.getTextContent())) {
+							return false;
+						}
+					}
+					
+					addElement(publishersElement, "Publisher", topic.getName());
+					return true;
+				}
+			});
+		} catch (ConfigurationException e) {
 			e.printStackTrace();
 		}
 	}
@@ -316,7 +365,7 @@ class XmlConfiguration implements Configuration {
 	 * 
 	 * @param topic
 	 */
-	public synchronized void removeTopicSubscriber(JMSTopic topic) {
+	public void removeTopicSubscriber(JMSTopic topic) {
 		removePrefNode(String.format(
 			"/c:%s/c:Broker[@name='%s']/c:Subscribers/c:Subscriber[text()='%s']", 
 			ROOT_ELEMENT, topic.getBroker().toString(), topic.getName()));
@@ -325,7 +374,7 @@ class XmlConfiguration implements Configuration {
 	/* (non-Javadoc)
 	 * @see nl.queuemanager.core.ConfigurationManager#removeTopicPublisher(nl.queuemanager.core.jms.JMSTopic)
 	 */
-	public synchronized void removeTopicPublisher(JMSTopic topic) {
+	public void removeTopicPublisher(JMSTopic topic) {
 		removePrefNode(String.format(
 			"/c:%s/c:Broker[@name='%s']/c:Publishers/c:Publisher[text()='%s']", 
 			ROOT_ELEMENT, topic.getBroker().toString(), topic.getName()));
@@ -403,17 +452,21 @@ class XmlConfiguration implements Configuration {
 	 * 
 	 * @param xpathExpression
 	 */
-	private void removePrefNode(String xpathExpression) {
-		Document prefs = readPrefs();
-
+	private void removePrefNode(final String xpathExpression) {
 		try {
-			Node nodeToRemove = (Node)xp.evaluate(
-					xpathExpression, prefs.getDocumentElement(), XPathConstants.NODE);
-			if(nodeToRemove != null) {
-				nodeToRemove.getParentNode().removeChild(nodeToRemove);
-				savePrefs(prefs);
-			}
-		} catch (XPathExpressionException e) {
+			mutateConfiguration(new Function<Element, Boolean>() {
+				@Override
+				public Boolean apply(Element prefs) throws Exception {
+					Node nodeToRemove = (Node)xp.evaluate(
+							xpathExpression, prefs, XPathConstants.NODE);
+					if(nodeToRemove != null) {
+						nodeToRemove.getParentNode().removeChild(nodeToRemove);
+						return true;
+					}
+					return false;
+				}
+			});
+		} catch (ConfigurationException e) {
 			e.printStackTrace();
 		}
 	}
@@ -427,63 +480,23 @@ class XmlConfiguration implements Configuration {
 	 * @return
 	 * @throws XPathExpressionException
 	 */
-	private Element getBrokerElement(Document prefs, String brokerName)
+	private Element getOrCreateBrokerElement(Element prefs, String brokerName)
 			throws XPathExpressionException {
 		Element brokerElement = (Element)xp.evaluate(
 				String.format("/c:%s/c:Broker[@name='%s']", ROOT_ELEMENT, brokerName),
-				prefs.getDocumentElement(), XPathConstants.NODE);
+				prefs, XPathConstants.NODE);
 		if(brokerElement == null) {
-			brokerElement = prefs.createElementNS(namespaceUri, "Broker");
-			Attr nameAttribute = prefs.createAttribute("name");
+			final Document doc = prefs.getOwnerDocument();
+			brokerElement = doc.createElementNS(namespaceUri, "Broker");
+			Attr nameAttribute = doc.createAttribute("name");
 			nameAttribute.setTextContent(brokerName);
 			brokerElement.getAttributes().setNamedItem(nameAttribute);
-			prefs.getDocumentElement().appendChild(brokerElement);
+			prefs.appendChild(brokerElement);
 		}
 		
 		return brokerElement;
 	}
-	
-	/**
-	 * Read the existing preference document or create a new one if it doesn't exist yet.
-	 * 
-	 * @return
-	 */
-	private Document readPrefs() {		
-		if(!configFile.exists()) {
-			// The file does not exist. Create a new Document.
-			return newConfig();
-		}
 		
-		try {
-			return db.parse(configFile);
-		} catch (IOException e) {
-			System.out.println("IOException getting configuration, creating new document." + e);
-			e.printStackTrace();
-			return newConfig();
-		} catch (SAXException e) {
-			System.out.println("Unable to parse configuration, creating new document." + e);
-			e.printStackTrace();
-			return newConfig();
-		}
-	}
-
-	/**
-	 * Save the Document object to the preferences file.
-	 * 
-	 * @param doc
-	 */
-	private void savePrefs(Document doc) {
-		try {
-			StreamResult r = new StreamResult(configFile);
-			Source s = new DOMSource(doc);
-			
-			tf.transform(s, r);
-		} catch (TransformerException e) {
-			System.err.println("Error while saving prefs!");
-			e.printStackTrace(System.err);
-		}
-	}
-	
 	/**
 	 * Create a new, empty, configuration document.
 	 * 
@@ -493,54 +506,10 @@ class XmlConfiguration implements Configuration {
 		Document d = db.newDocument();
 		Element configElement = d.createElementNS(namespaceUri, ROOT_ELEMENT);
 		d.appendChild(configElement);
-		
-		// Read possibly existing settings from the java.util.Preferences store and copy them to
-		// the configuration document. Then remove them.
-		convertOldUserPref(configElement, PREF_BROWSE_DIRECTORY);
-		convertOldUserPref(configElement, PREF_SAVE_DIRECTORY);
-
-		savePrefs(d);
 		return d;
 	}
 
-	/**
-	 * Convert an old preference to the new preferences format and remove the old preference.
-	 * 
-	 * @param configElement
-	 * @param key
-	 */
-	private void convertOldUserPref(final Element configElement, final String key) {
-		final String browseDir = getOldUserPref(key);
-		if(browseDir != null) {
-			Element e = configElement.getOwnerDocument().createElementNS(namespaceUri, key);
-			e.setTextContent(browseDir);
-			configElement.appendChild(e);
-			removeOldUserPref(key);
-		}
-	}
-
-	/**
-	 * Remove a preference from the java.util.Preferences store.
-	 * 
-	 * @param key
-	 */
-	private void removeOldUserPref(final String key) {
-		Preferences userNode = Preferences.userNodeForPackage(XmlConfiguration.class);
-		userNode.remove(key);
-	}
-
-	/**
-	 * Get a preference value from the java.util.Preferences store.
-	 * 
-	 * @param key
-	 * @return
-	 */
-	private String getOldUserPref(final String key) {
-		Preferences userNode = Preferences.userNodeForPackage(XmlConfiguration.class);
-		return userNode.get(key, null);
-	}
-	
-	private class JMSBrokerName implements JMSBroker {
+	static class JMSBrokerName implements JMSBroker {
 		private final String name;
 
 		public JMSBrokerName(String name) {
@@ -554,6 +523,86 @@ class XmlConfiguration implements Configuration {
 		public int compareTo(JMSBroker other) {
 			return name.compareTo(other.toString());
 		}
-		
 	}
+
+	private final Object lock = new Object();
+	protected interface Function<T,R> {
+		R apply(T t) throws Exception;
+	}
+	protected void mutateConfiguration(Function<? super Element, Boolean> mutateFunc) throws ConfigurationException {
+		// This lock is to make sure only one thread in this process will access the
+		// file at any time.
+		synchronized(lock) {
+			// Obtain file lock. This is to make sure multiple processes synchronize properly
+			try(final FileChannel channel = FileChannel.open(configFile.toPath(), StandardOpenOption.READ, StandardOpenOption.WRITE);
+				final FileLock lock = channel.lock()) {
+
+				Document configuration = readConfiguration(channel);
+				Boolean changed = mutateFunc.apply(configuration.getDocumentElement());
+				if(changed) {
+					writeConfiguration(configuration, channel);
+				}
+			} catch (IOException e) {
+				throw new ConfigurationException(e);
+			} catch (Exception e) {
+				throw new ConfigurationException(e);
+			}
+		}
+	}
+	
+	
+	protected <R> R readConfiguration(Function<Element, R> readFunc) throws ConfigurationException {
+		// This lock is to make sure only one thread in this process will access the
+		// file at any time.
+		synchronized(lock) {
+			try(final FileChannel channel = FileChannel.open(configFile.toPath(), StandardOpenOption.READ)) {
+
+				Document configuration = readConfiguration(channel);
+				return readFunc.apply(configuration.getDocumentElement());
+			} catch (IOException e) {
+				throw new ConfigurationException(e);
+			} catch (Exception e) {
+				throw new ConfigurationException(e);
+			}
+		}
+	}
+	
+	private Document readConfiguration(FileChannel channel) {
+		try {
+			final int fileSize = (int)configFile.length();
+			if(fileSize == 0) {
+				return newConfig();
+			}
+			
+			final ByteBuffer buffer = ByteBuffer.allocate(fileSize);
+			while(channel.read(buffer) > 0);
+			
+			return db.parse(new InputSource(new ByteArrayInputStream(buffer.array())));
+		} catch (IOException e) {
+			System.out.println("IOException getting configuration, creating new document." + e);
+			e.printStackTrace();
+			return newConfig();
+		} catch (SAXException e) {
+			System.out.println("Unable to parse configuration, creating new document." + e);
+			e.printStackTrace();
+			return newConfig();
+		}
+	}
+	
+	private void writeConfiguration(Document configuration, FileChannel channel) throws IOException {
+		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		
+		StreamResult r = new StreamResult(buffer);
+		Source s = new DOMSource(configuration);
+		
+		try {
+			tf.transform(s, r);
+			channel.truncate(0);
+			channel.write(ByteBuffer.wrap(buffer.toByteArray()));
+		} catch (TransformerException e) {
+			System.err.println("Error while saving prefs!");
+			e.printStackTrace(System.err);
+		}
+	}
+	
 }

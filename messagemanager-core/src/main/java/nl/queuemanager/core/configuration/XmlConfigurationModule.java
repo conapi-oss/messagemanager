@@ -1,5 +1,7 @@
 package nl.queuemanager.core.configuration;
 
+import java.io.File;
+
 import javax.inject.Singleton;
 
 import nl.queuemanager.core.Configuration;
@@ -25,7 +27,10 @@ public class XmlConfigurationModule extends AbstractModule {
 	
 	@Provides @Singleton
 	public Configuration createConfiguration(PlatformHelper platform) {
-		return new XmlConfiguration(configFile, namespaceUri, platform);
+		final File realConfigFile = configFile.contains("/") || configFile.contains("\\") ? 
+				new File(configFile) : 
+				new File(platform.getDataFolder(), configFile);
+		return new XmlConfiguration(realConfigFile, namespaceUri);
 	}
 
 }
