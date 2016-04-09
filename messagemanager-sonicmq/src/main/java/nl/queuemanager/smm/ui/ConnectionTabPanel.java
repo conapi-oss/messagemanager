@@ -46,7 +46,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
 import nl.queuemanager.ProfileActivatedEvent;
-import nl.queuemanager.core.Configuration;
+import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskExecutor;
@@ -73,14 +73,14 @@ import com.sonicsw.ma.gui.domain.JDomainConnectionDialog;
 public class ConnectionTabPanel extends JPanel implements UITab {
 	private final Domain sonic;
 	private final TaskExecutor worker;
-	private final Configuration config;
+	private final CoreConfiguration config;
 	private       ConnectionModelTable connectionTable;
 	private final PreferenceManager prefs = PreferenceManager.getInstance();
 	private final Provider<JDomainConnectionDialog> connectionDialogProvider;
 	private final EventBus eventBus;
 	
 	@Inject
-	public ConnectionTabPanel(Domain sonic, TaskExecutor worker, Configuration config, 
+	public ConnectionTabPanel(Domain sonic, TaskExecutor worker, CoreConfiguration config, 
 			DesktopHelper desktop, Provider<JDomainConnectionDialog> connectionDialogProvider, 
 			EventBus eventBus, MOTDPanel motdPanel) 
 	{

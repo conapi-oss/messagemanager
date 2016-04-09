@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import nl.queuemanager.core.configuration.XmlConfiguration.JMSBrokerName;
+import nl.queuemanager.core.configuration.CoreXmlConfiguration.JMSBrokerName;
 import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.impl.DestinationFactory;
@@ -17,14 +17,14 @@ import org.junit.Test;
 public class XmlConfigurationTest {
 	
 	private static final String NAMESPACE_URI = "urn:test-config"; 
-	private XmlConfiguration config;
+	private CoreXmlConfiguration config;
 	private File configFile;
 	
 	@Before
 	public void before() throws IOException {
 		configFile = File.createTempFile("mmtest", "xml");
 		configFile.deleteOnExit();
-		config = new XmlConfiguration(configFile, NAMESPACE_URI);
+		config = new CoreXmlConfiguration(configFile, NAMESPACE_URI, "TestConfiguration");
 	}
 	
 	@Test
@@ -143,6 +143,43 @@ public class XmlConfigurationTest {
 		assertContainsAll(config.getTopicPublisherNames(broker2), "topic4", "topic5", "topic6");
 		config.removeTopicPublisher(DestinationFactory.createTopic(broker2, "topic6"));
 		assertContainsAll(config.getTopicPublisherNames(broker2), "topic4", "topic5");
+	}
+	
+	@Test
+	public void testPluginConfiguration() {
+		final Configuration plugin1 = config.getPluginConfiguration("plugin1");
+		final Configuration plugin2 = config.getPluginConfiguration("plugin2");
+		
+		plugin1.setValue("key1", "value1");
+		plugin2.setValue("key2", "value2");
+		
+		assertEquals("value1", plugin1.getValue("key1", "default1"));
+		assertEquals("value2", plugin2.getValue("key2", "default2"));
+		assertEquals("default1", plugin1.getValue("doesnotexist", "default1"));
+		assertEquals("default2", plugin2.getValue("doesnotexist", "default2"));
+		assertEquals("default1", plugin1.getValue("key2", "default1"));
+		assertEquals("default2", plugin2.getValue("key1", "default2"));
+	}
+	
+	@Test
+	public void testPluginSubConfiguration() {
+		final Configuration plugin1 = config.getPluginConfiguration("plugin1");
+		final Configuration plugin2 = config.getPluginConfiguration("plugin2");
+
+		final Configuration sub11 = plugin1.sub("sub1");
+		final Configuration sub12 = plugin1.sub("sub2");
+		final Configuration sub21 = plugin2.sub("sub1");
+		final Configuration sub22 = plugin2.sub("sub2");
+
+		sub11.setValue("key1", "value11");
+		sub12.setValue("key2", "value12");
+		sub21.setValue("key1", "value21");
+		sub22.setValue("key2", "value22");
+		
+		assertEquals("value11", sub11.getValue("key1", "default1"));
+		assertEquals("value12", sub12.getValue("key2", "default2"));
+		assertEquals("value21", sub21.getValue("key1", "default1"));
+		assertEquals("value22", sub22.getValue("key2", "default2"));
 	}
 	
 	private static void assertContainsAll(List<String> list, String... values) {

@@ -6,7 +6,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import nl.queuemanager.core.Configuration;
+import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.jms.BrokerCredentialsProvider;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.Task;
@@ -17,13 +17,13 @@ import nl.queuemanager.jms.JMSBroker;
 public class ConnectToBrokerTask extends Task {
 	private final JMSDomain domain;
 	private final JMSBroker broker;
-	private final Configuration configuration;
+	private final CoreConfiguration configuration;
 	private final BrokerCredentialsProvider credentialsProvider;
 
 	@Inject
 	ConnectToBrokerTask(
 			JMSDomain domain, 
-			Configuration configuration,
+			CoreConfiguration configuration,
 			BrokerCredentialsProvider credentialsProvider,
 			EventBus eventBus,
 			@Assisted JMSBroker broker) 

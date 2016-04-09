@@ -22,7 +22,7 @@ import javax.jms.MessageListener;
 import javax.management.JMException;
 import javax.management.MalformedObjectNameException;
 
-import nl.queuemanager.core.Configuration;
+import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.events.AbstractEventSource;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.DomainEvent.EVENT;
@@ -42,10 +42,10 @@ public class SolaceDomain extends AbstractEventSource<DomainEvent> implements JM
 
 	private final Logger log = Logger.getLogger(getClass().getName());
 	
-	private final Configuration config;
+	private final CoreConfiguration config;
 
 	@Inject
-	public SolaceDomain(Configuration config, EventBus eventBus) {
+	public SolaceDomain(CoreConfiguration config, EventBus eventBus) {
 		super(eventBus);
 		this.config = config;
 	}

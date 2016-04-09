@@ -67,7 +67,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.JTextComponent;
 
-import nl.queuemanager.core.Configuration;
+import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.TaskExecutor;
@@ -100,7 +100,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 	private final JMSDomain sonic;
 	private final TaskExecutor worker;
 	private final TaskFactory taskFactory;
-	private final Configuration config;
+	private final CoreConfiguration config;
 	private final QueueCountsRefresher qcRefresher;
 
 	private JTextField filenameField;
@@ -118,7 +118,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 	private Map<String, Object> properties = CollectionFactory.newHashMap();
 	
 	@Inject
-	public MessageSendTabPanel(JMSDomain sonic, TaskExecutor worker, Configuration config, 
+	public MessageSendTabPanel(JMSDomain sonic, TaskExecutor worker, CoreConfiguration config, 
 			TaskFactory taskFactory, JMSDestinationTable destinationTable, 
 			QueueCountsRefresher refresher) 
 	{
@@ -533,7 +533,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 			      JFileChooser chooser = new JFileChooser();
 			      chooser.setCurrentDirectory(new File(
 			    		  config.getUserPref(
-			    				  Configuration.PREF_BROWSE_DIRECTORY, 
+			    				  CoreConfiguration.PREF_BROWSE_DIRECTORY, 
 			    				  ".")));
 			      chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 			      int r = chooser.showOpenDialog(MessageSendTabPanel.this);
@@ -542,7 +542,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 			        filenameField.setText(fname);
 			        
 			        config.setUserPref(
-			        		Configuration.PREF_BROWSE_DIRECTORY,
+			        		CoreConfiguration.PREF_BROWSE_DIRECTORY,
 			        		chooser.getCurrentDirectory().getAbsolutePath());
 			      }
 			    

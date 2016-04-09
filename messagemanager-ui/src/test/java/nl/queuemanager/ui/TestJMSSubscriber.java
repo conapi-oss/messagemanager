@@ -31,8 +31,8 @@ import java.util.Observer;
 
 import javax.jms.Message;
 
-import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.MessageBuffer;
+import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.impl.MessageFactory;
@@ -43,7 +43,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestJMSSubscriber {
-	private Configuration config;
+	private CoreConfiguration config;
 	private TaskExecutor worker;
 	private JMSSubscriber subscriber;
 	private JMSDestination destination;
@@ -52,13 +52,13 @@ public class TestJMSSubscriber {
 	
 	@Before
 	public void before() {
-		config = mock(Configuration.class);
-		when(config.getUserPref(Configuration.PREF_MAX_BUFFERED_MSG, "50")).thenReturn("50");
+		config = mock(CoreConfiguration.class);
+		when(config.getUserPref(CoreConfiguration.PREF_MAX_BUFFERED_MSG, "50")).thenReturn("50");
 		
 		worker = new SynchronousTaskExecutor();
 		buffer = new MessageBuffer();
 		subscriber = new JMSSubscriber(null, worker, config, null, destination, buffer);
-		verify(config).getUserPref(Configuration.PREF_MAX_BUFFERED_MSG, "50");
+		verify(config).getUserPref(CoreConfiguration.PREF_MAX_BUFFERED_MSG, "50");
 		
 		observer = mock(Observer.class);
 		subscriber.addObserver(observer);

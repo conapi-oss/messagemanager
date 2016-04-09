@@ -48,7 +48,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import nl.queuemanager.core.Configuration;
+import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.task.CancelableTask;
@@ -76,7 +76,7 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 	private MessageViewerPanel messageViewer;
 
 	private final TaskExecutor worker;
-	private final Configuration config;
+	private final CoreConfiguration config;
 	private final QueueBrowserEventListener qbel;
 	private final TaskFactory taskFactory;
 	private final QueueCountsRefresher qcRefresher;
@@ -84,7 +84,7 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 	@Inject
 	public QueuesTabPanel(
 			TaskExecutor worker,
-			Configuration config,
+			CoreConfiguration config,
 			QueueTable queueTable,
 			JMSDestinationTransferHandlerFactory jmsDestinationTransferHandlerFactory,
 			MessageViewerPanel messageViewer,

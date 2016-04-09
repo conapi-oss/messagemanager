@@ -44,9 +44,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.MessageBuffer;
 import nl.queuemanager.core.MessageEvent;
+import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.JMSDomain;
@@ -78,7 +78,7 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 	private final JMSDomain domain;
 	private final TaskExecutor worker;
 	private final TaskFactory taskFactory;
-	private final Configuration config;
+	private final CoreConfiguration config;
 	private final JMSSubscriberFactory jmsSubscriberFactory;
 	
 	private final TopicSubscriberTable subscriberTable;
@@ -94,7 +94,7 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 			TaskFactory taskFactory,
 			TopicSubscriberTable topicSubscriberTable,
 			MessageViewerPanel messageViewer,
-			Configuration config, 
+			CoreConfiguration config, 
 			EventBus eventBus,
 			JMSSubscriberFactory jmsSubscriberFactory) 
 	{

@@ -8,7 +8,7 @@ import java.util.TimerTask;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import nl.queuemanager.core.Configuration;
+import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.tasks.TaskFactory;
@@ -25,14 +25,14 @@ public class QueueCountsRefresher {
 	private Timer timer;
 	
 	@Inject
-	QueueCountsRefresher(TaskExecutor worker, Configuration configuration, TaskFactory taskFactory) {
+	QueueCountsRefresher(TaskExecutor worker, CoreConfiguration configuration, TaskFactory taskFactory) {
 		this.worker = worker;
 		this.taskFactory = taskFactory;
 		this.timer = new Timer(true);
 		
 		timer.schedule(new RefreshTask(), 
-			Long.valueOf(configuration.getUserPref(Configuration.PREF_AUTOREFRESH_INTERVAL, "5000")), 
-			Long.valueOf(configuration.getUserPref(Configuration.PREF_AUTOREFRESH_INTERVAL, "5000")));
+			Long.valueOf(configuration.getUserPref(CoreConfiguration.PREF_AUTOREFRESH_INTERVAL, "5000")), 
+			Long.valueOf(configuration.getUserPref(CoreConfiguration.PREF_AUTOREFRESH_INTERVAL, "5000")));
 	}
 	
 	private synchronized void refreshBrokers() {

@@ -10,17 +10,17 @@ import javax.swing.JPanel;
 
 import com.google.inject.Inject;
 
-import nl.queuemanager.core.Configuration;
+import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.jms.JMSBroker;
 
 @SuppressWarnings("serial")
 public class BrokerSettingsPanel extends JPanel implements SettingsPanel {
 
-	private final Configuration configuration;
+	private final CoreConfiguration configuration;
 	private final JList brokerList;
 
 	@Inject
-	public BrokerSettingsPanel(Configuration config) {
+	public BrokerSettingsPanel(CoreConfiguration config) {
 		this.configuration = config;
 		
 		DefaultListModel model = new DefaultListModel();

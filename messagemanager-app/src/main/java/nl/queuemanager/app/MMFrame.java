@@ -30,7 +30,7 @@ import javax.swing.SwingUtilities;
 import nl.queuemanager.AddUITabEvent;
 import nl.queuemanager.ProfileActivatedEvent;
 import nl.queuemanager.Version;
-import nl.queuemanager.core.Configuration;
+import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.platform.AboutEvent;
 import nl.queuemanager.core.platform.PlatformHelper;
@@ -49,7 +49,7 @@ public class MMFrame extends JFrame {
 	private static final String APP_NAME = "Message Manager";
 	private static final String WINDOW_POSITION_AND_SIZE = "windowPositionAndSize";
 
-	private final Configuration config;
+	private final CoreConfiguration config;
 	
 	private final JTabbedPane tabsPane;
 	private final SortedMap<Integer, UITab> tabs;
@@ -57,7 +57,7 @@ public class MMFrame extends JFrame {
 	private UITab.ConnectionState currentState;
 	
 	@Inject
-	public MMFrame(Configuration config, TaskQueuePanel taskQueuePanel, PlatformHelper platformHelper, ProfileTabPanel profileTab) {
+	public MMFrame(CoreConfiguration config, TaskQueuePanel taskQueuePanel, PlatformHelper platformHelper, ProfileTabPanel profileTab) {
 		this.config = config;
 		
 		setTitle(String.format("%s %s", APP_NAME, Version.VERSION));

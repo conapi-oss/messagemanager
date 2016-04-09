@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.queuemanager.core;
+package nl.queuemanager.core.configuration;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSTopic;
 
-public interface Configuration {
+public interface CoreConfiguration {
 	public static final String PREF_UNIQUE_ID = "uniqueId";
 	public static final String PREF_BROWSE_DIRECTORY = "browseDirectory";
 	public static final String PREF_SAVE_DIRECTORY = "saveDirectory";
@@ -139,4 +139,11 @@ public interface Configuration {
 	 * @param topic
 	 */
 	public void removeTopicSubscriber(JMSTopic topic);
+	
+	/**
+	 * Get a Configuration object for the specified plugin id
+	 * 
+	 * @param pluginId The plugin id (module class name) to get the configuration for
+	 */
+	public Configuration getPluginConfiguration(String pluginId);
 }

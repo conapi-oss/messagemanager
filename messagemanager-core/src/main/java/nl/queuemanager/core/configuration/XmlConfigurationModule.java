@@ -4,7 +4,6 @@ import java.io.File;
 
 import javax.inject.Singleton;
 
-import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.platform.PlatformHelper;
 import nl.queuemanager.core.platform.PlatformModule;
 
@@ -24,13 +23,13 @@ public class XmlConfigurationModule extends AbstractModule {
 	public void configure() {
 		install(new PlatformModule());
 	}
-	
+
 	@Provides @Singleton
-	public Configuration createConfiguration(PlatformHelper platform) {
+	public CoreConfiguration createConfiguration(PlatformHelper platform) {
 		final File realConfigFile = configFile.contains("/") || configFile.contains("\\") ? 
 				new File(configFile) : 
 				new File(platform.getDataFolder(), configFile);
-		return new XmlConfiguration(realConfigFile, namespaceUri);
+		return new CoreXmlConfiguration(realConfigFile, namespaceUri, "Configuration");
 	}
 
 }

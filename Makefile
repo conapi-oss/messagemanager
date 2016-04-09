@@ -8,6 +8,12 @@ run-ws-app:
 		-J-Dmm.forceInstallPlugins=true \
 		-J-Djava.util.logging.config.file=messagemanager-app/logging.properties \
 		http://queuemanager.nl/v3/nightly/app/MessageManager.jnlp
+
+run-ws-76:
+	 javaws -J-Ddeveloper=true \
+		-J-Dmm.forceInstallPlugins=true \
+		-J-Djava.util.logging.config.file=messagemanager-app/logging.properties \
+		http://queuemanager.nl/v3/nightly/7.6/SonicMessageManager.jnlp
 	 
 upload-ws-app:
 	scp ws-app/target/jnlp/* neon:domains/queuemanager.nl/public_html/v3/nightly/app/

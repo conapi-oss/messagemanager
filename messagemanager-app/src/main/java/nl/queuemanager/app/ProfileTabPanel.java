@@ -45,7 +45,7 @@ import javax.swing.event.ListSelectionListener;
 import nl.queuemanager.Profile;
 import nl.queuemanager.app.tasks.ActivateProfileTask;
 import nl.queuemanager.app.tasks.TaskFactory;
-import nl.queuemanager.core.Configuration;
+import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.platform.PlatformHelper;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.ui.CommonUITasks;
@@ -73,7 +73,7 @@ public class ProfileTabPanel extends JPanel implements UITab {
 	private PlatformHelper platform;
 	
 	@Inject
-	public ProfileTabPanel(final ProfileManager profileManager, final TaskExecutor worker, final TaskFactory taskFactory, final PlatformHelper platform, final Configuration config) {
+	public ProfileTabPanel(final ProfileManager profileManager, final TaskExecutor worker, final TaskFactory taskFactory, final PlatformHelper platform, final CoreConfiguration config) {
 		this.platform = platform;
 		
 		GridBagLayout gridBagLayout = new GridBagLayout();

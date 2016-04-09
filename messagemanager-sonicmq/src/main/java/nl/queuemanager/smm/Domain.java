@@ -41,7 +41,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
-import nl.queuemanager.core.Configuration;
+import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.DomainEvent.EVENT;
 import nl.queuemanager.core.jms.JMSDomain;
@@ -81,7 +81,7 @@ import com.sonicsw.mq.mgmtapi.config.constants.IBrokerConstants;
 
 @Singleton
 public class Domain implements JMSDomain {
-	private final Configuration config;
+	private final CoreConfiguration config;
 	private final EventBus eventBus;
 	private       ConnectionModel model;
 	private final ArrayList<SonicMQBroker> brokerList = CollectionFactory.newArrayList();
@@ -98,7 +98,7 @@ public class Domain implements JMSDomain {
 	}
 
 	@Inject
-	public Domain(Configuration configuration, EventBus eventBus) {
+	public Domain(CoreConfiguration configuration, EventBus eventBus) {
 		this.config = configuration;
 		this.eventBus = eventBus;
 	}
@@ -653,7 +653,7 @@ public class Domain implements JMSDomain {
 		
 		// Try the configuration to get an alternate URL if one is configured.
 		String brokerUrl = config.getBrokerPref(
-				broker, Configuration.PREF_BROKER_ALTERNATE_URL, broker.getBrokerURL());
+				broker, CoreConfiguration.PREF_BROKER_ALTERNATE_URL, broker.getBrokerURL());
 		
 		progress.message.jclient.ConnectionFactory factory = 
 			new progress.message.jclient.ConnectionFactory(
