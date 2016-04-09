@@ -35,7 +35,7 @@ public class PlatformHelper {
 	 * within this application should use the application-specific {@link getDataFolder}.
 	 */
 	protected File getUserDataFolder() {
-		return new File(System.getProperty("user.home"));
+		return new File(new File(System.getProperty("user.home")), ".messagemanager");
 	}
 	
 	public File getDataFolder() {
