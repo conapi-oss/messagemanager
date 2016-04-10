@@ -1,5 +1,11 @@
 package nl.queuemanager.core.configuration;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.xml.XMLConstants;
+import javax.xml.xpath.XPathConstants;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -126,6 +132,29 @@ public class XmlConfigurationSection implements Configuration {
 		return null;
 	}
 	
+	@Override
+	public List<String> listKeys() {
+		List<String> keys = new ArrayList<String>();
+		try {
+			final NodeList res = readConfiguration(new Function<Element, NodeList>() {
+				@Override
+				public NodeList apply(Element prefs) throws Exception {
+					return prefs.getChildNodes();
+				}
+			});
+			for(int i = 1; i<res.getLength(); i++) {
+				Node item = res.item(i);
+				if(item.getNodeType() == Node.ELEMENT_NODE) {
+					keys.add(res.item(i).getLocalName());
+				}
+			}
+		} catch (ConfigurationException e) {
+			e.printStackTrace();
+		}
+		
+		return keys;
+	}
+	
 	protected interface Function<T,R> {
 		R apply(T t) throws Exception;
 	}
@@ -154,4 +183,5 @@ public class XmlConfigurationSection implements Configuration {
 			}
 		};
 	}
+
 }
