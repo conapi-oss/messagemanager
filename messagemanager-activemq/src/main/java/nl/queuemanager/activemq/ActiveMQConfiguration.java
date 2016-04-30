@@ -2,6 +2,8 @@ package nl.queuemanager.activemq;
 
 import java.util.List;
 
+import com.google.inject.Inject;
+
 import nl.queuemanager.core.configuration.Configuration;
 import nl.queuemanager.core.util.CollectionFactory;
 
@@ -11,6 +13,7 @@ public class ActiveMQConfiguration {
 	
 	private final Configuration config;
 	
+	@Inject
 	public ActiveMQConfiguration(Configuration config) {
 		this.config = config;
 	}

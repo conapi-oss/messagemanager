@@ -4,11 +4,11 @@ import java.io.File;
 
 import javax.inject.Singleton;
 
-import nl.queuemanager.core.platform.PlatformHelper;
-import nl.queuemanager.core.platform.PlatformModule;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+
+import nl.queuemanager.core.platform.PlatformHelper;
+import nl.queuemanager.core.platform.PlatformModule;
 
 public class XmlConfigurationModule extends AbstractModule {
 
@@ -25,7 +25,17 @@ public class XmlConfigurationModule extends AbstractModule {
 	}
 
 	@Provides @Singleton
-	public CoreConfiguration createConfiguration(PlatformHelper platform) {
+	public Configuration createConfiguration(CoreXmlConfiguration config) {
+		return config;
+	}
+	
+	@Provides @Singleton
+	public CoreConfiguration createCoreConfiguration(CoreXmlConfiguration config) {
+		return config;
+	}
+	
+	@Provides @Singleton
+	public CoreXmlConfiguration createCoreXmlConfiguration(PlatformHelper platform) {
 		final File realConfigFile = configFile.contains("/") || configFile.contains("\\") ? 
 				new File(configFile) : 
 				new File(platform.getDataFolder(), configFile);
