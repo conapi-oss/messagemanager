@@ -1,8 +1,10 @@
 default:
 
-run-app:
+make-app:
 	mvn clean package -pl messagemanager-app -am
-	java -Dmm.forceInstallPlugins=true -jar messagemanager-app/target/messagemanager-app-3.0-SNAPSHOT-jar-with-dependencies.jar
+
+run-app:
+	java -Dmm.forceInstallPlugins=true -Ddeveloper=true -jar messagemanager-app/target/messagemanager-app-3.0-SNAPSHOT-jar-with-dependencies.jar
 
 build-ws-app:
 	mvn -Pcodesign -Dsubdir=v3/nightly/ -Dsuffix=NIGHTLY clean package -pl ws-app -am

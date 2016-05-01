@@ -22,15 +22,16 @@ public class ActiveMQConfiguration {
 		Configuration sec = config.sub(CONNECTIONS_SECTION);
 		Configuration cd = sec.sub(con.getKey());
 		cd.setValue(ActiveMQConnectionDescriptor.DESCRIPTION, con.getDescription());
-		cd.setValue(ActiveMQConnectionDescriptor.URL, con.getDescription());
+		cd.setValue(ActiveMQConnectionDescriptor.URL, con.getJmxUrl());
 	}
 	
 	public List<ActiveMQConnectionDescriptor> listConnectionDescriptors() {
 		Configuration connections = config.sub(CONNECTIONS_SECTION);
 		List<String> keys = connections.listKeys();
+		
 		List<ActiveMQConnectionDescriptor> res = CollectionFactory.newArrayList();
-		for(String key: config.listKeys()) {
-			Configuration subSection = config.sub(key);
+		for(String key: keys) {
+			Configuration subSection = connections.sub(key);
 			ActiveMQConnectionDescriptor cd = new ActiveMQConnectionDescriptor(key,
 					subSection.getValue(ActiveMQConnectionDescriptor.DESCRIPTION, null), 
 					subSection.getValue(ActiveMQConnectionDescriptor.URL, null));

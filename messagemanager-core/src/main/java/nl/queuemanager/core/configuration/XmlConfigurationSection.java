@@ -142,8 +142,9 @@ public class XmlConfigurationSection implements Configuration {
 					return prefs.getChildNodes();
 				}
 			});
-			for(int i = 1; i<res.getLength(); i++) {
+			for(int i = 0; i<res.getLength(); i++) {
 				Node item = res.item(i);
+				
 				if(item.getNodeType() == Node.ELEMENT_NODE) {
 					keys.add(res.item(i).getLocalName());
 				}
@@ -182,6 +183,10 @@ public class XmlConfigurationSection implements Configuration {
 				return func.apply(getOrCreateElement(parentElement, namespaceUri, rootElementName));
 			}
 		};
+	}
+	
+	public String toString() {
+		return parent + "/" + rootElementName;
 	}
 
 }

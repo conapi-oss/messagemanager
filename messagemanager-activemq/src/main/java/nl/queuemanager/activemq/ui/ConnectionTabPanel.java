@@ -25,6 +25,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import com.google.common.eventbus.EventBus;
+
 import nl.queuemanager.activemq.ActiveMQConfiguration;
 import nl.queuemanager.activemq.ActiveMQConnectionDescriptor;
 import nl.queuemanager.activemq.ActiveMQDomain;
@@ -32,8 +34,6 @@ import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.util.TableColumnAdjuster;
-
-import com.google.common.eventbus.EventBus;
 
 public class ConnectionTabPanel extends JPanel implements UITab {
 	private JTable localProcessTable;
@@ -187,8 +187,8 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 						desc.getJmxUrl()
 				});
 			}
-			localProcessTable.setModel(model);
-			TableColumnAdjuster adjuster = new TableColumnAdjuster(localProcessTable, 15);
+			remoteProcessTable.setModel(model);
+			TableColumnAdjuster adjuster = new TableColumnAdjuster(remoteProcessTable, 15);
 			adjuster.adjustColumns();
 		}
 		remoteProcessTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
