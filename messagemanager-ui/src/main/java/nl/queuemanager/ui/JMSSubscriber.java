@@ -26,9 +26,9 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.MessageBuffer;
 import nl.queuemanager.core.MessageEvent;
+import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.events.EventSource;
 import nl.queuemanager.core.jms.JMSDomain;
@@ -52,7 +52,7 @@ public class JMSSubscriber extends Observable implements EventSource<MessageEven
 	private MessageConsumer consumer;
 	
 	@Inject
-	public JMSSubscriber(JMSDomain sonic, TaskExecutor worker, Configuration config, EventBus eventBus, @Assisted JMSDestination destination, @Assisted MessageBuffer buffer) {
+	public JMSSubscriber(JMSDomain sonic, TaskExecutor worker, CoreConfiguration config, EventBus eventBus, @Assisted JMSDestination destination, @Assisted MessageBuffer buffer) {
 		this.sonic = sonic;
 		this.worker = worker;
 		this.destination = destination;
@@ -60,7 +60,7 @@ public class JMSSubscriber extends Observable implements EventSource<MessageEven
 		this.eventBus = eventBus;
 		
 		buffer.setMaximumNumberOfMessages(Integer.parseInt(config.getUserPref(
-				Configuration.PREF_MAX_BUFFERED_MSG, "50")));
+				CoreConfiguration.PREF_MAX_BUFFERED_MSG, "50")));
 		buffer.addListener(this);
 	}
 	

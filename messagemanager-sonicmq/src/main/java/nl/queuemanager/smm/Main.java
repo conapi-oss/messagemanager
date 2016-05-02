@@ -23,9 +23,9 @@ import java.util.List;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.CoreModule;
 import nl.queuemanager.core.PreconnectCoreModule;
+import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.configuration.XmlConfigurationModule;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.core.platform.PlatformHelper;
@@ -94,9 +94,9 @@ public class Main {
 	 */
 	private static List<Module> createPluginModules(Module configurationModule) {
 		Injector configInjector = Guice.createInjector(Stage.PRODUCTION, configurationModule);
-		Configuration config = configInjector.getInstance(Configuration.class);
+		CoreConfiguration config = configInjector.getInstance(CoreConfiguration.class);
 		
-		String[] moduleNameList = config.getUserPref(Configuration.PREF_PLUGIN_MODULES, "").split(",");
+		String[] moduleNameList = config.getUserPref(CoreConfiguration.PREF_PLUGIN_MODULES, "").split(",");
 		List<Module> modules = new ArrayList<Module>(moduleNameList.length);
 		
 		for(String moduleName: moduleNameList) {

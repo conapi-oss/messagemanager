@@ -5,8 +5,8 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.DebugProperty;
+import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.task.BackgroundTask;
 import nl.queuemanager.core.util.DNSUtil;
 import nl.queuemanager.core.util.ReleasePropertiesEvent;
@@ -28,12 +28,12 @@ import com.google.inject.assistedinject.Assisted;
  **/
 public class CheckMotdTask extends BackgroundTask {
 	private final Logger log = Logger.getLogger(getClass().getName());
-	private final Configuration config;
+	private final CoreConfiguration config;
 	private final String uniqueId;
 	private final String hostname;
 	
 	@Inject
-	public CheckMotdTask(Configuration config, EventBus eventBus, @Assisted("uniqueId") String uniqueId, @Assisted("hostname") String hostname) {
+	public CheckMotdTask(CoreConfiguration config, EventBus eventBus, @Assisted("uniqueId") String uniqueId, @Assisted("hostname") String hostname) {
 		super(null, eventBus);
 		this.config = config;
 		this.uniqueId = uniqueId;
@@ -57,11 +57,11 @@ public class CheckMotdTask extends BackgroundTask {
 			String motd = DNSUtil.getFirstTxtRecord(latestMotdNumber + ".motd." + hostname);
 			log.info(String.format("There is a new MOTD (%d > %d), showing MOTD: %s", latestMotdNumber, lastMotdNumber, motd));
 			eventBus.post(new ReleasePropertiesEvent(ReleasePropertiesEvent.EVENT.MOTD_FOUND, this, motd));
-			config.setUserPref(Configuration.PREF_LAST_MOTD_NUMBER, Integer.toString(latestMotdNumber));
+			config.setUserPref(CoreConfiguration.PREF_LAST_MOTD_NUMBER, Integer.toString(latestMotdNumber));
 		}
 		
 		// Store the last check run time
-		config.setUserPref(Configuration.PREF_LAST_MOTD_CHECK_TIME, 
+		config.setUserPref(CoreConfiguration.PREF_LAST_MOTD_CHECK_TIME, 
 				Long.toString(Calendar.getInstance().getTimeInMillis()));
 	}
 
@@ -78,7 +78,7 @@ public class CheckMotdTask extends BackgroundTask {
 	private int getLastMotdNumber() {
 		int lastMotdNumber = 0;
 		try {
-			lastMotdNumber = Integer.parseInt(config.getUserPref(Configuration.PREF_LAST_MOTD_NUMBER, "0"));
+			lastMotdNumber = Integer.parseInt(config.getUserPref(CoreConfiguration.PREF_LAST_MOTD_NUMBER, "0"));
 		} catch (NumberFormatException e) {
 			log.warning("Could not parse last MOTD number. Assuming 0");
 		}
@@ -94,7 +94,7 @@ public class CheckMotdTask extends BackgroundTask {
 
 		// If we haven't run the check yet today, run it
 		Calendar lastRunTimestamp = Calendar.getInstance();
-		lastRunTimestamp.setTimeInMillis(Long.parseLong(config.getUserPref(Configuration.PREF_LAST_MOTD_CHECK_TIME, "0")));
+		lastRunTimestamp.setTimeInMillis(Long.parseLong(config.getUserPref(CoreConfiguration.PREF_LAST_MOTD_CHECK_TIME, "0")));
 		if((lastRunTimestamp.get(Calendar.DAY_OF_YEAR) != Calendar.getInstance().get(Calendar.DAY_OF_YEAR))
 		|| (lastRunTimestamp.get(Calendar.YEAR) != Calendar.getInstance().get(Calendar.YEAR))) {
 			log.info("Last check was not today, run MOTD check");

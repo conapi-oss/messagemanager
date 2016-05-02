@@ -4,8 +4,8 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.DebugProperty;
+import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.task.BackgroundTask;
 import nl.queuemanager.core.util.DNSUtil;
 import nl.queuemanager.core.util.ReleasePropertiesEvent;
@@ -28,12 +28,12 @@ import com.google.inject.assistedinject.Assisted;
  **/
 public class CheckReleaseNoteTask extends BackgroundTask {
 	private final Logger log = Logger.getLogger(getClass().getName());
-	private final Configuration config;
+	private final CoreConfiguration config;
 	private final String hostname;
 	private final String buildId;
 
 	@Inject
-	public CheckReleaseNoteTask(Configuration config, EventBus eventBus, @Assisted("hostname") String hostname, @Assisted("buildId") String buildId) {
+	public CheckReleaseNoteTask(CoreConfiguration config, EventBus eventBus, @Assisted("hostname") String hostname, @Assisted("buildId") String buildId) {
 		super(null, eventBus);
 		this.config = config;
 		this.hostname = hostname;
@@ -51,7 +51,7 @@ public class CheckReleaseNoteTask extends BackgroundTask {
 		}
 
 		// Update the last run build number
-		config.setUserPref(Configuration.PREF_LAST_RUN_BUILD, buildId);
+		config.setUserPref(CoreConfiguration.PREF_LAST_RUN_BUILD, buildId);
 	}
 		
 	private boolean shouldShowReleaseNote() {
@@ -62,7 +62,7 @@ public class CheckReleaseNoteTask extends BackgroundTask {
 		}
 
 		// Check if we've run this build before. If we have not, show the release note
-		String lastBuild = config.getUserPref(Configuration.PREF_LAST_RUN_BUILD, "");
+		String lastBuild = config.getUserPref(CoreConfiguration.PREF_LAST_RUN_BUILD, "");
 		if(!buildId.equals(lastBuild)) {
 			log.info(String.format("This is the first time build %s was launched, show release note", buildId));
 			return true;

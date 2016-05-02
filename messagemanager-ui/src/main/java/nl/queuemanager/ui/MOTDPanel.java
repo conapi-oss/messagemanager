@@ -9,7 +9,7 @@ import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
-import nl.queuemanager.core.Configuration;
+import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.tasks.TaskFactory;
@@ -22,10 +22,10 @@ public class MOTDPanel extends MarqueePanel {
 
 	private TaskExecutor worker;
 	private TaskFactory taskFactory;
-	private Configuration config;
+	private CoreConfiguration config;
 
 	@Inject
-	public MOTDPanel(TaskExecutor worker, TaskFactory taskFactory, Configuration config) {
+	public MOTDPanel(TaskExecutor worker, TaskFactory taskFactory, CoreConfiguration config) {
 		super(10, 5);
 		this.worker = worker;
 		this.taskFactory = taskFactory;

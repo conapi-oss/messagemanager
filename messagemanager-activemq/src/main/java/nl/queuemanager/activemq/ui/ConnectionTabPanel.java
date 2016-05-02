@@ -21,15 +21,19 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import com.google.common.eventbus.EventBus;
+
+import nl.queuemanager.activemq.ActiveMQConfiguration;
+import nl.queuemanager.activemq.ActiveMQConnectionDescriptor;
 import nl.queuemanager.activemq.ActiveMQDomain;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.util.TableColumnAdjuster;
-
-import com.google.common.eventbus.EventBus;
 
 public class ConnectionTabPanel extends JPanel implements UITab {
 	private JTable localProcessTable;
@@ -44,15 +48,17 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 	private final ActiveMQDomain domain;
 	private final TaskExecutor worker;
 	private final EventBus eventBus;
+	private final ActiveMQConfiguration config;
 	
 	/**
 	 * Create the panel.
 	 */
 	@Inject
-	public ConnectionTabPanel(JavaProcessFinder processFinder, ActiveMQDomain domain, TaskExecutor worker, EventBus eventBus) {
+	public ConnectionTabPanel(JavaProcessFinder processFinder, ActiveMQDomain domain, TaskExecutor worker, EventBus eventBus, ActiveMQConfiguration myconfig) {
 		this.domain = domain;
 		this.worker = worker;
 		this.eventBus = eventBus;
+		this.config = myconfig;
 		
 		setBorder(new CompoundBorder(new EmptyBorder(5, 5, 5, 5), new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Connect to ActiveMQ Broker", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 		GridBagLayout gridBagLayout = new GridBagLayout();
@@ -93,21 +99,23 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		gbc_table.gridy = 1;
 		add(new JScrollPane(localProcessTable), gbc_table);
 
-		DefaultTableModel model = new DefaultTableModel() {
-			public boolean isCellEditable(int rowIndex, int mColIndex) {
-				return false;
+		{ // Load the local processes
+			DefaultTableModel model = new DefaultTableModel() {
+				public boolean isCellEditable(int rowIndex, int mColIndex) {
+					return false;
+				}
+			};
+			model.setColumnIdentifiers(new String[] {"PID", "Description"});
+			for(JavaProcessDescriptor javaProcess: processFinder.find()) {
+				model.addRow(new Object[] {
+						javaProcess.id(),
+						javaProcess.displayName()
+				});
 			}
-		};
-		model.setColumnIdentifiers(new String[] {"PID", "Description"});
-		for(JavaProcessDescriptor javaProcess: processFinder.find()) {
-			model.addRow(new Object[] {
-					javaProcess.id(),
-					javaProcess.displayName()
-			});
+			localProcessTable.setModel(model);
+			TableColumnAdjuster adjuster = new TableColumnAdjuster(localProcessTable, 15);
+			adjuster.adjustColumns();
 		}
-		localProcessTable.setModel(model);
-		TableColumnAdjuster adjuster = new TableColumnAdjuster(localProcessTable, 15);
-		adjuster.adjustColumns();
 		
 		remoteProcess = new JRadioButton("Remote Process");
 		remoteProcess.addActionListener(radioButtonChangedAction);
@@ -165,10 +173,41 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		gbc_table_1.gridy = 6;
 		add(new JScrollPane(remoteProcessTable), gbc_table_1);
 		
+		{ // Add contents to the table above
+			DefaultTableModel model = new DefaultTableModel() {
+				public boolean isCellEditable(int rowIndex, int mColIndex) {
+					return false;
+				}
+			};
+			model.setColumnIdentifiers(new String[] {"Key", "Description", "URL"});
+			for(ActiveMQConnectionDescriptor desc: config.listConnectionDescriptors()) {
+				model.addRow(new Object[] {
+						desc.getKey(),
+						desc.getDescription(),
+						desc.getJmxUrl()
+				});
+			}
+			remoteProcessTable.setModel(model);
+			TableColumnAdjuster adjuster = new TableColumnAdjuster(remoteProcessTable, 15);
+			adjuster.adjustColumns();
+		}
+		remoteProcessTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				if(e.getValueIsAdjusting()) { return; }
+				
+				int row = remoteProcessTable.getSelectedRow();
+				descriptionField.setText(remoteProcessTable.getModel().getValueAt(row, 1).toString());
+				jmxServiceURLField.setText(remoteProcessTable.getModel().getValueAt(row, 2).toString());
+			}
+		});
+		
 		connectButton = new JButton("Connect");
 		connectButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				ActiveMQConnectionDescriptor cd = new ActiveMQConnectionDescriptor(descriptionField.getText(), jmxServiceURLField.getText());
+				config.saveConnectionDescriptor(cd);
 				connect();
 			}
 		});

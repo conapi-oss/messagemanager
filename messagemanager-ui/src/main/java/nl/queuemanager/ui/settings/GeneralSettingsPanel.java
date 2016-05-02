@@ -6,7 +6,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import nl.queuemanager.core.Configuration;
+import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.ui.util.JIntegerField;
 
 import com.google.inject.Inject;
@@ -14,22 +14,22 @@ import com.google.inject.Inject;
 @SuppressWarnings("serial")
 class GeneralSettingsPanel extends JPanel implements SettingsPanel {
 
-	private final Configuration config;
+	private final CoreConfiguration config;
 	private JIntegerField refreshIntervalField;
 	
 	@Inject
-	public GeneralSettingsPanel(Configuration config) {
+	public GeneralSettingsPanel(CoreConfiguration config) {
 		this.config = config;
 		
 		add(createForm());
 	}
 
 	public void readSettings() {
-		refreshIntervalField.setValue(Integer.parseInt(config.getUserPref(Configuration.PREF_AUTOREFRESH_INTERVAL, "5000")));
+		refreshIntervalField.setValue(Integer.parseInt(config.getUserPref(CoreConfiguration.PREF_AUTOREFRESH_INTERVAL, "5000")));
 	}
 	
 	public void saveSettings() {
-		config.setUserPref(Configuration.PREF_AUTOREFRESH_INTERVAL, Integer.toString(refreshIntervalField.getValue()));
+		config.setUserPref(CoreConfiguration.PREF_AUTOREFRESH_INTERVAL, Integer.toString(refreshIntervalField.getValue()));
 	}
 
 	public JComponent getUIPanel() {

@@ -33,7 +33,7 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
-import nl.queuemanager.core.Configuration;
+import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.events.AbstractEventSource;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.DomainEvent.EVENT;
@@ -62,10 +62,10 @@ public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements 
 	
 	private Map<ActiveMQBroker, ActiveMQConnection> brokerConnections;
 
-	private final Configuration config;
+	private final CoreConfiguration config;
 
 	@Inject
-	public ActiveMQDomain(Configuration config, EventBus eventBus) {
+	public ActiveMQDomain(CoreConfiguration config, EventBus eventBus) {
 		super(eventBus);
 		this.config = config;
 	}
@@ -245,7 +245,7 @@ public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements 
 		
 		// Try the configuration to get an alternate URL if one is configured.
 		String brokerUrl = config.getBrokerPref(
-				broker, Configuration.PREF_BROKER_ALTERNATE_URL, broker.getConnectionURI().toString());
+				broker, CoreConfiguration.PREF_BROKER_ALTERNATE_URL, broker.getConnectionURI().toString());
 
 		log.info("Connecting to " + brokerUrl);
 		ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerUrl);

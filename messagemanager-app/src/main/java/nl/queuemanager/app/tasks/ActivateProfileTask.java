@@ -11,8 +11,8 @@ import nl.queuemanager.Profile;
 import nl.queuemanager.ProfileActivatedEvent;
 import nl.queuemanager.app.PluginDescriptor;
 import nl.queuemanager.app.PluginManager;
-import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.CoreModule;
+import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.ui.UIModule;
 
@@ -29,10 +29,10 @@ public class ActivateProfileTask extends Task {
 	private final Injector parentInjector;
 	private final PluginManager pluginManager;
 	private final Profile profile;
-	private final Configuration config;
+	private final CoreConfiguration config;
 	
 	@Inject
-	protected ActivateProfileTask(Injector parentInjector, EventBus eventBus, PluginManager pluginManager, Configuration config, @Assisted Profile profile) {
+	protected ActivateProfileTask(Injector parentInjector, EventBus eventBus, PluginManager pluginManager, CoreConfiguration config, @Assisted Profile profile) {
 		super(null, eventBus);
 		this.parentInjector = parentInjector;
 		this.pluginManager = pluginManager;

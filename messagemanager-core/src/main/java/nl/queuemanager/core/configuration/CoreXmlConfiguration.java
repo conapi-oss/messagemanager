@@ -15,36 +15,17 @@
  */
 package nl.queuemanager.core.configuration;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import javax.inject.Inject;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import nl.queuemanager.core.Configuration;
 import nl.queuemanager.core.MapNamespaceContext;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.core.util.Credentials;
@@ -56,8 +37,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import com.google.common.base.Strings;
 
@@ -70,48 +49,12 @@ import com.google.common.base.Strings;
  * @author Gerco Dries (gdr@progaia-rs.nl)
  *
  */
-class XmlConfiguration implements Configuration {
-	private static final String ROOT_ELEMENT = "Configuration";
-
-	private final DocumentBuilderFactory dbf;
-	private final DocumentBuilder db;
-	
-	private final TransformerFactory tff;
-	private final Transformer tf;
-	
+class CoreXmlConfiguration extends XmlFileConfiguration implements CoreConfiguration {
 	private final XPathFactory xpf;
 	private final XPath xp;
 	
-	private final File configFile;
-	private final String namespaceUri;
-	
-	@Inject
-	XmlConfiguration(File configFile, String namespaceUri) {
-		if(configFile == null)
-			throw new IllegalArgumentException("configFile");
-		
-		if(namespaceUri == null)
-			throw new IllegalArgumentException("namespaceUri");
-
-		this.configFile = configFile;
-		this.namespaceUri = namespaceUri;
-		
-		// Initialize the XML Parser
-		dbf = DocumentBuilderFactory.newInstance();
-		dbf.setNamespaceAware(true);
-		try {
-			db = dbf.newDocumentBuilder();
-		} catch (ParserConfigurationException e) {
-			throw new RuntimeException("Unable to configure XML parser!");
-		}	
-		
-		// Initialize the XML generator
-		tff = TransformerFactory.newInstance();
-		try {
-			tf = tff.newTransformer();
-		} catch (TransformerConfigurationException e) {
-			throw new RuntimeException("Unable to configure XML generator!");
-		}
+	CoreXmlConfiguration(File configFile, String namespaceUri, String elementName) {
+		super(configFile, namespaceUri, elementName);
 		
 		// Initialize the XPath processor
 		xpf = XPathFactory.newInstance();
@@ -134,45 +77,14 @@ class XmlConfiguration implements Configuration {
 	 * @see nl.queuemanager.core.ConfigurationManager#getUserPref(java.lang.String, java.lang.String)
 	 */
 	public String getUserPref(final String key, final String def) {
-		try {
-			final String res = readConfiguration(new Function<Element, String>() {
-				@Override
-				public String apply(Element prefs) throws Exception {
-					return xp.evaluate(String.format("/c:%s/c:%s", ROOT_ELEMENT, key), prefs);
-				}
-			});
-			
-			if(!Strings.isNullOrEmpty(res)) {
-				return res;
-			}
-			
-			// No value found for this pref, save the default value
-			if(!Strings.isNullOrEmpty(def)) {
-				setUserPref(key, def);
-			}
-			
-			return def;
-		} catch (ConfigurationException e) {
-			e.printStackTrace();
-			return def;
-		}
+		return getValue(key, def);
 	}
 		
 	/* (non-Javadoc)
 	 * @see nl.queuemanager.core.ConfigurationManager#setUserPref(java.lang.String, java.lang.String)
 	 */
 	public void setUserPref(final String key, final String value) {
-		try {
-			mutateConfiguration(new Function<Element, Boolean>() {
-				@Override
-				public Boolean apply(Element prefs) throws Exception {
-					setElementValue(prefs, new String[]{key}, value);
-					return true;
-				}
-			});
-		} catch (ConfigurationException e) {
-			e.printStackTrace();
-		}
+		setValue(key, value);
 	}
 
 	public List<JMSBroker> listBrokers() {
@@ -182,8 +94,7 @@ class XmlConfiguration implements Configuration {
 				public List<JMSBroker> apply(Element prefs) throws Exception {
 					List<JMSBroker> brokers = new ArrayList<JMSBroker>();
 					
-					String expr = String.format("/c:%s/c:Broker", ROOT_ELEMENT);
-					NodeList brokerNodes = (NodeList)xp.evaluate(expr, prefs, XPathConstants.NODESET);
+					NodeList brokerNodes = prefs.getElementsByTagNameNS(namespaceUri, "Broker");
 					for(int i=0; i< brokerNodes.getLength(); i++) {
 						Element brokerElement = (Element) brokerNodes.item(i);
 						brokers.add(new JMSBrokerName(brokerElement.getAttribute("name")));
@@ -206,7 +117,7 @@ class XmlConfiguration implements Configuration {
 				@Override
 				public String apply(Element prefs) throws Exception {
 					final String expr = String.format("/c:%s/c:Broker[@name='%s']/c:%s", 
-							ROOT_ELEMENT, broker.toString(), key);
+							rootElementName, broker.toString(), key);
 					return (String)xp.evaluate(expr, prefs, XPathConstants.STRING);
 				}
 			});
@@ -234,7 +145,7 @@ class XmlConfiguration implements Configuration {
 			mutateConfiguration(new Function<Element, Boolean>() {
 				@Override
 				public Boolean apply(Element prefs) throws Exception {
-					setElementValue(getOrCreateBrokerElement(prefs, broker.toString()), new String[]{key}, value);
+					setElementValue(getOrCreateBrokerElement(prefs, broker.toString()), namespaceUri, key, value);
 					return true;
 				}
 			});
@@ -249,8 +160,8 @@ class XmlConfiguration implements Configuration {
 				@Override
 				public Boolean apply(Element prefs) throws Exception {
 					Element brokerElement = getOrCreateBrokerElement(prefs, broker.toString());
-					setElementValue(brokerElement, new String[] { "DefaultUsername" }, credentials.getUsername());
-					setElementValue(brokerElement, new String[] { "DefaultPassword" }, credentials.getPassword());
+					setElementValue(brokerElement, namespaceUri, "DefaultUsername", credentials.getUsername());
+					setElementValue(brokerElement, namespaceUri, "DefaultPassword", credentials.getPassword());
 					return true;
 				}
 			});
@@ -277,7 +188,7 @@ class XmlConfiguration implements Configuration {
 				@Override
 				public List<String> apply(Element prefs) throws Exception {
 					String expr = String.format("/c:%s/c:Broker[@name='%s']/c:Subscribers/c:Subscriber", 
-							ROOT_ELEMENT, broker.toString());
+							rootElementName, broker.toString());
 					return getNodeValues(prefs, expr);
 				}
 			});
@@ -296,7 +207,7 @@ class XmlConfiguration implements Configuration {
 				@Override
 				public List<String> apply(Element prefs) throws Exception {
 					String expr = String.format("/c:%s/c:Broker[@name='%s']/c:Publishers/c:Publisher", 
-							ROOT_ELEMENT, broker.toString());
+							rootElementName, broker.toString());
 					return getNodeValues(prefs, expr);
 				}
 			});
@@ -314,8 +225,8 @@ class XmlConfiguration implements Configuration {
 			mutateConfiguration(new Function<Element, Boolean>() {
 				@Override
 				public Boolean apply(Element prefs) throws Exception {
-					Node brokerElement = getOrCreateBrokerElement(prefs, topic.getBroker().toString()); 
-					Node subscribersElement = getOrCreateElementAtPath(brokerElement, new String[] {"Subscribers"});
+					Element brokerElement = getOrCreateBrokerElement(prefs, topic.getBroker().toString()); 
+					Element subscribersElement = getOrCreateElement(brokerElement, namespaceUri, "Subscribers");
 					
 					// Check to see if this topic is already saved. Ignore if it already exists.
 					for(Node child = subscribersElement.getFirstChild(); child != null; child = child.getNextSibling()) {
@@ -341,8 +252,8 @@ class XmlConfiguration implements Configuration {
 			mutateConfiguration(new Function<Element, Boolean>() {
 				@Override
 				public Boolean apply(Element prefs) throws Exception {
-					Node brokerElement = getOrCreateBrokerElement(prefs, topic.getBroker().toString()); 
-					Node publishersElement = getOrCreateElementAtPath(brokerElement, new String[] {"Publishers"});
+					Element brokerElement = getOrCreateBrokerElement(prefs, topic.getBroker().toString()); 
+					Element publishersElement = getOrCreateElement(brokerElement, namespaceUri, "Publishers");
 					
 					// Check to see if this topic is already saved. Ignore if it already exists.
 					for(Node child = publishersElement.getFirstChild(); child != null; child = child.getNextSibling()) {
@@ -368,7 +279,7 @@ class XmlConfiguration implements Configuration {
 	public void removeTopicSubscriber(JMSTopic topic) {
 		removePrefNode(String.format(
 			"/c:%s/c:Broker[@name='%s']/c:Subscribers/c:Subscriber[text()='%s']", 
-			ROOT_ELEMENT, topic.getBroker().toString(), topic.getName()));
+			rootElementName, topic.getBroker().toString(), topic.getName()));
 	}
 	
 	/* (non-Javadoc)
@@ -377,7 +288,7 @@ class XmlConfiguration implements Configuration {
 	public void removeTopicPublisher(JMSTopic topic) {
 		removePrefNode(String.format(
 			"/c:%s/c:Broker[@name='%s']/c:Publishers/c:Publisher[text()='%s']", 
-			ROOT_ELEMENT, topic.getBroker().toString(), topic.getName()));
+			rootElementName, topic.getBroker().toString(), topic.getName()));
 	}
 
 	/**
@@ -396,42 +307,6 @@ class XmlConfiguration implements Configuration {
 				result.add(resultNodes.item(i).getTextContent());
 		}
 		return result;
-	}
-
-	/**
-	 * Set the value of the Element indicated by the path, creating Elements if required.
-	 * 
-	 * @param path
-	 * @param value
-	 * @throws XPathExpressionException 
-	 */
-	private void setElementValue(final Node context, final String[] path, final String value) throws XPathExpressionException {
-		Node node = getOrCreateElementAtPath(context, path);
-		node.setTextContent(value);
-	}
-
-	/**
-	 * Get or create the Elements at the specified path.
-	 * 
-	 * @param context
-	 * @param path
-	 * @return The last element of the path
-	 * @throws XPathExpressionException 
-	 */
-	private Node getOrCreateElementAtPath(final Node context, final String[] path) throws XPathExpressionException {
-		Node curNode = context;
-		
-		for(String cur: path) {
-			Node potential = (Node)xp.evaluate("c:" + cur, curNode, XPathConstants.NODE);
-			if(potential == null) {
-				// Create the node and add to the document. Then use as the current node.
-				potential = curNode.getOwnerDocument().createElementNS(namespaceUri, cur);
-				curNode.appendChild(potential);
-			}
-			curNode = potential;
-		}
-		
-		return curNode;
 	}
 	
 	/**
@@ -483,7 +358,7 @@ class XmlConfiguration implements Configuration {
 	private Element getOrCreateBrokerElement(Element prefs, String brokerName)
 			throws XPathExpressionException {
 		Element brokerElement = (Element)xp.evaluate(
-				String.format("/c:%s/c:Broker[@name='%s']", ROOT_ELEMENT, brokerName),
+				String.format("/c:%s/c:Broker[@name='%s']", rootElementName, brokerName),
 				prefs, XPathConstants.NODE);
 		if(brokerElement == null) {
 			final Document doc = prefs.getOwnerDocument();
@@ -497,18 +372,6 @@ class XmlConfiguration implements Configuration {
 		return brokerElement;
 	}
 		
-	/**
-	 * Create a new, empty, configuration document.
-	 * 
-	 * @return
-	 */
-	private Document newConfig() {
-		Document d = db.newDocument();
-		Element configElement = d.createElementNS(namespaceUri, ROOT_ELEMENT);
-		d.appendChild(configElement);
-		return d;
-	}
-
 	static class JMSBrokerName implements JMSBroker {
 		private final String name;
 
@@ -524,85 +387,12 @@ class XmlConfiguration implements Configuration {
 			return name.compareTo(other.toString());
 		}
 	}
+	
+	@Override
+	public Configuration getPluginConfiguration(String pluginId) {
+		return sub(pluginId);
+	}
 
-	private final Object lock = new Object();
-	protected interface Function<T,R> {
-		R apply(T t) throws Exception;
-	}
-	protected void mutateConfiguration(Function<? super Element, Boolean> mutateFunc) throws ConfigurationException {
-		// This lock is to make sure only one thread in this process will access the
-		// file at any time.
-		synchronized(lock) {
-			// Obtain file lock. This is to make sure multiple processes synchronize properly
-			try(final FileChannel channel = FileChannel.open(configFile.toPath(), StandardOpenOption.READ, StandardOpenOption.WRITE);
-				final FileLock lock = channel.lock()) {
-
-				Document configuration = readConfiguration(channel);
-				Boolean changed = mutateFunc.apply(configuration.getDocumentElement());
-				if(changed) {
-					writeConfiguration(configuration, channel);
-				}
-			} catch (IOException e) {
-				throw new ConfigurationException(e);
-			} catch (Exception e) {
-				throw new ConfigurationException(e);
-			}
-		}
-	}
 	
-	
-	protected <R> R readConfiguration(Function<Element, R> readFunc) throws ConfigurationException {
-		// This lock is to make sure only one thread in this process will access the
-		// file at any time.
-		synchronized(lock) {
-			try(final FileChannel channel = FileChannel.open(configFile.toPath(), StandardOpenOption.READ)) {
-
-				Document configuration = readConfiguration(channel);
-				return readFunc.apply(configuration.getDocumentElement());
-			} catch (IOException e) {
-				throw new ConfigurationException(e);
-			} catch (Exception e) {
-				throw new ConfigurationException(e);
-			}
-		}
-	}
-	
-	private Document readConfiguration(FileChannel channel) {
-		try {
-			final int fileSize = (int)configFile.length();
-			if(fileSize == 0) {
-				return newConfig();
-			}
-			
-			final ByteBuffer buffer = ByteBuffer.allocate(fileSize);
-			while(channel.read(buffer) > 0);
-			
-			return db.parse(new InputSource(new ByteArrayInputStream(buffer.array())));
-		} catch (IOException e) {
-			System.out.println("IOException getting configuration, creating new document." + e);
-			e.printStackTrace();
-			return newConfig();
-		} catch (SAXException e) {
-			System.out.println("Unable to parse configuration, creating new document." + e);
-			e.printStackTrace();
-			return newConfig();
-		}
-	}
-	
-	private void writeConfiguration(Document configuration, FileChannel channel) throws IOException {
-		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-		
-		StreamResult r = new StreamResult(buffer);
-		Source s = new DOMSource(configuration);
-		
-		try {
-			tf.transform(s, r);
-			channel.truncate(0);
-			channel.write(ByteBuffer.wrap(buffer.toByteArray()));
-		} catch (TransformerException e) {
-			System.err.println("Error while saving prefs!");
-			e.printStackTrace(System.err);
-		}
-	}
 	
 }
