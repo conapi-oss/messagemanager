@@ -25,6 +25,11 @@ public class ActiveMQConfiguration {
 		cd.setValue(ActiveMQConnectionDescriptor.URL, con.getJmxUrl());
 	}
 	
+	public void deleteConnectionDescriptor(String key) {
+		Configuration sec = config.sub(CONNECTIONS_SECTION);
+		sec.del(key);
+	}
+	
 	public List<ActiveMQConnectionDescriptor> listConnectionDescriptors() {
 		Configuration connections = config.sub(CONNECTIONS_SECTION);
 		List<String> keys = connections.listKeys();

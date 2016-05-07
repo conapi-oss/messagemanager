@@ -6,6 +6,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Observable;
 
 import javax.inject.Inject;
 import javax.swing.ButtonGroup;
@@ -24,6 +25,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 import com.google.common.eventbus.EventBus;
 
@@ -33,6 +35,8 @@ import nl.queuemanager.activemq.ActiveMQDomain;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.ui.UITab;
+import nl.queuemanager.ui.util.ListTableModel;
+import nl.queuemanager.ui.util.ObservingListTableModel;
 import nl.queuemanager.ui.util.TableColumnAdjuster;
 
 public class ConnectionTabPanel extends JPanel implements UITab {
@@ -173,32 +177,38 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		gbc_table_1.gridy = 6;
 		add(new JScrollPane(remoteProcessTable), gbc_table_1);
 		
-		{ // Add contents to the table above
-			DefaultTableModel model = new DefaultTableModel() {
-				public boolean isCellEditable(int rowIndex, int mColIndex) {
-					return false;
-				}
-			};
-			model.setColumnIdentifiers(new String[] {"Key", "Description", "URL"});
-			for(ActiveMQConnectionDescriptor desc: config.listConnectionDescriptors()) {
-				model.addRow(new Object[] {
-						desc.getKey(),
-						desc.getDescription(),
-						desc.getJmxUrl()
-				});
+		// Add contents to the table above
+		final ListTableModel<ActiveMQConnectionDescriptor> remoteProcessModel = new ListTableModel<ActiveMQConnectionDescriptor>() {
+			{ // "constructor" for the anonymous inner class
+				setColumnNames(new String[] {"Description", "JMX Url"});
+				setColumnTypes(new Class[] {String.class, String.class});
 			}
-			remoteProcessTable.setModel(model);
-			TableColumnAdjuster adjuster = new TableColumnAdjuster(remoteProcessTable, 15);
-			adjuster.adjustColumns();
-		}
+			
+			@Override
+			public Object getColumnValue(ActiveMQConnectionDescriptor item, int columnIndex) {
+				switch(columnIndex) {
+				case 0: return item.getDescription();
+				case 1: return item.getJmxUrl();
+				default: return null;
+				}
+			}
+		};
+		remoteProcessModel.setData(config.listConnectionDescriptors());
+		remoteProcessTable.setModel(remoteProcessModel);
+		TableColumnAdjuster adjuster = new TableColumnAdjuster(remoteProcessTable, 15);
+		adjuster.adjustColumns();
+
 		remoteProcessTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				if(e.getValueIsAdjusting()) { return; }
 				
 				int row = remoteProcessTable.getSelectedRow();
-				descriptionField.setText(remoteProcessTable.getModel().getValueAt(row, 1).toString());
-				jmxServiceURLField.setText(remoteProcessTable.getModel().getValueAt(row, 2).toString());
+				if(row == -1) return;
+				ActiveMQConnectionDescriptor item = remoteProcessModel.getRowItem(row);
+				if(item == null) return;
+				descriptionField.setText(item.getDescription());
+				jmxServiceURLField.setText(item.getJmxUrl());
 			}
 		});
 		
@@ -219,6 +229,17 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		add(connectButton, gbc_connectButton);
 		
 		JButton removeConnectionButton = new JButton("Remove Connection");
+		removeConnectionButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int row = remoteProcessTable.getSelectedRow();
+				if(row >= 0) {
+					ActiveMQConnectionDescriptor item = remoteProcessModel.getRowItem(row);
+					config.deleteConnectionDescriptor(item.getKey());
+					remoteProcessModel.setData(config.listConnectionDescriptors());
+				}
+			}
+		});
 		GridBagConstraints gbc_removeConnectionButton = new GridBagConstraints();
 		gbc_removeConnectionButton.anchor = GridBagConstraints.EAST;
 		gbc_removeConnectionButton.gridx = 1;

@@ -39,4 +39,11 @@ public interface Configuration {
 	 */
 	public Configuration sub(String key);
 	
+	/**
+	 * Remove a configuration sub object or key in a Configuration object
+	 * 
+	 * @param key
+	 */
+	public void del(String key);
+	
 }

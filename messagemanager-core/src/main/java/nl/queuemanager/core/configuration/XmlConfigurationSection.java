@@ -3,9 +3,6 @@ package nl.queuemanager.core.configuration;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.XMLConstants;
-import javax.xml.xpath.XPathConstants;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -130,6 +127,27 @@ public class XmlConfigurationSection implements Configuration {
 		}
 		
 		return null;
+	}
+	
+	public void del(final String key) {
+		try {
+			mutateConfiguration(new Function<Element, Boolean>() {
+				@Override
+				public Boolean apply(Element t) throws Exception {
+					NodeList children = t.getChildNodes();
+					for(int i=0; i<children.getLength(); i++) {
+						Node child = children.item(i);
+						if(child.getLocalName().equals(key)) {
+							t.removeChild(child);
+							return true;
+						}
+					}
+					return false;
+				}
+			});
+		} catch (ConfigurationException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Override
