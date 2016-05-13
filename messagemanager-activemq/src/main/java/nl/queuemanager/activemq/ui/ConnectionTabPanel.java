@@ -212,22 +212,6 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 			}
 		});
 		
-		connectButton = new JButton("Connect");
-		connectButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				ActiveMQConnectionDescriptor cd = new ActiveMQConnectionDescriptor(descriptionField.getText(), jmxServiceURLField.getText());
-				config.saveConnectionDescriptor(cd);
-				connect();
-			}
-		});
-		GridBagConstraints gbc_connectButton = new GridBagConstraints();
-		gbc_connectButton.anchor = GridBagConstraints.WEST;
-		gbc_connectButton.insets = new Insets(0, 0, 0, 5);
-		gbc_connectButton.gridx = 0;
-		gbc_connectButton.gridy = 7;
-		add(connectButton, gbc_connectButton);
-		
 		JButton removeConnectionButton = new JButton("Remove Connection");
 		removeConnectionButton.addActionListener(new ActionListener() {
 			@Override
@@ -241,11 +225,27 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 			}
 		});
 		GridBagConstraints gbc_removeConnectionButton = new GridBagConstraints();
-		gbc_removeConnectionButton.anchor = GridBagConstraints.EAST;
-		gbc_removeConnectionButton.gridx = 1;
+		gbc_removeConnectionButton.anchor = GridBagConstraints.WEST;
+		gbc_removeConnectionButton.gridx = 0;
 		gbc_removeConnectionButton.gridy = 7;
 		add(removeConnectionButton, gbc_removeConnectionButton);
 
+		connectButton = new JButton("Connect");
+		connectButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ActiveMQConnectionDescriptor cd = new ActiveMQConnectionDescriptor(descriptionField.getText(), jmxServiceURLField.getText());
+				config.saveConnectionDescriptor(cd);
+				connect();
+			}
+		});
+		GridBagConstraints gbc_connectButton = new GridBagConstraints();
+		gbc_connectButton.anchor = GridBagConstraints.EAST;
+		gbc_connectButton.insets = new Insets(0, 0, 0, 5);
+		gbc_connectButton.gridx = 1;
+		gbc_connectButton.gridy = 7;
+		add(connectButton, gbc_connectButton);
+		
 		if(processFinder.isSupported()) {
 			localProcess.setSelected(true);
 		} else {

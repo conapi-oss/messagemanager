@@ -7,6 +7,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -71,9 +73,13 @@ public class ProfileTabPanel extends JPanel implements UITab {
 	private JButton activateProfileButton;
 	
 	private PlatformHelper platform;
+	private TaskExecutor worker;
+	private TaskFactory taskFactory;
 	
 	@Inject
 	public ProfileTabPanel(final ProfileManager profileManager, final TaskExecutor worker, final TaskFactory taskFactory, final PlatformHelper platform, final CoreConfiguration config) {
+		this.worker = worker;
+		this.taskFactory = taskFactory;
 		this.platform = platform;
 		
 		GridBagLayout gridBagLayout = new GridBagLayout();
@@ -108,7 +114,7 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		final String lastActiveProfileId = config.getUserPref(ActivateProfileTask.LAST_ACTIVE_PROFILE, "");
 		Profile lastActiveProfile = null;
 		
-		DefaultListModel<Profile> profilesModel = new DefaultListModel<Profile>();
+		final DefaultListModel<Profile> profilesModel = new DefaultListModel<Profile>();
 		List<Profile> profiles = new ArrayList<Profile>(profileManager.getAllProfiles());
 		Collections.sort(profiles);
 		for(Profile profile: profiles) {
@@ -126,6 +132,7 @@ public class ProfileTabPanel extends JPanel implements UITab {
 				selectedProfile = profilesList.getSelectedValue();
 				displaySelectedProfile();
 			}
+			
 		});
 		profilesList.setCellRenderer(new DefaultListCellRenderer() {
 			@Override
@@ -141,6 +148,20 @@ public class ProfileTabPanel extends JPanel implements UITab {
 				
 				return comp;
 			}
+		});
+		profilesList.addMouseListener(new MouseAdapter() {
+		    public void mouseClicked(MouseEvent e) {
+		    	logger.info("Clicked! " + e.getClickCount());
+		        if (e.getClickCount() == 2) {
+		            int index = profilesList.locationToIndex(e.getPoint());
+		            Profile item = profilesModel.getElementAt(index);
+		            if(item != null) {
+		            	selectedProfile = item;
+		            	displaySelectedProfile();
+		            	activateProfile(item);
+		            }
+		         }
+		    }
 		});
 		scrollPane.setViewportView(profilesList);
 		lblHeader.setLabelFor(profilesList);
@@ -340,8 +361,7 @@ public class ProfileTabPanel extends JPanel implements UITab {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(selectedProfile == null) { return; }
-
-				worker.execute(taskFactory.activateProfile(selectedProfile));
+				activateProfile(selectedProfile);
 			}
 		});
 		GridBagConstraints gbc_activateProfileButton = new GridBagConstraints();
@@ -363,6 +383,10 @@ public class ProfileTabPanel extends JPanel implements UITab {
 	
 	public JButton getDefaultButton() {
 		return activateProfileButton;
+	}
+	
+	private void activateProfile(Profile profile) {
+		worker.execute(taskFactory.activateProfile(profile));
 	}
 	
 	private void displaySelectedProfile() {
