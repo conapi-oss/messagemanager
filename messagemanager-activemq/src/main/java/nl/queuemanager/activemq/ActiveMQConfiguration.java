@@ -9,13 +9,14 @@ import nl.queuemanager.core.util.CollectionFactory;
 
 public class ActiveMQConfiguration {
 
+	private static final String ACTIVEMQ_CONFIG_ROOT = "ActiveMQ";
 	private static final String CONNECTIONS_SECTION = "Connections";
 	
 	private final Configuration config;
 	
 	@Inject
 	public ActiveMQConfiguration(Configuration config) {
-		this.config = config;
+		this.config = config.sub(ACTIVEMQ_CONFIG_ROOT);
 	}
 
 	public void saveConnectionDescriptor(ActiveMQConnectionDescriptor con) {

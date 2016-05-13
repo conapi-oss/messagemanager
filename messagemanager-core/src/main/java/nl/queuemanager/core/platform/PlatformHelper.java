@@ -7,6 +7,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
+import com.google.common.base.Strings;
+
 public class PlatformHelper {
 	
 	public void setApplicationName(String name) {
@@ -35,7 +37,13 @@ public class PlatformHelper {
 	 * within this application should use the application-specific {@link getDataFolder}.
 	 */
 	protected File getUserDataFolder() {
-		return new File(new File(System.getProperty("user.home")), ".messagemanager");
+		String configPath = System.getenv("XDG_CONFIG_DIR");
+		if(Strings.isNullOrEmpty(configPath)) {
+			File userHome = new File(System.getProperty("user.home"));
+			return new File(userHome, ".config");
+		} else {
+			return new File(configPath);
+		}
 	}
 	
 	public File getDataFolder() {
