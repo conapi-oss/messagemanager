@@ -9,23 +9,23 @@ import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
+import com.google.common.eventbus.Subscribe;
+
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.core.task.TaskExecutor;
-import nl.queuemanager.core.tasks.TaskFactory;
+import nl.queuemanager.core.tasks.PreconnectTaskFactory;
 import nl.queuemanager.core.util.ReleasePropertiesEvent;
 import nl.queuemanager.ui.util.MarqueePanel;
-
-import com.google.common.eventbus.Subscribe;
 
 public class MOTDPanel extends MarqueePanel {
 
 	private TaskExecutor worker;
-	private TaskFactory taskFactory;
+	private PreconnectTaskFactory taskFactory;
 	private CoreConfiguration config;
 
 	@Inject
-	public MOTDPanel(TaskExecutor worker, TaskFactory taskFactory, CoreConfiguration config) {
+	public MOTDPanel(TaskExecutor worker, PreconnectTaskFactory taskFactory, CoreConfiguration config) {
 		super(10, 5);
 		this.worker = worker;
 		this.taskFactory = taskFactory;
@@ -44,7 +44,6 @@ public class MOTDPanel extends MarqueePanel {
 	@Subscribe
 	public void applicationInitialized(ApplicationInitializedEvent e) {
 		// Kick off the MOTD task. It will fire an event when MOTD is known
-		// FIXME get the right hostname in here
 		worker.execute(taskFactory.checkMotdTask(config.getUniqueId(), "smm.queuemanager.nl"));
 		
 		// Kick off the ReleaseNote task. It will fire an event if we have a release note

@@ -27,6 +27,10 @@ import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
+import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import nl.queuemanager.AddUITabEvent;
 import nl.queuemanager.ProfileActivatedEvent;
 import nl.queuemanager.Version;
@@ -36,12 +40,9 @@ import nl.queuemanager.core.platform.AboutEvent;
 import nl.queuemanager.core.platform.PlatformHelper;
 import nl.queuemanager.core.platform.PreferencesEvent;
 import nl.queuemanager.core.platform.QuitEvent;
+import nl.queuemanager.ui.MOTDPanel;
 import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.task.TaskQueuePanel;
-
-import com.google.common.eventbus.Subscribe;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 @SuppressWarnings("serial")
 @Singleton
@@ -57,7 +58,7 @@ public class MMFrame extends JFrame {
 	private UITab.ConnectionState currentState;
 	
 	@Inject
-	public MMFrame(CoreConfiguration config, TaskQueuePanel taskQueuePanel, PlatformHelper platformHelper, ProfileTabPanel profileTab) {
+	public MMFrame(CoreConfiguration config, TaskQueuePanel taskQueuePanel, PlatformHelper platformHelper, MOTDPanel motdPanel, ProfileTabPanel profileTab) {
 		this.config = config;
 		
 		setTitle(String.format("%s %s", APP_NAME, Version.VERSION));
@@ -67,6 +68,9 @@ public class MMFrame extends JFrame {
 		this.tabs = new TreeMap<Integer, UITab>();
 		
 		Container contentPane = getContentPane();
+		
+		// Create the MOTDPanel and put it in the right place
+		contentPane.add(motdPanel, BorderLayout.NORTH);
 		
 		// Create the tabbedpane and add all the panels to it
 		tabsPane = new JTabbedPane();

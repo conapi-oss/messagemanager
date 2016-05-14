@@ -23,21 +23,20 @@ import java.util.List;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import com.google.common.eventbus.EventBus;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.Stage;
+
 import nl.queuemanager.core.CoreModule;
 import nl.queuemanager.core.PreconnectCoreModule;
-import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.configuration.XmlConfigurationModule;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.core.platform.PlatformHelper;
 import nl.queuemanager.smm.ui.SMMFrame;
 import nl.queuemanager.ui.PreconnectUIModule;
 import nl.queuemanager.ui.UIModule;
-
-import com.google.common.eventbus.EventBus;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
-import com.google.inject.Stage;
 
 public class Main {
 
@@ -60,9 +59,6 @@ public class Main {
 		modules.add(new UIModule());
 		modules.add(new SMMModule());
 		
-		// Load plugin modules
-		modules.addAll(createPluginModules(configurationModule));
-		
 		// Now that the module list is complete, create the injector
 		final Injector injector = Guice.createInjector(Stage.PRODUCTION, modules);
 
@@ -83,46 +79,6 @@ public class Main {
 				injector.getInstance(EventBus.class).post(new ApplicationInitializedEvent());
 			}
 		});
-	}
-	
-	/**
-	 * Load initial Injector to be able to read configuration for plugin loading.
-	 * For some reason, Guice complains about things already being injected when
-	 * child injectors are used. Until I find a solution for that, we dicard this
-	 * injector and configuration object after use and use it only to retrieve the
-	 * list of plugin modules to load.
-	 */
-	private static List<Module> createPluginModules(Module configurationModule) {
-		Injector configInjector = Guice.createInjector(Stage.PRODUCTION, configurationModule);
-		CoreConfiguration config = configInjector.getInstance(CoreConfiguration.class);
-		
-		String[] moduleNameList = config.getUserPref(CoreConfiguration.PREF_PLUGIN_MODULES, "").split(",");
-		List<Module> modules = new ArrayList<Module>(moduleNameList.length);
-		
-		for(String moduleName: moduleNameList) {
-			if(moduleName.length() == 0)
-				continue;
-			
-			Module module = loadModule(moduleName);
-			if(module != null && module instanceof Module) {
-				modules.add(module);
-			}
-		}
-		
-		return modules;
-	}
-
-	private static Module loadModule(String moduleName) {
-		try {
-			return (Module) Class.forName(moduleName).newInstance();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		return null;
 	}
 	
 	private static void setNativeLAF() { 
