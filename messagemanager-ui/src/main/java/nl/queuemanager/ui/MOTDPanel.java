@@ -2,6 +2,8 @@ package nl.queuemanager.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.inject.Inject;
 import javax.swing.BorderFactory;
@@ -39,6 +41,16 @@ public class MOTDPanel extends MarqueePanel {
 		
 		setScrollWhenFocused(false);
 		setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+		setToolTipText("Right-click to hide this message");
+		
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				if(SwingUtilities.isRightMouseButton(e)) {
+					setVisible(false);
+				}
+			}
+		});
 	}
 
 	@Subscribe

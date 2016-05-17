@@ -151,7 +151,6 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		});
 		profilesList.addMouseListener(new MouseAdapter() {
 		    public void mouseClicked(MouseEvent e) {
-		    	logger.info("Clicked! " + e.getClickCount());
 		        if (e.getClickCount() == 2) {
 		            int index = profilesList.locationToIndex(e.getPoint());
 		            Profile item = profilesModel.getElementAt(index);

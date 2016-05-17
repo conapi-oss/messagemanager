@@ -42,6 +42,10 @@ public class CheckMotdTask extends BackgroundTask {
 
 	@Override
 	public void execute() throws Exception {
+		if(DebugProperty.forceMotdMessage.isEnabled()) {
+			eventBus.post(new ReleasePropertiesEvent(ReleasePropertiesEvent.EVENT.MOTD_FOUND, this, "MOTD message forced by system property"));
+		}
+		
 		if(!shouldCheckForMOTD()) {
 			return;
 		}

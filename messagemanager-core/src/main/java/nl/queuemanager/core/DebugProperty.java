@@ -4,6 +4,7 @@ public enum DebugProperty {
 	forceInstallPlugins,
 	forceMotdCheck,
 	forceReleaseNoteCheck,
+	forceMotdMessage,
 	enableSwingDebug;
 	
 	public boolean isEnabled() {
