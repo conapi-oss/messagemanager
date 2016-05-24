@@ -428,6 +428,10 @@ public class ProfileTabPanel extends JPanel implements UITab {
 	
 	private void addJar(Profile profile) {
 		final File[] files = platform.chooseFiles(this, "Add to classpath", true, new SingleExtensionFileFilter("jar", "Java Archive File"));
+		if(files == null) {
+			return;
+		}
+		
 		final Set<File> expandedFiles = new HashSet<File>();
 				
 		// Expand the files list with the Class-Path: entries from the selected jar manifests and 
