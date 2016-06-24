@@ -1,11 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	
 	<parent>
 		<groupId>nl.queuemanager</groupId>
 		<artifactId>messagemanager</artifactId>
-		<version>3.0-SNAPSHOT</version>
+		<version>3.1-SNAPSHOT</version>
 	</parent>
 	
 	<description>Message Manager ${suffix}</description>
@@ -18,8 +17,8 @@
 	</organization>
 	
 	<properties>
-		<subdir></subdir>
-		<suffix></suffix>
+		<subdir />
+		<suffix />
 	</properties>
 	
 	<build>
@@ -27,7 +26,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>webstart-maven-plugin</artifactId>
-				<version>1.0-beta-7-SNAPSHOT</version>
+				<version>1.0-beta-7</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
