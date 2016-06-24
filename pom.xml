@@ -12,9 +12,9 @@
     <module>messagemanager-ui</module>
     <module>messagemanager-app</module>
 
-    <module>messagemanager-fakemq</module>
+    <!--module>messagemanager-fakemq</module-->
     <module>messagemanager-activemq</module>
-    <module>messagemanager-solace</module>
+    <!--module>messagemanager-solace</module-->
 
     <module>messagemanager-sonicmq</module>
 
@@ -73,6 +73,27 @@
       		</execution>
       	</executions>
       </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>buildnumber-maven-plugin</artifactId>
+        <version>1.4</version>
+	<configuration>
+		<format>{0,date,yyyyMMddHHmmss}</format>
+		<items>
+			<item>timestamp</item>
+		</items>
+	</configuration>
+        <executions>
+          <execution>
+            <phase>validate</phase>
+            <goals>
+              <goal>create</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
     </plugins>
     
     <pluginManagement>
