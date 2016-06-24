@@ -1,10 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>messagemanager</artifactId>
 		<groupId>nl.queuemanager</groupId>
-		<version>3.0-SNAPSHOT</version>
+		<version>3.0</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>messagemanager-app</artifactId>
@@ -78,12 +77,12 @@
 		<dependency>
 			<groupId>nl.queuemanager</groupId>
 			<artifactId>messagemanager-ui</artifactId>
-			<version>3.0-SNAPSHOT</version>
+			<version>3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>nl.queuemanager</groupId>
 			<artifactId>messagemanager-plugins-package</artifactId>
-			<version>3.0-SNAPSHOT</version>
+			<version>3.0</version>
 			<type>jar</type>
 			<exclusions>
 				<exclusion>
@@ -95,7 +94,7 @@
 		<dependency>
 			<groupId>nl.queuemanager</groupId>
 			<artifactId>messagemanager-plugin-api</artifactId>
-			<version>3.0-SNAPSHOT</version>
+			<version>3.0</version>
 		</dependency>
 	</dependencies>
 </project>
