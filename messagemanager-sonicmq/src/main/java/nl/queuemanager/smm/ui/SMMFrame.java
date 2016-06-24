@@ -23,21 +23,25 @@ import java.util.TreeMap;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
+import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.sonicsw.ma.gui.util.JMAFrame;
+
+import nl.queuemanager.core.configuration.CoreConfiguration;
+import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.platform.AboutEvent;
 import nl.queuemanager.core.platform.PlatformHelper;
 import nl.queuemanager.core.platform.PreferencesEvent;
 import nl.queuemanager.core.task.TaskExecutor;
+import nl.queuemanager.core.tasks.PreconnectTaskFactory;
 import nl.queuemanager.smm.ConnectionModel;
 import nl.queuemanager.smm.Domain;
 import nl.queuemanager.smm.Version;
+import nl.queuemanager.ui.MOTDPanel;
 import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.task.TaskQueuePanel;
-
-import com.google.common.eventbus.Subscribe;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.sonicsw.ma.gui.util.JMAFrame;
 
 @SuppressWarnings("serial")
 @Singleton
@@ -46,10 +50,18 @@ public class SMMFrame extends JMAFrame {
 
 	private final JTabbedPane tabsPane;
 	private final SortedMap<Integer, UITab> tabs;
+
+	private TaskExecutor worker;
+	private PreconnectTaskFactory taskFactory;
+	private CoreConfiguration config;
 	
 	@Inject
-	public SMMFrame(Domain sonic, TaskExecutor worker, Map<Integer, UITab> tabs, TaskQueuePanel taskQueuePanel, PlatformHelper platformHelper) {
+	public SMMFrame(Domain sonic, TaskExecutor worker, Map<Integer, UITab> tabs, TaskQueuePanel taskQueuePanel, PlatformHelper platformHelper, 
+			MOTDPanel motdPanel, PreconnectTaskFactory taskFactory, CoreConfiguration config) {
 		super("messagemanager");
+		this.worker = worker;
+		this.taskFactory = taskFactory;
+		this.config = config;
 		
 		setTitle("");
 		
@@ -58,6 +70,8 @@ public class SMMFrame extends JMAFrame {
 		this.tabs = new TreeMap<Integer, UITab>(tabs);
 		
 		Container contentPane = getContentPane();
+		
+		contentPane.add(motdPanel, BorderLayout.NORTH);
 		
 		// Create the tabbedpane and add all the panels to it
 		tabsPane = new JTabbedPane();
@@ -72,6 +86,15 @@ public class SMMFrame extends JMAFrame {
 
 		// Add the task queue panel
 		contentPane.add(taskQueuePanel, BorderLayout.SOUTH);
+	}
+	
+	@Subscribe
+	public void applicationInitialized(ApplicationInitializedEvent e) {
+		// Kick off the MOTD task. It will fire an event when MOTD is known
+		worker.execute(taskFactory.checkMotdTask(config.getUniqueId(), "smm.queuemanager.nl"));
+		
+		// Kick off the ReleaseNote task. It will fire an event if we have a release note
+		worker.execute(taskFactory.checkReleaseNote("smm.queuemanager.nl", Version.getVersion()));
 	}
 	
 	/**

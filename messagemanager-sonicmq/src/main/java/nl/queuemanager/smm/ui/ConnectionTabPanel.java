@@ -45,6 +45,14 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.sonicsw.ma.gui.PreferenceManager;
+import com.sonicsw.ma.gui.domain.DomainConnectionModel;
+import com.sonicsw.ma.gui.domain.JDomainConnectionDialog;
+
 import nl.queuemanager.ProfileActivatedEvent;
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
@@ -57,17 +65,8 @@ import nl.queuemanager.smm.SMCConnectionModel;
 import nl.queuemanager.smm.SMMConfiguration;
 import nl.queuemanager.ui.CommonUITasks;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
-import nl.queuemanager.ui.MOTDPanel;
 import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.util.DesktopHelper;
-
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.sonicsw.ma.gui.PreferenceManager;
-import com.sonicsw.ma.gui.domain.DomainConnectionModel;
-import com.sonicsw.ma.gui.domain.JDomainConnectionDialog;
 
 @SuppressWarnings("serial")
 public class ConnectionTabPanel extends JPanel implements UITab {
@@ -82,7 +81,7 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 	@Inject
 	public ConnectionTabPanel(Domain sonic, TaskExecutor worker, CoreConfiguration config, 
 			DesktopHelper desktop, Provider<JDomainConnectionDialog> connectionDialogProvider, 
-			EventBus eventBus, MOTDPanel motdPanel) 
+			EventBus eventBus) 
 	{
 		this.sonic = sonic;
 		this.worker = worker;
@@ -100,7 +99,6 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		if(mailingListPanel != null) {
 			add(mailingListPanel);
 		}
-		add(motdPanel);
 		add(connectionsPanel);
 	}
 

@@ -13,25 +13,14 @@ import javax.swing.SwingUtilities;
 
 import com.google.common.eventbus.Subscribe;
 
-import nl.queuemanager.core.configuration.CoreConfiguration;
-import nl.queuemanager.core.events.ApplicationInitializedEvent;
-import nl.queuemanager.core.task.TaskExecutor;
-import nl.queuemanager.core.tasks.PreconnectTaskFactory;
 import nl.queuemanager.core.util.ReleasePropertiesEvent;
 import nl.queuemanager.ui.util.MarqueePanel;
 
 public class MOTDPanel extends MarqueePanel {
 
-	private TaskExecutor worker;
-	private PreconnectTaskFactory taskFactory;
-	private CoreConfiguration config;
-
 	@Inject
-	public MOTDPanel(TaskExecutor worker, PreconnectTaskFactory taskFactory, CoreConfiguration config) {
+	public MOTDPanel() {
 		super(10, 5);
-		this.worker = worker;
-		this.taskFactory = taskFactory;
-		this.config = config;
 		
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		setBackground(Color.YELLOW);
@@ -51,16 +40,6 @@ public class MOTDPanel extends MarqueePanel {
 				}
 			}
 		});
-	}
-
-	@Subscribe
-	public void applicationInitialized(ApplicationInitializedEvent e) {
-		// Kick off the MOTD task. It will fire an event when MOTD is known
-		worker.execute(taskFactory.checkMotdTask(config.getUniqueId(), "smm.queuemanager.nl"));
-		
-		// Kick off the ReleaseNote task. It will fire an event if we have a release note
-		// FIXME Create a real build id
-		worker.execute(taskFactory.checkReleaseNote("smm.queuemanager.nl", "1234"));
 	}
 
 	public void addMessage(String message) {

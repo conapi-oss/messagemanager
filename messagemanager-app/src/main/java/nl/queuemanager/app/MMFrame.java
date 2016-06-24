@@ -35,11 +35,14 @@ import nl.queuemanager.AddUITabEvent;
 import nl.queuemanager.ProfileActivatedEvent;
 import nl.queuemanager.Version;
 import nl.queuemanager.core.configuration.CoreConfiguration;
+import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.platform.AboutEvent;
 import nl.queuemanager.core.platform.PlatformHelper;
 import nl.queuemanager.core.platform.PreferencesEvent;
 import nl.queuemanager.core.platform.QuitEvent;
+import nl.queuemanager.core.task.TaskExecutor;
+import nl.queuemanager.core.tasks.PreconnectTaskFactory;
 import nl.queuemanager.ui.MOTDPanel;
 import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.task.TaskQueuePanel;
@@ -56,10 +59,15 @@ public class MMFrame extends JFrame {
 	private final SortedMap<Integer, UITab> tabs;
 	
 	private UITab.ConnectionState currentState;
+	private TaskExecutor worker;
+	private PreconnectTaskFactory taskFactory;
 	
 	@Inject
-	public MMFrame(CoreConfiguration config, TaskQueuePanel taskQueuePanel, PlatformHelper platformHelper, MOTDPanel motdPanel, ProfileTabPanel profileTab) {
+	public MMFrame(CoreConfiguration config, TaskQueuePanel taskQueuePanel, PlatformHelper platformHelper, MOTDPanel motdPanel, ProfileTabPanel profileTab,
+			TaskExecutor worker, PreconnectTaskFactory taskFactory) {
 		this.config = config;
+		this.worker = worker;
+		this.taskFactory = taskFactory;
 		
 		setTitle(String.format("%s %s", APP_NAME, Version.VERSION));
 
@@ -121,6 +129,15 @@ public class MMFrame extends JFrame {
 			return;
 		}
 		removeTab(e.getKey());
+	}
+	
+	@Subscribe
+	public void applicationInitialized(ApplicationInitializedEvent e) {
+		// Kick off the MOTD task. It will fire an event when MOTD is known
+		worker.execute(taskFactory.checkMotdTask(config.getUniqueId(), "smm.queuemanager.nl"));
+		
+		// Kick off the ReleaseNote task. It will fire an event if we have a release note
+		worker.execute(taskFactory.checkReleaseNote("smm.queuemanager.nl", Version.BUILD_ID));
 	}
 	
 	@Subscribe
