@@ -118,8 +118,8 @@ class MultiQueueTaskExecutor implements TaskExecutor
 			ExecutorService e = executors.get(resource);
 			
 			if(e == null) {
-				// If the resource is null, the Map must accept the null key!
-				executors.put(resource, e = Executors.newSingleThreadExecutor());
+				// If the resource is null, we have no dependencies. Spawn an temporary executor for just this task.
+				return Executors.newSingleThreadExecutor();
 			}
 			
 			return e;
