@@ -53,16 +53,22 @@ import com.miginfocom.Base64;
 public class ProfileManager {
 	private Logger logger = Logger.getLogger(getClass().getName());
 	
-	private final PlatformHelper platform;
-	
 	private final File profilesFolder;
 	private Set<Profile> profiles = new HashSet<>();
 	
 	@Inject
 	public ProfileManager(PlatformHelper platform) {
-		this.platform = platform;
 		this.profilesFolder = new File(platform.getDataFolder(), "profiles");
 		load(profilesFolder);
+	}
+	
+	public Profile getProfileById(String id) {
+		for(Profile p: profiles) {
+			if(id.equals(p.getId())) {
+				return p;
+			}
+		}
+		return null;
 	}
 	
 	public Set<Profile> getAllProfiles() {

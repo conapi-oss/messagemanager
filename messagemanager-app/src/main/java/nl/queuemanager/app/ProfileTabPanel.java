@@ -48,7 +48,9 @@ import nl.queuemanager.Profile;
 import nl.queuemanager.app.tasks.ActivateProfileTask;
 import nl.queuemanager.app.tasks.TaskFactory;
 import nl.queuemanager.core.configuration.CoreConfiguration;
+import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.core.platform.PlatformHelper;
+import nl.queuemanager.core.task.BackgroundTask;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.ui.CommonUITasks;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
@@ -56,11 +58,16 @@ import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.util.SingleExtensionFileFilter;
 
 import com.google.common.base.Strings;
+import com.google.common.eventbus.Subscribe;
+
+import javax.swing.JCheckBox;
 
 @SuppressWarnings("serial")
 public class ProfileTabPanel extends JPanel implements UITab {
+	private static final String PREF_AUTOLOAD_PROFILE = "autoloadProfile";
+	
 	private final Logger logger = Logger.getLogger(getClass().getName());
-		
+	
 	private JTextField txtProfileName;
 	
 	private Profile selectedProfile;
@@ -71,13 +78,17 @@ public class ProfileTabPanel extends JPanel implements UITab {
 	private JList<URL> classpathList;
 
 	private JButton activateProfileButton;
-	
-	private PlatformHelper platform;
-	private TaskExecutor worker;
-	private TaskFactory taskFactory;
+
+	private final ProfileManager profileManager;
+	private final CoreConfiguration config;
+	private final PlatformHelper platform;
+	private final TaskExecutor worker;
+	private final TaskFactory taskFactory;
 	
 	@Inject
 	public ProfileTabPanel(final ProfileManager profileManager, final TaskExecutor worker, final TaskFactory taskFactory, final PlatformHelper platform, final CoreConfiguration config) {
+		this.profileManager = profileManager;
+		this.config = config;
 		this.worker = worker;
 		this.taskFactory = taskFactory;
 		this.platform = platform;
@@ -148,19 +159,6 @@ public class ProfileTabPanel extends JPanel implements UITab {
 				
 				return comp;
 			}
-		});
-		profilesList.addMouseListener(new MouseAdapter() {
-		    public void mouseClicked(MouseEvent e) {
-		        if (e.getClickCount() == 2) {
-		            int index = profilesList.locationToIndex(e.getPoint());
-		            Profile item = profilesModel.getElementAt(index);
-		            if(item != null) {
-		            	selectedProfile = item;
-		            	displaySelectedProfile();
-		            	activateProfile(item);
-		            }
-		         }
-		    }
 		});
 		scrollPane.setViewportView(profilesList);
 		lblHeader.setLabelFor(profilesList);
@@ -354,21 +352,44 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		profileButtonsBox.add(removeProfileButton);
 		profileButtonsBox.add(Box.createHorizontalGlue());
 		
+		Box activateProfileBox = Box.createHorizontalBox();
+		GridBagConstraints gbc_activateProfileBox = new GridBagConstraints();
+		gbc_activateProfileBox.fill = GridBagConstraints.HORIZONTAL;
+		gbc_activateProfileBox.gridx = 2;
+		gbc_activateProfileBox.gridy = 8;
+		add(activateProfileBox, gbc_activateProfileBox);
+		
+		Component horizontalGlue_1 = Box.createHorizontalGlue();
+		activateProfileBox.add(horizontalGlue_1);
+		
+		final JCheckBox chckbxLoadThisProfile = new JCheckBox("Activate automatically and don't ask again.");
+		activateProfileBox.add(chckbxLoadThisProfile);
+		
 		activateProfileButton = new JButton("Activate profile");
+		activateProfileBox.add(activateProfileButton);
 		activateProfileButton.setHorizontalAlignment(SwingConstants.RIGHT);
 		activateProfileButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(selectedProfile == null) { return; }
-				activateProfile(selectedProfile);
+				
+				activateProfile(selectedProfile, chckbxLoadThisProfile.isSelected());
 			}
 		});
-		GridBagConstraints gbc_activateProfileButton = new GridBagConstraints();
-		gbc_activateProfileButton.anchor = GridBagConstraints.LINE_END;
-		gbc_activateProfileButton.gridx = 2;
-		gbc_activateProfileButton.gridy = 8;
 		
-		add(activateProfileButton, gbc_activateProfileButton);
+		profilesList.addMouseListener(new MouseAdapter() {
+		    public void mouseClicked(MouseEvent e) {
+		        if (e.getClickCount() == 2) {
+		            int index = profilesList.locationToIndex(e.getPoint());
+		            Profile item = profilesModel.getElementAt(index);
+		            if(item != null) {
+		            	selectedProfile = item;
+		            	displaySelectedProfile();
+		            	activateProfile(item, chckbxLoadThisProfile.isSelected());
+		            }
+		         }
+		    }
+		});
 		
 		// If we have a saved profile, select that
 		if(lastActiveProfile != null) {
@@ -380,12 +401,29 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		displaySelectedProfile();
 	}
 	
+	@Subscribe
+	public void applicationInitialized(ApplicationInitializedEvent e) {
+		// If there is an autoload profile, activate it
+		String autoloadProfileId = config.getUserPref(PREF_AUTOLOAD_PROFILE, null);
+		if(autoloadProfileId != null) {
+			Profile profile = profileManager.getProfileById(autoloadProfileId);
+			if(profile != null) {
+				selectedProfile = profile;
+				displaySelectedProfile();
+				activateProfile(profile, false);
+			}
+		}
+	}
+	
 	public JButton getDefaultButton() {
 		return activateProfileButton;
 	}
 	
-	private void activateProfile(Profile profile) {
-		worker.execute(taskFactory.activateProfile(profile));
+	private void activateProfile(final Profile profile, boolean setAsAutoload) {
+		worker.executeInOrder(
+			taskFactory.activateProfile(profile),
+			taskFactory.setUserPref(PREF_AUTOLOAD_PROFILE, profile.getId())
+		);
 	}
 	
 	private void displaySelectedProfile() {
