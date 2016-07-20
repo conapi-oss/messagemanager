@@ -6,7 +6,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Observable;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.inject.Inject;
 import javax.swing.ButtonGroup;
@@ -25,7 +26,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 
 import com.google.common.eventbus.EventBus;
 
@@ -36,7 +36,6 @@ import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.util.ListTableModel;
-import nl.queuemanager.ui.util.ObservingListTableModel;
 import nl.queuemanager.ui.util.TableColumnAdjuster;
 
 public class ConnectionTabPanel extends JPanel implements UITab {
@@ -210,6 +209,20 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 				descriptionField.setText(item.getDescription());
 				jmxServiceURLField.setText(item.getJmxUrl());
 			}
+		});
+		remoteProcessTable.addMouseListener(new MouseAdapter() {
+			@Override
+		    public void mouseClicked(MouseEvent e) {
+		        if (e.getClickCount() == 2) {
+		            int row = remoteProcessTable.rowAtPoint(e.getPoint());
+		            if(row == -1) { return; }
+		            
+		            ActiveMQConnectionDescriptor item = remoteProcessModel.getRowItem(row); 
+		            if(item != null) {
+		            	connectButton.doClick();
+		            }
+		         }
+		    }
 		});
 		
 		JButton removeConnectionButton = new JButton("Remove Connection");
