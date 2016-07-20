@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.StandardOpenOption;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -85,7 +86,7 @@ public class XmlFileConfiguration extends XmlConfigurationSection {
 		// file at any time.
 		synchronized(lock) {
 			// Obtain file lock. This is to make sure multiple processes synchronize properly
-			try(final FileChannel channel = FileChannel.open(configFile.toPath(), StandardOpenOption.READ, StandardOpenOption.WRITE);
+			try(final FileChannel channel = FileChannel.open(configFile.toPath(), StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE);
 				final FileLock lock = channel.lock()) {
 
 				Document configuration = readConfiguration(channel);
@@ -106,12 +107,15 @@ public class XmlFileConfiguration extends XmlConfigurationSection {
 		// This lock is to make sure only one thread in this process will access the
 		// file at any time.
 		synchronized(lock) {
-			try(final FileChannel channel = FileChannel.open(configFile.toPath(), StandardOpenOption.READ)) {
-
-				Document configuration = readConfiguration(channel);
-				return readFunc.apply(configuration.getDocumentElement());
-			} catch (IOException e) {
-				throw new ConfigurationException(e);
+			try {
+				try(final FileChannel channel = FileChannel.open(configFile.toPath(), StandardOpenOption.READ)) {
+					Document configuration = readConfiguration(channel);
+					return readFunc.apply(configuration.getDocumentElement());
+				} catch (NoSuchFileException e) {
+					return readFunc.apply(newConfig().getDocumentElement());
+				} catch (IOException e) {
+					throw new ConfigurationException(e);
+				}
 			} catch (Exception e) {
 				throw new ConfigurationException(e);
 			}
