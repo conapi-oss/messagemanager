@@ -247,6 +247,20 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		connectButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				int row = remoteProcessTable.getSelectedRow();
+				if(row > -1) {
+					ActiveMQConnectionDescriptor item = remoteProcessModel.getRowItem(row);
+					if(item != null) {
+						if(item.getDescription().equals(descriptionField.getText())
+						&& item.getJmxUrl().equals(jmxServiceURLField.getText())) {
+							// Connecting to existing item
+							connect();
+							return;
+						}
+					}
+				}
+				
+				// Connecting to new item
 				ActiveMQConnectionDescriptor cd = new ActiveMQConnectionDescriptor(descriptionField.getText(), jmxServiceURLField.getText());
 				config.saveConnectionDescriptor(cd);
 				connect();
