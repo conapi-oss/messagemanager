@@ -22,7 +22,7 @@ import nl.queuemanager.ui.util.ListTableModel;
 import com.google.inject.Inject;
 
 @SuppressWarnings("serial")
-class SettingsTabPanel extends JSplitPane implements UITab {
+public class SettingsTabPanel extends JSplitPane implements UITab {
 
 	private SettingsPagesTableModel model;
 

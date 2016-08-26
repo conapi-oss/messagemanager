@@ -24,7 +24,9 @@ public interface CoreConfiguration {
 	public static final String PREF_BROWSE_DIRECTORY = "browseDirectory";
 	public static final String PREF_SAVE_DIRECTORY = "saveDirectory";
 	public static final String PREF_MAX_BUFFERED_MSG = "maxBufferedMessages";
+	public static final String DEFAULT_MAX_BUFFERED_MSG = "50";
 	public static final String PREF_AUTOREFRESH_INTERVAL = "autoRefreshInterval";
+	public static final String DEFAULT_AUTOREFRESH_INTERVAL = "5000";
 	public static final String PREF_BROKER_ALTERNATE_URL = "alternateUrl";
 	public static final String PREF_PLUGIN_MODULES = "pluginModules";
 	public static final String PREF_LAST_RUN_BUILD = "lastRunBuild";

@@ -31,8 +31,8 @@ public class QueueCountsRefresher {
 		this.timer = new Timer(true);
 		
 		timer.schedule(new RefreshTask(), 
-			Long.valueOf(configuration.getUserPref(CoreConfiguration.PREF_AUTOREFRESH_INTERVAL, "5000")), 
-			Long.valueOf(configuration.getUserPref(CoreConfiguration.PREF_AUTOREFRESH_INTERVAL, "5000")));
+			Long.valueOf(configuration.getUserPref(CoreConfiguration.PREF_AUTOREFRESH_INTERVAL, CoreConfiguration.DEFAULT_AUTOREFRESH_INTERVAL)), 
+			Long.valueOf(configuration.getUserPref(CoreConfiguration.PREF_AUTOREFRESH_INTERVAL, CoreConfiguration.DEFAULT_AUTOREFRESH_INTERVAL)));
 	}
 	
 	private synchronized void refreshBrokers() {

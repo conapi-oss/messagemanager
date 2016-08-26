@@ -60,7 +60,7 @@ public class JMSSubscriber extends Observable implements EventSource<MessageEven
 		this.eventBus = eventBus;
 		
 		buffer.setMaximumNumberOfMessages(Integer.parseInt(config.getUserPref(
-				CoreConfiguration.PREF_MAX_BUFFERED_MSG, "50")));
+				CoreConfiguration.PREF_MAX_BUFFERED_MSG, CoreConfiguration.DEFAULT_MAX_BUFFERED_MSG)));
 		buffer.addListener(this);
 	}
 	

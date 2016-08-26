@@ -45,6 +45,7 @@ import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.tasks.PreconnectTaskFactory;
 import nl.queuemanager.ui.MOTDPanel;
 import nl.queuemanager.ui.UITab;
+import nl.queuemanager.ui.settings.SettingsTabPanel;
 import nl.queuemanager.ui.task.TaskQueuePanel;
 
 @SuppressWarnings("serial")
@@ -64,7 +65,7 @@ public class MMFrame extends JFrame {
 	
 	@Inject
 	public MMFrame(CoreConfiguration config, TaskQueuePanel taskQueuePanel, PlatformHelper platformHelper, MOTDPanel motdPanel, ProfileTabPanel profileTab,
-			TaskExecutor worker, PreconnectTaskFactory taskFactory) {
+			TaskExecutor worker, PreconnectTaskFactory taskFactory, SettingsTabPanel settingsTab) {
 		this.config = config;
 		this.worker = worker;
 		this.taskFactory = taskFactory;
@@ -86,6 +87,8 @@ public class MMFrame extends JFrame {
 		
 		addTab(new AddUITabEvent(0, profileTab));
 		getRootPane().setDefaultButton(profileTab.getDefaultButton());
+		
+		addTab(new AddUITabEvent(99, settingsTab));
 		
 		// Now add the TabbedPane to the layout
 		contentPane.add(tabsPane, BorderLayout.CENTER);

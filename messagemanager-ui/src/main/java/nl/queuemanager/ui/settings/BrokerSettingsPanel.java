@@ -14,7 +14,7 @@ import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.jms.JMSBroker;
 
 @SuppressWarnings("serial")
-public class BrokerSettingsPanel extends JPanel implements SettingsPanel {
+class BrokerSettingsPanel extends JPanel implements SettingsPanel {
 
 	private final CoreConfiguration configuration;
 	private final JList brokerList;

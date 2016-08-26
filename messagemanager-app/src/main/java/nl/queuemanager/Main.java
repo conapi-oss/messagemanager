@@ -44,6 +44,7 @@ import nl.queuemanager.core.platform.QuitEvent;
 import nl.queuemanager.debug.DebugEventListener;
 import nl.queuemanager.debug.TracingEventQueue;
 import nl.queuemanager.ui.PreconnectUIModule;
+import nl.queuemanager.ui.settings.SettingsModule;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Guice;
@@ -69,6 +70,7 @@ public class Main {
 		// Create the default modules
 		List<Module> modules = new ArrayList<Module>();
 		modules.add(new XmlConfigurationModule("config.xml", "urn:queuemanager-config"));
+		modules.add(new SettingsModule());
 		modules.add(new PreconnectCoreModule());
 		modules.add(new PreconnectUIModule());
 		modules.add(new AppModule());
