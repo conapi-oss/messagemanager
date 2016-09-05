@@ -123,13 +123,19 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-	
-	<repositories>
-    	<repository>
-      		<id>radon.gdries.nl</id>
-      		<url>https://radon.gdries.nl/m2</url>
-    	</repository>
-	</repositories>
-      	
+
+	<distributionManagement>
+		<repository>
+			<id>gdries-nexus-deployment</id>
+			<name>Releases</name>
+			<url>https://radon.gdries.nl/nexus/repository/maven-releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>gdries-nexus-deployment</id>
+			<name>Releases</name>
+			<url>https://radon.gdries.nl/nexus/repository/maven-snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+
 </project>
 
