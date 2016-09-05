@@ -51,6 +51,7 @@ import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.core.platform.PlatformHelper;
 import nl.queuemanager.core.task.BackgroundTask;
+import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.ui.CommonUITasks;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
@@ -64,7 +65,7 @@ import javax.swing.JCheckBox;
 
 @SuppressWarnings("serial")
 public class ProfileTabPanel extends JPanel implements UITab {
-	private static final String PREF_AUTOLOAD_PROFILE = "autoloadProfile";
+	public static final String PREF_AUTOLOAD_PROFILE = "autoloadProfile";
 	
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
@@ -420,10 +421,12 @@ public class ProfileTabPanel extends JPanel implements UITab {
 	}
 	
 	private void activateProfile(final Profile profile, boolean setAsAutoload) {
-		worker.executeInOrder(
-			taskFactory.activateProfile(profile),
-			taskFactory.setUserPref(PREF_AUTOLOAD_PROFILE, profile.getId())
-		);
+		List<Task> tasks = new ArrayList<>();
+		tasks.add(taskFactory.activateProfile(profile)); 
+		if(setAsAutoload) {
+			tasks.add(taskFactory.setUserPref(PREF_AUTOLOAD_PROFILE, profile.getId()));
+		}
+		worker.executeInOrder(tasks.toArray(new Task[tasks.size()]));
 	}
 	
 	private void displaySelectedProfile() {

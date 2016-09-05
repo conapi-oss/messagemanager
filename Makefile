@@ -1,12 +1,20 @@
 default:
 
 make-app:
-	mvn clean package -pl messagemanager-app -am
+	mvn -U package -pl messagemanager-app -am
 
 run-app:
-	java    -Dmm.forceInstallPlugins=true \
+	java    -ea \
+		-Dmm.forceInstallPlugins=true \
 		-Dmm.forceMotdMessage=true \
+		-Dmm.enableSwingDebug=true \
 		-Ddeveloper=true \
+		-Dmm.developer=true \
+		-jar messagemanager-app/target/messagemanager-app-3.1-SNAPSHOT-jar-with-dependencies.jar
+
+run-app-prod:
+	java    -ea \
+		-Dmm.forceInstallPlugins=true \
 		-jar messagemanager-app/target/messagemanager-app-3.1-SNAPSHOT-jar-with-dependencies.jar
 
 build-ws-app:

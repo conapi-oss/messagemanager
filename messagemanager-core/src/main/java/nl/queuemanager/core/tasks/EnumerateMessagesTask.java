@@ -17,6 +17,7 @@ package nl.queuemanager.core.tasks;
 
 import java.util.Enumeration;
 import java.util.EventObject;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 import javax.jms.Message;
@@ -32,6 +33,8 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.assistedinject.Assisted;
 
 public class EnumerateMessagesTask extends BackgroundTask implements CancelableTask {
+	private final Logger log = Logger.getLogger(getClass().getName());
+	
 	private final JMSQueue queue;
 	private final JMSDomain domain;
 	private QueueBrowserEventSource eventSource;
@@ -46,7 +49,6 @@ public class EnumerateMessagesTask extends BackgroundTask implements CancelableT
 			EventBus eventBus) 
 	{
 		super(queue.getBroker(), eventBus);
-		
 		this.queue = queue;
 		this.domain = domain;
 		this.eventSource = new QueueBrowserEventSource();
@@ -60,17 +62,13 @@ public class EnumerateMessagesTask extends BackgroundTask implements CancelableT
 		eventSource.fireBrowsingStarted(this);
 
 		Enumeration<Message> e = domain.enumerateMessages(getQueue());
-		while(e.hasMoreElements()) {
-			//System.out.println("  Message message = e.nextElement()");
-			Message message = e.nextElement();
-			//System.out.println("  eventSource.fireMessageFound(this, message)");
+		Message message;
+		while((message = e.nextElement()) != null) {
+			log.finest("eventSource.fireMessageFound(this, message)");
 			eventSource.fireMessageFound(this, message);
-			//System.out.println("  if(canceled)");
 			if(canceled) {
-				//System.out.println("    break;");
 				break;
 			}
-			//System.out.println("while(e.hasMoreElements())");
 		}
 		
 		eventSource.fireBrowsingComplete(this);

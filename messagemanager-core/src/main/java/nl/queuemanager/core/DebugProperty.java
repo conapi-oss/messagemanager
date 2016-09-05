@@ -5,7 +5,8 @@ public enum DebugProperty {
 	forceMotdCheck,
 	forceReleaseNoteCheck,
 	forceMotdMessage,
-	enableSwingDebug;
+	enableSwingDebug,
+	developer;
 	
 	public boolean isEnabled() {
 		return Boolean.getBoolean("mm." + name()) 

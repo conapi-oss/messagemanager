@@ -24,12 +24,13 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
-import nl.queuemanager.core.task.TaskEvent;
-import nl.queuemanager.core.util.UserCanceledException;
-
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import nl.queuemanager.core.DebugProperty;
+import nl.queuemanager.core.task.TaskEvent;
+import nl.queuemanager.core.util.UserCanceledException;
 
 /**
  * Listens for TASK_ERROR events and alerts the user to them.
@@ -45,7 +46,8 @@ public class TaskErrorListener {
 	private static final String CONFIGURE_PERMISSION_DENIED = 
 		"com.sonicsw.mf.common.security.ConfigurePermissionDeniedException";
 	
-	private static final boolean DEBUG = "TRUE".equalsIgnoreCase(System.getProperty("developer"));
+	private static final boolean DEBUG = "TRUE".equalsIgnoreCase(System.getProperty("developer")) 
+			|| DebugProperty.developer.isEnabled();
 	
 	private Component parent;
 	
