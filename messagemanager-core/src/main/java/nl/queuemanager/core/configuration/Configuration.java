@@ -20,6 +20,23 @@ public interface Configuration {
 	 * @return 
 	 */
 	public String getValue(String key, String def);
+	
+	/**
+	 * Set an attribute for this configuration section
+	 * 
+	 * @param name The name of the attribute
+	 * @param value The value of the attribute
+	 */
+	public void setAttr(String name, String value);
+	
+	/**
+	 * Retrieve a configured attribute or the default if none is saved.
+	 * 
+	 * @param key The attribute name to retrieve the value for
+	 * @param def The default value to return if no value was stored.
+	 * @return 
+	 */
+	public String getAttr(String name, String def);
 
 	/**
 	 * Get a list of the configuration keys in this section

@@ -142,10 +142,4 @@ public interface CoreConfiguration {
 	 */
 	public void removeTopicSubscriber(JMSTopic topic);
 	
-	/**
-	 * Get a Configuration object for the specified plugin id
-	 * 
-	 * @param pluginId The plugin id (module class name) to get the configuration for
-	 */
-	public Configuration getPluginConfiguration(String pluginId);
 }

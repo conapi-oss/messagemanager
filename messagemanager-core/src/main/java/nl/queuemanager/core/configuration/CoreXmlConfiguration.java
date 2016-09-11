@@ -388,11 +388,4 @@ class CoreXmlConfiguration extends XmlFileConfiguration implements CoreConfigura
 		}
 	}
 	
-	@Override
-	public Configuration getPluginConfiguration(String pluginId) {
-		return sub(pluginId);
-	}
-
-	
-	
 }

@@ -146,9 +146,9 @@ public class XmlConfigurationTest {
 	}
 	
 	@Test
-	public void testPluginConfiguration() {
-		final Configuration plugin1 = config.getPluginConfiguration("plugin1");
-		final Configuration plugin2 = config.getPluginConfiguration("plugin2");
+	public void testSubConfiguration() {
+		final Configuration plugin1 = config.sub("plugin1");
+		final Configuration plugin2 = config.sub("plugin2");
 		
 		plugin1.setValue("key1", "value1");
 		plugin2.setValue("key2", "value2");
@@ -162,9 +162,9 @@ public class XmlConfigurationTest {
 	}
 	
 	@Test
-	public void testPluginSubConfiguration() {
-		final Configuration plugin1 = config.getPluginConfiguration("plugin1");
-		final Configuration plugin2 = config.getPluginConfiguration("plugin2");
+	public void testSubSubConfiguration() {
+		final Configuration plugin1 = config.sub("plugin1");
+		final Configuration plugin2 = config.sub("plugin2");
 
 		final Configuration sub11 = plugin1.sub("sub1");
 		final Configuration sub12 = plugin1.sub("sub2");

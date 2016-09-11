@@ -53,6 +53,7 @@ public class XmlConfigurationSection implements Configuration {
 
 	@Override
 	public String getValue(final String key, final String def) {
+		System.out.println(String.format("%s:getValue(%s, %s)", rootElementName, key, def));
 		try {
 			final String res = readConfiguration(new Function<Element, String>() {
 				@Override
@@ -80,6 +81,42 @@ public class XmlConfigurationSection implements Configuration {
 			return def;
 		}
 	}
+	
+	
+
+	@Override
+	public void setAttr(final String name, final String value) {
+		try {
+			mutateConfiguration(new Function<Element, Boolean>() {
+				@Override
+				public Boolean apply(Element prefs) throws Exception {
+					prefs.setAttribute(name, value);
+					return true;
+				}
+			});
+		} catch (ConfigurationException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public String getAttr(final String name, final String def) {
+		try {
+			return readConfiguration(new Function<Element, String>() {
+				@Override
+				public String apply(Element prefs) throws Exception {
+					String res = prefs.getAttribute(name);
+					if(Strings.isNullOrEmpty(res)) {
+						res = def;
+					}
+					return res;
+				}
+			});
+		} catch (ConfigurationException e) {
+			e.printStackTrace();
+			return def;
+		}
+	}
 
 	@Override
 	public Configuration sub(String key) {
@@ -96,7 +133,7 @@ public class XmlConfigurationSection implements Configuration {
 		Node node = getOrCreateElement(context, namespaceUri, name);
 		node.setTextContent(value);
 	}
-
+	
 	/**
 	 * Get or create the Elements
 	 * 
@@ -130,6 +167,7 @@ public class XmlConfigurationSection implements Configuration {
 	}
 	
 	public void del(final String key) {
+		System.out.println(toString() + " del(" + key + ")");
 		try {
 			mutateConfiguration(new Function<Element, Boolean>() {
 				@Override
@@ -137,6 +175,9 @@ public class XmlConfigurationSection implements Configuration {
 					NodeList children = t.getChildNodes();
 					for(int i=0; i<children.getLength(); i++) {
 						Node child = children.item(i);
+						if(child.getNodeType() != Node.ELEMENT_NODE) continue;
+						
+						System.out.println(toString() + " Examining child " + i + ": " + child);
 						if(child.getLocalName().equals(key)) {
 							t.removeChild(child);
 							return true;
