@@ -119,7 +119,8 @@ class QueueTable extends JTable implements Clearable {
 				int row = realModel.getItemRow(q);
 				if(row != -1) {
 					JMSQueue item = realModel.getRowItem(row);
-					if(item.getMessageCount() != q.getMessageCount()) {
+					if(item.getMessageCount() != q.getMessageCount()
+					|| !item.toString().equals(q.toString())) {
 						realModel.setRowItem(row, q);
 					}
 				} else {
@@ -224,7 +225,7 @@ class QueueTable extends JTable implements Clearable {
 		public Object getColumnValue(JMSQueue queue, int col) {
 			switch(col) {
 			case 0:
-				return queue.getName();
+				return queue.toString();
 			case 1:
 				return queue.getMessageCount();
 			case 2:
