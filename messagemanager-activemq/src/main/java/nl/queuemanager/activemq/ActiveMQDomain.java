@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,6 +36,10 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
+import org.apache.activemq.ActiveMQConnectionFactory;
+
+import com.google.common.eventbus.EventBus;
+
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.events.AbstractEventSource;
 import nl.queuemanager.core.jms.DomainEvent;
@@ -46,10 +53,6 @@ import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.jms.JMSTopic;
 import nl.queuemanager.jms.impl.DestinationFactory;
-
-import org.apache.activemq.ActiveMQConnectionFactory;
-
-import com.google.common.eventbus.EventBus;
 
 @Singleton
 public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements JMSDomain, NotificationListener {
@@ -93,21 +96,29 @@ public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements 
 	@SuppressWarnings("unchecked")
 	public List<? extends JMSBroker> enumerateBrokers() throws MalformedObjectNameException, JMException, IOException {
 		List<JMSBroker> result = new ArrayList<JMSBroker>();
+
 		
 		// List all the activemq brokers in the VM
 		Set<ObjectName> names = mbeanServer.queryNames(new ObjectName("org.apache.activemq:type=Broker,brokerName=*"),null);
 		for(ObjectName name: names) {
+			HashMap<Integer, URI> connectors = CollectionFactory.newHashMap();
+			
 			Map<String, String> transportConnectors = (Map<String, String>) mbeanServer.getAttribute(name, "TransportConnectors");
-			for(String type: transportConnectors.keySet()) {
-				if(isConnectorTypeSupported(type)) {
-					String conn = transportConnectors.get(type);
-					try {
-						log.fine("Connector: " + conn.getClass().getName() + "; " + conn);
-						result.add(new ActiveMQBroker(name, sanitizeConnectorURI(conn)));
-					} catch (URISyntaxException e) {
-						log.log(Level.FINE, "Could not parse connection URI: " + conn, e);
-					}
+			try {
+				for(String uriStr: transportConnectors.values()) {
+					URI uri = new URI(uriStr);
+					int priority = getConnectorPriority(uri);
+					log.info("Connector: " + uri + "; priority " + priority);
+					connectors.put(priority, uri);
 				}
+	
+				if(connectors.size() > 0) {
+					int max = Collections.max(connectors.keySet());
+					URI uri = connectors.get(max);
+					result.add(new ActiveMQBroker(name, sanitizeConnectorURI(uri)));
+				}
+			} catch (URISyntaxException e) {
+				log.log(Level.WARNING, "Could not parse connection URI", e);
 			}
 		}
 		
@@ -115,16 +126,25 @@ public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements 
 		return result;
 	}
 	
-	private URI sanitizeConnectorURI(String conn) throws URISyntaxException {
-		URI uri = new URI(conn);
+	private URI sanitizeConnectorURI(URI uri) throws URISyntaxException {
 		return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
 	}
 
-	private boolean isConnectorTypeSupported(String type) {
+	/**
+	 * Determine the priority to consider the connectors in. Known types get a positive priority, unknown types a negative one.
+	 * Further, connectors prefer connectors that mention a single IP unless that IP is localhost.
+	 * 
+	 * @param uri
+	 * @return
+	 */
+	private int getConnectorPriority(URI uri) {
 		// TODO Dynamically determine support for connector types (via classpath?)
-		return type.equals("openwire");
+		List<String> schemes = Arrays.asList("vm", "ws", "mqtt", "stomp", "amqp", "nio", "tcp"); 
+		int prio = schemes.indexOf(uri.getScheme());
+		
+		return prio;
 	}
-
+	
 	public void enumerateQueues(JMSBroker broker, String filter) throws Exception {
 		List<JMSQueue> queueList = getQueueList(broker, filter);
 		dispatchEvent(new DomainEvent(EVENT.QUEUES_ENUMERATED, queueList, this));
