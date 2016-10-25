@@ -1,7 +1,10 @@
 default:
 
 make-app:
-	mvn -U package -pl messagemanager-app -am
+	mvn -o package -pl messagemanager-app -am
+
+install-app:
+	mvn -o install -pl messagemanager-app -am
 
 run-app:
 	java    -ea \

@@ -10,6 +10,12 @@ import javax.swing.filechooser.FileFilter;
 import com.google.common.base.Strings;
 
 public class PlatformHelper {
+	// FIXME REALLY REALLY REALLY BAD!!
+	public static PlatformHelper platformHelper;
+
+	public PlatformHelper() {
+		PlatformHelper.platformHelper = this;
+	}
 	
 	public void setApplicationName(String name) {
 	}

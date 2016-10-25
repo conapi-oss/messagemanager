@@ -87,6 +87,20 @@ public class CollectionFactory {
 	public static <K, V> HashMap<K, V> newHashMap(Map<? extends K, ? extends V> map) {
 		return new HashMap<K, V>(map);
 	}
-	
+
+	/**
+	 * Create a new HashMap with the specified keys and values
+	 * 
+	 * @param keys
+	 * @param values
+	 * @return
+	 */
+	public static <K, V> HashMap<K, V> newHashMap(K[] keys, V[] values) {
+		HashMap<K, V> map = newHashMap();
+		for(int i=0; i< keys.length; i++) {
+			map.put(keys[i], values[i]);
+		}
+		return map;
+	}
 	
 }
