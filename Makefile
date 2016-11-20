@@ -11,8 +11,9 @@ run-app:
 		-Dmm.forceInstallPlugins=true \
 		-Dmm.forceMotdMessage=true \
 		-Dmm.enableSwingDebug=true \
-		-Ddeveloper=true \
 		-Dmm.developer=true \
+		-Ddeveloper \
+		-Djava.util.logging.config.file=logging.properties \
 		-jar messagemanager-app/target/messagemanager-app-3.1-SNAPSHOT-jar-with-dependencies.jar
 
 run-app-prod:

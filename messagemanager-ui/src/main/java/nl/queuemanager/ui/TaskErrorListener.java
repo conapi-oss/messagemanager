@@ -18,6 +18,7 @@ package nl.queuemanager.ui;
 import java.awt.Component;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.logging.Logger;
 
 import javax.jms.JMSSecurityException;
 import javax.swing.JFrame;
@@ -49,6 +50,8 @@ public class TaskErrorListener {
 	private static final boolean DEBUG = "TRUE".equalsIgnoreCase(System.getProperty("developer")) 
 			|| DebugProperty.developer.isEnabled();
 	
+	private final Logger log = Logger.getLogger(getClass().getName());
+	
 	private Component parent;
 	
 	@Inject
@@ -58,7 +61,7 @@ public class TaskErrorListener {
 	
 	@Subscribe
 	public void handleTaskEvent(TaskEvent event) {
-		if(DEBUG) System.out.println(Thread.currentThread() + " -> " + event);
+		log.fine(Thread.currentThread() + " -> " + event);
 		
 		switch(event.getId()) {
 

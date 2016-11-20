@@ -6,25 +6,24 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
+import lombok.extern.java.Log;
 import nl.queuemanager.core.configuration.CoreConfiguration;
-import nl.queuemanager.core.jms.BrokerCredentialsProvider;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.core.util.UserCanceledException;
 import nl.queuemanager.jms.JMSBroker;
 
+@Log
 public class ConnectToBrokerTask extends Task {
 	private final JMSDomain domain;
 	private final JMSBroker broker;
 	private final CoreConfiguration configuration;
-	private final BrokerCredentialsProvider credentialsProvider;
 
 	@Inject
 	ConnectToBrokerTask(
 			JMSDomain domain, 
 			CoreConfiguration configuration,
-			BrokerCredentialsProvider credentialsProvider,
 			EventBus eventBus,
 			@Assisted JMSBroker broker) 
 	{
@@ -32,20 +31,19 @@ public class ConnectToBrokerTask extends Task {
 		this.domain = domain;
 		this.broker = broker;
 		this.configuration = configuration;
-		this.credentialsProvider = credentialsProvider;
 	}
 
 	@Override
 	public void execute() throws Exception {
 		Credentials credentials = configuration.getBrokerCredentials(broker);
-
+		
 		// Try to connect infinitely, until the user cancels or we succeed.
 		while(true) {
 			try {
 				domain.connectToBroker(broker, credentials);
 				break;
 			} catch (JMSSecurityException e) {
-				credentials = credentialsProvider.getCredentials(broker, credentials, e);
+				credentials = domain.getCredentials(broker, credentials, e);
 				if(credentials == null)
 					throw new UserCanceledException();
 			}

@@ -2,6 +2,7 @@ package nl.queuemanager.core.configuration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -9,7 +10,10 @@ import org.w3c.dom.NodeList;
 
 import com.google.common.base.Strings;
 
-public class XmlConfigurationSection implements Configuration {
+import lombok.extern.java.Log;
+
+@Log
+class XmlConfigurationSection implements Configuration {
 
 	/**
 	 * The parent XmlConfigurationSection for this object
@@ -30,7 +34,7 @@ public class XmlConfigurationSection implements Configuration {
 		this(null, namespaceUri, elementName);
 	}
 	
-	public XmlConfigurationSection(XmlConfigurationSection parent, String namespaceUri, String elementName) {
+	private XmlConfigurationSection(XmlConfigurationSection parent, String namespaceUri, String elementName) {
 		this.parent = parent;
 		this.namespaceUri = namespaceUri;
 		this.rootElementName = elementName;
@@ -47,13 +51,13 @@ public class XmlConfigurationSection implements Configuration {
 				}
 			});
 		} catch (ConfigurationException e) {
-			e.printStackTrace();
+			log.log(Level.WARNING, e.getMessage(), e);
 		}
 	}
 
 	@Override
 	public String getValue(final String key, final String def) {
-		System.out.println(String.format("%s:getValue(%s, %s)", rootElementName, key, def));
+		log.log(Level.FINER, String.format("%s:getValue(%s, %s)", rootElementName, key, def));
 		try {
 			final String res = readConfiguration(new Function<Element, String>() {
 				@Override
@@ -77,7 +81,7 @@ public class XmlConfigurationSection implements Configuration {
 			
 			return def;
 		} catch (ConfigurationException e) {
-			e.printStackTrace();
+			log.log(Level.WARNING, e.getMessage(), e);
 			return def;
 		}
 	}
@@ -95,7 +99,7 @@ public class XmlConfigurationSection implements Configuration {
 				}
 			});
 		} catch (ConfigurationException e) {
-			e.printStackTrace();
+			log.log(Level.WARNING, e.getMessage(), e);
 		}
 	}
 
@@ -113,7 +117,7 @@ public class XmlConfigurationSection implements Configuration {
 				}
 			});
 		} catch (ConfigurationException e) {
-			e.printStackTrace();
+			log.log(Level.WARNING, e.getMessage(), e);
 			return def;
 		}
 	}
@@ -167,7 +171,7 @@ public class XmlConfigurationSection implements Configuration {
 	}
 	
 	public void del(final String key) {
-		System.out.println(toString() + " del(" + key + ")");
+		log.finer(toString() + " del(" + key + ")");
 		try {
 			mutateConfiguration(new Function<Element, Boolean>() {
 				@Override
@@ -177,7 +181,6 @@ public class XmlConfigurationSection implements Configuration {
 						Node child = children.item(i);
 						if(child.getNodeType() != Node.ELEMENT_NODE) continue;
 						
-						System.out.println(toString() + " Examining child " + i + ": " + child);
 						if(child.getLocalName().equals(key)) {
 							t.removeChild(child);
 							return true;

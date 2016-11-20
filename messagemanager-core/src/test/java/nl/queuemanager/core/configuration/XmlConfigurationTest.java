@@ -1,18 +1,20 @@
 package nl.queuemanager.core.configuration;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import nl.queuemanager.core.configuration.CoreXmlConfiguration.JMSBrokerName;
-import nl.queuemanager.core.util.Credentials;
-import nl.queuemanager.jms.JMSBroker;
-import nl.queuemanager.jms.impl.DestinationFactory;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import nl.queuemanager.core.configuration.CoreXmlConfiguration.JMSBrokerName;
+import nl.queuemanager.core.util.BasicCredentials;
+import nl.queuemanager.jms.JMSBroker;
+import nl.queuemanager.jms.impl.DestinationFactory;
 
 public class XmlConfigurationTest {
 	
@@ -84,17 +86,17 @@ public class XmlConfigurationTest {
 	@Test
 	public void testGetSetBrokerCredentials() {
 		final JMSBroker broker = new JMSBrokerName("some broker");
-		final Credentials creds = new Credentials("username", "password");
+		final BasicCredentials creds = new BasicCredentials("username", "password");
 		config.setBrokerCredentials(broker, creds);
 		
-		final Credentials creds2 = config.getBrokerCredentials(broker);
+		final BasicCredentials creds2 = (BasicCredentials)config.getBrokerCredentials(broker);
 		assertEquals(creds.getUsername(), creds2.getUsername());
 		assertEquals(creds.getPassword(), creds2.getPassword());
 		
-		final Credentials creds3 = new Credentials("user2", "pass2");
+		final BasicCredentials creds3 = new BasicCredentials("user2", "pass2");
 		config.setBrokerCredentials(broker, creds3);
 		
-		final Credentials creds4 = config.getBrokerCredentials(broker);
+		final BasicCredentials creds4 = (BasicCredentials)config.getBrokerCredentials(broker);
 		assertEquals(creds3.getUsername(), creds4.getUsername());
 		assertEquals(creds3.getPassword(), creds4.getPassword());
 	}

@@ -27,6 +27,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import nl.queuemanager.core.MapNamespaceContext;
+import nl.queuemanager.core.util.BasicCredentials;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
@@ -155,13 +156,17 @@ class CoreXmlConfiguration extends XmlFileConfiguration implements CoreConfigura
 	}
 	
 	public void setBrokerCredentials(final JMSBroker broker, final Credentials credentials) {
+		if(!(credentials instanceof BasicCredentials)) {
+			throw new IllegalArgumentException("credentials");
+		}
+
 		try {
 			mutateConfiguration(new Function<Element, Boolean>() {
 				@Override
 				public Boolean apply(Element prefs) throws Exception {
 					Element brokerElement = getOrCreateBrokerElement(prefs, broker.toString());
-					setElementValue(brokerElement, namespaceUri, "DefaultUsername", credentials.getUsername());
-					setElementValue(brokerElement, namespaceUri, "DefaultPassword", credentials.getPassword());
+					setElementValue(brokerElement, namespaceUri, "DefaultUsername", ((BasicCredentials)credentials).getUsername());
+					setElementValue(brokerElement, namespaceUri, "DefaultPassword", ((BasicCredentials)credentials).getPassword());
 					return true;
 				}
 			});
@@ -175,7 +180,7 @@ class CoreXmlConfiguration extends XmlFileConfiguration implements CoreConfigura
 		String username = getBrokerPref(broker, "DefaultUsername", null);
 		String password = getBrokerPref(broker, "DefaultPassword", null);
 		if (username != null && password != null)
-			return new Credentials(username, password);
+			return new BasicCredentials(username, password);
 		return null;
 	}
 	

@@ -17,7 +17,7 @@ import javax.swing.JComponent;
 public abstract class AbstractValidator extends InputVerifier {
 	private String message;
     private ValidationStatusListener parent;
-    private boolean blockField;
+    private boolean blockField = true;
 	
     private AbstractValidator(String message) {
         this.message = message;

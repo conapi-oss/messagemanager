@@ -3,24 +3,18 @@
  */
 package nl.queuemanager.core.util;
 
-public class Credentials {
-	private final String username;
-	private final String password;
-	
-	public Credentials(String username, String password) {
-		this.username = username;
-		this.password = password;
-	}
-	
-	public String toString() {
-		return getUsername() + ":" + getPassword();
-	}
+import javax.jms.ConnectionFactory;
 
-	public String getUsername() {
-		return username;
-	}
+import nl.queuemanager.core.configuration.Configuration;
 
-	public String getPassword() {
-		return password;
-	}
+public interface Credentials {
+	
+	public void saveTo(Configuration config);
+	
+	public Credentials loadFrom(Configuration config);
+	
+	public void apply(ConnectionFactory cf) throws Exception;
+	
+	public String getPrincipalName();
+	
 }
