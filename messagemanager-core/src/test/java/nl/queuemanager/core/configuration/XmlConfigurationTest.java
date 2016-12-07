@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import nl.queuemanager.core.configuration.CoreXmlConfiguration.JMSBrokerName;
 import nl.queuemanager.core.util.BasicCredentials;
+import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.impl.DestinationFactory;
 
@@ -99,6 +100,19 @@ public class XmlConfigurationTest {
 		final BasicCredentials creds4 = (BasicCredentials)config.getBrokerCredentials(broker);
 		assertEquals(creds3.getUsername(), creds4.getUsername());
 		assertEquals(creds3.getPassword(), creds4.getPassword());
+	}
+	
+	@Test
+	public void testGetOldStyleBrokerCredentials() {
+		final JMSBroker broker = new JMSBrokerName("some broker");
+		
+		Configuration brokerSection = config.sub("Broker", "name", "some broker");
+		brokerSection.setValue("DefaultUsername", "someuser");
+		brokerSection.setValue("DefaultPassword", "somepass");
+		
+		BasicCredentials cred = (BasicCredentials)config.getBrokerCredentials(broker);
+		assertEquals(cred.getUsername(), "someuser");
+		assertEquals(cred.getPassword(), "somepass");
 	}
 
 	@Test
