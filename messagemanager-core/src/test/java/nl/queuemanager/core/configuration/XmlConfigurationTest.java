@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import javax.jms.ConnectionFactory;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -100,6 +102,15 @@ public class XmlConfigurationTest {
 		final BasicCredentials creds4 = (BasicCredentials)config.getBrokerCredentials(broker);
 		assertEquals(creds3.getUsername(), creds4.getUsername());
 		assertEquals(creds3.getPassword(), creds4.getPassword());
+	}
+	
+	@Test
+	public void testGetSetCustomBrokerCredentials() {
+		final JMSBroker broker = new JMSBrokerName("some broker");
+		final SomeCredentials creds = new SomeCredentials();
+		config.setBrokerCredentials(broker, creds);
+		Credentials creds2 = config.getBrokerCredentials(broker); // Loading this will do assertEquals() and such
+		assertEquals(creds, creds2);
 	}
 	
 	@Test
@@ -203,6 +214,40 @@ public class XmlConfigurationTest {
 		for(String value: values) {
 			assertTrue(list.contains(value));
 		}
+	}
+	
+	public static class SomeCredentials implements Credentials {
+		private final String PRINCIPAL = "principal";
+		private final String CREDENTIALS = "credentials";
+
+		@Override
+		public void saveTo(Configuration config) {
+			config.setValue(PRINCIPAL, PRINCIPAL);
+			config.setValue(CREDENTIALS, CREDENTIALS);
+		}
+
+		@Override
+		public Credentials loadFrom(Configuration config) {
+			assertEquals(PRINCIPAL, config.getValue(PRINCIPAL, null));
+			assertEquals(CREDENTIALS, config.getValue(CREDENTIALS, null));
+			return this;
+		}
+
+		@Override
+		public void apply(ConnectionFactory cf) throws Exception {
+			// No-op
+		}
+
+		@Override
+		public String getPrincipalName() {
+			return PRINCIPAL;
+		}
+		
+		@Override
+		public boolean equals(Object other) {
+			return other.getClass().equals(getClass());
+		}
+		
 	}
 
 }
