@@ -12,7 +12,7 @@ public class SettingsModule extends AbstractModule {
 		
 		MapBinder<String, SettingsPanel> mapbinder = MapBinder.newMapBinder(binder(), String.class, SettingsPanel.class);
 		mapbinder.addBinding("General").to(GeneralSettingsPanel.class);
-		mapbinder.addBinding("Brokers").to(BrokerSettingsPanel.class);
+//		mapbinder.addBinding("Brokers").to(BrokerSettingsPanel.class);
 	}
 	
 }

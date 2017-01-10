@@ -49,6 +49,9 @@ public class SettingsTabPanel extends JPanel implements UITab {
 			}
 		});
 		
+		// Initially read settings
+		settingsPanel.readSettings();
+		
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		panel.add(saveButton);
