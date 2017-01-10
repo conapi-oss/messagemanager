@@ -53,6 +53,7 @@ import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.jms.JMSTopic;
 import nl.queuemanager.jms.impl.DestinationFactory;
+import nl.queuemanager.ui.BrokerCredentialsDialog;
 
 @Singleton
 public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements JMSDomain, NotificationListener {
@@ -245,6 +246,19 @@ public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements 
 					new String[] {String.class.getName()});
 		}
 	}
+	
+	@Override
+	public Credentials getCredentials(JMSBroker broker, Credentials def, Exception exception) {
+		BrokerCredentialsDialog dialog = null;
+		try {
+			dialog = new BrokerCredentialsDialog(null);
+			return dialog.getCredentials(broker, def, exception);
+		} finally {
+			if(dialog != null) {
+				dialog.dispose();
+			}
+		}
+	}
 
 	public void connectToBroker(JMSBroker aBroker, Credentials credentials) throws JMSException {
 		ActiveMQBroker broker = (ActiveMQBroker)aBroker;
@@ -271,12 +285,14 @@ public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements 
 		ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerUrl);
 		
 		Connection connection;
-		if(cred == null) {
-			connection = factory.createConnection();
-		} else {
-			connection = factory.createConnection(cred.getUsername(), cred.getPassword());
+		if(cred != null) {
+			try {
+				cred.apply(factory);
+			} catch (Exception e) {
+				throw new JMSException("Unable to apply credentials: " + e.toString());
+			}
 		}
-
+		connection = factory.createConnection();
 		connection.setExceptionListener(new ActiveMQExceptionListener());
 		
 		Session syncSession = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
@@ -319,6 +335,7 @@ public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements 
 
 	@Override
 	public boolean isFeatureSupported(JMSFeature feature) {
-		return false;
+		return feature == JMSFeature.QUEUE_CLEAR_MESSAGES;
 	}
+
 }

@@ -1,12 +1,11 @@
 package nl.queuemanager.ui;
 
-import nl.queuemanager.core.jms.BrokerCredentialsProvider;
-import nl.queuemanager.ui.message.MessageViewerModule;
-import nl.queuemanager.ui.util.QueueCountsRefresher;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+
+import nl.queuemanager.ui.message.MessageViewerModule;
+import nl.queuemanager.ui.util.QueueCountsRefresher;
 
 public class UIModule extends AbstractModule {
 
@@ -19,11 +18,7 @@ public class UIModule extends AbstractModule {
 		install(new FactoryModuleBuilder().build(JMSDestinationTransferHandlerFactory.class));
 		
 		install(new FactoryModuleBuilder().build(JMSSubscriberFactory.class));
-		
-		// The broker credentials provider
-		// FIXME This causes the dialog to be instantiated at application load time. No need to do this, it's slow.
-		bind(BrokerCredentialsProvider.class).to(BrokerCredentialsDialog.class).in(Scopes.SINGLETON);
-		
+				
 		// Refresh queue counts from one central object to prevent refreshing the same broker more than once
 		bind(QueueCountsRefresher.class).in(Scopes.SINGLETON);
 		

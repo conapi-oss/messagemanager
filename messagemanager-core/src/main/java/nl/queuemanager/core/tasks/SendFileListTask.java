@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nullable;
+import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
@@ -102,15 +103,16 @@ public class SendFileListTask extends Task implements CancelableTask {
 			for(File file: fileList) {
 				if(delay != 0 && i > 0)
 					sleep(delay);
-				
+
+				Message message;
 				if(file.getPath().toLowerCase().endsWith(".esbmsg")) {
-					Message esbMessage = composeFromEsbMessage(file);
-					sonic.sendMessage(queue, esbMessage);
+					message = composeFromEsbMessage(file);
 				} else {
-					Message message = composeMessage(template, readFile(file), file);
+					message = composeMessage(template, readFile(file), file);
 					replaceFields(message, i+1);
-					sonic.sendMessage(queue, message);
 				}
+				message.setJMSDeliveryMode(DeliveryMode.PERSISTENT);
+				sonic.sendMessage(queue, message);
 				
 				reportProgress(i++);
 				if(canceled) return;

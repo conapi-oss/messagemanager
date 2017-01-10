@@ -26,6 +26,8 @@ import java.security.Permissions;
 import java.security.Policy;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -58,6 +60,7 @@ public class Main {
 	private Main() {}
 	
 	public static void main(String[] args) {
+		enableDebugLogging(DebugProperty.developer.isEnabled());
 		fixPolicyForWebStart();
 		
 		// Set look & feel to native
@@ -113,6 +116,11 @@ public class Main {
 		});
 	}
 	
+	private static void enableDebugLogging(boolean enabled) {
+		Logger ourLogger = Logger.getLogger(Main.class.getPackage().getName());
+		ourLogger.setLevel(Level.ALL);
+	}
+
 	private static void setNativeLAF() { 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.inject.Provider;
 import javax.jms.Destination;
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
@@ -46,12 +47,14 @@ import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.DomainEvent.EVENT;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.jms.JMSFeature;
+import nl.queuemanager.core.util.BasicCredentials;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.jms.JMSTopic;
+import nl.queuemanager.ui.BrokerCredentialsDialog;
 import progress.message.jclient.MultipartMessage;
 import progress.message.jclient.XMLMessage;
 
@@ -87,6 +90,7 @@ public class Domain implements JMSDomain {
 	private final ArrayList<SonicMQBroker> brokerList = CollectionFactory.newArrayList();
 	
 	private Map<SonicMQBroker, SonicMQConnection> brokerConnections;
+	private final Provider<BrokerCredentialsDialog> credentialsDialogProvider;
 	
 	{
 		// Version 2.1 == Sonic MQ 6.1
@@ -98,13 +102,17 @@ public class Domain implements JMSDomain {
 	}
 
 	@Inject
-	public Domain(CoreConfiguration configuration, EventBus eventBus) {
+	public Domain(CoreConfiguration configuration, EventBus eventBus, Provider<BrokerCredentialsDialog> credentialsDialogProvider) {
 		this.config = configuration;
 		this.eventBus = eventBus;
+		this.credentialsDialogProvider = credentialsDialogProvider;
 	}
 		
 	public boolean isFeatureSupported(JMSFeature feature) {
 		switch(feature) {
+		case QUEUE_CLEAR_MESSAGES:
+			return true;
+		
 		case QUEUE_MESSAGES_SIZE:
 			return com.sonicsw.mf.common.Version.getMajorVersion() >= 7;
 			
@@ -637,8 +645,20 @@ public class Domain implements JMSDomain {
 		return brokerConnections.get(broker);
 	}
 	
+	@Override
+	public Credentials getCredentials(JMSBroker broker, Credentials def, Exception exception) {
+		BrokerCredentialsDialog dialog = credentialsDialogProvider.get();
+		try {
+			return dialog.getCredentials(broker, def, exception);
+		} finally {
+			if(dialog != null) {
+				dialog.dispose();
+			}
+		}
+	}
+	
 	private Credentials getDefaultCredentials(SonicMQBroker broker) {
-		return new Credentials(model.getUserName(), model.getPassword());
+		return new BasicCredentials(model.getUserName(), model.getPassword());
 	}
 	
 	private void connectJMS(SonicMQBroker broker, Credentials cred) throws JMSException {
@@ -657,9 +677,12 @@ public class Domain implements JMSDomain {
 		
 		progress.message.jclient.ConnectionFactory factory = 
 			new progress.message.jclient.ConnectionFactory(
-				broker.getBrokerURL(),
-				cred.getUsername(), 
-				cred.getPassword());
+				broker.getBrokerURL());
+		try {
+			cred.apply(factory);
+		} catch (Exception e) {
+			throw new JMSException("Unable to apply credentials to connectionfactory: " + e.toString());
+		}
 		
 		String loginSPI = System.getProperty("smm.jms.LoginSPI", null);
 		if(loginSPI != null) {
@@ -757,4 +780,5 @@ public class Domain implements JMSDomain {
 			return ret;
 		}
 	}
+	
 }
