@@ -185,6 +185,8 @@ public abstract class Task implements Runnable {
 			eventBus.post(new TaskEvent(EVENT.TASK_FINISHED, getInfo(), this));
 			safeUnregister();
 		}
+		// Let the executor know the task has finished
+		getExecutor().processWaitingTasks();
 	}
 	
 	void dispatchTaskDiscarded() {
