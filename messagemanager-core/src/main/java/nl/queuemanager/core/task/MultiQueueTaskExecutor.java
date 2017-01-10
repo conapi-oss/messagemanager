@@ -26,8 +26,6 @@ import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
-import com.google.common.eventbus.Subscribe;
-
 class MultiQueueTaskExecutor implements TaskExecutor 
 {
 	// List of Tasks that are waiting to run
