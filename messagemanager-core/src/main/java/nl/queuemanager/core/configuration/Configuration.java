@@ -81,4 +81,18 @@ public interface Configuration {
 	 */
 	public void del(String key);
 	
+	/**
+	 * @return key for this Configuration in the parent (if available) 
+	 */
+	public String getKey();
+	
+	/**
+	 * @return If this Configuration was derived from a parent using an identifying attribute, the name of this attribute
+	 */
+	public String getAttrName();
+	
+	/**
+	 * @return If this Configuration was derived from a parent using an identifying attribute, the value of this attribute
+	 */
+	public String getAttrValue();
 }

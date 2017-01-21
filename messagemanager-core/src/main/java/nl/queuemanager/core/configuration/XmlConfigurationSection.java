@@ -10,6 +10,7 @@ import org.w3c.dom.NodeList;
 
 import com.google.common.base.Strings;
 
+import lombok.NonNull;
 import lombok.extern.java.Log;
 
 @Log
@@ -139,15 +140,30 @@ class XmlConfigurationSection implements Configuration {
 	}
 
 	@Override
-	public Configuration sub(String key) {
+	public Configuration sub(@NonNull String key) {
 		return new XmlConfigurationSection(this, namespaceUri, key);
 	}
 	
 	@Override
-	public Configuration sub(String key, String attrName, String value) {
+	public Configuration sub(@NonNull String key, @NonNull String attrName, String value) {
 		return new XmlConfigurationSection(this, namespaceUri, key, attrName, value);
 	}
 	
+	@Override
+	public String getKey() {
+		return rootElementName;
+	}
+
+	@Override
+	public String getAttrName() {
+		return attrName;
+	}
+
+	@Override
+	public String getAttrValue() {
+		return attrValue;
+	}
+
 	/**
 	 * Set the value of the Element, creating it if required.
 	 * 

@@ -163,8 +163,7 @@ class CoreXmlConfiguration extends XmlFileConfiguration implements CoreConfigura
 		Configuration brokerSection = sub("Broker", "name", broker.toString());
 		brokerSection.del("credentials"); // Delete the existing credentials to prevent mixing properties 
                                           // between different implementations of Credentials interface
-		Configuration credentialsSection = brokerSection.sub("credentials");
-		credentialsSection.setAttr("class", credentials.getClass().getName());
+		Configuration credentialsSection = brokerSection.sub("credentials", "class", credentials.getClass().getName());
 		credentials.saveTo(credentialsSection);
 	}
 
