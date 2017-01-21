@@ -75,4 +75,9 @@ public class NullDomain implements JMSDomain {
 	public void connectToBroker(JMSBroker aBroker, Credentials credentials) throws JMSException {
 	}
 
+	@Override
+	public Credentials getCredentials(JMSBroker broker, Credentials def, Exception exception) {
+		return def;
+	}
+
 }
