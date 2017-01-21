@@ -82,7 +82,9 @@ public class Main {
 		final Injector injector = Guice.createInjector(Stage.PRODUCTION, modules);
 		
 		// Enable the event debugger
-		injector.getInstance(EventBusDebugger.class);
+		if(DebugProperty.developer.isEnabled()) {
+			injector.getInstance(EventBusDebugger.class);
+		}
 		
 		// FIXME Find all installed plugins and load their default profiles
 		injector.getInstance(PluginManager.class);
