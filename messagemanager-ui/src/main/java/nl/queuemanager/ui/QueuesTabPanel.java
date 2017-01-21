@@ -51,6 +51,8 @@ import javax.swing.event.ListSelectionListener;
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
+import nl.queuemanager.core.jms.JMSDomain;
+import nl.queuemanager.core.jms.JMSFeature;
 import nl.queuemanager.core.task.CancelableTask;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.tasks.EnumerateMessagesTask.QueueBrowserEvent;
@@ -75,6 +77,7 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 	private MessagesTable messageTable;
 	private MessageViewerPanel messageViewer;
 
+	private final JMSDomain domain;
 	private final TaskExecutor worker;
 	private final CoreConfiguration config;
 	private final QueueBrowserEventListener qbel;
@@ -83,6 +86,7 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 	
 	@Inject
 	public QueuesTabPanel(
+			JMSDomain domain,
 			TaskExecutor worker,
 			CoreConfiguration config,
 			QueueTable queueTable,
@@ -91,6 +95,7 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 			TaskFactory taskFactory,
 			QueueCountsRefresher refresher)
 	{
+		this.domain = domain;
 		this.worker = worker;
 		this.config = config;
 		this.queueTable = configureQueueTable(queueTable, jmsDestinationTransferHandlerFactory);
@@ -232,26 +237,30 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 					enumerateQueues((JMSBroker)brokerCombo.getSelectedItem());
 			}
 		});
-		CommonUITasks.makeSegmented(refreshQueuesButton, Segmented.FIRST);
 		queuesActionPanel.add(refreshQueuesButton);
 		
-		// Clear messages button
-		JButton clearMessagesButton = createButton("Clear messages", new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				int[] selectedRows = queueTable.getSelectedRows();
-				List<JMSQueue> queueList = CollectionFactory.newArrayList();
-				
-				for(int row: selectedRows) {
-					queueList.add(queueTable.getRowItem(row));
+		if(domain.isFeatureSupported(JMSFeature.QUEUE_CLEAR_MESSAGES)) {
+			// Clear messages button
+			JButton clearMessagesButton = createButton("Clear messages", new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					int[] selectedRows = queueTable.getSelectedRows();
+					List<JMSQueue> queueList = CollectionFactory.newArrayList();
+					
+					for(int row: selectedRows) {
+						queueList.add(queueTable.getRowItem(row));
+					}
+					
+					deleteQueueMessages(queueList);
+					messageTable.clear();
 				}
-				
-				deleteQueueMessages(queueList);
-				messageTable.clear();
-			}
-		});
-		CommonUITasks.makeSegmented(clearMessagesButton, Segmented.LAST);
-		queuesActionPanel.add(clearMessagesButton);
-				
+			});
+			CommonUITasks.makeSegmented(refreshQueuesButton, Segmented.FIRST);
+			CommonUITasks.makeSegmented(clearMessagesButton, Segmented.LAST);
+			queuesActionPanel.add(clearMessagesButton);
+		} else {
+			CommonUITasks.makeSegmented(refreshQueuesButton, Segmented.ONLY);
+		}
+		
 		return queuesActionPanel;
 	}
 

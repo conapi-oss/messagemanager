@@ -9,6 +9,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.StandardOpenOption;
+import java.util.logging.Level;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -26,12 +27,15 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import lombok.extern.java.Log;
+
 /**
  * Implements a file-backed XmlConfigurationSection by reading and writing an XML file when values are
  * changed and read. This class implements the root element (where values can be stored) and also
  * the file reading and writing.
  */
-public class XmlFileConfiguration extends XmlConfigurationSection {
+@Log
+class XmlFileConfiguration extends XmlConfigurationSection {
 	private final File configFile;
 	
 	private final Object lock = new Object();
@@ -134,12 +138,10 @@ public class XmlFileConfiguration extends XmlConfigurationSection {
 			
 			return db.parse(new InputSource(new ByteArrayInputStream(buffer.array())));
 		} catch (IOException e) {
-			System.out.println("IOException getting configuration, creating new document." + e);
-			e.printStackTrace();
+			log.log(Level.WARNING, "IOException getting configuration, creating new document.", e);
 			return newConfig();
 		} catch (SAXException e) {
-			System.out.println("Unable to parse configuration, creating new document." + e);
-			e.printStackTrace();
+			log.log(Level.WARNING, "Unable to parse configuration, creating new document.", e);
 			return newConfig();
 		}
 	}
@@ -155,10 +157,9 @@ public class XmlFileConfiguration extends XmlConfigurationSection {
 			channel.truncate(0);
 			channel.write(ByteBuffer.wrap(buffer.toByteArray()));
 			
-			System.out.println("Written configuration:\n" + new String(buffer.toByteArray()));
+			log.info("Written configuration:\n" + new String(buffer.toByteArray()));
 		} catch (TransformerException e) {
-			System.err.println("Error while saving prefs!");
-			e.printStackTrace(System.err);
+			log.log(Level.SEVERE, "Error while saving prefs!", e);
 		}
 	}
 

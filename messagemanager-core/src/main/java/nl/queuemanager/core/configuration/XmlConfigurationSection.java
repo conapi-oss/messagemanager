@@ -2,6 +2,7 @@ package nl.queuemanager.core.configuration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -9,7 +10,10 @@ import org.w3c.dom.NodeList;
 
 import com.google.common.base.Strings;
 
-public class XmlConfigurationSection implements Configuration {
+import lombok.extern.java.Log;
+
+@Log
+class XmlConfigurationSection implements Configuration {
 
 	/**
 	 * The parent XmlConfigurationSection for this object
@@ -26,14 +30,30 @@ public class XmlConfigurationSection implements Configuration {
 	 */
 	protected final String rootElementName;
 	
+	/**
+	 * The name of an identification attribute for this section "name, key, etc".
+	 */
+	protected final String attrName;
+	
+	/**
+	 * The value of the above identifying attribute, if any.
+	 */
+	protected final String attrValue;
+	
 	public XmlConfigurationSection(String namespaceUri, String elementName) {
 		this(null, namespaceUri, elementName);
 	}
 	
-	public XmlConfigurationSection(XmlConfigurationSection parent, String namespaceUri, String elementName) {
+	private XmlConfigurationSection(XmlConfigurationSection parent, String namespaceUri, String elementName) {
+		this(parent, namespaceUri, elementName, null, null);
+	}
+	
+	private XmlConfigurationSection(XmlConfigurationSection parent, String namespaceUri, String elementName, String attrName, String attrValue) {
 		this.parent = parent;
 		this.namespaceUri = namespaceUri;
 		this.rootElementName = elementName;
+		this.attrName = attrName;
+		this.attrValue = attrValue;
 	}
 
 	@Override
@@ -47,13 +67,13 @@ public class XmlConfigurationSection implements Configuration {
 				}
 			});
 		} catch (ConfigurationException e) {
-			e.printStackTrace();
+			log.log(Level.WARNING, e.getMessage(), e);
 		}
 	}
 
 	@Override
 	public String getValue(final String key, final String def) {
-		System.out.println(String.format("%s:getValue(%s, %s)", rootElementName, key, def));
+		log.log(Level.FINER, String.format("%s:getValue(%s, %s)", rootElementName, key, def));
 		try {
 			final String res = readConfiguration(new Function<Element, String>() {
 				@Override
@@ -77,7 +97,7 @@ public class XmlConfigurationSection implements Configuration {
 			
 			return def;
 		} catch (ConfigurationException e) {
-			e.printStackTrace();
+			log.log(Level.WARNING, e.getMessage(), e);
 			return def;
 		}
 	}
@@ -95,7 +115,7 @@ public class XmlConfigurationSection implements Configuration {
 				}
 			});
 		} catch (ConfigurationException e) {
-			e.printStackTrace();
+			log.log(Level.WARNING, e.getMessage(), e);
 		}
 	}
 
@@ -113,7 +133,7 @@ public class XmlConfigurationSection implements Configuration {
 				}
 			});
 		} catch (ConfigurationException e) {
-			e.printStackTrace();
+			log.log(Level.WARNING, e.getMessage(), e);
 			return def;
 		}
 	}
@@ -123,6 +143,11 @@ public class XmlConfigurationSection implements Configuration {
 		return new XmlConfigurationSection(this, namespaceUri, key);
 	}
 	
+	@Override
+	public Configuration sub(String key, String attrName, String value) {
+		return new XmlConfigurationSection(this, namespaceUri, key, attrName, value);
+	}
+	
 	/**
 	 * Set the value of the Element, creating it if required.
 	 * 
@@ -130,26 +155,40 @@ public class XmlConfigurationSection implements Configuration {
 	 * @param value
 	 */
 	protected static void setElementValue(final Element context, final String namespaceUri, final String name, final String value) {
-		Node node = getOrCreateElement(context, namespaceUri, name);
+		Node node = getOrCreateElement(context, namespaceUri, name, null, null);
 		node.setTextContent(value);
 	}
 	
 	/**
 	 * Get or create the Elements
 	 * 
-	 * @param context
-	 * @param path
+	 * @param context the parent element or document to search or create in
+	 * @param namespaceUri namespace uri of the element to get or create
+	 * @param name name of the element to get or create
+	 * @param attrName (optional) identifying attribute to disambiguate elements with the same name
+	 * @param attrValue (optional) the value of the identifying attribute
 	 * @return The last element of the path
 	 */
-	protected static Element getOrCreateElement(final Element context, final String namespaceUri, final String name) {
+	protected static Element getOrCreateElement(final Element context, final String namespaceUri, final String name, final String attrName, final String attrValue) {
+		final boolean haveAttr = !(Strings.isNullOrEmpty(attrName) || Strings.isNullOrEmpty(attrValue));
+		
 		// Check if the element already exists
-		Element existingElement = getFirstChildElementNamed(context, namespaceUri, name);
-		if(existingElement != null) {
-			return existingElement;
+		NodeList candidateElements = context.getElementsByTagNameNS(namespaceUri, name);
+		for(int i=0; i<candidateElements.getLength(); i++) {
+			Node child = candidateElements.item(i); 
+			if(child.getNodeType() == Node.ELEMENT_NODE) {
+				Element candidateElement = (Element)child;
+				if(!haveAttr || attrValue.equals(candidateElement.getAttribute(attrName))) {
+					return candidateElement;
+				}
+			}
 		}
 		
 		// No existing element was found, so create one
 		Element newElement = context.getOwnerDocument().createElementNS(namespaceUri, name);
+		if(haveAttr) {
+			newElement.setAttribute(attrName, attrValue);
+		}
 		context.appendChild(newElement);
 		return newElement;
 	}
@@ -167,7 +206,7 @@ public class XmlConfigurationSection implements Configuration {
 	}
 	
 	public void del(final String key) {
-		System.out.println(toString() + " del(" + key + ")");
+		log.finer(toString() + " del(" + key + ")");
 		try {
 			mutateConfiguration(new Function<Element, Boolean>() {
 				@Override
@@ -177,7 +216,6 @@ public class XmlConfigurationSection implements Configuration {
 						Node child = children.item(i);
 						if(child.getNodeType() != Node.ELEMENT_NODE) continue;
 						
-						System.out.println(toString() + " Examining child " + i + ": " + child);
 						if(child.getLocalName().equals(key)) {
 							t.removeChild(child);
 							return true;
@@ -239,7 +277,7 @@ public class XmlConfigurationSection implements Configuration {
 			@Override
 			public R apply(Element parentElement) throws Exception {
 				// Now apply the original function with the newly created element for it
-				return func.apply(getOrCreateElement(parentElement, namespaceUri, rootElementName));
+				return func.apply(getOrCreateElement(parentElement, namespaceUri, rootElementName, attrName, attrValue));
 			}
 		};
 	}

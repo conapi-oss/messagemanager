@@ -139,6 +139,16 @@ public interface JMSDomain {
 	public abstract void deleteMessages(JMSQueue queue, List<Message> messages) throws Exception;
 	
 	/**
+	 * Get credentials for a broker. 
+	 * 
+	 * @param broker The broker for which credentials are required
+	 * @param def The default credentials (if any)
+	 * @param exception The exception that was encountered on the previous connection attempt (if any)
+	 * @return Credentials object or null when no further connection attempts should be made
+	 */
+	public abstract Credentials getCredentials(JMSBroker broker, Credentials def, Exception exception);
+	
+	/**
 	 * Connects to a JMSBroker using the specified Credentials and creates a JMS 
 	 * Session for that broker. If the credentials parameter is null, will attempt
 	 * to use default credentials (if applicable for the implemenattion).

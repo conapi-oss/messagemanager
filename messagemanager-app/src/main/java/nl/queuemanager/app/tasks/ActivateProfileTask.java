@@ -62,6 +62,7 @@ public class ActivateProfileTask extends Task {
 		modules.add(new CoreModule());
 		modules.add(new UIModule());
 		modules.addAll(pluginModules);
+		
 		try {
 			final Injector injector = parentInjector.createChildInjector(modules);
 			ConnectivityProviderPlugin provider = injector.getInstance(ConnectivityProviderPlugin.class);

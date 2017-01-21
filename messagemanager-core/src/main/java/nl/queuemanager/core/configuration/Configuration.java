@@ -57,6 +57,24 @@ public interface Configuration {
 	public Configuration sub(String key);
 	
 	/**
+	 * Retrieve a sub configuration object for the specified key. All methods
+	 * called on that object will take effect only on the configuration subset
+	 * inside that key.
+	 * <p>
+	 * The configuration section for this key will be created if it doesn't exist
+	 * as soon as any values are saved inside it.
+	 * <p>
+	 * The optional attrName and attrValue parameters disambiguate between 
+	 * configurations with the same key
+	 * 
+	 * @param key
+	 * @param attrName
+	 * @param attrValue
+	 * @return
+	 */
+	public Configuration sub(String key, String attrName, String attrValue);
+	
+	/**
 	 * Remove a configuration sub object or key in a Configuration object
 	 * 
 	 * @param key

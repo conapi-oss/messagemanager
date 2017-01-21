@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -27,6 +28,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import nl.queuemanager.core.MapNamespaceContext;
+import nl.queuemanager.core.util.BasicCredentials;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
@@ -40,6 +42,8 @@ import org.w3c.dom.NodeList;
 
 import com.google.common.base.Strings;
 
+import lombok.extern.java.Log;
+
 /**
  * Preferences utility class. Handles the format and location of the preferences,
  * no details about the preferences implementation should be outside of this class!
@@ -49,6 +53,7 @@ import com.google.common.base.Strings;
  * @author Gerco Dries (gdr@progaia-rs.nl)
  *
  */
+@Log
 class CoreXmlConfiguration extends XmlFileConfiguration implements CoreConfiguration {
 	private final XPathFactory xpf;
 	private final XPath xp;
@@ -155,27 +160,40 @@ class CoreXmlConfiguration extends XmlFileConfiguration implements CoreConfigura
 	}
 	
 	public void setBrokerCredentials(final JMSBroker broker, final Credentials credentials) {
-		try {
-			mutateConfiguration(new Function<Element, Boolean>() {
-				@Override
-				public Boolean apply(Element prefs) throws Exception {
-					Element brokerElement = getOrCreateBrokerElement(prefs, broker.toString());
-					setElementValue(brokerElement, namespaceUri, "DefaultUsername", credentials.getUsername());
-					setElementValue(brokerElement, namespaceUri, "DefaultPassword", credentials.getPassword());
-					return true;
-				}
-			});
-		} catch (ConfigurationException e) {
-			e.printStackTrace();
-		}
+		Configuration brokerSection = sub("Broker", "name", broker.toString());
+		brokerSection.del("credentials"); // Delete the existing credentials to prevent mixing properties 
+                                          // between different implementations of Credentials interface
+		Configuration credentialsSection = brokerSection.sub("credentials");
+		credentialsSection.setAttr("class", credentials.getClass().getName());
+		credentials.saveTo(credentialsSection);
 	}
 
 	public Credentials getBrokerCredentials(JMSBroker broker) {
+		// Get the credentials object in the broker asked for
+		Configuration brokerSection = sub("Broker", "name", broker.toString());
+		Configuration credentialsSection = brokerSection.sub("credentials");
+		String className = credentialsSection.getAttr("class", null);
+		if(!Strings.isNullOrEmpty(className)) {
+			// Create the class via reflection and load
+			try {
+				@SuppressWarnings("unchecked")
+				Class<Credentials> clazz = (Class<Credentials>) Class.forName(className);
+				Credentials cred = clazz.newInstance();
+				return cred.loadFrom(credentialsSection);
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+				// Unable to instantiat the class. Log an error and confinue with alternate methods of loading
+				log.log(Level.WARNING, String.format( "Unable to load credentials for %s", broker), e);
+			}
+		}
+		
+		// No class name stored or unable to load that class, try to load old style credentials if they exist
 		// TODO This will cause the file to be opened, locked, read, unlocked and closed twice. Hardly efficient.
 		String username = getBrokerPref(broker, "DefaultUsername", null);
 		String password = getBrokerPref(broker, "DefaultPassword", null);
 		if (username != null && password != null)
-			return new Credentials(username, password);
+			return new BasicCredentials(username, password);
+
+		// No credentials found
 		return null;
 	}
 	
@@ -226,7 +244,7 @@ class CoreXmlConfiguration extends XmlFileConfiguration implements CoreConfigura
 				@Override
 				public Boolean apply(Element prefs) throws Exception {
 					Element brokerElement = getOrCreateBrokerElement(prefs, topic.getBroker().toString()); 
-					Element subscribersElement = getOrCreateElement(brokerElement, namespaceUri, "Subscribers");
+					Element subscribersElement = getOrCreateElement(brokerElement, namespaceUri, "Subscribers", null, null);
 					
 					// Check to see if this topic is already saved. Ignore if it already exists.
 					for(Node child = subscribersElement.getFirstChild(); child != null; child = child.getNextSibling()) {
@@ -253,7 +271,7 @@ class CoreXmlConfiguration extends XmlFileConfiguration implements CoreConfigura
 				@Override
 				public Boolean apply(Element prefs) throws Exception {
 					Element brokerElement = getOrCreateBrokerElement(prefs, topic.getBroker().toString()); 
-					Element publishersElement = getOrCreateElement(brokerElement, namespaceUri, "Publishers");
+					Element publishersElement = getOrCreateElement(brokerElement, namespaceUri, "Publishers", null, null);
 					
 					// Check to see if this topic is already saved. Ignore if it already exists.
 					for(Node child = publishersElement.getFirstChild(); child != null; child = child.getNextSibling()) {

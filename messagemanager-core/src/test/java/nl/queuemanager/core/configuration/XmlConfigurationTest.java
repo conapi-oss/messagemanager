@@ -1,18 +1,23 @@
 package nl.queuemanager.core.configuration;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import nl.queuemanager.core.configuration.CoreXmlConfiguration.JMSBrokerName;
-import nl.queuemanager.core.util.Credentials;
-import nl.queuemanager.jms.JMSBroker;
-import nl.queuemanager.jms.impl.DestinationFactory;
+import javax.jms.ConnectionFactory;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import nl.queuemanager.core.configuration.CoreXmlConfiguration.JMSBrokerName;
+import nl.queuemanager.core.util.BasicCredentials;
+import nl.queuemanager.core.util.Credentials;
+import nl.queuemanager.jms.JMSBroker;
+import nl.queuemanager.jms.impl.DestinationFactory;
 
 public class XmlConfigurationTest {
 	
@@ -84,19 +89,41 @@ public class XmlConfigurationTest {
 	@Test
 	public void testGetSetBrokerCredentials() {
 		final JMSBroker broker = new JMSBrokerName("some broker");
-		final Credentials creds = new Credentials("username", "password");
+		final BasicCredentials creds = new BasicCredentials("username", "password");
 		config.setBrokerCredentials(broker, creds);
 		
-		final Credentials creds2 = config.getBrokerCredentials(broker);
+		final BasicCredentials creds2 = (BasicCredentials)config.getBrokerCredentials(broker);
 		assertEquals(creds.getUsername(), creds2.getUsername());
 		assertEquals(creds.getPassword(), creds2.getPassword());
 		
-		final Credentials creds3 = new Credentials("user2", "pass2");
+		final BasicCredentials creds3 = new BasicCredentials("user2", "pass2");
 		config.setBrokerCredentials(broker, creds3);
 		
-		final Credentials creds4 = config.getBrokerCredentials(broker);
+		final BasicCredentials creds4 = (BasicCredentials)config.getBrokerCredentials(broker);
 		assertEquals(creds3.getUsername(), creds4.getUsername());
 		assertEquals(creds3.getPassword(), creds4.getPassword());
+	}
+	
+	@Test
+	public void testGetSetCustomBrokerCredentials() {
+		final JMSBroker broker = new JMSBrokerName("some broker");
+		final SomeCredentials creds = new SomeCredentials();
+		config.setBrokerCredentials(broker, creds);
+		Credentials creds2 = config.getBrokerCredentials(broker); // Loading this will do assertEquals() and such
+		assertEquals(creds, creds2);
+	}
+	
+	@Test
+	public void testGetOldStyleBrokerCredentials() {
+		final JMSBroker broker = new JMSBrokerName("some broker");
+		
+		Configuration brokerSection = config.sub("Broker", "name", "some broker");
+		brokerSection.setValue("DefaultUsername", "someuser");
+		brokerSection.setValue("DefaultPassword", "somepass");
+		
+		BasicCredentials cred = (BasicCredentials)config.getBrokerCredentials(broker);
+		assertEquals(cred.getUsername(), "someuser");
+		assertEquals(cred.getPassword(), "somepass");
 	}
 
 	@Test
@@ -187,6 +214,40 @@ public class XmlConfigurationTest {
 		for(String value: values) {
 			assertTrue(list.contains(value));
 		}
+	}
+	
+	public static class SomeCredentials implements Credentials {
+		private final String PRINCIPAL = "principal";
+		private final String CREDENTIALS = "credentials";
+
+		@Override
+		public void saveTo(Configuration config) {
+			config.setValue(PRINCIPAL, PRINCIPAL);
+			config.setValue(CREDENTIALS, CREDENTIALS);
+		}
+
+		@Override
+		public Credentials loadFrom(Configuration config) {
+			assertEquals(PRINCIPAL, config.getValue(PRINCIPAL, null));
+			assertEquals(CREDENTIALS, config.getValue(CREDENTIALS, null));
+			return this;
+		}
+
+		@Override
+		public void apply(ConnectionFactory cf) throws Exception {
+			// No-op
+		}
+
+		@Override
+		public String getPrincipalName() {
+			return PRINCIPAL;
+		}
+		
+		@Override
+		public boolean equals(Object other) {
+			return other.getClass().equals(getClass());
+		}
+		
 	}
 
 }

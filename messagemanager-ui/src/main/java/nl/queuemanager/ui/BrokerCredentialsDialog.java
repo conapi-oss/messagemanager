@@ -17,21 +17,21 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import nl.queuemanager.core.jms.BrokerCredentialsProvider;
+import com.google.inject.Inject;
+
+import nl.queuemanager.core.util.BasicCredentials;
 import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
 
-import com.google.inject.Inject;
-
 @SuppressWarnings("serial")
-public class BrokerCredentialsDialog extends JDialog implements BrokerCredentialsProvider {
+public class BrokerCredentialsDialog extends JDialog {
 	private JTextField brokerField;
 	private JTextField usernameField;
 	private JTextField passwordField;
 	private JButton cancelButton;
 	private JButton connectButton;
 	
-	private Credentials returnValue;
+	private BasicCredentials returnValue;
 
 	private JLabel errorLabel;
 
@@ -49,7 +49,7 @@ public class BrokerCredentialsDialog extends JDialog implements BrokerCredential
 		
 		connectButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				returnValue = new Credentials(
+				returnValue = new BasicCredentials(
 					usernameField.getText(),
 					passwordField.getText());
 				setVisible(false);
@@ -149,11 +149,15 @@ public class BrokerCredentialsDialog extends JDialog implements BrokerCredential
 	 * @param def
 	 * @return
 	 */
-	public Credentials getCredentials(JMSBroker broker, Credentials def, Exception exception) {
+	public BasicCredentials getCredentials(JMSBroker broker, Credentials def, Exception exception) {
+		if(!(def instanceof BasicCredentials)) {
+			throw new IllegalArgumentException("def");
+		}
+		
 		setLocationRelativeTo(getOwner());
 		brokerField.setText(broker.toString());
-		usernameField.setText(def != null ? def.getUsername() : "");
-		passwordField.setText(def != null ? def.getPassword() : "");
+		usernameField.setText(def != null ? ((BasicCredentials)def).getUsername() : "");
+		passwordField.setText(def != null ? ((BasicCredentials)def).getPassword() : "");
 		errorLabel.setText(exception.getMessage());
 		
 		// Show the dialog. It will block until hidden.

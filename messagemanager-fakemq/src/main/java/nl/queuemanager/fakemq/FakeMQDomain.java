@@ -104,4 +104,9 @@ public class FakeMQDomain extends AbstractEventSource<DomainEvent> implements JM
 		return false;
 	}
 
+	@Override
+	public Credentials getCredentials(JMSBroker broker, Credentials def, Exception exception) {
+		return null;
+	}
+
 }
