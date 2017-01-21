@@ -34,6 +34,7 @@
      $dependencies
      $extensions
     <property name="jnlp.mm.forceInstallPlugins" value="true"/>
+    <property name="jnlp.mm.developer" value="true"/>
   </resources>
   <application-desc main-class="$mainClass"/>
 </jnlp>
