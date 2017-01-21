@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import javax.inject.Inject;
 
@@ -39,12 +40,16 @@ class MultiQueueTaskExecutor implements TaskExecutor
 	
 	// Default ClassLoader to set as the thread context ClassLoader before executing a task
 	private ClassLoader contextClassLoader;
+	
+	// ThreadFactory to give to executors
+	private ThreadFactory threadFactory;
 		
 	@Inject
 	public MultiQueueTaskExecutor() {
 		this.waitingTasks = new LinkedList<Task>();
 		this.executors = new HashMap<Object, ExecutorService>();
 		this.executorLock = new Object();
+		this.threadFactory = new DaemonThreadFactory();
 	}
 			
 	/* (non-Javadoc)
@@ -86,11 +91,14 @@ class MultiQueueTaskExecutor implements TaskExecutor
 		if(task.getContextClassLoader() == null && getContextClassLoader() != null) {
 			task.setContextClassLoader(getContextClassLoader());
 		}
-		
+
+		// Set this task to waiting now because even if it has no dependencies,
+		// it's possible there is another task in it's executor's queue in front
+		// of it.
+		task.dispatchTaskWaiting();
 		if(task.getDependencyCount() == 0) {
 			executeNow(task);
 		} else synchronized(executorLock) {
-			task.dispatchTaskWaiting();
 			waitingTasks.add(task);
 		}
 	}
@@ -102,12 +110,17 @@ class MultiQueueTaskExecutor implements TaskExecutor
 	 * @return
 	 */
 	protected Executor getExecutorForResource(final Object resource) {
+		// If the resource is null, we have no dependencies. Spawn an temporary executor for just this task.
+		if(resource == null) {
+			return Executors.newSingleThreadExecutor(threadFactory);
+		}
+		
 		synchronized(executorLock) {
 			ExecutorService e = executors.get(resource);
 			
 			if(e == null) {
-				// If the resource is null, we have no dependencies. Spawn an temporary executor for just this task.
-				return Executors.newSingleThreadExecutor();
+				e = Executors.newSingleThreadExecutor(threadFactory);
+				executors.put(resource, e);
 			}
 			
 			return e;

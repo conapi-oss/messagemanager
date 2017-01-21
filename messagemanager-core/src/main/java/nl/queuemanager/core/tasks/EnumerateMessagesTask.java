@@ -22,17 +22,17 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 import javax.jms.Message;
 
-import nl.queuemanager.core.events.AbstractEventSource;
-import nl.queuemanager.core.events.EventListener;
-import nl.queuemanager.core.jms.JMSDomain;
-import nl.queuemanager.core.task.BackgroundTask;
-import nl.queuemanager.core.task.CancelableTask;
-import nl.queuemanager.jms.JMSQueue;
-
 import com.google.common.eventbus.EventBus;
 import com.google.inject.assistedinject.Assisted;
 
-public class EnumerateMessagesTask extends BackgroundTask implements CancelableTask {
+import nl.queuemanager.core.events.AbstractEventSource;
+import nl.queuemanager.core.events.EventListener;
+import nl.queuemanager.core.jms.JMSDomain;
+import nl.queuemanager.core.task.CancelableTask;
+import nl.queuemanager.core.task.Task;
+import nl.queuemanager.jms.JMSQueue;
+
+public class EnumerateMessagesTask extends Task implements CancelableTask {
 	private final Logger log = Logger.getLogger(getClass().getName());
 	
 	private final JMSQueue queue;
