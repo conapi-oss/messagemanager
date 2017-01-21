@@ -48,6 +48,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
+
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
@@ -67,9 +71,6 @@ import nl.queuemanager.ui.message.MessageViewerPanel;
 import nl.queuemanager.ui.util.Holder;
 import nl.queuemanager.ui.util.QueueCountsRefresher;
 
-import com.google.common.eventbus.Subscribe;
-import com.google.inject.Inject;
-
 @SuppressWarnings("serial")
 public class QueuesTabPanel extends JSplitPane implements UITab {
 	private JComboBox<JMSBroker> brokerCombo;
@@ -83,6 +84,7 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 	private final QueueBrowserEventListener qbel;
 	private final TaskFactory taskFactory;
 	private final QueueCountsRefresher qcRefresher;
+	private final EventBus eventBus;
 	
 	@Inject
 	public QueuesTabPanel(
@@ -93,7 +95,8 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 			JMSDestinationTransferHandlerFactory jmsDestinationTransferHandlerFactory,
 			MessageViewerPanel messageViewer,
 			TaskFactory taskFactory,
-			QueueCountsRefresher refresher)
+			QueueCountsRefresher refresher,
+			EventBus eventBus)
 	{
 		this.domain = domain;
 		this.worker = worker;
@@ -101,6 +104,7 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 		this.queueTable = configureQueueTable(queueTable, jmsDestinationTransferHandlerFactory);
 		this.taskFactory = taskFactory;
 		this.qcRefresher = refresher;
+		this.eventBus = eventBus;
 		
 		this.messageViewer = messageViewer;
 		messageViewer.setDragEnabled(true);
@@ -239,27 +243,33 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 		});
 		queuesActionPanel.add(refreshQueuesButton);
 		
-		if(domain.isFeatureSupported(JMSFeature.QUEUE_CLEAR_MESSAGES)) {
-			// Clear messages button
-			JButton clearMessagesButton = createButton("Clear messages", new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
-					int[] selectedRows = queueTable.getSelectedRows();
-					List<JMSQueue> queueList = CollectionFactory.newArrayList();
-					
-					for(int row: selectedRows) {
-						queueList.add(queueTable.getRowItem(row));
-					}
-					
-					deleteQueueMessages(queueList);
-					messageTable.clear();
+		// Clear messages button
+		final JButton clearMessagesButton = createButton("Clear messages", new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				int[] selectedRows = queueTable.getSelectedRows();
+				List<JMSQueue> queueList = CollectionFactory.newArrayList();
+				
+				for(int row: selectedRows) {
+					queueList.add(queueTable.getRowItem(row));
 				}
-			});
-			CommonUITasks.makeSegmented(refreshQueuesButton, Segmented.FIRST);
-			CommonUITasks.makeSegmented(clearMessagesButton, Segmented.LAST);
-			queuesActionPanel.add(clearMessagesButton);
-		} else {
-			CommonUITasks.makeSegmented(refreshQueuesButton, Segmented.ONLY);
-		}
+				
+				deleteQueueMessages(queueList);
+				messageTable.clear();
+			}
+		});
+		CommonUITasks.makeSegmented(refreshQueuesButton, Segmented.FIRST);
+		CommonUITasks.makeSegmented(clearMessagesButton, Segmented.LAST);
+		queuesActionPanel.add(clearMessagesButton);
+
+		// Enable/disable the clear messages button when the domain connects
+		eventBus.register(new Object() {
+			@Subscribe
+			public void handleDomainEvent(DomainEvent event) {
+				if(event.getId() == DomainEvent.EVENT.JMX_CONNECT) {
+					clearMessagesButton.setEnabled(domain.isFeatureSupported(JMSFeature.QUEUE_CLEAR_MESSAGES));
+				}
+			}
+		});
 		
 		return queuesActionPanel;
 	}
