@@ -12,7 +12,7 @@ public interface Credentials {
 	public void saveTo(Configuration config);
 	
 	/**
-	 * Load a credentials object from the specified configuration. This should really be a statuc
+	 * Load a credentials object from the specified configuration. This should really be a static
 	 * method but since we can't specify those in interfaces, we'll do it this way. The returned
 	 * Credentials may can be different from the invokee and should be used instead of the invokee
 	 * in all cases. The state of the invokee is undefined after this method was invoked and it 
