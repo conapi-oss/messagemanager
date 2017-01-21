@@ -1,12 +1,11 @@
 package nl.queuemanager.core.tasks;
 
-import javax.jms.JMSSecurityException;
+import javax.jms.JMSException;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import lombok.extern.java.Log;
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.Task;
@@ -14,7 +13,6 @@ import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.core.util.UserCanceledException;
 import nl.queuemanager.jms.JMSBroker;
 
-@Log
 public class ConnectToBrokerTask extends Task {
 	private final JMSDomain domain;
 	private final JMSBroker broker;
@@ -42,7 +40,7 @@ public class ConnectToBrokerTask extends Task {
 			try {
 				domain.connectToBroker(broker, credentials);
 				break;
-			} catch (JMSSecurityException e) {
+			} catch (JMSException e) {
 				credentials = domain.getCredentials(broker, credentials, e);
 				if(credentials == null)
 					throw new UserCanceledException();
