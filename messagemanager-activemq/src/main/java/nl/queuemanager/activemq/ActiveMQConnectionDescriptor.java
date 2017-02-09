@@ -12,7 +12,7 @@ public class ActiveMQConnectionDescriptor {
 	private final String jmxUrl;
 	
 	public ActiveMQConnectionDescriptor(String description, String jmxUrl) {
-		this(UUID.randomUUID().toString(), description, jmxUrl);
+		this("c" + UUID.randomUUID().toString(), description, jmxUrl);
 	}
 	
 	public ActiveMQConnectionDescriptor(String key, String description, String jmxUrl) {
