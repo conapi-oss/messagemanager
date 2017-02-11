@@ -253,7 +253,7 @@ public class JMSDestinationTable extends JTable implements Clearable, JMSDestina
 				return entry.getType();
 				
 			case 1:
-				return entry.getName();
+				return entry.toString();
 
 			case 2:
 				return (TYPE.QUEUE == entry.getType()) ? ((JMSQueue)entry).getMessageCount() : null;

@@ -17,6 +17,7 @@ package nl.queuemanager.core.tasks;
 
 import java.util.Enumeration;
 import java.util.EventObject;
+import java.util.NoSuchElementException;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -63,12 +64,15 @@ public class EnumerateMessagesTask extends Task implements CancelableTask {
 
 		Enumeration<Message> e = domain.enumerateMessages(getQueue());
 		Message message;
-		while((message = e.nextElement()) != null) {
-			log.finest("eventSource.fireMessageFound(this, message)");
-			eventSource.fireMessageFound(this, message);
-			if(canceled) {
-				break;
+		try {
+			while((message = e.nextElement()) != null) {
+				log.finest("eventSource.fireMessageFound(this, message)");
+				eventSource.fireMessageFound(this, message);
+				if(canceled) {
+					break;
+				}
 			}
+		} catch (NoSuchElementException ex) {
 		}
 		
 		eventSource.fireBrowsingComplete(this);
