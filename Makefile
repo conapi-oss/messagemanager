@@ -1,11 +1,14 @@
 default:
 
+clean-app:
+	mvn -o clean -pl messagemanager-app -am
+
 make-app:
 	mvn -o package -pl messagemanager-app -am
 
 install-app:
 	mvn -o install -pl messagemanager-app -am
-
+	
 run-app:
 	java    -ea \
 		-Dmm.forceInstallPlugins=true \
@@ -14,6 +17,8 @@ run-app:
 		-Dmm.developer=true \
 		-Ddeveloper \
 		-Djava.util.logging.config.file=logging.properties \
+		-DSolace_JMS_Browser_Timeout_In_MS=1000 \
+		-Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=4000,suspend=n \
 		-jar messagemanager-app/target/messagemanager-app-3.1-SNAPSHOT-jar-with-dependencies.jar
 
 run-app-prod:
