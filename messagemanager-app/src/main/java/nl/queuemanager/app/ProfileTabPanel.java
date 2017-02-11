@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystems;
+import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -29,6 +31,7 @@ import javax.swing.Box;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -44,13 +47,16 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import com.google.common.base.Strings;
+import com.google.common.eventbus.Subscribe;
+
+import lombok.extern.java.Log;
 import nl.queuemanager.Profile;
 import nl.queuemanager.app.tasks.ActivateProfileTask;
 import nl.queuemanager.app.tasks.TaskFactory;
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.core.platform.PlatformHelper;
-import nl.queuemanager.core.task.BackgroundTask;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.ui.CommonUITasks;
@@ -58,12 +64,8 @@ import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.util.SingleExtensionFileFilter;
 
-import com.google.common.base.Strings;
-import com.google.common.eventbus.Subscribe;
-
-import javax.swing.JCheckBox;
-
 @SuppressWarnings("serial")
+@Log
 public class ProfileTabPanel extends JPanel implements UITab {
 	public static final String PREF_AUTOLOAD_PROFILE = "autoloadProfile";
 	
@@ -474,6 +476,7 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		}
 		
 		final Set<File> expandedFiles = new HashSet<File>();
+		final Set<File> checkedDirs = new HashSet<File>();
 				
 		// Expand the files list with the Class-Path: entries from the selected jar manifests and 
 		// any jars the profile suggests we add (if found).
@@ -485,11 +488,18 @@ public class ProfileTabPanel extends JPanel implements UITab {
 				// Add the user selected file to the set
 				expandedFiles.add(file);
 				
-				// Find and add profile-suggested jars that can be found relative to the current jar
-				for(String suggestion: profile.getJars()) {
-					File suggestionFile = new File(file.getParentFile(), suggestion);
-					if(suggestionFile.exists()) {
-						expandedFiles.add(suggestionFile);
+				// Find and add profile-suggested jars that can be found relative to the current jar. Make
+			    // sure to check each directory only once to prevent an n^2 situation which would be a problem
+			    // with directories containing many jars.
+				if(checkedDirs.add(file.getParentFile())) {
+					for(String suggestion: profile.getJars()) {
+						PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + suggestion);
+						for(File potentialMatch: file.getParentFile().listFiles()) {
+							log.fine(String.format("Considering suggestion %s for file %s", suggestion, potentialMatch.toPath()));
+							if(matcher.matches(potentialMatch.toPath().getFileName())) {
+								expandedFiles.add(potentialMatch);
+							}
+						}
 					}
 				}
 				

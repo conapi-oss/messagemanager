@@ -16,6 +16,7 @@ import javax.swing.border.EmptyBorder;
 
 import nl.queuemanager.ui.util.TableColumnAdjuster;
 
+@SuppressWarnings("serial")
 public class AddPluginDialog extends JDialog {
 	private final JPanel contentPanel = new JPanel();
 	private JTable installedPluginsTable;

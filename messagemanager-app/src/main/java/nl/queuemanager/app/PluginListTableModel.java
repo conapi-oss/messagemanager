@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import nl.queuemanager.ui.util.ListTableModel;
 
+@SuppressWarnings("serial")
 public class PluginListTableModel extends ListTableModel<PluginDescriptor> {
 
 	public PluginListTableModel() {
