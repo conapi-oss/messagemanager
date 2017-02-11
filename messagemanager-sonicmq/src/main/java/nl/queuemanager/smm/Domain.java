@@ -110,6 +110,7 @@ public class Domain implements JMSDomain {
 		
 	public boolean isFeatureSupported(JMSFeature feature) {
 		switch(feature) {
+		case FORWARD_MESSAGE:
 		case QUEUE_CLEAR_MESSAGES:
 			return true;
 		

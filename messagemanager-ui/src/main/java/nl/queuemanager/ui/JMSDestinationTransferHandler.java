@@ -31,6 +31,8 @@ import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
 import nl.queuemanager.core.Pair;
+import nl.queuemanager.core.jms.JMSDomain;
+import nl.queuemanager.core.jms.JMSFeature;
 import nl.queuemanager.core.task.BackgroundTask;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.tasks.TaskFactory;
@@ -45,6 +47,7 @@ import com.google.inject.assistedinject.Assisted;
 class JMSDestinationTransferHandler extends TransferHandler {
 	private static DataFlavor urlDataFlavor;
 	
+	private final JMSDomain domain;
 	private final TaskExecutor worker;
 	private final TaskFactory taskFactory;
 	private final EventBus eventBus;
@@ -64,12 +67,14 @@ class JMSDestinationTransferHandler extends TransferHandler {
 
 	@Inject
 	public JMSDestinationTransferHandler(
+			JMSDomain domain,
 			TaskExecutor worker, 
 			TaskFactory taskFactory,
 			EventBus eventBus,
 			@Assisted JMSDestinationHolder destinationHolder) 
 	{
 		setSourceActions(COPY);
+		this.domain = domain;
 		this.worker = worker;
 		this.destinationHolder = destinationHolder;
 		this.taskFactory = taskFactory;
@@ -92,10 +97,10 @@ class JMSDestinationTransferHandler extends TransferHandler {
 	public boolean canImport(JComponent jcomponent, DataFlavor[] dataflavors) {
 		for(DataFlavor flavor: dataflavors) {
 			if(flavor.equals(MessageListTransferable.messageIDListDataFlavor))
-				return true;
+				return domain.isFeatureSupported(JMSFeature.FORWARD_MESSAGE);
 			
 			if(flavor.equals(MessageListTransferable.messageListDataFlavor))
-				return true;
+				return domain.isFeatureSupported(JMSFeature.FORWARD_MESSAGE);
 			
 			if(flavor.equals(DataFlavor.javaFileListFlavor))
 				return true;

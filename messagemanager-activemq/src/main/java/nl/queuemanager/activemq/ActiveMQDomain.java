@@ -335,7 +335,13 @@ public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements 
 
 	@Override
 	public boolean isFeatureSupported(JMSFeature feature) {
-		return feature == JMSFeature.QUEUE_CLEAR_MESSAGES;
+		switch(feature) {
+		case FORWARD_MESSAGE:
+		case QUEUE_CLEAR_MESSAGES:
+			return true;
+		default:
+			return false;
+		}
 	}
 
 }
