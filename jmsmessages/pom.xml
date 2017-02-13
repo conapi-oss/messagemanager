@@ -4,16 +4,34 @@
     <artifactId>messagemanager</artifactId>
     <groupId>nl.queuemanager</groupId>
     <version>3.1-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>jmsmessages</artifactId>
+  <packaging>bundle</packaging>
   <name>Serializable JMSMessage implementations</name>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>3.2.0</version>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Export-Package>nl.queuemanager.jms.*</Export-Package>
+            <Private-Package>nl.queuemanager.jms.impl.*</Private-Package>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  
   <dependencies>
     <dependency>
-      <groupId>geronimo-spec</groupId>
-      <artifactId>geronimo-spec-jms</artifactId>
-      <version>1.1-rc4</version>
-      <scope>compile</scope>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-jms_1.1_spec</artifactId>
+      <version>1.1.1</version>
     </dependency>
     <dependency>
     	<groupId>junit</groupId>
