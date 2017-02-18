@@ -27,6 +27,10 @@ import nl.queuemanager.jms.JMSTopic;
 import nl.queuemanager.jms.impl.DestinationFactory;
 
 import com.google.common.eventbus.EventBus;
+import java.util.Arrays;
+import java.util.UUID;
+import javax.jms.TextMessage;
+import nl.queuemanager.jms.impl.MessageFactory;
 
 @Singleton
 public class FakeMQDomain extends AbstractEventSource<DomainEvent> implements JMSDomain {
@@ -69,12 +73,28 @@ public class FakeMQDomain extends AbstractEventSource<DomainEvent> implements JM
 	}
 
 	public JMSQueue createQueue(JMSBroker broker, String queueName) {
-		return DestinationFactory.createQueue(broker, queueName);
+		return new FakeMQQueue((FakeMQBroker)broker, queueName, 5);
 	}
 
 	public Enumeration<Message> enumerateMessages(JMSQueue queue) throws JMSException {
-		return Collections.enumeration(new ArrayList<Message>());
+		return Collections.enumeration(Arrays.asList(
+                        createExampleMessage(),
+                        createExampleMessage(),
+                        createExampleMessage(),
+                        createExampleMessage(),
+                        createExampleMessage()
+                ));
 	}
+        
+        private Message createExampleMessage() {
+            TextMessage msg = MessageFactory.createTextMessage();
+            try {
+                msg.setText("<xml>" + UUID.randomUUID().toString() + "</xml>");
+            } catch (JMSException ex) {
+                ex.printStackTrace();
+            }
+            return msg;
+        }
 
 	public MessageConsumer openConsumer(JMSDestination destination, MessageListener listener) throws JMSException {
 		return new FakeMQMessageConsumer();

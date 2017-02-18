@@ -8,39 +8,58 @@ import nl.queuemanager.jms.JMSQueue;
 
 public class FakeMQQueue implements JMSQueue {
 
+        private final FakeMQBroker broker;
+        private final String name;
+        private final int messageCount;
+
+        public FakeMQQueue(FakeMQBroker broker, String name, int messageCount) {
+            this.broker = broker;
+            this.name = name;
+            this.messageCount = messageCount;
+        }
+    
 	public JMSBroker getBroker() {
-		// TODO Auto-generated method stub
-		return null;
+            return broker;
 	}
 
 	public TYPE getType() {
-		// TODO Auto-generated method stub
-		return null;
+            return TYPE.QUEUE;
 	}
 
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+            return name;
 	}
 
 	public int compareTo(JMSDestination o) {
-		// TODO Auto-generated method stub
-		return 0;
+            return getName().compareTo(o.getName());
 	}
 
+    @Override
+    public boolean equals(Object obj) {
+        return (obj instanceof FakeMQQueue) 
+            && getName().equals(((FakeMQQueue)obj).getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return getName().hashCode();
+    }
+
 	public String getQueueName() throws JMSException {
-		// TODO Auto-generated method stub
-		return null;
+            return getName();
 	}
 
 	public int getMessageCount() {
-		// TODO Auto-generated method stub
-		return 0;
+            return messageCount;
 	}
 
 	public long getMessageSize() {
-		// TODO Auto-generated method stub
-		return -1;
+            return -1;
 	}
+        
+        @Override
+        public String toString() {
+            return getName();
+        }
 
 }
