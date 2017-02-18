@@ -53,6 +53,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Stage;
+import nl.queuemanager.core.task.MultiQueueTaskExecutorModule;
 
 public class Main {
 
@@ -74,6 +75,7 @@ public class Main {
 		List<Module> modules = new ArrayList<Module>();
 		modules.add(new XmlConfigurationModule("config.xml", "urn:queuemanager-config"));
 		modules.add(new SettingsModule());
+                modules.add(new MultiQueueTaskExecutorModule());
 		modules.add(new PreconnectCoreModule());
 		modules.add(new PreconnectUIModule());
 		modules.add(new AppModule());

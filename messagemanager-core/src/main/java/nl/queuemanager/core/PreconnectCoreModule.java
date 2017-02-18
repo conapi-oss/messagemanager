@@ -11,7 +11,6 @@ import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
 
 import nl.queuemanager.core.platform.PlatformModule;
-import nl.queuemanager.core.task.MultiQueueTaskExecutorModule;
 import nl.queuemanager.core.tasks.PreconnectTaskFactory;
 
 public class PreconnectCoreModule extends AbstractModule {
@@ -37,7 +36,6 @@ public class PreconnectCoreModule extends AbstractModule {
             }
         });
 		
-		install(new MultiQueueTaskExecutorModule());
 		install(new PlatformModule());
 		install(new FactoryModuleBuilder().build(PreconnectTaskFactory.class));
 
