@@ -150,7 +150,7 @@ public class BrokerCredentialsDialog extends JDialog {
 	 * @return
 	 */
 	public BasicCredentials getCredentials(JMSBroker broker, Credentials def, Exception exception) {
-		if(!(def instanceof BasicCredentials)) {
+		if(def != null && !(def instanceof BasicCredentials)) {
 			throw new IllegalArgumentException("def");
 		}
 		
