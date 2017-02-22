@@ -141,7 +141,7 @@ class JMSDestinationTransferHandler extends TransferHandler {
 				if(f.equals(urlDataFlavor)) {
 					try {
 						URL url = (URL)transferable.getTransferData(urlDataFlavor);
-						if("file".equals(url.getProtocol())) {
+						if(url != null && "file".equals(url.getProtocol())) {
 							URI uri = url.toURI();
 							
 							// Cannot use File(URI) because the authority component is non-null on Mac OS X 10.7
