@@ -680,8 +680,14 @@ public class Domain implements JMSDomain {
 			new progress.message.jclient.ConnectionFactory(
 				broker.getBrokerURL());
 		try {
-			cred.apply(factory);
+			if(cred instanceof BasicCredentials) {
+				factory.setDefaultUser(((BasicCredentials) cred).getUsername());
+				factory.setDefaultPassword(((BasicCredentials) cred).getPassword());
+			} else {
+				cred.apply(factory);
+			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new JMSException("Unable to apply credentials to connectionfactory: " + e.toString());
 		}
 		
