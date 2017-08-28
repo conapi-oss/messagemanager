@@ -1,0 +1,9 @@
+<profile>
+	<id>1CC16FD8-091B-4C26-A6D6-D88225874208</id>
+	<name>FakeMQ</name>
+	<icon/>
+	<description>For testing only, doesn't actually connect anywhere</description>
+	<plugins>
+		<plugin>nl.queuemanager.fakemq.FakeMQModule</plugin>
+	</plugins>
+</profile>

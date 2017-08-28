@@ -1,0 +1,5 @@
+<plugin>
+	<name>FakeMQ Plugin</name>
+	<description>Plugin for FakeMQ</description>
+	<moduleClass>nl.queuemanager.fakemq.FakeMQModule</moduleClass>
+</plugin>

@@ -8,7 +8,11 @@ make-app:
 
 install-app:
 	mvn -o install -pl messagemanager-app -am
-	
+
+install-fake:
+	mvn -o package -pl messagemanager-fakemq -am
+	cp messagemanager-fakemq/target/*.jar ~/Library/Application\ Support/MessageManager/plugins/3.1-SNAPSHOT/
+
 run-app:
 	java    -ea \
 		-Dmm.forceInstallPlugins=true \
