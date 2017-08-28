@@ -70,6 +70,7 @@ import javax.swing.text.JTextComponent;
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.JMSDomain;
+import nl.queuemanager.core.jms.JMSFeature;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.tasks.TaskFactory;
 import nl.queuemanager.core.util.CollectionFactory;
@@ -89,6 +90,7 @@ import nl.queuemanager.ui.util.SpringUtilities;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
+import com.google.common.base.Strings;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 
@@ -109,6 +111,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 	private JSearchableTextArea typingArea;
 	private boolean isFromImport;
 	private JTextField jmsCorrelationIDField;
+	private JIntegerField jmsPriorityField;
 	private JMSDestinationField sendDestinationField;
 	private JMSDestinationField jmsReplyToField;
 	private JIntegerField jmsTTLField;
@@ -302,12 +305,15 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 	private JPanel createForm() {
 		final JPanel panel = new JPanel();
 		
+		int numRows = 0;
+		
 		final JPanel formPanel = new JPanel();
 		formPanel.setLayout(new SpringLayout());
 		
 		sendDestinationField = new JMSDestinationField();
 		formPanel.add(createLabelFor(sendDestinationField, "Destination"));
 		formPanel.add(sendDestinationField);
+		numRows++;
 	
 		numberOfMessagesField = new JIntegerField(10);
 		numberOfMessagesField.setMaximumSize(new Dimension(
@@ -330,6 +336,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		});
 		formPanel.add(createLabelFor(numberOfMessagesField, "Number of messages:"));
 		formPanel.add(numberOfMessagesField);
+		numRows++;
 		
 		delayPerMessageField = new JIntegerField(6);
 		delayPerMessageField.setMaximumSize(new Dimension(
@@ -339,6 +346,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		delayPerMessageField.setToolTipText("The number of milliseconds to wait between messages");
 		formPanel.add(createLabelFor(delayPerMessageField, "Delay (ms):"));
 		formPanel.add(delayPerMessageField);
+		numRows++;
 		
 		jmsCorrelationIDField = new JTextField();
 		jmsCorrelationIDField.setMaximumSize(new Dimension(
@@ -348,11 +356,25 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		jmsCorrelationIDField.setText("Message %i");
 		formPanel.add(createLabelFor(jmsCorrelationIDField, "JMS Correlation ID:"));
 		formPanel.add(jmsCorrelationIDField);
+		numRows++;
 		
+		if(sonic.isFeatureSupported(JMSFeature.MESSAGE_SET_PRIORITY)) {
+			jmsPriorityField = new JIntegerField(1);
+			jmsPriorityField.setMaximumSize(new Dimension(
+					Integer.MAX_VALUE,
+					jmsPriorityField.getPreferredSize().height));
+			jmsPriorityField.setMaxValue(9);
+			jmsPriorityField.setToolTipText("The JMS Priority to use when sending the message (0-9");
+			formPanel.add(createLabelFor(jmsPriorityField, "JMS Priority:"));
+			formPanel.add(jmsPriorityField);
+			numRows++;
+		}
+			
 		jmsReplyToField = new JMSDestinationField();
 		jmsReplyToField.setToolTipText("Type a name or drag a destination from the table on the left");
 		formPanel.add(createLabelFor(jmsReplyToField, "JMS Reply to:"));
 		formPanel.add(jmsReplyToField);
+		numRows++;
 
 		jmsTTLField = new JIntegerField(10);
 		jmsTTLField.setMaximumSize(new Dimension(
@@ -363,6 +385,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		jmsTTLField.setToolTipText("The number of seconds after which the message is no longer valid.");
 		formPanel.add(createLabelFor(jmsTTLField, "Time to live (sec):"));
 		formPanel.add(jmsTTLField);
+		numRows++;
 		
 		deliveryModeCombo = new JComboBox<String>(deliveryModes);
 		deliveryModeCombo.setMaximumSize(new Dimension(
@@ -372,10 +395,12 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		deliveryModeCombo.putClientProperty("JComboBox.isPopDown", Boolean.TRUE);
 		formPanel.add(createLabelFor(deliveryModeCombo, "JMS Delivery Mode:"));
 		formPanel.add(deliveryModeCombo);		
+		numRows++;
 		
 		JPanel propertiesButtonPanel = createPropertiesButtonPanel();
 		formPanel.add(createLabelFor(propertiesButtonPanel, "Custom JMS properties:"));
 		formPanel.add(propertiesButtonPanel);
+		numRows++;
 		
 		JPanel fileBrowsePanel = createFileBrowsePanel();
 		JPanel typeMyOwnPanel = createTypeMyOwnPanel();
@@ -383,9 +408,10 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		JPanel radioPanel = createRadioButtonPanel(fileBrowsePanel, typeMyOwnPanel);
 		formPanel.add(createLabelFor(radioPanel, "Message content:"));
 		formPanel.add(radioPanel);
+		numRows++;
 		
 		SpringUtilities.makeCompactGrid(formPanel, 
-				9, 2, 
+				numRows, 2, 
 				0, 0, 
 				5, 5);		
 		
@@ -570,6 +596,8 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 						sonic, (JMSBroker) brokerCombo.getSelectedItem());
 					
 					String jmsCorrIdValue = jmsCorrelationIDField.getText();
+					Integer jmsPriorityValue = Strings.isNullOrEmpty(jmsPriorityField.getText()) 
+							? null : jmsPriorityField.getValue();
 					
 					JMSDestination jmsReplyToValue = jmsReplyToField.getDestination(
 						sonic, (JMSBroker) brokerCombo.getSelectedItem());
@@ -601,6 +629,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 								getDeliveryMode(),
 								new File(filePath), 
 								jmsCorrIdValue, 
+								jmsPriorityValue,
 								jmsReplyToValue,
 								jmsTimeToLiveValue != 0 ? jmsTimeToLiveValue : null,
 								properties);
@@ -615,6 +644,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 							getDeliveryMode(),
 							messageContent == null ? "" : messageContent, 
 							jmsCorrIdValue, 
+							jmsPriorityValue,
 							jmsReplyToValue, 
 							jmsTimeToLiveValue != 0 ? jmsTimeToLiveValue : null,
 							properties);
@@ -655,6 +685,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 	 * @param deliveryMode
 	 * @param file
 	 * @param jmsCorrelationIdFieldValue
+	 * @param jmsPriorityValue
 	 * @param jmsReplyToValue
 	 * @param jmsTimeToLive
 	 * @param props
@@ -667,12 +698,14 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 			final int deliveryMode,
 			final File file,
 			final String jmsCorrelationIdFieldValue,
+			final Integer jmsPriorityValue,
 			final JMSDestination jmsReplyToValue,
 			final Long jmsTimeToLive,
 			final Map<String, ? extends Object> props) throws JMSException
 	{
 		Message message = prepMessage(
 				jmsCorrelationIdFieldValue,
+				jmsPriorityValue,
 				jmsReplyToValue, 
 				jmsTimeToLive);
 		
@@ -700,6 +733,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 	 * @param deliveryMode
 	 * @param messageContent
 	 * @param jmsCorrelationIdFieldValue
+	 * @param jmsPriorityValue
 	 * @param jmsReplyToValue
 	 * @param jmsTimeToLive
 	 * @param props
@@ -712,6 +746,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 			final int deliveryMode,
 			final String messageContent,
 			final String jmsCorrelationIdFieldValue,
+			final Integer jmsPriorityValue,
 			final JMSDestination jmsReplyToValue,
 			final Long jmsTimeToLive,
 			final Map<String, ? extends Object> props) throws JMSException
@@ -719,6 +754,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		TextMessage message = (TextMessage)prepMessage(
 				MessageFactory.createTextMessage(),
 				jmsCorrelationIdFieldValue,
+				jmsPriorityValue,
 				jmsReplyToValue, 
 				jmsTimeToLive);
 
@@ -800,11 +836,12 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 
 	private Message prepMessage(
 			final String jmsCorrelationIdFieldValue,
+			final Integer jmsPriorityValue,
 			final JMSDestination jmsReplyToValue, 
 			final Long jmsTimeToLive) throws JMSException {
 		
 		Message message = MessageFactory.createMessage();
-		return prepMessage(message, jmsCorrelationIdFieldValue, jmsReplyToValue, jmsTimeToLive);
+		return prepMessage(message, jmsCorrelationIdFieldValue, jmsPriorityValue, jmsReplyToValue, jmsTimeToLive);
 	}
 	
 	/**
@@ -820,11 +857,15 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 	private Message prepMessage(
 			final Message message,
 			final String jmsCorrelationIdFieldValue,
+			final Integer jmsPriorityValue,
 			final JMSDestination jmsReplyToValue, 
 			final Long jmsTimeToLive) throws JMSException {
 		
 		message.setJMSCorrelationID(jmsCorrelationIdFieldValue);
 	
+		if(jmsPriorityValue != null)
+			message.setJMSPriority(jmsPriorityValue);
+		
 		if(jmsTimeToLive != null)
 			message.setJMSExpiration(System.currentTimeMillis() + jmsTimeToLive*1000);
 		

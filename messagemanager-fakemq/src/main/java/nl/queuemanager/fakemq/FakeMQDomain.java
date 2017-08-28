@@ -102,6 +102,7 @@ public class FakeMQDomain extends AbstractEventSource<DomainEvent> implements JM
 
 	public void sendMessage(JMSDestination destination, Message messageToSend) throws JMSException {
 		// Let's not and say we did
+		System.out.println("Pretending to send " + messageToSend);
 	}
 
 	public void forwardMessage(JMSQueue from, JMSDestination to, String messageID) throws JMSException {
@@ -121,7 +122,7 @@ public class FakeMQDomain extends AbstractEventSource<DomainEvent> implements JM
 	}
 
 	public boolean isFeatureSupported(JMSFeature feature) {
-		return false;
+		return true;
 	}
 
 	@Override

@@ -112,6 +112,7 @@ public class Domain implements JMSDomain {
 		switch(feature) {
 		case FORWARD_MESSAGE:
 		case QUEUE_CLEAR_MESSAGES:
+		case MESSAGE_SET_PRIORITY:
 			return true;
 		
 		case QUEUE_MESSAGES_SIZE:
