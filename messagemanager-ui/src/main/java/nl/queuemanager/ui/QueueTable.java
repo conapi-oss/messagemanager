@@ -36,6 +36,7 @@ import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.ui.util.FilteredTableModel;
 import nl.queuemanager.ui.util.ListTableModel;
 import nl.queuemanager.ui.util.MessageCountComparator;
+import nl.queuemanager.ui.util.MiscUtils;
 
 /**
  * This class represents the Queues table and all information about its markup
@@ -229,16 +230,13 @@ class QueueTable extends JTable implements Clearable {
 			case 1:
 				return queue.getMessageCount();
 			case 2:
-				return humanReadableSize(queue.getMessageSize());
+				return MiscUtils.humanReadableSize(queue.getMessageSize());
 			default:
 				return null;					
 			}
 		}
 		
-		private String humanReadableSize(long bytes) {
-			return String.format("%dkB",  bytes/1024);
-		}
-	}	
+	}
 	
 	/**
 	 * This listener listens for clicks on the name column and sets the filterValue

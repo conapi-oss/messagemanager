@@ -1,5 +1,7 @@
 package nl.queuemanager.fakemq;
 
+import java.util.Random;
+
 import javax.jms.JMSException;
 
 import nl.queuemanager.jms.JMSBroker;
@@ -11,11 +13,13 @@ public class FakeMQQueue implements JMSQueue {
         private final FakeMQBroker broker;
         private final String name;
         private final int messageCount;
+        private final int size;
 
         public FakeMQQueue(FakeMQBroker broker, String name, int messageCount) {
             this.broker = broker;
             this.name = name;
             this.messageCount = messageCount;
+            this.size = new Random().nextInt(1024*1024*1024);
         }
     
 	public JMSBroker getBroker() {
@@ -54,7 +58,7 @@ public class FakeMQQueue implements JMSQueue {
 	}
 
 	public long getMessageSize() {
-            return -1;
+            return size;
 	}
         
         @Override
