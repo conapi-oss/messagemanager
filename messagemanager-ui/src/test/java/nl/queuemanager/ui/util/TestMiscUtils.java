@@ -12,6 +12,11 @@ public class TestMiscUtils {
 	}
 	
 	@Test
+	public void humanReadableSizeTinyBytes() {
+		assertEquals("12B", MiscUtils.humanReadableSize(12));
+	}
+	
+	@Test
 	public void humanReadableSizeBytes() {
 		assertEquals("123B", MiscUtils.humanReadableSize(123));
 	}
@@ -27,8 +32,13 @@ public class TestMiscUtils {
 	}
 	
 	@Test
-	public void humanReadableSizeMegaBytes2() {
+	public void humanReadableSizeRoundTo1GB() {
 		assertEquals("1GB", MiscUtils.humanReadableSize(1000*1024*1024));
+	}
+	
+	@Test
+	public void humanReadableRoundToDecimalGB() {
+		assertEquals("1.3GB", MiscUtils.humanReadableSize(1343*1024*1024));
 	}
 	
 	@Test

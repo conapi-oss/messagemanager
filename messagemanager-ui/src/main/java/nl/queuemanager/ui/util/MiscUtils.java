@@ -14,8 +14,8 @@ public abstract class MiscUtils {
 	        bytes = bytes / 1024;
 	        i++;
 	    }
-	    
-	    DecimalFormat df = new DecimalFormat("#");
+
+	    DecimalFormat df = new DecimalFormat(bytes > 100 ? "#" : "#.#");
 	    return df.format(bytes) + byteUnits[i];
 	}	
 
