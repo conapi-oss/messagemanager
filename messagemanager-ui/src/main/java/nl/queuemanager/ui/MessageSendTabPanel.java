@@ -596,7 +596,8 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 						sonic, (JMSBroker) brokerCombo.getSelectedItem());
 					
 					String jmsCorrIdValue = jmsCorrelationIDField.getText();
-					Integer jmsPriorityValue = Strings.isNullOrEmpty(jmsPriorityField.getText()) 
+					Integer jmsPriorityValue = jmsPriorityField == null ? null : 
+							Strings.isNullOrEmpty(jmsPriorityField.getText()) 
 							? null : jmsPriorityField.getValue();
 					
 					JMSDestination jmsReplyToValue = jmsReplyToField.getDestination(
