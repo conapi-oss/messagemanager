@@ -36,6 +36,7 @@ import java.util.TooManyListenersException;
 
 import javax.jms.Message;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -43,10 +44,13 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.text.BadLocationException;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -67,7 +71,10 @@ import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.JMSDestinationTransferHandler.JMSDestinationHolder;
+import nl.queuemanager.ui.MessagesTable.MessageTableModel;
 import nl.queuemanager.ui.message.MessageViewerPanel;
+import nl.queuemanager.ui.util.DocumentAdapter;
+import nl.queuemanager.ui.util.HighlightsModel;
 import nl.queuemanager.ui.util.Holder;
 import nl.queuemanager.ui.util.QueueCountsRefresher;
 
@@ -96,6 +103,7 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 			MessageViewerPanel messageViewer,
 			TaskFactory taskFactory,
 			QueueCountsRefresher refresher,
+			MessageHighlighter messageHighlighter,
 			EventBus eventBus)
 	{
 		this.domain = domain;
@@ -109,7 +117,7 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 		this.messageViewer = messageViewer;
 		messageViewer.setDragEnabled(true);
 		
-		messageTable = createMessageTable();
+		messageTable = createMessageTable(messageHighlighter);
 		
 		// Panel for the connection selector combobox
 		JPanel connectionPanel = new JPanel();
@@ -222,9 +230,19 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 		});
 		CommonUITasks.makeSegmented(saveButton, Segmented.LAST);
 		messagesActionPanel.add(saveButton);
+
+		messagesActionPanel.add(Box.createHorizontalGlue());
+		
+		JTextField searchField = new JTextField();
+		searchField.setMaximumSize(new Dimension(Integer.MAX_VALUE, searchField.getPreferredSize().height));
+		searchField.putClientProperty("JTextField.variant", "search");
+		searchField.setToolTipText("Type to search");
+		searchField.getDocument().addDocumentListener(new SearchFieldPublisher(eventBus, searchField));
+		messagesActionPanel.add(searchField);
+		
 		return messagesActionPanel;
 	}
-
+	
 	/**
 	 * Create the panel that contains the actions for the queues table. 
 	 * Segmented buttons on Mac OS X for Looks++
@@ -319,10 +337,12 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 		return table;
 	}
 
-	private MessagesTable createMessageTable() {
+	private MessagesTable createMessageTable(MessageHighlighter messageHighlighter) {
 		// Create the message table
 		MessagesTable table = new MessagesTable();
-
+		MessageTableModel tableModel = (MessageTableModel) table.getModel();
+		table.setHighlightsModel(new HighlightsModel<>(tableModel, messageHighlighter));
+		
 		ListSelectionModel selectionModel = table.getSelectionModel();
 		selectionModel.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent e) {
@@ -586,7 +606,7 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 				canceled = false;
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
-						messageTable.setData((JMSDestination)event.getInfo(), new ArrayList<Message>());
+						messageTable.clear((JMSDestination)event.getInfo());
 					}
 				});
 				break;

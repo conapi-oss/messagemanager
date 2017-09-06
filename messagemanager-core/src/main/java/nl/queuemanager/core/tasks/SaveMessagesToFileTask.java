@@ -89,7 +89,7 @@ public class SaveMessagesToFileTask extends Task implements CancelableTask {
 			break;
 			
 		default:
-			throw new RuntimeException("Unable to save message of type " + message.getClass().getName());
+			throw new RuntimeException("Save message of type " + message.getClass().getName() + " is not implemented");
 		}
 	}
 
@@ -146,20 +146,7 @@ public class SaveMessagesToFileTask extends Task implements CancelableTask {
 	
 	private File createFilenameWithExtension(javax.jms.Message message, File file) {
 		final MessageType type = MessageType.fromClass(message.getClass());
-		
-		switch(type) {
-		case TEXT_MESSAGE:
-			return new File(file.getAbsolutePath() + ".txt");
-			
-		case XML_MESSAGE:
-			return new File(file.getAbsolutePath() + ".xml");
-			
-		case BYTES_MESSAGE:
-			return new File(file.getAbsolutePath() + ".bin");
-			
-		default:
-			return new File(file.getAbsolutePath() + "." + type);
-		}
+		return new File(file.getAbsolutePath() + type.getExtension());
 	}
 	
 	private File createFilenameWithExtension(JMSPart part, File file) {

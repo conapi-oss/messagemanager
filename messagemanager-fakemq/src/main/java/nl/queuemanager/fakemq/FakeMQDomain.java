@@ -90,6 +90,9 @@ public class FakeMQDomain extends AbstractEventSource<DomainEvent> implements JM
             TextMessage msg = MessageFactory.createTextMessage();
             try {
                 msg.setText("<xml>" + UUID.randomUUID().toString() + "</xml>");
+                msg.setStringProperty("prop1", UUID.randomUUID().toString());
+                msg.setStringProperty("prop2", UUID.randomUUID().toString());
+                msg.setStringProperty("prop3", UUID.randomUUID().toString());
             } catch (JMSException ex) {
                 ex.printStackTrace();
             }

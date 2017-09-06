@@ -16,24 +16,32 @@
 package nl.queuemanager.jms;
 
 public enum MessageType {
-	TEXT_MESSAGE("Text-Message", javax.jms.TextMessage.class),
-	XML_MESSAGE("XML-Message", nl.queuemanager.jms.JMSXMLMessage.class),
-	BYTES_MESSAGE("Bytes-Message", javax.jms.BytesMessage.class),
-	MAP_MESSAGE("Map-Message", javax.jms.MapMessage.class),
-	MULTIPART_MESSAGE("Multipart-Message", nl.queuemanager.jms.JMSMultipartMessage.class),
-	MESSAGE("Message", javax.jms.Message.class);
+	TEXT_MESSAGE("Text-Message", javax.jms.TextMessage.class, ".txt"),
+	XML_MESSAGE("XML-Message", nl.queuemanager.jms.JMSXMLMessage.class, ".xml"),
+	BYTES_MESSAGE("Bytes-Message", javax.jms.BytesMessage.class, ".bin"),
+	MAP_MESSAGE("Map-Message", javax.jms.MapMessage.class, ".map"),
+	MULTIPART_MESSAGE("Multipart-Message", nl.queuemanager.jms.JMSMultipartMessage.class, ".multipart"),
+	OBJECT_MESSAGE("Object-Message", javax.jms.ObjectMessage.class, ".bin"),
+	STREAM_MESSAGE("Stream-Message", javax.jms.StreamMessage.class, ".bin"),
+	MESSAGE("Message", javax.jms.Message.class, ".msg");
 
 	private final String displayName;
 	private final Class<?> clazz;
+	private final String extension;
 	
-	private MessageType(String realName, Class<? extends javax.jms.Message> clazz) {
+	private MessageType(String realName, Class<? extends javax.jms.Message> clazz, String extension) {
 		this.displayName = realName;
 		this.clazz = clazz;
+		this.extension = extension;
 	}
 	
 	@Override
 	public String toString() {
 		return displayName;
+	}
+	
+	public String getExtension() {
+		return extension;
 	}
 	
 	public static MessageType fromString(String str) {

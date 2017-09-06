@@ -18,18 +18,13 @@ package nl.queuemanager.ui;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.jms.BytesMessage;
 import javax.jms.JMSException;
-import javax.jms.MapMessage;
 import javax.jms.Message;
-import javax.jms.ObjectMessage;
-import javax.jms.StreamMessage;
-import javax.jms.TextMessage;
 import javax.swing.JComponent;
-import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.TransferHandler;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -38,11 +33,11 @@ import javax.swing.table.TableColumn;
 import nl.queuemanager.core.util.Clearable;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.jms.JMSDestination;
-import nl.queuemanager.jms.JMSMultipartMessage;
 import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.jms.JMSTopic;
-import nl.queuemanager.jms.JMSXMLMessage;
+import nl.queuemanager.jms.MessageType;
 import nl.queuemanager.ui.util.ListTableModel;
+import nl.queuemanager.ui.util.MMJTable;
 
 
 /**
@@ -52,13 +47,13 @@ import nl.queuemanager.ui.util.ListTableModel;
  *
  */
 @SuppressWarnings("serial")
-public class MessagesTable extends JTable implements Clearable {
+public class MessagesTable extends MMJTable implements Clearable {
 	private JMSDestination currentDestination;
-	
 	public MessagesTable() {
 		super();
 		
-		setModel(new MessageTableModel());
+		MessageTableModel model = new MessageTableModel();
+		setModel(model);
 		setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		
 		getTableHeader().setReorderingAllowed(false);
@@ -90,9 +85,13 @@ public class MessagesTable extends JTable implements Clearable {
 	public JMSDestination getCurrentDestination() {
 		return currentDestination;
 	}
-		
+	
 	public void clear() {
-		setData(null, null);
+		clear(null);
+	}
+		
+	public void clear(JMSDestination destination) {
+		setData(destination, new ArrayList<Message>());
 	}
 	
 	public void addItem(Message item) {
@@ -111,10 +110,14 @@ public class MessagesTable extends JTable implements Clearable {
 	}
 
 	public Message getRowItem(int row) {
-		return ((MessageTableModel)getModel()).getRowItem(row);
+		if(getModel() instanceof MessageTableModel) {
+			return ((MessageTableModel)getModel()).getRowItem(row);
+		} else {
+			return null;
+		}
 	}
 	
-	private static class MessageTableModel extends ListTableModel<Message> {
+	static class MessageTableModel extends ListTableModel<Message> {
 		public MessageTableModel() {
 			setColumnNames(new String[] {"#", "Timestamp", "Correlation ID", "Type"});
 			setColumnTypes(new Class[] {Integer.class, Date.class, String.class, String.class});
@@ -131,21 +134,22 @@ public class MessagesTable extends JTable implements Clearable {
 				case 2:
 					return message.getJMSCorrelationID();
 				case 3:
-					if (message instanceof JMSXMLMessage) {
-						return "XML";
-					} else if (message instanceof TextMessage) {
-						return "Text";
-					} else if (message instanceof MapMessage) {
-						return "Map";
-					} else if (message instanceof BytesMessage) {
+					switch(MessageType.fromClass(message.getClass())) {
+					case BYTES_MESSAGE:
 						return "Bytes";
-					} else if (message instanceof JMSMultipartMessage) {
+					case MAP_MESSAGE:
+						return "Map";
+					case MULTIPART_MESSAGE:
 						return "Multi";
-					} else if (message instanceof ObjectMessage) {
+					case TEXT_MESSAGE:
+						return "Text";
+					case XML_MESSAGE:
+						return "XML";
+					case OBJECT_MESSAGE:
 						return "Object";
-					} else if (message instanceof StreamMessage) {
+					case STREAM_MESSAGE:
 						return "Stream";
-					} else {
+					default:
 						return "Message";
 					}
 				}

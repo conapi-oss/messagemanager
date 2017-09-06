@@ -2,6 +2,7 @@ package nl.queuemanager.ui.message;
 
 import java.io.StringWriter;
 
+import javax.swing.text.Highlighter;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Transformer;

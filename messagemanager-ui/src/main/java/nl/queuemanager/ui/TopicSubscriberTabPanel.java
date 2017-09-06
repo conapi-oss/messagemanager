@@ -44,6 +44,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
+
 import nl.queuemanager.core.MessageBuffer;
 import nl.queuemanager.core.MessageEvent;
 import nl.queuemanager.core.configuration.CoreConfiguration;
@@ -58,11 +62,7 @@ import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSTopic;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.message.MessageViewerPanel;
-
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
+import nl.queuemanager.ui.util.Highlighter;
 
 /**
  * This class implements the topic subscriber panel. It has a table of configured topics,
@@ -86,6 +86,7 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 	private final MessageViewerPanel messageViewer;
 	
 	private final MessageEventListener messageEventListener;
+	private EventBus eventBus;
 	
 	@Inject
 	public TopicSubscriberTabPanel(
@@ -102,6 +103,7 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 		this.worker = worker;
 		this.taskFactory = taskFactory;
 		this.config = config;
+		this.eventBus = eventBus;
 		this.jmsSubscriberFactory = jmsSubscriberFactory;
 		
 		subscriberTable = createTopicTable(topicSubscriberTable);
@@ -203,8 +205,18 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 				saveSelectedMessages();
 			}
 		});
-		CommonUITasks.makeSegmented(saveButton, Segmented.LAST);
+		CommonUITasks.makeSegmented(saveButton, Segmented.LAST);		
 		messagesActionPanel.add(saveButton);
+		
+		messagesActionPanel.add(Box.createHorizontalGlue());
+		
+		JTextField searchField = new JTextField();
+		searchField.setMaximumSize(new Dimension(Integer.MAX_VALUE, searchField.getPreferredSize().height));
+		searchField.putClientProperty("JTextField.variant", "search");
+		searchField.setToolTipText("Type to search");
+		searchField.getDocument().addDocumentListener(new SearchFieldPublisher(eventBus, searchField));
+		messagesActionPanel.add(searchField);
+		
 		return messagesActionPanel;
 	}
 	
@@ -227,7 +239,7 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 		JMSSubscriber subscriber = subscriberTable.getItemForDestination(destination);
 		
 		if(subscriber != null) {
-			messageTable.setData(destination, new ArrayList<Message>());
+			messageTable.clear(destination);
 			subscriber.clear();
 		}
 	}
@@ -368,11 +380,11 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 		}
 		
 		if(newSubscriber == null) {
-			messageTable.setData(null, new ArrayList<Message>());
+			messageTable.clear(null);
 		} else {
 			messageTable.setData(
 				newSubscriber.getDestination(), 
-				new ArrayList<Message>(newSubscriber.getMessages()));
+				newSubscriber.getMessages());
 	
 			if(currentSubscriber != newSubscriber) {
 				newSubscriber.addListener(messageEventListener);

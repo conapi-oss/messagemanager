@@ -29,6 +29,7 @@ import javax.swing.table.TableColumn;
 
 import nl.queuemanager.core.Pair;
 import nl.queuemanager.core.util.CollectionFactory;
+import nl.queuemanager.ui.util.MMJTable;
 import nl.queuemanager.ui.util.PairTableModel;
 
 
@@ -39,7 +40,7 @@ import nl.queuemanager.ui.util.PairTableModel;
  *
  */
 @SuppressWarnings("serial")
-public class MessagePropertiesTable extends JTable {
+public class MessagePropertiesTable extends MMJTable {
 
 	public MessagePropertiesTable() {
 		super();
@@ -71,7 +72,6 @@ public class MessagePropertiesTable extends JTable {
 					data.add(Pair.create(name, message.getObjectProperty(name)));
 				}
 			} catch (JMSException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

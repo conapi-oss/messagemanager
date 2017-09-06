@@ -1,4 +1,4 @@
-package nl.queuemanager.app;
+package nl.queuemanager.ui.util;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;

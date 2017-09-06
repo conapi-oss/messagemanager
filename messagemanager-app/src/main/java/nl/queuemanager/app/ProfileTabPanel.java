@@ -62,6 +62,7 @@ import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.ui.CommonUITasks;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.UITab;
+import nl.queuemanager.ui.util.DocumentAdapter;
 import nl.queuemanager.ui.util.SingleExtensionFileFilter;
 
 @SuppressWarnings("serial")
