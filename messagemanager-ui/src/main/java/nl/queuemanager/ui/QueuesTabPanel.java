@@ -44,13 +44,10 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.event.DocumentEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.text.BadLocationException;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -73,7 +70,6 @@ import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.JMSDestinationTransferHandler.JMSDestinationHolder;
 import nl.queuemanager.ui.MessagesTable.MessageTableModel;
 import nl.queuemanager.ui.message.MessageViewerPanel;
-import nl.queuemanager.ui.util.DocumentAdapter;
 import nl.queuemanager.ui.util.HighlightsModel;
 import nl.queuemanager.ui.util.Holder;
 import nl.queuemanager.ui.util.QueueCountsRefresher;
@@ -233,12 +229,7 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 
 		messagesActionPanel.add(Box.createHorizontalGlue());
 		
-		JTextField searchField = new JTextField();
-		searchField.setMaximumSize(new Dimension(Integer.MAX_VALUE, searchField.getPreferredSize().height));
-		searchField.putClientProperty("JTextField.variant", "search");
-		searchField.setToolTipText("Type to search");
-		searchField.getDocument().addDocumentListener(new SearchFieldPublisher(eventBus, searchField));
-		messagesActionPanel.add(searchField);
+		messagesActionPanel.add(CommonUITasks.createSearchField(eventBus));
 		
 		return messagesActionPanel;
 	}

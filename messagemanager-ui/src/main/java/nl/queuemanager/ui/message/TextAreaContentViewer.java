@@ -1,16 +1,23 @@
 package nl.queuemanager.ui.message;
 
-import nl.queuemanager.ui.util.JSearchableTextArea;
-
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
+import org.fife.ui.rtextarea.SearchContext;
+import org.fife.ui.rtextarea.SearchEngine;
+
+import com.google.common.eventbus.Subscribe;
+
+import nl.queuemanager.ui.GlobalHighlightEvent;
+import nl.queuemanager.ui.util.JSearchableTextArea;
 
 abstract class TextAreaContentViewer<T> implements ContentViewer<T> {
 	
 	protected abstract String getContent(T object);
 	
+	private RSyntaxTextArea textArea;
+	
 	public RTextScrollPane createUI(T object) {
-		final RSyntaxTextArea textArea = createTextArea(object);
+		textArea = createTextArea(object);
 		return new RTextScrollPane(textArea);
 	}
 
@@ -21,4 +28,16 @@ abstract class TextAreaContentViewer<T> implements ContentViewer<T> {
 		textArea.setCaretPosition(0);
 		return textArea;
 	}
+	
+	@Subscribe
+	public void onGlobalHighlightEvent(GlobalHighlightEvent e) {
+		SearchContext context = new SearchContext();
+		context.setSearchFor(e.getHighlightString());
+		context.setMatchCase(false);
+		context.setRegularExpression(false);
+		context.setSearchForward(true);
+		context.setWholeWord(false);
+		SearchEngine.markAll(textArea, context);
+	}
+	
 }

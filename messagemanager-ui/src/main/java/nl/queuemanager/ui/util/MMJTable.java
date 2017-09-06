@@ -10,12 +10,13 @@ import javax.swing.table.TableCellRenderer;
 public class MMJTable extends JTable {
 
 	private HighlightsModel<?> highlightsModel;
+	private Color highlightColor = Color.YELLOW;
 
 	@Override
 	public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
 	    Component c = super.prepareRenderer(renderer, row, column);
 	    if (!isRowSelected(row) ) {
-	        c.setBackground(isHighlighted(row) ? Color.GREEN : getBackground());
+	        c.setBackground(isHighlighted(row) ? getHighlightColor() : getBackground());
 	    } else {
 	    	c.setBackground(getSelectionBackground());
 	    }
@@ -28,6 +29,14 @@ public class MMJTable extends JTable {
 
 	public void setHighlightsModel(HighlightsModel<?> model) {
 		highlightsModel = model;
+	}
+
+	public Color getHighlightColor() {
+		return highlightColor;
+	}
+
+	public void setHighlightColor(Color highlightColor) {
+		this.highlightColor = highlightColor;
 	}
 
 }

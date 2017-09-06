@@ -62,7 +62,6 @@ import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSTopic;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.message.MessageViewerPanel;
-import nl.queuemanager.ui.util.Highlighter;
 
 /**
  * This class implements the topic subscriber panel. It has a table of configured topics,
@@ -209,13 +208,8 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 		messagesActionPanel.add(saveButton);
 		
 		messagesActionPanel.add(Box.createHorizontalGlue());
-		
-		JTextField searchField = new JTextField();
-		searchField.setMaximumSize(new Dimension(Integer.MAX_VALUE, searchField.getPreferredSize().height));
-		searchField.putClientProperty("JTextField.variant", "search");
-		searchField.setToolTipText("Type to search");
-		searchField.getDocument().addDocumentListener(new SearchFieldPublisher(eventBus, searchField));
-		messagesActionPanel.add(searchField);
+
+		messagesActionPanel.add(CommonUITasks.createSearchField(eventBus));
 		
 		return messagesActionPanel;
 	}

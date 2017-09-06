@@ -22,12 +22,19 @@ import java.awt.Window;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.jms.Message;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.text.BadLocationException;
+
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 
 import nl.queuemanager.core.Pair;
 import nl.queuemanager.core.configuration.CoreConfiguration;
@@ -35,6 +42,7 @@ import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.tasks.TaskFactory;
 import nl.queuemanager.core.util.Clearable;
 import nl.queuemanager.core.util.CollectionFactory;
+import nl.queuemanager.ui.util.DocumentAdapter;
 import nl.queuemanager.ui.util.SingleExtensionFileFilter;
 
 public class CommonUITasks {
@@ -151,6 +159,42 @@ public class CommonUITasks {
 		if(messages.size() > 0) {
 			worker.execute(taskFactory.saveToFile(messages, saveAsESBMSG));
 		}
+	}
+	
+	public static JTextField createSearchField(final EventBus eventBus) {
+		final AtomicBoolean publishSearch = new AtomicBoolean(true);
+		final JTextField searchField = new JTextField();
+		searchField.setMaximumSize(new Dimension(Integer.MAX_VALUE, searchField.getPreferredSize().height));
+		searchField.putClientProperty("JTextField.variant", "search");
+		searchField.setToolTipText("Type to search");
+		searchField.getDocument().addDocumentListener(new DocumentAdapter() {
+			@Override
+			public void updated(DocumentEvent e) {
+				if(!publishSearch.get()) return;
+				
+				try {
+					int length = e.getDocument().getLength();
+					String text = e.getDocument().getText(0, length);
+					eventBus.post(new GlobalHighlightEvent(searchField, text));
+				} catch (BadLocationException ex) {
+					ex.printStackTrace();
+				}
+			}
+		});
+		eventBus.register(new Object() {
+			@Subscribe
+			public void onGlobalHighlightEvent(GlobalHighlightEvent e) {
+				if(e.getSource() != searchField) {
+					try {
+						publishSearch.set(false);
+						searchField.setText(e.getHighlightString());
+					} finally {
+						publishSearch.set(true);
+					}
+				}
+			}
+		});
+		return searchField;
 	}
 
 	// Static method to center any new JFrame or JDialog.
