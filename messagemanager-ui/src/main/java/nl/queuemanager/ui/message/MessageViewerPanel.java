@@ -44,18 +44,14 @@ import javax.swing.tree.TreeSelectionModel;
 import nl.queuemanager.core.Pair;
 import nl.queuemanager.jms.JMSMultipartMessage;
 import nl.queuemanager.jms.JMSPart;
-import nl.queuemanager.ui.GlobalHighlightEvent;
 import nl.queuemanager.ui.MessageListTransferable;
 import nl.queuemanager.ui.util.Highlighter;
 import nl.queuemanager.ui.util.HighlighterListener;
-import nl.queuemanager.ui.util.HighlighterSupport;
 import nl.queuemanager.ui.util.HighlightsModel;
 import nl.queuemanager.ui.util.ListTableModel;
 import nl.queuemanager.ui.util.TreeNodeInfo;
 
-import com.google.common.base.Strings;
 import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
@@ -111,20 +107,7 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 			structureTree.getSelectionModel().setSelectionPath(structureTree.getPathForRow(0));
 	}
 
-	private Highlighter<Pair<?, ?>> highlighter = new HighlighterSupport<Pair<?, ?>>() {
-		private String searchTerm = "";
-
-		@Subscribe
-		public void onGlobalHighlightEvent(GlobalHighlightEvent e) {
-			searchTerm = e.getHighlightString();
-			resetHighlights();
-		}
-		
-		@Override
-		public boolean shouldHighlight(Pair<?, ?> obj) {
-			return obj != null && !Strings.isNullOrEmpty(searchTerm) && obj.toString().contains(searchTerm);
-		}
-	};
+	private Highlighter<Pair<?, ?>> highlighter = new PairValueHighlighter();
 	
 	private void fillTree(DefaultMutableTreeNode root, Message message) {
 		DefaultTreeModel model = (DefaultTreeModel) structureTree.getModel();

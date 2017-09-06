@@ -1,14 +1,29 @@
 package nl.queuemanager.ui.message;
 
+import javax.inject.Inject;
 import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 
+import nl.queuemanager.core.Pair;
+import nl.queuemanager.ui.util.HighlightsModel;
+import nl.queuemanager.ui.util.ListTableModel;
+
 class MapMessageContentViewer implements MessageContentViewer {
+
+	private final PairValueHighlighter highlighter;
+	
+	@Inject
+	public MapMessageContentViewer(PairValueHighlighter highlighter) {
+		this.highlighter = highlighter;
+	}
 	
 	public JComponent createUI(Message message) {
 		MapMessageTable table = new MapMessageTable();
+		table.setHighlightsModel(HighlightsModel.with(
+				(ListTableModel<Pair<?, ?>>)table.getModel(), 
+				highlighter));
 		table.setMessage((MapMessage)message);
 		return new JScrollPane(table);
 	}

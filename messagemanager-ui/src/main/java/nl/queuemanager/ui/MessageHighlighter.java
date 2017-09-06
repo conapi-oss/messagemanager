@@ -1,5 +1,6 @@
 package nl.queuemanager.ui;
 
+import java.text.SimpleDateFormat;
 import java.util.Enumeration;
 
 import javax.jms.JMSException;
@@ -14,6 +15,9 @@ import nl.queuemanager.ui.util.HighlighterSupport;
 
 public final class MessageHighlighter extends HighlighterSupport<Message> {
 
+	private final SimpleDateFormat dateFormatter = 
+			new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z");
+	
 	private String searchTerm = "";
 
 	@Subscribe
@@ -33,7 +37,10 @@ public final class MessageHighlighter extends HighlighterSupport<Message> {
 			if(msg.getJMSCorrelationID() != null && msg.getJMSCorrelationID().contains(searchTerm))
 				return true;
 			
-			if(msg.getJMSCorrelationID() != null && msg.getJMSDestination().toString().contains(searchTerm))
+			if(msg.getJMSDestination() != null && msg.getJMSDestination().toString().contains(searchTerm))
+				return true;
+			
+			if(msg.getJMSTimestamp() > 0 && dateFormatter.format(msg.getJMSTimestamp()).contains(searchTerm))
 				return true;
 			
 			@SuppressWarnings("unchecked")

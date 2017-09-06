@@ -7,7 +7,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.jms.BytesMessage;
 import javax.jms.JMSException;
+import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
@@ -77,30 +79,12 @@ public class FakeMQDomain extends AbstractEventSource<DomainEvent> implements JM
 	}
 
 	public Enumeration<Message> enumerateMessages(JMSQueue queue) throws JMSException {
-		return Collections.enumeration(Arrays.asList(
-                        createExampleMessage(),
-                        createExampleMessage(),
-                        createExampleMessage(),
-                        createExampleMessage(),
-                        createExampleMessage()
-                ));
+		return Collections.enumeration(FakeMQMessageCreator.createRandomMessages(5));
 	}
-        
-        private Message createExampleMessage() {
-            TextMessage msg = MessageFactory.createTextMessage();
-            try {
-                msg.setText("<xml>" + UUID.randomUUID().toString() + "</xml>");
-                msg.setStringProperty("prop1", UUID.randomUUID().toString());
-                msg.setStringProperty("prop2", UUID.randomUUID().toString());
-                msg.setStringProperty("prop3", UUID.randomUUID().toString());
-            } catch (JMSException ex) {
-                ex.printStackTrace();
-            }
-            return msg;
-        }
 
+	
 	public MessageConsumer openConsumer(JMSDestination destination, MessageListener listener) throws JMSException {
-		return new FakeMQMessageConsumer();
+		return new FakeMQMessageConsumer(listener);
 	}
 
 	public void sendMessage(JMSDestination destination, Message messageToSend) throws JMSException {

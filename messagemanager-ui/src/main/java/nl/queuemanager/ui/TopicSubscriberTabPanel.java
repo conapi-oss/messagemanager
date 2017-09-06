@@ -61,7 +61,9 @@ import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSTopic;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
+import nl.queuemanager.ui.MessagesTable.MessageTableModel;
 import nl.queuemanager.ui.message.MessageViewerPanel;
+import nl.queuemanager.ui.util.HighlightsModel;
 
 /**
  * This class implements the topic subscriber panel. It has a table of configured topics,
@@ -96,6 +98,7 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 			MessageViewerPanel messageViewer,
 			CoreConfiguration config, 
 			EventBus eventBus,
+			MessageHighlighter messageHighlighter,
 			JMSSubscriberFactory jmsSubscriberFactory) 
 	{
 		this.domain = domain;
@@ -106,7 +109,7 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 		this.jmsSubscriberFactory = jmsSubscriberFactory;
 		
 		subscriberTable = createTopicTable(topicSubscriberTable);
-		messageTable = createMessageTable();
+		messageTable = createMessageTable(messageHighlighter);
 		this.messageViewer = messageViewer; 
 		messageViewer.setDragEnabled(true);
 		
@@ -378,7 +381,7 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 		} else {
 			messageTable.setData(
 				newSubscriber.getDestination(), 
-				newSubscriber.getMessages());
+				new ArrayList<>(newSubscriber.getMessages()));
 	
 			if(currentSubscriber != newSubscriber) {
 				newSubscriber.addListener(messageEventListener);
@@ -415,9 +418,11 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 		});
 	}
 	
-	private MessagesTable createMessageTable() {
+	private MessagesTable createMessageTable(MessageHighlighter messageHighlighter) {
 		// Create the message table
 		MessagesTable table = new MessagesTable();
+		MessageTableModel tableModel = (MessageTableModel) table.getModel();
+		table.setHighlightsModel(new HighlightsModel<>(tableModel, messageHighlighter));
 
 		ListSelectionModel selectionModel = table.getSelectionModel();
 		selectionModel.addListSelectionListener(new ListSelectionListener() {

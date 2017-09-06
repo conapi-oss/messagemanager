@@ -10,7 +10,8 @@ abstract class HexEditorContentViewer<T> implements ContentViewer<T> {
 	protected abstract byte[] getContent(T object);
 	
 	public JComponent createUI(T object) {
-		JHexEditor hexEditor = new JHexEditor(getContent(object));
+		byte[] content = getContent(object);
+		JHexEditor hexEditor = new JHexEditor(content != null ? content : new byte[] {});
 		hexEditor.setReadOnly(true);
 		return new JScrollPane(hexEditor);
 	}
