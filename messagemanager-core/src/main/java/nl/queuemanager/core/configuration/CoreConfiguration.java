@@ -32,6 +32,8 @@ public interface CoreConfiguration {
 	public static final String PREF_LAST_RUN_BUILD = "lastRunBuild";
 	public static final String PREF_LAST_MOTD_NUMBER = "lastMotdNumber";
 	public static final String PREF_LAST_MOTD_CHECK_TIME = "lastMotdCheckTime";
+	
+	public static final String PREF_LOOK_AND_FEEL = "lookAndFeel";
 
 	/**
 	 * Return a unique identifier for this configuration

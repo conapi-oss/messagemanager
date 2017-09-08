@@ -19,6 +19,7 @@ import java.awt.AWTEvent;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.security.AllPermission;
 import java.security.CodeSource;
 import java.security.PermissionCollection;
@@ -32,28 +33,30 @@ import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-
-import nl.queuemanager.app.AppModule;
-import nl.queuemanager.app.EventBusDebugger;
-import nl.queuemanager.app.MMFrame;
-import nl.queuemanager.app.PluginManager;
-import nl.queuemanager.core.DebugProperty;
-import nl.queuemanager.core.PreconnectCoreModule;
-import nl.queuemanager.core.configuration.XmlConfigurationModule;
-import nl.queuemanager.core.events.ApplicationInitializedEvent;
-import nl.queuemanager.core.platform.PlatformHelper;
-import nl.queuemanager.core.platform.QuitEvent;
-import nl.queuemanager.debug.DebugEventListener;
-import nl.queuemanager.debug.TracingEventQueue;
-import nl.queuemanager.ui.PreconnectUIModule;
-import nl.queuemanager.ui.settings.SettingsModule;
+import javax.swing.UIManager.LookAndFeelInfo;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Stage;
+
+import nl.queuemanager.app.AppModule;
+import nl.queuemanager.app.BootModule;
+import nl.queuemanager.app.EventBusDebugger;
+import nl.queuemanager.app.MMFrame;
+import nl.queuemanager.app.PluginManager;
+import nl.queuemanager.core.DebugProperty;
+import nl.queuemanager.core.PreconnectCoreModule;
+import nl.queuemanager.core.configuration.CoreConfiguration;
+import nl.queuemanager.core.events.ApplicationInitializedEvent;
+import nl.queuemanager.core.platform.PlatformHelper;
+import nl.queuemanager.core.platform.QuitEvent;
 import nl.queuemanager.core.task.MultiQueueTaskExecutorModule;
+import nl.queuemanager.debug.DebugEventListener;
+import nl.queuemanager.debug.TracingEventQueue;
+import nl.queuemanager.ui.PreconnectUIModule;
+import nl.queuemanager.ui.settings.SettingsModule;
 
 public class Main {
 
@@ -64,25 +67,27 @@ public class Main {
 		enableDebugLogging(DebugProperty.developer.isEnabled());
 		fixPolicyForWebStart();
 		
-		// Set look & feel to native
-		setNativeLAF();
+		// Create boot injector so we can set LAF before creating any UI
+		final Injector bootInjector = Guice.createInjector(Stage.PRODUCTION, new BootModule());
+		
+		// Set the LAF
+		setConfiguredLAF(bootInjector.getInstance(CoreConfiguration.class));
 		
 		if(DebugProperty.enableSwingDebug.isEnabled()) {
 			enableSwingDebug();
 		}
 		
-		// Create the default modules
+		// Now create the real injector as a child with the default modules
 		List<Module> modules = new ArrayList<Module>();
-		modules.add(new XmlConfigurationModule("config.xml", "urn:queuemanager-config"));
 		modules.add(new SettingsModule());
-                modules.add(new MultiQueueTaskExecutorModule());
+        modules.add(new MultiQueueTaskExecutorModule());
 		modules.add(new PreconnectCoreModule());
 		modules.add(new PreconnectUIModule());
 		modules.add(new AppModule());
 		
 		// Now that the module list is complete, create the injector
-		final Injector injector = Guice.createInjector(Stage.PRODUCTION, modules);
-		
+		final Injector injector = bootInjector.createChildInjector(modules);
+				
 		// Enable the event debugger
 		if(DebugProperty.developer.isEnabled()) {
 			injector.getInstance(EventBusDebugger.class);
@@ -125,9 +130,18 @@ public class Main {
 		ourLogger.setLevel(Level.ALL);
 	}
 
-	private static void setNativeLAF() { 
+	private static void setConfiguredLAF(CoreConfiguration config) { 
+		String configuredClassName = config.getUserPref(
+				CoreConfiguration.PREF_LOOK_AND_FEEL,
+				UIManager.getSystemLookAndFeelClassName());
+				
 		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+		        if (info.getClassName().equals(configuredClassName)) {
+		            UIManager.setLookAndFeel(info.getClassName());
+		            break;
+		        }
+		    }
 			if(Boolean.TRUE.equals(Toolkit.getDefaultToolkit().getDesktopProperty("awt.dynamicLayoutSupported")))
 				Toolkit.getDefaultToolkit().setDynamicLayout(true);
 		} catch (Exception e) {
