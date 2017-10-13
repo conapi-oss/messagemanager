@@ -1,5 +1,8 @@
 package nl.queuemanager.fakemq;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -11,6 +14,8 @@ import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.TextMessage;
 
+import nl.queuemanager.jms.JMSMultipartMessage;
+import nl.queuemanager.jms.JMSPart;
 import nl.queuemanager.jms.impl.MessageFactory;
 
 public class FakeMQMessageCreator {
@@ -18,10 +23,11 @@ public class FakeMQMessageCreator {
 	private static final Random random = new Random();
 	
 	public static Message createRandomMessage() throws JMSException {
-		switch(random.nextInt(3)) {
+		switch(random.nextInt(4)) {
 		case 0: return createTextMessage();
 		case 1: return createBytesMessage();
 		case 2: return createMapMessage();
+		case 3: return createMultipartMessage();
 		default:
 			throw new JMSException("Failed to create random message");
 		}
@@ -39,6 +45,23 @@ public class FakeMQMessageCreator {
 		TextMessage msg = MessageFactory.createTextMessage();
 		msg.setText("<xml>" + UUID.randomUUID() + "</xml>");
 		setProps(msg);
+		return msg;
+	}
+	
+	public static JMSMultipartMessage createMultipartMessage() throws JMSException {
+		JMSMultipartMessage msg = MessageFactory.createMultipartMessage();
+		setProps(msg);
+		msg.addPart(msg.createPart("<xml>" + UUID.randomUUID() + "</xml>", JMSPart.CONTENT_XML));
+		try {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream(16);
+			DataOutputStream dos = new DataOutputStream(bos);
+			UUID uuid = UUID.randomUUID();
+			dos.writeLong(uuid.getMostSignificantBits());
+			dos.writeLong(uuid.getLeastSignificantBits());
+			msg.addPart(msg.createPart(bos.toByteArray(), JMSPart.CONTENT_BYTES));
+		} catch(IOException e) {
+			throw new JMSException(e.getMessage());
+		}
 		return msg;
 	}
 	

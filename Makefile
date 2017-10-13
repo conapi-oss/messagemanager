@@ -15,14 +15,14 @@ install-fake:
 
 run-app:
 	java    -ea \
-		-Dmm.forceInstallPlugins=true \
 		-Dmm.forceMotdMessage=true \
 		-Dmm.developer=true \
-		-Ddeveloper \
 		-Djava.util.logging.config.file=logging.properties \
 		-DSolace_JMS_Browser_Timeout_In_MS=1000 \
 		-Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=4000,suspend=n \
 		-jar messagemanager-app/target/messagemanager-app-3.1-SNAPSHOT-jar-with-dependencies.jar
+		#-Dmm.forceInstallPlugins=true \
+		#-Ddeveloper \
 		#-Dmm.enableSwingDebug=true \
 
 run-app-prod:
