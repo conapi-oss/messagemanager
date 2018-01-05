@@ -16,6 +16,7 @@
 package nl.queuemanager.core.events;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.queuemanager.core.util.CollectionFactory;
@@ -54,7 +55,9 @@ public abstract class AbstractEventSource<T> implements EventSource<T> {
 		}
 		
 		for(EventListener<T> listener: CollectionFactory.newArrayList(listeners)) {
-			log.fine("Dispatch event: " + event + " to listener " + listener);
+			if(log.isLoggable(Level.FINE)) {
+				log.fine("Dispatch event: " + event + " to listener " + listener);
+			}
 			listener.processEvent(event);
 		}
 	}
