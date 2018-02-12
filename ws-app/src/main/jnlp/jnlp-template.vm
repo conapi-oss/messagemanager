@@ -33,8 +33,8 @@
     <j2se version="$j2seVersion" max-heap-size="512m"/>
      $dependencies
      $extensions
-    <property name="jnlp.mm.forceInstallPlugins" value="true"/>
-    <property name="jnlp.mm.developer" value="true"/>
+    <property name="jnlp.mm.forceInstallPlugins" value="false"/>
+    <property name="jnlp.mm.developer" value="false"/>
   </resources>
   <application-desc main-class="$mainClass"/>
 </jnlp>
