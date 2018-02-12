@@ -1,0 +1,17 @@
+<profile>
+	<id>88e6d9bc-b77e-4e4b-b6ce-4ce55984ccfe</id>
+	<name>Solace</name>
+	<icon>MessageManager/profiles/solace-logo.png</icon>
+	<description>Use this profile to connect to Solace. This profile requires that you add all the required jars from the Solace JMS api before it can be loaded.</description>
+	<plugins>
+		<plugin>nl.queuemanager.solace.SolaceModule</plugin>
+	</plugins>
+	<jars>
+		<jar>sol-jms-*.jar</jar>
+		<jar>sol-jcsmp-*.jar</jar>
+		<jar>sol-common-*.jar</jar>
+		<jar>commons-lang-*.jar</jar>
+		<jar>commons-logging-*.jar</jar>
+		<jar>geronimo-jms_*.jar</jar>
+	</jars>
+</profile>

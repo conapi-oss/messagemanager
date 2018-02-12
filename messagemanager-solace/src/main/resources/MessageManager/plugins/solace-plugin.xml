@@ -1,0 +1,5 @@
+<plugin>
+	<name>Solace Plugin</name>
+	<description>Plugin for Solace</description>
+	<moduleClass>nl.queuemanager.solace.SolaceModule</moduleClass>
+</plugin>
