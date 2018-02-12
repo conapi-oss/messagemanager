@@ -12,12 +12,13 @@
     <module>messagemanager-core</module>
     <module>messagemanager-ui</module>
     <module>messagemanager-app</module>
+    <module>messagemanager-plugin-api</module>
     <module>messagemanager-activemq</module>
     <module>messagemanager-sonicmq</module>
+    <module>messagemanager-solace</module>
     <module>messagemanager-fakemq</module>
-    <module>ws-app</module>
     <module>messagemanager-plugins-package</module>
-    <module>messagemanager-plugin-api</module>
+    <module>ws-app</module>
   </modules>
   
   <properties>
