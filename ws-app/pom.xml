@@ -8,7 +8,7 @@
 	</parent>
 	
 	<description>Message Manager ${suffix}</description>
-	<url>http://queuemanager.nl</url>
+	<url>https://queuemanager.nl</url>
 	
 	<artifactId>ws-app</artifactId>
 	<packaging>pom</packaging>
