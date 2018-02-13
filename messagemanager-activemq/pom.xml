@@ -3,7 +3,7 @@
   <parent>
     <groupId>nl.queuemanager</groupId>
     <artifactId>messagemanager</artifactId>
-    <version>3.1-SNAPSHOT</version>
+    <version>3.2-SNAPSHOT</version>
   </parent>
   <artifactId>messagemanager-activemq</artifactId>
   <dependencies>
@@ -14,7 +14,7 @@
   	<dependency>
   		<groupId>nl.queuemanager</groupId>
   		<artifactId>messagemanager-plugin-api</artifactId>
-  		<version>3.1-SNAPSHOT</version>
+  		<version>3.2-SNAPSHOT</version>
   	</dependency>
   	<dependency>
   		<groupId>org.apache.activemq</groupId>
