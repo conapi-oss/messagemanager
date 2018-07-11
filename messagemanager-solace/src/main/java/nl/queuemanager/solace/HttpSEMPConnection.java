@@ -30,7 +30,6 @@ import com.google.common.base.Strings;
 
 import lombok.Getter;
 import lombok.extern.java.Log;
-import nl.queuemanager.core.DebugProperty;
 
 @Log
 class HttpSEMPConnection implements SempConnection {
@@ -218,8 +217,15 @@ class HttpSEMPConnection implements SempConnection {
 	}
 	
 	static byte[] readFully(URLConnection conn) throws IOException {
-		int length = Integer.parseInt(conn.getHeaderField("Content-Length"));
-		if(length == 0) {
+		int length;
+		
+		try {
+			length = Integer.parseInt(conn.getHeaderField("Content-Length"));
+		} catch (NumberFormatException e) {
+			length = -1;
+		}
+		
+		if(length <= 0) {
 			return new byte[0];
 		}
 		
