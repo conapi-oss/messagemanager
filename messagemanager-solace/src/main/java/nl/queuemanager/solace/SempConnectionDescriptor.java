@@ -52,8 +52,23 @@ class SempConnectionDescriptor extends SmfConnectionDescriptor {
 	@Getter @Setter private String applianceName;
 
 	public URI createHttpUri() throws SempException {
-		if(getCredentials() != null && !(getCredentials() instanceof BasicCredentials)) {
-			throw new IllegalStateException("Only basic credentials are supported over http, we got " + getCredentials().getClass().getSimpleName());
+		if(getHttpHost() == null || getHttpHost().trim().length() == 0) {
+			throw new IllegalArgumentException("Hostname is required");
+		}
+		if(getHttpPort() == 0) {
+			throw new IllegalArgumentException("Port number is required");
+		}
+		if(getCredentials() == null) {
+			throw new IllegalArgumentException("Credentials are required");
+		}
+		if(getCredentials() != null) {
+			if(!(getCredentials() instanceof BasicCredentials)) {
+				throw new IllegalStateException("Only basic credentials are supported over http, we got " + getCredentials().getClass().getSimpleName());
+			}
+			
+			if(getCredentials().getPrincipalName() == null || getCredentials().getPrincipalName().trim().length() == 0) {
+				throw new IllegalArgumentException("User name is required");
+			}
 		}
 		
 		try {
@@ -123,6 +138,6 @@ class SempConnectionDescriptor extends SmfConnectionDescriptor {
 		} else {
 			return getDescription() + " " + getDisplayName();
 		}
-	}	
+	}
 
 }
