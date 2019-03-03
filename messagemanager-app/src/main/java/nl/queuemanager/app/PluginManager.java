@@ -233,7 +233,10 @@ public class PluginManager {
 
 	public List<Module> loadPluginModules(Collection<? extends PluginDescriptor> plugins, List<URL> classpath) throws PluginManagerException {
 		if(pluginClassloader != null) {
-			throw new IllegalStateException("PluginManager can only load plugins once!");
+			// Unload the existing plugins so we can try again
+			pluginClassloader = null;
+			worker.setContextClassLoader(null);
+			Thread.currentThread().setContextClassLoader(null);
 		}
 		
 		try {
