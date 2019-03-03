@@ -14,6 +14,7 @@ import nl.queuemanager.app.PluginManager;
 import nl.queuemanager.core.CoreModule;
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.task.Task;
+import nl.queuemanager.core.util.CoreException;
 import nl.queuemanager.ui.UIModule;
 
 import com.google.common.base.Function;
@@ -69,7 +70,7 @@ public class ActivateProfileTask extends Task {
 			provider.initialize();
 		} catch (NoClassDefFoundError e) {
 			// Report the missing class to the user
-			this.dispatchTaskError(new Exception("Unable to activate profile. Class " + e.getMessage() + " could not be found", e));
+			this.dispatchTaskError(new CoreException("Unable to activate profile. Class " + e.getMessage() + " could not be found", e));
 			return;
 		}
 

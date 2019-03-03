@@ -31,6 +31,7 @@ import com.google.inject.Singleton;
 
 import nl.queuemanager.core.DebugProperty;
 import nl.queuemanager.core.task.TaskEvent;
+import nl.queuemanager.core.util.CoreException;
 import nl.queuemanager.core.util.UserCanceledException;
 
 /**
@@ -97,6 +98,9 @@ public class TaskErrorListener {
 
 		if(e instanceof JMSSecurityException)
 			return "Access denied: " + e.getMessage();
+		
+		if(e instanceof CoreException)
+			return e.getMessage();
 		
 		// The Exception was not a known one. Dig deeper.
 		if(e.getCause() != null && e.getCause() != e)
