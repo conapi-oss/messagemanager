@@ -53,11 +53,11 @@ public class FakeMQDomain extends AbstractEventSource<DomainEvent> implements JM
 
 	public List<JMSQueue> getQueueList(JMSBroker broker, String filter) {
 		List<JMSQueue> queues = new ArrayList<JMSQueue>();
-		queues.add(createQueue(broker, "Queue 1"));
-		queues.add(createQueue(broker, "Queue 2"));
-		queues.add(createQueue(broker, "Queue 3"));
-		queues.add(createQueue(broker, "Queue 4"));
-		queues.add(createQueue(broker, "Queue 5"));
+		queues.add(createQueue(broker, "Queue 1", 1));
+		queues.add(createQueue(broker, "Queue 2", 2));
+		queues.add(createQueue(broker, "Queue 3", 3));
+		queues.add(createQueue(broker, "Queue 4", 4));
+		queues.add(createQueue(broker, "Queue 5", 5));
 		return queues;
 	}
 
@@ -66,7 +66,11 @@ public class FakeMQDomain extends AbstractEventSource<DomainEvent> implements JM
 	}
 
 	public JMSQueue createQueue(JMSBroker broker, String queueName) {
-		return new FakeMQQueue((FakeMQBroker)broker, queueName, 5);
+		return createQueue(broker, queueName, 0);
+	}
+
+	public JMSQueue createQueue(JMSBroker broker, String queueName, int messageCount) {
+		return new FakeMQQueue((FakeMQBroker)broker, queueName, messageCount);
 	}
 
 	public Enumeration<Message> enumerateMessages(JMSQueue queue) throws JMSException {
