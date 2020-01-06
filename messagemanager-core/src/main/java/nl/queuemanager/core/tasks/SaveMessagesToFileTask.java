@@ -93,15 +93,18 @@ public class SaveMessagesToFileTask extends Task implements CancelableTask {
 		}
 	}
 
-	private void saveMultipleFiles(JMSMultipartMessage message, File directory) throws JMSException, IOException {
-		if(!directory.isDirectory())
-			throw new RuntimeException(directory + " is not a directory!");
+	static void saveMultipleFiles(JMSMultipartMessage message, File directory) throws JMSException, IOException {
+		if(!directory.isDirectory()) {
+			if(!directory.mkdirs()) {
+				throw new RuntimeException("Unable to create directory: " + directory.getName());
+			}
+		}
 
 		File baseFilename = createFilenameForMessage(message, directory);
-		
-		for(int i=0; i<message.getPartCount(); i++) {
+
+		for (int i = 0; i < message.getPartCount(); i++) {
 			File partFile = createFilenameWithExtension(
-				message.getPart(i), new File(baseFilename.getAbsolutePath() + "_PART" + i));
+					message.getPart(i), new File(baseFilename.getAbsolutePath() + "_PART" + i));
 			FileOutputStream fos = new FileOutputStream(partFile);
 			fos.write(message.getPart(i).getContentBytes());
 			fos.close();
@@ -139,17 +142,17 @@ public class SaveMessagesToFileTask extends Task implements CancelableTask {
 		fos.close();
 	}
 
-	private File createFilenameForMessage(javax.jms.Message message, File directory) throws JMSException {
+	static File createFilenameForMessage(javax.jms.Message message, File directory) throws JMSException {
 		String name = String.format("%d-%s", message.getJMSTimestamp(), message.getJMSMessageID().replace(':', '_'));
 		return new File(directory, name);
 	}
 	
-	private File createFilenameWithExtension(javax.jms.Message message, File file) {
+	static File createFilenameWithExtension(javax.jms.Message message, File file) {
 		final MessageType type = MessageType.fromClass(message.getClass());
 		return new File(file.getAbsolutePath() + type.getExtension());
 	}
 	
-	private File createFilenameWithExtension(JMSPart part, File file) {
+	static File createFilenameWithExtension(JMSPart part, File file) {
 		if(part.getContentType().endsWith("xml"))
 			return new File(file.getAbsolutePath() + ".xml");
 		
