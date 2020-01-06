@@ -63,9 +63,6 @@
     <dependency>
     	<groupId>junit</groupId>
     	<artifactId>junit</artifactId>
-    	<version>[4,5)</version>
-    	<type>jar</type>
-    	<scope>test</scope>
     </dependency>
     <dependency>
     	<groupId>nl.queuemanager</groupId>
