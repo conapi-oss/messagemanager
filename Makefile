@@ -11,7 +11,7 @@ install-app:
 
 install-fake:
 	mvn -o install -pl messagemanager-fakemq -am
-	cp messagemanager-fakemq/target/*.jar ~/Library/Application\ Support/MessageManager/plugins/3.1-SNAPSHOT/
+	cp messagemanager-fakemq/target/*.jar ~/Library/Application\ Support/MessageManager/plugins/3.2-SNAPSHOT/
 
 run-app:
 	java    -ea \
