@@ -62,12 +62,12 @@
 					</jnlp>
 					<signJnlp>true</signJnlp>
 					<sign>
-						<keystore>${codesign.keystore}</keystore>
-						<keypass>${codesign.keypass}</keypass>
-						<storepass>${codesign.storepass}</storepass>
-						<storetype>${codesign.storetype}</storetype>
-						<alias>${codesign.keyalias}</alias>
-						<tsaLocation>${codesign.tsaurl}</tsaLocation>
+						<keystore>${env.codesign.keystore}</keystore>
+						<keypass>${env.codesign.password}</keypass>
+						<storepass>${env.codesign.password}</storepass>
+						<storetype>${env.codesign.storetype}</storetype>
+						<alias>${env.codesign.keyalias}</alias>
+						<tsaLocation>${env.codesign.tsaurl}</tsaLocation>
 
 						<!-- verify that the signing operation succeeded -->
 						<verify>true</verify>

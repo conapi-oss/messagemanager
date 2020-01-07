@@ -82,7 +82,7 @@ public class SaveMessagesToFileTaskTest {
             assertTrue("Part 2 must exist", Files.exists(part2));
             assertArrayEquals("[1,2,3]".getBytes(), Files.readAllBytes(part2));
         } finally {
-            //recursiveDelete(tempDir);
+            recursiveDelete(tempDir);
         }
     }
 
