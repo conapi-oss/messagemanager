@@ -71,6 +71,8 @@
 
 						<!-- verify that the signing operation succeeded -->
 						<verify>true</verify>
+
+						<verbose>true</verbose>
 					</sign>
 				</configuration>
 			</plugin>
