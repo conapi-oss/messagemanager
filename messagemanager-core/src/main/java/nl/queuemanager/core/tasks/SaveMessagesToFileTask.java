@@ -155,7 +155,10 @@ public class SaveMessagesToFileTask extends Task implements CancelableTask {
 	static File createFilenameWithExtension(JMSPart part, File file) {
 		if(part.getContentType().endsWith("xml"))
 			return new File(file.getAbsolutePath() + ".xml");
-		
+
+		if(part.getContentType().endsWith("json"))
+			return new File(file.getAbsolutePath() + ".json");
+
 		if(part.getContentType().startsWith("text"))
 			return new File(file.getAbsolutePath() + ".txt");
 		

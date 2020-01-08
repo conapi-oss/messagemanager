@@ -44,7 +44,7 @@ public class SaveMessagesToFileTaskTest {
             assertTrue("Part 1 must exist", Files.exists(part1));
             assertArrayEquals("<xml/>".getBytes(), Files.readAllBytes(part1));
 
-            Path part2 = tempDir.resolve(timestamp + "-" + uuid + "_PART2.bin");
+            Path part2 = tempDir.resolve(timestamp + "-" + uuid + "_PART2.json");
             assertTrue("Part 2 must exist", Files.exists(part2));
             assertArrayEquals("[1,2,3]".getBytes(), Files.readAllBytes(part2));
         } finally {
@@ -78,7 +78,7 @@ public class SaveMessagesToFileTaskTest {
             assertTrue("Part 1 must exist", Files.exists(part1));
             assertArrayEquals("<xml/>".getBytes(), Files.readAllBytes(part1));
 
-            Path part2 = tempDir.resolve(timestamp + "-" + uuid + "_PART2.bin");
+            Path part2 = tempDir.resolve(timestamp + "-" + uuid + "_PART2.json");
             assertTrue("Part 2 must exist", Files.exists(part2));
             assertArrayEquals("[1,2,3]".getBytes(), Files.readAllBytes(part2));
         } finally {
