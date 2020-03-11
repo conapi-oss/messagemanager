@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>nl.queuemanager</groupId>
 		<artifactId>messagemanager</artifactId>
-		<version>3.2-RC1</version>
+		<version>3.2</version>
 	</parent>
 
 	<artifactId>messagemanager-plugins-package</artifactId>
