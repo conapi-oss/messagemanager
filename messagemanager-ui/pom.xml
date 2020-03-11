@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>messagemanager</artifactId>
 		<groupId>nl.queuemanager</groupId>
-        <version>3.2-SNAPSHOT</version>
+        <version>3.2-RC1</version>
 
 		<relativePath>../pom.xml</relativePath>
 	</parent>
@@ -13,7 +13,7 @@
 		<dependency>
 			<groupId>nl.queuemanager</groupId>
 			<artifactId>messagemanager-core</artifactId>
-			<version>3.2-SNAPSHOT</version>
+			<version>3.2-RC1</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>

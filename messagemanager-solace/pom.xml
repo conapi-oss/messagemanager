@@ -3,14 +3,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>nl.queuemanager</groupId>
 	<artifactId>messagemanager-solace</artifactId>
-	<version>3.2-SNAPSHOT</version>
+	<version>3.2-RC1</version>
 	<name>Solace connector for Message Manager</name>
 
 	<dependencies>
 		<dependency>
 			<groupId>nl.queuemanager</groupId>
 			<artifactId>messagemanager-plugin-api</artifactId>
-			<version>3.2-SNAPSHOT</version>
+			<version>3.2-RC1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.solacesystems</groupId>
