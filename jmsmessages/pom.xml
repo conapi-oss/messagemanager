@@ -3,7 +3,7 @@
   <parent>
     <artifactId>messagemanager</artifactId>
     <groupId>nl.queuemanager</groupId>
-    <version>3.2</version>
+    <version>3.3-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>jmsmessages</artifactId>

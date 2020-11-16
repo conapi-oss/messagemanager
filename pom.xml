@@ -4,7 +4,7 @@
   <groupId>nl.queuemanager</groupId>
   <artifactId>messagemanager</artifactId>
   <name>Message Manager</name>
-  <version>3.2</version>
+  <version>3.3-SNAPSHOT</version>
   <packaging>pom</packaging>
   
   <modules>
