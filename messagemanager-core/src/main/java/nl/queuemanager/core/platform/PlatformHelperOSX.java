@@ -1,8 +1,8 @@
 package nl.queuemanager.core.platform;
 
-import java.awt.Component;
-import java.awt.FileDialog;
-import java.awt.Frame;
+import java.awt.*;
+import java.awt.desktop.QuitHandler;
+import java.awt.desktop.QuitResponse;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
@@ -13,9 +13,6 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
-import com.apple.eawt.Application;
-import com.apple.eawt.QuitHandler;
-import com.apple.eawt.QuitResponse;
 import com.google.common.eventbus.EventBus;
 
 //@SuppressWarnings("restriction")
@@ -45,16 +42,12 @@ public class PlatformHelperOSX extends PlatformHelper implements QuitHandler {
 	public static final String kTemporaryFolderType = "temp"; /* temporary files go here (deleted periodically, but don't rely on it.) */
 	public static final String kApplicationSupportFolderType = "asup"; /* third-party items and folders */
 	
-	private final Application application;
 	private final EventBus eventBus;
 	
 	@Inject
 	public PlatformHelperOSX(EventBus eventBus) {
 		this.eventBus = eventBus;
-		this.application = Application.getApplication();
-//		application.setAboutHandler(this);
-//		application.setPreferencesHandler(this);
-		application.setQuitHandler(this);
+		Desktop.getDesktop().setQuitHandler(this);
 	}
 
 	/**
@@ -79,18 +72,14 @@ public class PlatformHelperOSX extends PlatformHelper implements QuitHandler {
 //	public void handlePreferences(com.apple.eawt.AppEvent.PreferencesEvent e) {
 //		eventBus.post(new PreferencesEvent());
 //	}
-	
+
 	@Override
-	public void handleQuitRequestWith(com.apple.eawt.AppEvent.QuitEvent e, final QuitResponse resp) {
+	public void handleQuitRequestWith(java.awt.desktop.QuitEvent e, QuitResponse response) {
 		eventBus.post(new QuitEvent() {
 			public void quit() {
-				resp.performQuit();
+				response.performQuit();
 			}
 		});
-	}
-	
-	public void setBadge(String badge) {
-		application.setDockIconBadge(badge);
 	}
 
 	/**

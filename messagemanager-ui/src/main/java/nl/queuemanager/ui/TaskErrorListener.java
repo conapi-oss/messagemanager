@@ -30,6 +30,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import nl.queuemanager.core.DebugProperty;
+import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskEvent;
 import nl.queuemanager.core.util.CoreException;
 import nl.queuemanager.core.util.UserCanceledException;
@@ -73,10 +74,10 @@ public class TaskErrorListener {
 				return;
 			}
 				
-//			if(!((Task)event.getSource()).isBackground()) {
+			if(!((Task)event.getSource()).isBackground()) {
 				String message = translateExceptionMessage((Throwable)event.getInfo());
 				showMessage(parent, "Error in task " + event.getSource().toString(), message, true);
-//			}
+			}
 			
 			break;
 		}

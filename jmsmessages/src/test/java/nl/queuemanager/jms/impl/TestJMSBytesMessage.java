@@ -35,7 +35,7 @@ public class TestJMSBytesMessage {
 		msg.writeFloat(2.0f);
 		msg.writeInt(3);
 		msg.writeLong(4L);
-		msg.writeObject(new Integer(31337));
+		msg.writeObject(Integer.valueOf(31337));
 		msg.writeShort((short)123);
 		msg.writeUTF("UTF string");
 
@@ -68,7 +68,7 @@ public class TestJMSBytesMessage {
 	public void testWriteReadObject() throws JMSException {
 		BytesMessage msg = MessageFactory.createBytesMessage();
 		
-		msg.writeObject(new Integer(123));
+		msg.writeObject(Integer.valueOf(123));
 		msg.reset();
 		assertEquals(4, msg.getBodyLength());
 		assertEquals(123, msg.readInt());
