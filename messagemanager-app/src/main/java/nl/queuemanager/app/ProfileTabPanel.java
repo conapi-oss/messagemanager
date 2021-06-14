@@ -330,13 +330,15 @@ public class ProfileTabPanel extends JPanel implements UITab {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Profile source = profilesList.getSelectedValue();
-				Profile profile = Profile.copyOf(source);
-				
-				((DefaultListModel<Profile>)profilesList.getModel()).insertElementAt(profile, profilesList.getSelectedIndex()+1);
-				profileManager.putProfileIfNotExist(profile);
-				profileManager.tryToSaveProfile(profile);
-				
-				profilesList.setSelectedValue(profile, true);
+				if(source != null) {
+					Profile profile = Profile.copyOf(source);
+
+					((DefaultListModel<Profile>)profilesList.getModel()).insertElementAt(profile, profilesList.getSelectedIndex()+1);
+					profileManager.putProfileIfNotExist(profile);
+					profileManager.tryToSaveProfile(profile);
+
+					profilesList.setSelectedValue(profile, true);
+				}
 			}
 		});
 		profileButtonsBox.add(duplicateProfileButton);

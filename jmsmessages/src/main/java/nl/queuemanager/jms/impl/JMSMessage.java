@@ -51,6 +51,8 @@ class JMSMessage implements Message, Serializable {
 	private transient Destination replyTo;
 	private long timestamp;
 	private String type;
+
+	private long deliveryTime;
 	
 	JMSMessage() {
 		this.properties = new HashMap<Object, Object>();
@@ -61,6 +63,16 @@ class JMSMessage implements Message, Serializable {
 	}
 
 	public void clearBody() throws JMSException {
+	}
+
+	@Override
+	public <T> T getBody(Class<T> c) throws JMSException {
+		return null;
+	}
+
+	@Override
+	public boolean isBodyAssignableTo(Class c) throws JMSException {
+		return false;
 	}
 
 	public void clearProperties() {
@@ -210,6 +222,16 @@ class JMSMessage implements Message, Serializable {
 
 	public void setJMSExpiration(long arg0) {
 		expiration = arg0;
+	}
+
+	@Override
+	public long getJMSDeliveryTime() throws JMSException {
+		return deliveryTime;
+	}
+
+	@Override
+	public void setJMSDeliveryTime(long deliveryTime) throws JMSException {
+		this.deliveryTime = deliveryTime;
 	}
 
 	public void setJMSMessageID(String arg0) {

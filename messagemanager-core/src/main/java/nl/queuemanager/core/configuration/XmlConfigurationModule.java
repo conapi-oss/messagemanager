@@ -8,7 +8,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
 import nl.queuemanager.core.platform.PlatformHelper;
-import nl.queuemanager.core.platform.PlatformModule;
 
 public class XmlConfigurationModule extends AbstractModule {
 
@@ -20,10 +19,6 @@ public class XmlConfigurationModule extends AbstractModule {
 		this.namespaceUri = namespaceUri;
 	}
 	
-	public void configure() {
-		install(new PlatformModule());
-	}
-
 	@Provides @Singleton
 	public Configuration createConfiguration(CoreXmlConfiguration config) {
 		return config;

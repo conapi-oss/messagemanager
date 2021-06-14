@@ -291,9 +291,10 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 				worker.execute(new Task(domain, eventBus) {
 					@Override
 					public void execute() throws Exception {
-						@SuppressWarnings("restriction")
-						final String url = sun.management.ConnectorAddressLink.importFrom(Integer.valueOf(pid));
-						domain.connect(url);
+						// FIXME This isn't available anymore?
+//						@SuppressWarnings("restriction")
+//						final String url = sun.management.ConnectorAddressLink.importFrom(Integer.valueOf(pid));
+//						domain.connect(url);
 					}
 					@Override
 					public String toString() {

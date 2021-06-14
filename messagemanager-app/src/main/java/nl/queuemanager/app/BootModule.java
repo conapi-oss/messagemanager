@@ -11,7 +11,6 @@ import com.google.inject.spi.TypeListener;
 
 import nl.queuemanager.core.DeadEventListener;
 import nl.queuemanager.core.configuration.XmlConfigurationModule;
-import nl.queuemanager.core.platform.PlatformModule;
 
 public class BootModule extends AbstractModule {
 
@@ -19,7 +18,6 @@ public class BootModule extends AbstractModule {
 	
 	@Override
 	protected void configure() {
-		install(new PlatformModule());
 		install(new XmlConfigurationModule("config.xml", "urn:queuemanager-config"));
 		
 		// Bind the global EventBus and register all Guice created objects with it

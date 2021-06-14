@@ -1,23 +1,55 @@
 package nl.queuemanager.core.platform;
 
+import java.awt.*;
+import java.awt.desktop.PreferencesEvent;
+import java.awt.desktop.QuitEvent;
+import java.awt.desktop.QuitResponse;
 import java.io.File;
 
+import javax.inject.Inject;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
 import com.google.common.base.Strings;
+import com.google.common.eventbus.EventBus;
 
 public class PlatformHelper {
 	// FIXME REALLY REALLY REALLY BAD!!
 	public static PlatformHelper platformHelper;
 
-	public PlatformHelper() {
+	private EventBus eventBus;
+
+	@Inject
+	public PlatformHelper(EventBus eventBus) {
 		PlatformHelper.platformHelper = this;
+
+		this.eventBus = eventBus;
+
+		Desktop.getDesktop().setAboutHandler(this::handleAbout);
+		Desktop.getDesktop().setPreferencesHandler(this::handlePreferences);
+		Desktop.getDesktop().setQuitHandler(this::handleQuit);
 	}
-	
+
+	private void handleAbout(java.awt.desktop.AboutEvent aboutEvent) {
+		eventBus.post(new AboutEvent());
+	}
+
+	private void handlePreferences(PreferencesEvent preferencesEvent) {
+		eventBus.post(new PreferencesEvent());
+	}
+
+	private void handleQuit(QuitEvent quitEvent, QuitResponse quitResponse) {
+		eventBus.post(new nl.queuemanager.core.platform.QuitEvent() {
+			public void quit() {
+				quitResponse.performQuit();
+			}
+		});
+	}
+
 	public void setApplicationName(String name) {
+
 	}
 
 	public void setFullScreenEnabled(JFrame frame, boolean enabled) {
@@ -40,10 +72,14 @@ public class PlatformHelper {
 	/**
 	 * Return the non application specific directory where programs can store data 
 	 * (AppData on Windows, ~/Library/Application Support on Mac, etc). Consumers
-	 * within this application should use the application-specific {@link getDataFolder}.
+	 * within this application should use the application-specific {@link #getDataFolder}.
 	 */
 	protected File getUserDataFolder() {
 		String configPath = System.getenv("XDG_CONFIG_DIR");
+		if(Strings.isNullOrEmpty(configPath)) {
+			configPath = System.getenv("APPDATA");
+		}
+
 		if(Strings.isNullOrEmpty(configPath)) {
 			File userHome = new File(System.getProperty("user.home"));
 			return new File(userHome, ".config");

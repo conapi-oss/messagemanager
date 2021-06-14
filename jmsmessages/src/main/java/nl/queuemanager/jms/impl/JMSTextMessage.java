@@ -30,7 +30,12 @@ class JMSTextMessage extends JMSMessage implements TextMessage, Serializable {
 	public void clearBody() throws JMSException {
 		setText(null);
 	}
-	
+
+	@Override
+	public boolean isBodyAssignableTo(Class c) throws JMSException {
+		return String.class.isAssignableFrom(c);
+	}
+
 	public String getText() throws JMSException {
 		return text;
 	}

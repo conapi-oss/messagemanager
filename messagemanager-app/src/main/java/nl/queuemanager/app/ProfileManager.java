@@ -8,10 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -47,7 +44,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.google.common.eventbus.Subscribe;
-import com.miginfocom.Base64;
 
 @Singleton
 public class ProfileManager {
@@ -133,7 +129,7 @@ public class ProfileManager {
 			Element profileElement = doc.createElement("profile");
 			appendTextElement(profileElement, "id", profile.getId());
 			appendTextElement(profileElement, "name", profile.getName());
-			appendTextElement(profileElement, "icon", "base64:" + Base64.encodeToString(profile.getIconData(), false));
+			appendTextElement(profileElement, "icon", "base64:" + Base64.getEncoder().encodeToString(profile.getIconData()));
 			appendTextElement(profileElement, "description", profile.getDescription());
 			
 			profileElement.appendChild(createListElement("jars", "jar", profile.getJars(), doc));
@@ -211,7 +207,7 @@ public class ProfileManager {
 
 		// If the data is base64 encoded, return the decoded version
 		if(iconString.startsWith("base64:")) {
-			return Base64.decode(iconString.substring(7));
+			return Base64.getDecoder().decode(iconString.substring(7));
 		}
 		
 		if(pluginZip == null) {

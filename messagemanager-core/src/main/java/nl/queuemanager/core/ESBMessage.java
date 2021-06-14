@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Base64;
 import java.util.Enumeration;
 
 import javax.jms.BytesMessage;
@@ -53,8 +54,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
-import com.miginfocom.Base64;
 
 /**
  * This class reads and writes .esbmsg files. 
@@ -187,7 +186,7 @@ public final class ESBMessage {
 			bm.reset();
 			byte[] bytes = new byte[(int)bm.getBodyLength()];
 			bm.readBytes(bytes);
-			e.setTextContent(Base64.encodeToString(bytes, true));
+			e.setTextContent(Base64.getEncoder().encodeToString(bytes));
 		//MAPStart
 		} else if(MapMessage.class.isAssignableFrom(message.getClass())) {
 		        MapMessage mm = (MapMessage)message;
@@ -216,7 +215,7 @@ public final class ESBMessage {
 	private static String buildValue( Object obj){
 	    //if object is of byte[] then base 64 encoding should be returned
 	    if(obj instanceof byte[]){
-	        return Base64.encodeToString((byte[])obj, true);
+	        return Base64.getEncoder().encodeToString((byte[])obj);
 	    }else{
 	        return obj.toString();
 	    }
@@ -241,7 +240,7 @@ public final class ESBMessage {
 		if (contentType.startsWith(CONTENT_ANYTEXT)){
 			e.setTextContent((String)part.getContent());
 		} else {
-			e.setTextContent(Base64.encodeToString(part.getContentBytes(), true));
+			e.setTextContent(Base64.getEncoder().encodeToString(part.getContentBytes()));
 		}
 		messageElement.appendChild(e);
 	}
@@ -480,7 +479,7 @@ public final class ESBMessage {
 		if(useFileRef) {
 			message.writeBytes(resolveFileRef(esbmsgFile, fileRef));
 		} else {
-			message.writeBytes(Base64.decode(bodyNode.getTextContent()));
+			message.writeBytes(Base64.getDecoder().decode(bodyNode.getTextContent()));
 		}
 		
 		// Put the message in read-only mode and set the read pointer to 0
@@ -524,7 +523,8 @@ public final class ESBMessage {
 				if (contentType.startsWith(CONTENT_ANYTEXT)) {
 					message.addPart(messagePart=message.createPart(partNode.getTextContent(), contentType));
 				} else {
-					message.addPart(messagePart=message.createPart(Base64.decode(partNode.getTextContent()), contentType));
+					message.addPart(messagePart=message.createPart(
+							Base64.getDecoder().decode(partNode.getTextContent()), contentType));
 					
 				}
 			}
@@ -578,7 +578,7 @@ public final class ESBMessage {
 		if (type.equalsIgnoreCase(Double.class.getName()))
 			return Double.parseDouble(value);
 		if (type.equalsIgnoreCase("byte[]"))
-		        return Base64.decode(value);
+		        return Base64.getDecoder().decode(value);
 		return value;
 	}
 	

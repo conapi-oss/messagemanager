@@ -33,7 +33,6 @@ import com.google.inject.Singleton;
 
 import nl.queuemanager.AddUITabEvent;
 import nl.queuemanager.ProfileActivatedEvent;
-import nl.queuemanager.Version;
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.core.jms.DomainEvent;

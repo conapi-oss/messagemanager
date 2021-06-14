@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.queuemanager;
+package nl.queuemanager.app;
 
 import java.awt.AWTEvent;
 import java.awt.Toolkit;
@@ -37,14 +37,8 @@ import javax.swing.UIManager.LookAndFeelInfo;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Module;
 import com.google.inject.Stage;
 
-import nl.queuemanager.app.AppModule;
-import nl.queuemanager.app.BootModule;
-import nl.queuemanager.app.EventBusDebugger;
-import nl.queuemanager.app.MMFrame;
-import nl.queuemanager.app.PluginManager;
 import nl.queuemanager.core.DebugProperty;
 import nl.queuemanager.core.PreconnectCoreModule;
 import nl.queuemanager.core.configuration.CoreConfiguration;
@@ -64,8 +58,7 @@ public class Main {
 	
 	public static void main(String[] args) {
 		enableDebugLogging(DebugProperty.developer.isEnabled());
-		fixPolicyForWebStart();
-		
+
 		// Create boot injector so we can set LAF before creating any UI
 		final Injector bootInjector = Guice.createInjector(Stage.PRODUCTION, new BootModule());
 		
@@ -77,7 +70,7 @@ public class Main {
 		}
 		
 		// Now create the real injector as a child with the default modules
-		List<Module> modules = new ArrayList<Module>();
+		List<com.google.inject.Module> modules = new ArrayList<>();
 		modules.add(new SettingsModule());
         modules.add(new MultiQueueTaskExecutorModule());
 		modules.add(new PreconnectCoreModule());

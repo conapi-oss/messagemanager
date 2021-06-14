@@ -78,7 +78,7 @@ public class MessageFactory {
 	/**
 	 * Copy an existing {@link javax.jms.Message} into internal message format.
 	 * 
-	 * @param message
+	 * @param in
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")

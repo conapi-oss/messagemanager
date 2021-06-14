@@ -5,19 +5,14 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -32,8 +27,8 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import com.google.inject.Module;
 import nl.queuemanager.Profile;
-import nl.queuemanager.Version;
 import nl.queuemanager.core.DebugProperty;
 import nl.queuemanager.core.platform.PlatformHelper;
 import nl.queuemanager.core.task.TaskExecutor;
@@ -44,7 +39,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.google.common.io.Resources;
-import com.google.inject.Module;
 
 @Singleton
 public class PluginManager {
@@ -60,13 +54,21 @@ public class PluginManager {
 	public PluginManager(PlatformHelper platform, ProfileManager profileManager, TaskExecutor worker) {
 		this.worker = worker;
 		this.profileManager = profileManager;
-		
+
 		pluginsFolder = new File(new File(platform.getDataFolder(), "plugins"), Version.VERSION);
-		
+
 		installProvidedPluginsFromResources(pluginsFolder);
 		plugins.putAll(findInstalledPlugins(pluginsFolder));
+
+		ServiceLoader<Module> serviceLoader = ServiceLoader.load(Module.class);
+		serviceLoader.stream()
+				.map(this::toPlugin)
+				.forEach(pl -> plugins.put(pl.getModuleClassName(), pl));
+		serviceLoader.stream()
+				.map(this::toProfile)
+				.forEach(profileManager::putProfileIfNotExist);
 	}
-	
+
 	public List<PluginDescriptor> getInstalledPlugins() {
 		return new ArrayList<>(plugins.values());
 	}
@@ -231,7 +233,7 @@ public class PluginManager {
 		throw new PluginManagerException("Plugin " + classname + " does not exist!");
 	}
 
-	public List<Module> loadPluginModules(Collection<? extends PluginDescriptor> plugins, List<URL> classpath) throws PluginManagerException {
+	public List<com.google.inject.Module> loadPluginModules(Collection<? extends PluginDescriptor> plugins, List<URL> classpath) throws PluginManagerException {
 		if(pluginClassloader != null) {
 			// Unload the existing plugins so we can try again
 			pluginClassloader = null;
@@ -242,10 +244,11 @@ public class PluginManager {
 		try {
 			List<URL> urls = new ArrayList<URL>();
 			for(PluginDescriptor plugin: plugins) {
-				try {
-					urls.add(plugin.getFile().toURI().toURL());
-				} catch (MalformedURLException e) {
-				}
+				Optional.of(plugin)
+						.map(PluginDescriptor::getFile)
+						.map(File::toURI)
+						.map(ThrowingFunction.wrap(URI::toURL))
+						.ifPresent(urls::add);
 				urls.addAll(plugin.getClasspath());
 			}
 			urls.addAll(classpath);
@@ -260,18 +263,36 @@ public class PluginManager {
 			worker.setContextClassLoader(classLoader);
 			Thread.currentThread().setContextClassLoader(classLoader);
 
-			List<Module> result = new ArrayList<Module>();
+			List<com.google.inject.Module> result = new ArrayList<>();
 			for(PluginDescriptor plugin: plugins) {
 				@SuppressWarnings("unchecked")
-				Class<Module> moduleClass = (Class<Module>) classLoader.loadClass(plugin.getModuleClassName());
-				Module module = moduleClass.newInstance();
+				Class<com.google.inject.Module> moduleClass =
+						(Class<com.google.inject.Module>) classLoader.loadClass(plugin.getModuleClassName());
+				com.google.inject.Module module = moduleClass.getDeclaredConstructor().newInstance();
 				result.add(module);
 			}
 			
 			pluginClassloader = classLoader;
 			return result;
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
 			throw new PluginManagerException("Unable to load plugin modules", e);
 		}
 	}
+
+	private PluginDescriptor toPlugin(ServiceLoader.Provider<Module> provider) {
+		PluginDescriptor desc = new PluginDescriptor();
+		desc.setName("Auto " + provider.type().getSimpleName());
+		desc.setModuleClass(provider.type().getName());
+		desc.setDescription("Auto-generated plugin descriptor");
+		return desc;
+	}
+
+	private Profile toProfile(ServiceLoader.Provider<Module> provider) {
+		Profile profile = new Profile();
+		profile.setName(provider.type().getSimpleName());
+		profile.setPlugins(Collections.singletonList(provider.type().getName()));
+		profile.setJars(Collections.emptyList());
+		return profile;
+	}
+
 }
