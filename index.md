@@ -1,37 +1,38 @@
-## Welcome to GitHub Pages
+---
+id: 4
+title: Introduction
+date: 2008-02-19T10:11:21+01:00
+author: Gerco Dries
+layout: page
+guid: http://queuemanager.nl/wp/sonic-message-manager/
+aktt_notify_twitter:
+  - 'yes'
+---
+The Sonic™ Message Manager is an application aimed at replacing the JMS Test Client provided with Sonic™ MQ for general use. It will not support the most advanced features of the JMS Test Client, but will provide other features that the JMS Test Client lacks.
 
-You can use the [editor on GitHub](https://github.com/gerco/messagemanager/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+## Features
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+  * Automatically discovers brokers in the connected Sonic™ Domain
+  * Lists queues on the selected broker to prevent needless typing
+  * Delete all message from a queue
+  * Deleting messages anywhere on a queue
+  * Drag (multiple) messages from one queue to another
+  * Send messages by dragging files on to a queue
+  * Send one message multiple times
+  * Set JMSCorrelationID and JMSReplyTo on outgoing messages
+  * Set custom Header Properties on test message
+  * Copy/drag a message part to another queue or a program
+  * Re-uses connections from the Sonic™ Management Console
+  * Displays every part of a multi-part message separately
+  * Includes hex-viewer for BytesMessages
 
-### Markdown
+## Screenshots
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+The main screen for working with messages.  
+[![](../messagemanager-win32_small.png)](../messagemanager-win32.png "Main screen")
 
-```markdown
-Syntax highlighted code block
+## Legalese
 
-# Header 1
-## Header 2
-### Header 3
+Sonic™ Message Manager is not supported, endorsed by or affiliated with Aurea Software in any way. Do not contact Aurea Software with questions or remarks. Instead, [create an issue on Bitbucket](https://bitbucket.org/gerco/messagemanager-2.x/issues/new).
 
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/gerco/messagemanager/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+Sonic™ is a trademark of <a title="Administrator" href="http://www.aurea.com" target="_blank">Aurea Software</a>.
