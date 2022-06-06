@@ -15,23 +15,10 @@
  */
 package nl.queuemanager.solace;
 
-import java.util.Enumeration;
-
-import javax.jms.BytesMessage;
-import javax.jms.DeliveryMode;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.MapMessage;
-import javax.jms.Message;
-import javax.jms.MessageEOFException;
-import javax.jms.ObjectMessage;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.StreamMessage;
-import javax.jms.TextMessage;
-import javax.jms.Topic;
-
 import nl.queuemanager.jms.JMSMultipartMessage;
+
+import javax.jms.*;
+import java.util.Enumeration;
 
 /**
  * Converts messages from foreign JMS providers (anything that implements javax.jms.Message)

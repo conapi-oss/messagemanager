@@ -15,10 +15,10 @@
  */
 package nl.queuemanager.ui;
 
+import nl.queuemanager.jms.JMSDestination;
+
 import java.io.Serializable;
 import java.util.Comparator;
-
-import nl.queuemanager.jms.JMSDestination;
 
 @SuppressWarnings("serial")
 public class JMSDestinationComparator implements Comparator<JMSDestination>, Serializable {

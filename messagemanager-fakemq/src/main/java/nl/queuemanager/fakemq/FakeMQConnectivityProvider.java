@@ -1,15 +1,13 @@
 package nl.queuemanager.fakemq;
 
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.inject.Inject;
-
 import com.google.common.eventbus.EventBus;
-
 import nl.queuemanager.AddUITabEvent;
 import nl.queuemanager.ConnectivityProviderPlugin;
 import nl.queuemanager.ui.UITab;
+
+import javax.inject.Inject;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class FakeMQConnectivityProvider implements ConnectivityProviderPlugin {
 	

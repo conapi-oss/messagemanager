@@ -1,10 +1,10 @@
 package nl.queuemanager.debug;
-import java.awt.AWTEvent;
+
+import javax.swing.*;
+import javax.swing.border.Border;
+import java.awt.*;
 import java.awt.event.AWTEventListener;
 import java.awt.event.MouseEvent;
-
-import javax.swing.JComponent;
-import javax.swing.border.Border;
  
 public class DebugEventListener implements AWTEventListener {
     public void eventDispatched(AWTEvent event) {

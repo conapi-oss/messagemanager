@@ -1,9 +1,8 @@
 package nl.queuemanager.activemq.incompat;
 
-import nl.queuemanager.activemq.ui.JavaProcessDescriptor;
-
 import com.sun.tools.attach.VirtualMachineDescriptor;
 import com.sun.tools.attach.spi.AttachProvider;
+import nl.queuemanager.activemq.ui.JavaProcessDescriptor;
 
 @SuppressWarnings("restriction")
 class VirtualMachineDescriptorWrapper implements JavaProcessDescriptor {

@@ -1,17 +1,15 @@
 package nl.queuemanager.solace;
 
+import nl.queuemanager.core.util.BasicCredentials;
+import nl.queuemanager.core.util.Credentials;
+import nl.queuemanager.jms.JMSBroker;
+
+import javax.inject.Inject;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-
-import javax.inject.Inject;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-
-import nl.queuemanager.core.util.BasicCredentials;
-import nl.queuemanager.core.util.Credentials;
-import nl.queuemanager.jms.JMSBroker;
 
 @SuppressWarnings("serial")
 class SolaceBrokerCredentialsDialog extends SolaceBrokerCredentialsDialogUI {

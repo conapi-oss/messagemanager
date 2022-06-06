@@ -15,29 +15,10 @@
  */
 package nl.queuemanager.app;
 
-import java.awt.AWTEvent;
-import java.awt.Toolkit;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.security.AllPermission;
-import java.security.CodeSource;
-import java.security.PermissionCollection;
-import java.security.Permissions;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
-
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
-
 import nl.queuemanager.core.DebugProperty;
 import nl.queuemanager.core.PreconnectCoreModule;
 import nl.queuemanager.core.configuration.CoreConfiguration;
@@ -49,6 +30,16 @@ import nl.queuemanager.debug.DebugEventListener;
 import nl.queuemanager.debug.TracingEventQueue;
 import nl.queuemanager.ui.PreconnectUIModule;
 import nl.queuemanager.ui.settings.SettingsModule;
+
+import javax.swing.*;
+import javax.swing.UIManager.LookAndFeelInfo;
+import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Main {
 

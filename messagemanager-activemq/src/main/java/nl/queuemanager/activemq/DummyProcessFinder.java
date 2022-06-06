@@ -1,10 +1,10 @@
 package nl.queuemanager.activemq;
 
-import java.util.Collections;
-import java.util.List;
-
 import nl.queuemanager.activemq.ui.JavaProcessDescriptor;
 import nl.queuemanager.activemq.ui.JavaProcessFinder;
+
+import java.util.Collections;
+import java.util.List;
 
 public class DummyProcessFinder implements JavaProcessFinder {
 

@@ -15,23 +15,22 @@
  */
 package nl.queuemanager.ui;
 
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.TextMessage;
-
 import nl.queuemanager.core.Pair;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSPart;
 import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.jms.impl.MessageFactory;
+
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.TextMessage;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This class represents a list of messages in transit in a drag-and-drop

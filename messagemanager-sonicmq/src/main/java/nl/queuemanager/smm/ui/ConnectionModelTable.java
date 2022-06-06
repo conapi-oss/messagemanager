@@ -15,14 +15,12 @@
  */
 package nl.queuemanager.smm.ui;
 
-import java.awt.Dimension;
-import java.util.List;
-
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-
 import nl.queuemanager.smm.ConnectionModel;
 import nl.queuemanager.ui.util.ListTableModel;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.List;
 
 
 @SuppressWarnings("serial")

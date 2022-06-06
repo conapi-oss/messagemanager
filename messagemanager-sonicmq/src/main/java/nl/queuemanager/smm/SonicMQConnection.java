@@ -15,16 +15,15 @@
  */
 package nl.queuemanager.smm;
 
-import java.util.Map;
+import nl.queuemanager.core.util.CollectionFactory;
+import nl.queuemanager.jms.JMSDestination;
+import progress.message.jclient.Session;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
-
-import nl.queuemanager.core.util.CollectionFactory;
-import nl.queuemanager.jms.JMSDestination;
-import progress.message.jclient.Session;
+import java.util.Map;
 
 /**
  * This class keeps a SonicMQ connection and a JMS session for a broker. It can be used

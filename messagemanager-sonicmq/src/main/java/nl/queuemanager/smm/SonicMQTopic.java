@@ -15,11 +15,10 @@
  */
 package nl.queuemanager.smm;
 
-import javax.jms.JMSException;
-
+import com.sonicsw.mq.common.runtime.IDurableSubscriptionData;
 import nl.queuemanager.jms.JMSTopic;
 
-import com.sonicsw.mq.common.runtime.IDurableSubscriptionData;
+import javax.jms.JMSException;
 
 /**
  * SonicMQ based implementation of {@link JMSTopic}.

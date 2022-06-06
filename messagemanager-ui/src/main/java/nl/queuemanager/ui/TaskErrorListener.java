@@ -15,25 +15,21 @@
  */
 package nl.queuemanager.ui;
 
-import java.awt.Component;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.logging.Logger;
-
-import javax.jms.JMSSecurityException;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 import nl.queuemanager.core.DebugProperty;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskEvent;
 import nl.queuemanager.core.util.CoreException;
 import nl.queuemanager.core.util.UserCanceledException;
+
+import javax.jms.JMSSecurityException;
+import javax.swing.*;
+import java.awt.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.logging.Logger;
 
 /**
  * Listens for TASK_ERROR events and alerts the user to them.

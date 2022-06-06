@@ -15,10 +15,9 @@
  */
 package nl.queuemanager.jms.impl;
 
-import java.io.Serializable;
-
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
+import java.io.Serializable;
 
 class JMSTextMessage extends JMSMessage implements TextMessage, Serializable {
 

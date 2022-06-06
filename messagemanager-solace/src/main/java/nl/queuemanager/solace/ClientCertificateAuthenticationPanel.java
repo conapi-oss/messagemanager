@@ -1,8 +1,12 @@
 package nl.queuemanager.solace;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import lombok.extern.java.Log;
+import nl.queuemanager.core.platform.PlatformHelper;
+import nl.queuemanager.ui.util.JFileField;
+
+import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,22 +14,6 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.util.Enumeration;
 import java.util.logging.Level;
-
-import javax.swing.AbstractAction;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.InputVerifier;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.filechooser.FileFilter;
-
-import lombok.extern.java.Log;
-import nl.queuemanager.core.platform.PlatformHelper;
-import nl.queuemanager.ui.util.JFileField;
 
 @SuppressWarnings("serial")
 @Log

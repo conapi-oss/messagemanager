@@ -15,18 +15,6 @@
  */
 package nl.queuemanager.ui;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.swing.JOptionPane;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
-
 import nl.queuemanager.core.util.Clearable;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.jms.JMSDestination;
@@ -35,6 +23,15 @@ import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.ui.JMSDestinationTransferHandler.JMSDestinationHolder;
 import nl.queuemanager.ui.util.FilteredTableModel;
 import nl.queuemanager.ui.util.ListTableModel;
+
+import javax.inject.Inject;
+import javax.swing.*;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class is a jms destination table. It displays JMSDestination objects.

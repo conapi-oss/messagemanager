@@ -1,7 +1,6 @@
 package nl.queuemanager.solace;
 
 import com.google.inject.Inject;
-
 import nl.queuemanager.core.configuration.Configuration;
 
 class SolaceConfiguration {

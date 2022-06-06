@@ -15,20 +15,19 @@
  */
 package nl.queuemanager.ui.message;
 
-import java.awt.Dimension;
-import java.text.SimpleDateFormat;
-import java.util.List;
-
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.swing.ListSelectionModel;
-import javax.swing.table.TableColumn;
-
 import nl.queuemanager.core.Pair;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.ui.util.MMJTable;
 import nl.queuemanager.ui.util.PairTableModel;
+
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.swing.*;
+import javax.swing.table.TableColumn;
+import java.awt.*;
+import java.text.SimpleDateFormat;
+import java.util.List;
 
 
 /**

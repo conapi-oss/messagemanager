@@ -1,21 +1,11 @@
 package nl.queuemanager.solace;
 
-import java.awt.BorderLayout;
-import java.awt.Rectangle;
+import nl.queuemanager.ui.UITab;
 
 import javax.inject.Inject;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.JToolBar;
-import javax.swing.ListSelectionModel;
-import javax.swing.ScrollPaneConstants;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-
-import nl.queuemanager.ui.UITab;
+import java.awt.*;
 
 @SuppressWarnings("serial")
 class SolaceConnectionTabPanelUI extends JSplitPane implements UITab {

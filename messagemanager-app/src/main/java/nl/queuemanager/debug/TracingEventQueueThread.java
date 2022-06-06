@@ -1,6 +1,6 @@
 package nl.queuemanager.debug;
 
-import java.awt.AWTEvent;
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 

@@ -15,15 +15,9 @@
  */
 package nl.queuemanager.jms.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
+import java.io.*;
 
 /**
  * Object message implementation that stores the Serializable object in a byte

@@ -1,7 +1,6 @@
 package nl.queuemanager.ui.message;
 
-import javax.swing.JComponent;
-import javax.swing.JLabel;
+import javax.swing.*;
 
 class StringContentViewer implements ContentViewer<String> {
 

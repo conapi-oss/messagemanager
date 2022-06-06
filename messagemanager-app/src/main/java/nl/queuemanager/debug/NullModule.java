@@ -1,9 +1,8 @@
 package nl.queuemanager.debug;
 
-import nl.queuemanager.core.jms.JMSDomain;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
+import nl.queuemanager.core.jms.JMSDomain;
 
 public class NullModule extends AbstractModule {
 

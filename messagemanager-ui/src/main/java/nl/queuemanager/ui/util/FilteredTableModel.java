@@ -15,16 +15,15 @@
  */
 package nl.queuemanager.ui.util;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import nl.queuemanager.core.util.CollectionFactory;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
-
-import nl.queuemanager.core.util.CollectionFactory;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * A tablemodel that is able to filter it's backing model and only display

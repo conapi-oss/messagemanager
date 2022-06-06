@@ -15,10 +15,8 @@
  */
 package nl.queuemanager.ui.progress;
 
+import javax.swing.*;
 import java.net.URL;
-
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 
 @SuppressWarnings("serial")
 public class Throbber extends JLabel {

@@ -15,11 +15,10 @@
  */
 package nl.queuemanager.ui.util;
 
+import javax.swing.*;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-
-import javax.swing.SwingUtilities;
 
 /**
  * A ListTableModel that observes it's contents and fires the appropriate events when

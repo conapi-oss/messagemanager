@@ -15,15 +15,15 @@
  */
 package nl.queuemanager.smm;
 
-import javax.activation.DataHandler;
-import javax.jms.JMSException;
-import javax.jms.Message;
-
 import nl.queuemanager.jms.JMSMultipartMessage;
 import nl.queuemanager.jms.JMSPart;
 import progress.message.jclient.Channel;
 import progress.message.jclient.MultipartMessage;
 import progress.message.jclient.Part;
+
+import javax.activation.DataHandler;
+import javax.jms.JMSException;
+import javax.jms.Message;
 
 /**
  * Wraps a SonicMQ specfic multipart message in a JMSMultipartMessage interface to

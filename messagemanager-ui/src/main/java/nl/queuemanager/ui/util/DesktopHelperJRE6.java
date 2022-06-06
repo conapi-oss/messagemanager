@@ -15,17 +15,14 @@
  */
 package nl.queuemanager.ui.util;
 
-import java.awt.Cursor;
-import java.awt.Desktop;
+import javax.inject.Singleton;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.Dialog.ModalityType;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
-
-import javax.inject.Singleton;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
 
 @Singleton
 public class DesktopHelperJRE6 implements DesktopHelper {

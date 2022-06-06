@@ -15,10 +15,8 @@
  */
 package nl.queuemanager.ui.util;
 
+import javax.swing.*;
 import java.net.URI;
-
-import javax.swing.JComponent;
-import javax.swing.JDialog;
 
 public interface DesktopHelper {
 

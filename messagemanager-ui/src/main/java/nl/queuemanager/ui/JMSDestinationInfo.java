@@ -1,11 +1,11 @@
 package nl.queuemanager.ui;
 
-import java.io.Serializable;
-
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSDestination.TYPE;
+
+import java.io.Serializable;
 
 /**
  * Holds name and type of a JMSDestination, for serialization support.

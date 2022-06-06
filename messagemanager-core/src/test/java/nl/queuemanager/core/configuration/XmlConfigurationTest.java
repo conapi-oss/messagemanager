@@ -1,23 +1,19 @@
 package nl.queuemanager.core.configuration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
-import javax.jms.ConnectionFactory;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import nl.queuemanager.core.configuration.CoreXmlConfiguration.JMSBrokerName;
 import nl.queuemanager.core.util.BasicCredentials;
 import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.impl.DestinationFactory;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.jms.ConnectionFactory;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 public class XmlConfigurationTest {
 	

@@ -1,5 +1,8 @@
 package nl.queuemanager.activemq;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Scopes;
+import com.google.inject.multibindings.MapBinder;
 import nl.queuemanager.ConnectivityProviderPlugin;
 import nl.queuemanager.activemq.incompat.VirtualMachineProcessFinder;
 import nl.queuemanager.activemq.ui.ConnectionTabPanel;
@@ -9,10 +12,6 @@ import nl.queuemanager.ui.MessageSendTabPanel;
 import nl.queuemanager.ui.QueuesTabPanel;
 import nl.queuemanager.ui.TopicSubscriberTabPanel;
 import nl.queuemanager.ui.UITab;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Scopes;
-import com.google.inject.multibindings.MapBinder;
 
 public class ActiveMQModule extends AbstractModule {
 

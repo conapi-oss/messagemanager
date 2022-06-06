@@ -15,19 +15,12 @@
  */
 package nl.queuemanager.ui.util;
 
-import java.awt.Dimension;
+import nl.queuemanager.ui.progress.Throbber;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-
-import nl.queuemanager.ui.progress.Throbber;
 
 /**
  * Implements a status bar for a JFrame (anything with a <code>BorderLayout</code>, really). 

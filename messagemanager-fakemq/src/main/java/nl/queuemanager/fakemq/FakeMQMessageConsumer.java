@@ -1,12 +1,11 @@
 package nl.queuemanager.fakemq;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class FakeMQMessageConsumer implements MessageConsumer {
 

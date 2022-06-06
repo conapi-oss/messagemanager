@@ -15,9 +15,8 @@
  */
 package nl.queuemanager.ui.util;
 
-import java.util.List;
-
 import javax.swing.table.AbstractTableModel;
+import java.util.List;
 
 @SuppressWarnings("serial")
 public abstract class ListTableModel<T> extends AbstractTableModel {

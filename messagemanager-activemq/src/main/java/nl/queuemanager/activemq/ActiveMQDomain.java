@@ -1,45 +1,6 @@
 package nl.queuemanager.activemq;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import javax.jms.Connection;
-import javax.jms.ExceptionListener;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
-import javax.jms.QueueBrowser;
-import javax.jms.Session;
-import javax.management.AttributeChangeNotification;
-import javax.management.JMException;
-import javax.management.MBeanServerConnection;
-import javax.management.MalformedObjectNameException;
-import javax.management.Notification;
-import javax.management.NotificationListener;
-import javax.management.ObjectName;
-import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
-
-import org.apache.activemq.ActiveMQConnectionFactory;
-
 import com.google.common.eventbus.EventBus;
-
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.events.AbstractEventSource;
 import nl.queuemanager.core.jms.DomainEvent;
@@ -54,6 +15,21 @@ import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.jms.JMSTopic;
 import nl.queuemanager.jms.impl.DestinationFactory;
 import nl.queuemanager.ui.BrokerCredentialsDialog;
+import org.apache.activemq.ActiveMQConnectionFactory;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.jms.*;
+import javax.management.*;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Singleton
 public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements JMSDomain, NotificationListener {

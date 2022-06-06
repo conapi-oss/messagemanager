@@ -15,13 +15,11 @@
  */
 package nl.queuemanager.smm;
 
-import javax.jms.JMSException;
-
 import nl.queuemanager.jms.JMSXMLMessage;
-
 import org.w3c.dom.Document;
-
 import progress.message.jclient.XMLMessage;
+
+import javax.jms.JMSException;
 
 /**
  * Wraps a SonicMQ specfic XML message in a JMSXMLMessage interface to

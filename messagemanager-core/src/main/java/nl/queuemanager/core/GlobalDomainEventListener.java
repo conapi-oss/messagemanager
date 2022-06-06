@@ -1,11 +1,10 @@
 package nl.queuemanager.core;
 
+import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.tasks.TaskFactory;
-
-import com.google.common.eventbus.Subscribe;
-import com.google.inject.Inject;
 
 /**
  * Listens for applicationwide domain events and reacts accordingly. Currently, this is only the

@@ -1,8 +1,8 @@
 package nl.queuemanager.app;
 
-import java.util.logging.Logger;
-
 import com.google.common.eventbus.Subscribe;
+
+import java.util.logging.Logger;
 
 public class EventBusDebugger {
 

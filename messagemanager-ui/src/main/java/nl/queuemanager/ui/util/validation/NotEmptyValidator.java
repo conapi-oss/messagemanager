@@ -1,7 +1,6 @@
 package nl.queuemanager.ui.util.validation;
- 
-import javax.swing.JComponent;
-import javax.swing.JTextField;
+
+import javax.swing.*;
  
 /**
  * A class for performing basic validation on text fields. All it does is make 

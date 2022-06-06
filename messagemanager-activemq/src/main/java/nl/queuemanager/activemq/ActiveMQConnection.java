@@ -15,16 +15,11 @@
  */
 package nl.queuemanager.activemq;
 
-import java.util.Map;
-
-import javax.jms.Connection;
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.jms.JMSDestination;
+
+import javax.jms.*;
+import java.util.Map;
 
 /**
  * This class keeps a ActiveMQ connection and a JMS session for a broker. It can be used

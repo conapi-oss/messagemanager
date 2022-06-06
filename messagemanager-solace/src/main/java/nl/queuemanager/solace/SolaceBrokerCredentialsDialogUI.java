@@ -1,20 +1,8 @@
 package nl.queuemanager.solace;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Font;
-
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import java.awt.*;
 
 class SolaceBrokerCredentialsDialogUI extends JDialog {
 	private JPanel panel;

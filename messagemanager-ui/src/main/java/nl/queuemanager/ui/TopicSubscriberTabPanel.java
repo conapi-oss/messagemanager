@@ -15,39 +15,9 @@
  */
 package nl.queuemanager.ui;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.jms.Message;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
-
 import nl.queuemanager.core.MessageBuffer;
 import nl.queuemanager.core.MessageEvent;
 import nl.queuemanager.core.configuration.CoreConfiguration;
@@ -64,6 +34,16 @@ import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.MessagesTable.MessageTableModel;
 import nl.queuemanager.ui.message.MessageViewerPanel;
 import nl.queuemanager.ui.util.HighlightsModel;
+
+import javax.jms.Message;
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This class implements the topic subscriber panel. It has a table of configured topics,

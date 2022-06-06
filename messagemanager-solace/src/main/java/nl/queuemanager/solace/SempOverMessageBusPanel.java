@@ -1,14 +1,9 @@
 package nl.queuemanager.solace;
 
-import javax.swing.JPanel;
-import java.awt.GridBagLayout;
-import javax.swing.JLabel;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import javax.swing.JTextField;
-import javax.swing.border.TitledBorder;
+import javax.swing.*;
 import javax.swing.border.EtchedBorder;
-import java.awt.Color;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
 
 class SempOverMessageBusPanel extends JPanel implements DataPanel<SempConnectionDescriptor> {
 	private JTextField messageVpnField;

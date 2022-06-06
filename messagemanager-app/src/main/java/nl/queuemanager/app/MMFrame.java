@@ -14,23 +14,9 @@
  */
 package nl.queuemanager.app;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GraphicsEnvironment;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
-import javax.swing.JFrame;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
-
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 import nl.queuemanager.AddUITabEvent;
 import nl.queuemanager.ProfileActivatedEvent;
 import nl.queuemanager.core.configuration.CoreConfiguration;
@@ -46,6 +32,11 @@ import nl.queuemanager.ui.MOTDPanel;
 import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.settings.SettingsTabPanel;
 import nl.queuemanager.ui.task.TaskQueuePanel;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 @SuppressWarnings("serial")
 @Singleton

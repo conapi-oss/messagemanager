@@ -15,9 +15,8 @@
  */
 package nl.queuemanager.jms;
 
-import java.util.Enumeration;
-
 import javax.jms.JMSException;
+import java.util.Enumeration;
 
 
 /**

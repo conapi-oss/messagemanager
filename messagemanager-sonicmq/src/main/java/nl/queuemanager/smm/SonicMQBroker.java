@@ -15,9 +15,9 @@
  */
 package nl.queuemanager.smm;
 
-import javax.management.ObjectName;
-
 import nl.queuemanager.jms.JMSBroker;
+
+import javax.management.ObjectName;
 
 class SonicMQBroker implements Comparable<JMSBroker>, JMSBroker {
 	public static enum ROLE {

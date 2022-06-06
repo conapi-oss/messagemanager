@@ -13,11 +13,11 @@
  */
 package nl.queuemanager.core.configuration;
 
-import java.util.List;
-
 import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSTopic;
+
+import java.util.List;
 
 public interface CoreConfiguration {
 	public static final String PREF_UNIQUE_ID = "uniqueId";

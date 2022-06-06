@@ -15,10 +15,10 @@
  */
 package nl.queuemanager.jms.impl;
 
-import javax.jms.JMSException;
-
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSTopic;
+
+import javax.jms.JMSException;
 
 class JMSTopicImpl extends JMSDestinationImpl implements JMSTopic {
 

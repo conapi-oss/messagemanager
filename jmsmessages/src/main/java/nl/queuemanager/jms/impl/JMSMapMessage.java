@@ -15,13 +15,12 @@
  */
 package nl.queuemanager.jms.impl;
 
+import javax.jms.MapMessage;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.jms.MapMessage;
 
 /**
  * Map message implementation that uses a HashMap as the storage method.

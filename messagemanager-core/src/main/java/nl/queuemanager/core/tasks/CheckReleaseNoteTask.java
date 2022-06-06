@@ -1,9 +1,7 @@
 package nl.queuemanager.core.tasks;
 
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
+import com.google.common.eventbus.EventBus;
+import com.google.inject.assistedinject.Assisted;
 import nl.queuemanager.core.DebugProperty;
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.task.BackgroundTask;
@@ -11,8 +9,8 @@ import nl.queuemanager.core.util.DNSUtil;
 import nl.queuemanager.core.util.ReleasePropertiesEvent;
 import nl.queuemanager.core.util.ReleasePropertiesEvent.EVENT;
 
-import com.google.common.eventbus.EventBus;
-import com.google.inject.assistedinject.Assisted;
+import javax.inject.Inject;
+import java.util.logging.Logger;
 
 /**
  * <p>

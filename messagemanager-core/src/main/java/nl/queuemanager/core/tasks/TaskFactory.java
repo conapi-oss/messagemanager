@@ -1,10 +1,6 @@
 package nl.queuemanager.core.tasks;
 
-import java.io.File;
-import java.util.List;
-
-import javax.jms.Message;
-
+import com.google.inject.assistedinject.Assisted;
 import nl.queuemanager.core.Pair;
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.tasks.EnumerateMessagesTask.QueueBrowserEvent;
@@ -12,7 +8,9 @@ import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSQueue;
 
-import com.google.inject.assistedinject.Assisted;
+import javax.jms.Message;
+import java.io.File;
+import java.util.List;
 
 public interface TaskFactory {
 	public abstract EnumerateBrokersTask enumerateBrokers();

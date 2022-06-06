@@ -1,12 +1,11 @@
 package nl.queuemanager.core.util;
 
-import java.lang.reflect.Method;
-
-import javax.jms.ConnectionFactory;
-
 import lombok.Getter;
 import lombok.Setter;
 import nl.queuemanager.core.configuration.Configuration;
+
+import javax.jms.ConnectionFactory;
+import java.lang.reflect.Method;
 
 public class BasicCredentials implements Credentials {
 

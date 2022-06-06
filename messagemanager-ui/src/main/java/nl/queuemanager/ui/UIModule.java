@@ -3,7 +3,6 @@ package nl.queuemanager.ui;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
-
 import nl.queuemanager.ui.message.MessageViewerModule;
 import nl.queuemanager.ui.util.QueueCountsRefresher;
 

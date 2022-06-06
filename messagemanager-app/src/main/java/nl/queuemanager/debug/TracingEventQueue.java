@@ -1,7 +1,6 @@
 package nl.queuemanager.debug;
 
-import java.awt.AWTEvent;
-import java.awt.EventQueue;
+import java.awt.*;
 
 public class TracingEventQueue extends EventQueue {
 

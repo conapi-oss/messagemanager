@@ -1,17 +1,15 @@
 package nl.queuemanager.solace;
 
-import java.io.File;
-
-import javax.jms.ConnectionFactory;
-
 import com.google.common.base.Strings;
 import com.solacesystems.jms.SolConnectionFactory;
 import com.solacesystems.jms.SupportedProperty;
-
 import lombok.Getter;
 import lombok.Setter;
 import nl.queuemanager.core.configuration.Configuration;
 import nl.queuemanager.core.util.Credentials;
+
+import javax.jms.ConnectionFactory;
+import java.io.File;
 
 class SolaceClientCertificateCredentials implements Credentials {
 

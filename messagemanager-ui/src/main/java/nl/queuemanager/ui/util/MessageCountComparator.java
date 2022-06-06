@@ -1,9 +1,9 @@
 package nl.queuemanager.ui.util;
 
+import nl.queuemanager.jms.JMSQueue;
+
 import java.io.Serializable;
 import java.util.Comparator;
-
-import nl.queuemanager.jms.JMSQueue;
 
 @SuppressWarnings("serial")
 public class MessageCountComparator implements Comparator<JMSQueue>, Serializable {

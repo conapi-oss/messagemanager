@@ -1,22 +1,15 @@
 package nl.queuemanager.app;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.charset.Charset;
-import java.util.*;
-import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import com.google.common.io.Resources;
+import com.google.inject.Module;
+import nl.queuemanager.Profile;
+import nl.queuemanager.core.DebugProperty;
+import nl.queuemanager.core.platform.PlatformHelper;
+import nl.queuemanager.core.task.TaskExecutor;
+import nl.queuemanager.core.util.EnumerationIterator;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -26,19 +19,17 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-
-import com.google.inject.Module;
-import nl.queuemanager.Profile;
-import nl.queuemanager.core.DebugProperty;
-import nl.queuemanager.core.platform.PlatformHelper;
-import nl.queuemanager.core.task.TaskExecutor;
-import nl.queuemanager.core.util.EnumerationIterator;
-
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import com.google.common.io.Resources;
+import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.charset.Charset;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 @Singleton
 public class PluginManager {

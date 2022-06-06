@@ -1,8 +1,8 @@
 package nl.queuemanager.app;
 
-import java.util.ArrayList;
-
 import nl.queuemanager.ui.util.ListTableModel;
+
+import java.util.ArrayList;
 
 @SuppressWarnings("serial")
 public class PluginListTableModel extends ListTableModel<PluginDescriptor> {

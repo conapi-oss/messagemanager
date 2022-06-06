@@ -1,5 +1,8 @@
 package nl.queuemanager.ui.util;
 
+import com.google.common.base.Strings;
+
+import javax.swing.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -7,19 +10,9 @@ import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDropEvent;
-import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JTextField;
-import javax.swing.filechooser.FileFilter;
-
-import com.google.common.base.Strings;
-
-import nl.queuemanager.core.platform.PlatformHelper;
 
 public class JFileField extends JTextField {
 	public JFileField() {

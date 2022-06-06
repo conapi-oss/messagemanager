@@ -15,21 +15,17 @@
  */
 package nl.queuemanager.fakemq;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-
+import com.google.common.eventbus.EventBus;
+import com.google.inject.Inject;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.ui.CommonUITasks;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.UITab;
 
-import com.google.common.eventbus.EventBus;
-import com.google.inject.Inject;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 @SuppressWarnings("serial")
 public class ConnectionTabPanel extends JPanel implements UITab {

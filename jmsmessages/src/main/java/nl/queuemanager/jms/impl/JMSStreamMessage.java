@@ -15,17 +15,11 @@
  */
 package nl.queuemanager.jms.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-
 import javax.jms.JMSException;
 import javax.jms.MessageNotReadableException;
 import javax.jms.MessageNotWriteableException;
 import javax.jms.StreamMessage;
+import java.io.*;
 
 /**
  * Stream message implementation that uses a byte array for storage.

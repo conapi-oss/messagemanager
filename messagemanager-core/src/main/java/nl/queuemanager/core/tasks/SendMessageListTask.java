@@ -15,20 +15,18 @@
  */
 package nl.queuemanager.core.tasks;
 
-import java.util.Collections;
-import java.util.List;
-
-import javax.jms.JMSException;
-import javax.jms.Message;
-
+import com.google.common.eventbus.EventBus;
+import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.CancelableTask;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.jms.JMSDestination;
 
-import com.google.common.eventbus.EventBus;
-import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import java.util.Collections;
+import java.util.List;
 
 public class SendMessageListTask extends Task implements CancelableTask {
 	

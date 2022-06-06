@@ -1,4 +1,3 @@
-import nl.queuemanager.fakemq.FakeMQConnectivityProvider;
 import nl.queuemanager.fakemq.FakeMQModule;
 
 module messagemanager.fakemq {

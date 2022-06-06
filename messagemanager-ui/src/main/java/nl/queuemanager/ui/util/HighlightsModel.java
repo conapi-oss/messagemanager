@@ -1,10 +1,9 @@
 package nl.queuemanager.ui.util;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 
 public class HighlightsModel<T> implements TableModelListener, HighlighterListener {
 	private final WeakReference<ListTableModel<? extends T>> tableModel;

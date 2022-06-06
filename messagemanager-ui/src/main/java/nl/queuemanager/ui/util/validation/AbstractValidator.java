@@ -1,9 +1,7 @@
 package nl.queuemanager.ui.util.validation;
- 
-import java.awt.Color;
 
-import javax.swing.InputVerifier;
-import javax.swing.JComponent;
+import javax.swing.*;
+import java.awt.*;
  
 /**
  * This class handles most of the details of validating a component, including

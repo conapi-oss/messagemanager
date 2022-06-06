@@ -1,19 +1,16 @@
 package nl.queuemanager.core.platform;
 
+import com.google.common.base.Strings;
+import com.google.common.eventbus.EventBus;
+
+import javax.inject.Inject;
+import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.desktop.PreferencesEvent;
 import java.awt.desktop.QuitEvent;
 import java.awt.desktop.QuitResponse;
 import java.io.File;
-
-import javax.inject.Inject;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.filechooser.FileFilter;
-
-import com.google.common.base.Strings;
-import com.google.common.eventbus.EventBus;
 
 public class PlatformHelper {
 	// FIXME REALLY REALLY REALLY BAD!!

@@ -1,20 +1,18 @@
 package nl.queuemanager.ui.util;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
+import com.google.common.eventbus.Subscribe;
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.tasks.TaskFactory;
 import nl.queuemanager.jms.JMSBroker;
 
-import com.google.common.eventbus.Subscribe;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @Singleton
 public class QueueCountsRefresher {

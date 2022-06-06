@@ -1,11 +1,11 @@
 package nl.queuemanager.activemq;
 
-import javax.jms.JMSException;
-import javax.management.ObjectName;
-
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSQueue;
+
+import javax.jms.JMSException;
+import javax.management.ObjectName;
 
 class ActiveMQQueue implements JMSQueue {
 

@@ -15,19 +15,6 @@
  */
 package nl.queuemanager.ui;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.Comparator;
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.swing.JOptionPane;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
-
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.jms.JMSFeature;
 import nl.queuemanager.core.util.Clearable;
@@ -37,6 +24,16 @@ import nl.queuemanager.ui.util.FilteredTableModel;
 import nl.queuemanager.ui.util.ListTableModel;
 import nl.queuemanager.ui.util.MessageCountComparator;
 import nl.queuemanager.ui.util.MiscUtils;
+
+import javax.inject.Inject;
+import javax.swing.*;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * This class represents the Queues table and all information about its markup

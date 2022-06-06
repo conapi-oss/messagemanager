@@ -15,32 +15,24 @@
  */
 package nl.queuemanager.ui;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
-import java.util.Collections;
-import java.util.Observer;
-
-import javax.jms.Message;
-
 import nl.queuemanager.core.MessageBuffer;
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.impl.MessageFactory;
 import nl.queuemanager.test.support.SynchronousTaskExecutor;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.jms.Message;
+import java.util.Collections;
+import java.util.Observer;
+
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 public class TestJMSSubscriber {
 	private CoreConfiguration config;

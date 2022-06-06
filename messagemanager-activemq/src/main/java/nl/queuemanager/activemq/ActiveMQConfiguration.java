@@ -1,11 +1,10 @@
 package nl.queuemanager.activemq;
 
-import java.util.List;
-
 import com.google.inject.Inject;
-
 import nl.queuemanager.core.configuration.Configuration;
 import nl.queuemanager.core.util.CollectionFactory;
+
+import java.util.List;
 
 public class ActiveMQConfiguration {
 

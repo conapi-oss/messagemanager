@@ -15,17 +15,11 @@
  */
 package nl.queuemanager.jms.impl;
 
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * Implement a JMS Message without an actual JMS implementation.

@@ -15,19 +15,6 @@
  */
 package nl.queuemanager.ui;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.IOException;
-import java.util.List;
-
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.TextMessage;
-
 import nl.queuemanager.core.Pair;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.jms.JMSDestination;
@@ -36,10 +23,18 @@ import nl.queuemanager.jms.JMSPart;
 import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.jms.impl.DestinationFactory;
 import nl.queuemanager.jms.impl.MessageFactory;
-import nl.queuemanager.ui.MessageListTransferable;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.TextMessage;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 public class TestMessageListTransferable {
 

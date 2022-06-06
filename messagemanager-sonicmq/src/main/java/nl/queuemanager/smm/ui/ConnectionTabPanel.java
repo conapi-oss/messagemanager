@@ -15,36 +15,6 @@
  */
 package nl.queuemanager.smm.ui;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.border.TitledBorder;
-
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
@@ -52,7 +22,6 @@ import com.google.inject.Provider;
 import com.sonicsw.ma.gui.PreferenceManager;
 import com.sonicsw.ma.gui.domain.DomainConnectionModel;
 import com.sonicsw.ma.gui.domain.JDomainConnectionDialog;
-
 import nl.queuemanager.ProfileActivatedEvent;
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
@@ -67,6 +36,19 @@ import nl.queuemanager.ui.CommonUITasks;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.util.DesktopHelper;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.net.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @SuppressWarnings("serial")
 public class ConnectionTabPanel extends JPanel implements UITab {

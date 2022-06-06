@@ -1,17 +1,15 @@
 package nl.queuemanager.core.tasks;
 
-import java.util.List;
-
-import javax.inject.Inject;
-
+import com.google.common.eventbus.EventBus;
+import com.google.inject.assistedinject.Assisted;
 import nl.queuemanager.core.Pair;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskEvent;
 import nl.queuemanager.jms.JMSQueue;
 
-import com.google.common.eventbus.EventBus;
-import com.google.inject.assistedinject.Assisted;
+import javax.inject.Inject;
+import java.util.List;
 
 public class MoveMessageListTask extends Task {
 	private final JMSDomain domain;

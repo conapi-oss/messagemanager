@@ -15,13 +15,13 @@
  */
 package nl.queuemanager.jms.impl;
 
+import org.junit.Test;
+
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 
-import nl.queuemanager.jms.impl.MessageFactory;
-
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 public class TestJMSBytesMessage {
 

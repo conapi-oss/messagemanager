@@ -15,25 +15,18 @@
  */
 package nl.queuemanager.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.util.Collections;
-import java.util.List;
-
-import javax.jms.Message;
-
-import nl.queuemanager.core.MessageBuffer;
-import nl.queuemanager.core.MessageEvent;
 import nl.queuemanager.core.MessageEvent.EVENT;
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.jms.impl.MessageFactory;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.jms.Message;
+import java.util.Collections;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 public class TestMessageBuffer implements EventListener<MessageEvent> {
 

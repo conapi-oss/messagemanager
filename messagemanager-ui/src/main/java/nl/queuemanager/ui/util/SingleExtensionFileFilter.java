@@ -15,9 +15,8 @@
  */
 package nl.queuemanager.ui.util;
 
-import java.io.File;
-
 import javax.swing.filechooser.FileFilter;
+import java.io.File;
 
 /**
  * FileFilter extension 

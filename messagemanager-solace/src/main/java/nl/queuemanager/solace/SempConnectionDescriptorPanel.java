@@ -1,5 +1,12 @@
 package nl.queuemanager.solace;
 
+import com.google.common.base.Strings;
+import lombok.Getter;
+import lombok.extern.java.Log;
+import nl.queuemanager.core.util.BasicCredentials;
+
+import javax.inject.Inject;
+import javax.swing.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
@@ -7,16 +14,6 @@ import java.awt.event.ItemListener;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
-
-import javax.inject.Inject;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
-
-import com.google.common.base.Strings;
-
-import lombok.Getter;
-import lombok.extern.java.Log;
-import nl.queuemanager.core.util.BasicCredentials;
 
 @SuppressWarnings("serial")
 @Log

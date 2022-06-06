@@ -1,6 +1,14 @@
 package nl.queuemanager.ui.util;
 
-import java.awt.Dimension;
+import nl.queuemanager.core.jms.JMSDomain;
+import nl.queuemanager.jms.JMSBroker;
+import nl.queuemanager.jms.JMSDestination;
+import nl.queuemanager.jms.JMSDestination.TYPE;
+import nl.queuemanager.ui.JMSDestinationInfo;
+import nl.queuemanager.ui.JMSDestinationInfoTransferable;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -9,18 +17,6 @@ import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDropEvent;
 import java.io.IOException;
-
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JComboBox;
-import javax.swing.JTextField;
-
-import nl.queuemanager.core.jms.JMSDomain;
-import nl.queuemanager.jms.JMSBroker;
-import nl.queuemanager.jms.JMSDestination;
-import nl.queuemanager.jms.JMSDestination.TYPE;
-import nl.queuemanager.ui.JMSDestinationInfo;
-import nl.queuemanager.ui.JMSDestinationInfoTransferable;
 
 public class JMSDestinationField extends Box {
 		private final JTextField nameField;

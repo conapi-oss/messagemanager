@@ -1,12 +1,10 @@
 package nl.queuemanager;
 
+import javax.swing.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 
 public class Profile implements Comparable<Profile> {
 	private String id;

@@ -15,10 +15,9 @@
  */
 package nl.queuemanager.smm;
 
-import java.util.Enumeration;
-
 import javax.jms.Destination;
 import javax.jms.JMSException;
+import java.util.Enumeration;
 
 class SonicMQMessage implements javax.jms.Message {
 	protected final javax.jms.Message delegate;

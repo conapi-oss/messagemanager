@@ -1,5 +1,10 @@
 package nl.queuemanager.smm;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Provider;
+import com.google.inject.Scopes;
+import com.google.inject.multibindings.MapBinder;
+import com.sonicsw.ma.gui.domain.JDomainConnectionDialog;
 import nl.queuemanager.ConnectivityProviderPlugin;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.smm.ui.ConnectionTabPanel;
@@ -7,12 +12,6 @@ import nl.queuemanager.ui.MessageSendTabPanel;
 import nl.queuemanager.ui.QueuesTabPanel;
 import nl.queuemanager.ui.TopicSubscriberTabPanel;
 import nl.queuemanager.ui.UITab;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Provider;
-import com.google.inject.Scopes;
-import com.google.inject.multibindings.MapBinder;
-import com.sonicsw.ma.gui.domain.JDomainConnectionDialog;
 
 /**
  * Module for the plugin configuration of this project

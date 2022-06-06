@@ -1,8 +1,8 @@
 package nl.queuemanager.solace;
 
-import java.net.URI;
-
 import nl.queuemanager.jms.JMSBroker;
+
+import java.net.URI;
 
 class MessageVPN implements JMSBroker {
 	private final String name;	

@@ -1,10 +1,9 @@
 package nl.queuemanager.core;
 
-import nl.queuemanager.core.tasks.TaskFactory;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+import nl.queuemanager.core.tasks.TaskFactory;
 
 public class CoreModule extends AbstractModule {
 

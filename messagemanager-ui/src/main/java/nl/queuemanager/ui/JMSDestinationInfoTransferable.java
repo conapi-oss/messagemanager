@@ -1,5 +1,7 @@
 package nl.queuemanager.ui;
 
+import nl.queuemanager.jms.JMSDestination;
+
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -7,8 +9,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import nl.queuemanager.jms.JMSDestination;
 
 public class JMSDestinationInfoTransferable implements Transferable {
 	

@@ -3,9 +3,9 @@
  */
 package nl.queuemanager.core.util;
 
-import javax.jms.ConnectionFactory;
-
 import nl.queuemanager.core.configuration.Configuration;
+
+import javax.jms.ConnectionFactory;
 
 public interface Credentials {
 	

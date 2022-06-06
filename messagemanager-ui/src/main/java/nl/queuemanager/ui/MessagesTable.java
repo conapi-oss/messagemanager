@@ -15,21 +15,6 @@
  */
 package nl.queuemanager.ui;
 
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.swing.JComponent;
-import javax.swing.ListSelectionModel;
-import javax.swing.TransferHandler;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableColumn;
-
 import nl.queuemanager.core.util.Clearable;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.jms.JMSDestination;
@@ -38,6 +23,18 @@ import nl.queuemanager.jms.JMSTopic;
 import nl.queuemanager.jms.MessageType;
 import nl.queuemanager.ui.util.ListTableModel;
 import nl.queuemanager.ui.util.MMJTable;
+
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumn;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 
 /**

@@ -1,34 +1,6 @@
 package nl.queuemanager.activemq.ui;
 
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
-import javax.inject.Inject;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableModel;
-
 import com.google.common.eventbus.EventBus;
-
 import nl.queuemanager.activemq.ActiveMQConfiguration;
 import nl.queuemanager.activemq.ActiveMQConnectionDescriptor;
 import nl.queuemanager.activemq.ActiveMQDomain;
@@ -36,7 +8,21 @@ import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.util.ListTableModel;
-import nl.queuemanager.ui.util.TableColumnAdjuster;
+
+import javax.inject.Inject;
+import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class ConnectionTabPanel extends JPanel implements UITab {
 	private JTable localProcessTable;

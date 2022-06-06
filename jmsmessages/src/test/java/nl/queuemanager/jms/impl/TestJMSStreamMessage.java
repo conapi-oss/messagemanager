@@ -15,15 +15,13 @@
  */
 package nl.queuemanager.jms.impl;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.jms.JMSException;
 import javax.jms.StreamMessage;
 
-import nl.queuemanager.jms.impl.MessageFactory;
-
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 public class TestJMSStreamMessage {
 

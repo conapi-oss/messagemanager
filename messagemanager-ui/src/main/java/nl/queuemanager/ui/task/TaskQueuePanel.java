@@ -15,21 +15,17 @@
  */
 package nl.queuemanager.ui.task;
 
-import java.util.IdentityHashMap;
-import java.util.Map;
-
-import javax.swing.BoxLayout;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
 import nl.queuemanager.core.task.CancelableTask;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskEvent;
 import nl.queuemanager.ui.util.JStatusBar;
 
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
-import com.google.inject.Inject;
+import javax.swing.*;
+import java.util.IdentityHashMap;
+import java.util.Map;
 
 /**
  * JPanel subclass that displays the currently executing or waiting tasks using a list

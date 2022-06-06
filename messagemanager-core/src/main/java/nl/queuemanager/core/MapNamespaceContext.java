@@ -15,14 +15,13 @@
  */
 package nl.queuemanager.core;
 
+import nl.queuemanager.core.util.CollectionFactory;
+
+import javax.xml.namespace.NamespaceContext;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.xml.namespace.NamespaceContext;
-
-import nl.queuemanager.core.util.CollectionFactory;
 
 public class MapNamespaceContext implements NamespaceContext {
 

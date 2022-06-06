@@ -15,15 +15,14 @@
  */
 package nl.queuemanager.jms.impl;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import nl.queuemanager.jms.JMSPart;
 
 import javax.activation.DataHandler;
 import javax.jms.JMSException;
 import javax.jms.Message;
-
-import nl.queuemanager.jms.JMSPart;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 class JMSMultipartMessage extends JMSMessage implements nl.queuemanager.jms.JMSMultipartMessage, Serializable {
 

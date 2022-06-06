@@ -1,7 +1,6 @@
 package nl.queuemanager.app.tasks;
 
 import com.google.inject.assistedinject.Assisted;
-
 import nl.queuemanager.Profile;
 import nl.queuemanager.core.tasks.CheckMotdTask;
 import nl.queuemanager.core.tasks.CheckReleaseNoteTask;

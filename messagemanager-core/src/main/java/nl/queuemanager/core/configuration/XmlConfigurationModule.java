@@ -1,13 +1,11 @@
 package nl.queuemanager.core.configuration;
 
-import java.io.File;
-
-import javax.inject.Singleton;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-
 import nl.queuemanager.core.platform.PlatformHelper;
+
+import javax.inject.Singleton;
+import java.io.File;
 
 public class XmlConfigurationModule extends AbstractModule {
 

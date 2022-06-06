@@ -15,22 +15,20 @@
  */
 package nl.queuemanager.ui.message;
 
-import java.awt.Dimension;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
-
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.table.TableColumn;
-
 import nl.queuemanager.core.Pair;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.ui.util.MMJTable;
 import nl.queuemanager.ui.util.PairTableModel;
+
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.swing.*;
+import javax.swing.table.TableColumn;
+import java.awt.*;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
 
 
 /**

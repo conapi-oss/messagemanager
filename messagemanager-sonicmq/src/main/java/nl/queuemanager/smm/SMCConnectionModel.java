@@ -15,12 +15,6 @@
  */
 package nl.queuemanager.smm;
 
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanException;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
-
 import com.sonicsw.ma.gui.PreferenceManager;
 import com.sonicsw.ma.gui.domain.AgentManagerConnection;
 import com.sonicsw.ma.gui.domain.DomainConnectionModel;
@@ -29,6 +23,8 @@ import com.sonicsw.mf.jmx.client.IRemoteMBeanServer;
 import com.sonicsw.mf.mgmtapi.runtime.IAgentManagerProxy;
 import com.sonicsw.mx.config.ConfigServerUtility;
 import com.sonicsw.mx.config.IConfigServer;
+
+import javax.management.*;
 
 public class SMCConnectionModel implements ConnectionModel {
 	DomainConnectionModel delegate;

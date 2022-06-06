@@ -1,6 +1,6 @@
 package nl.queuemanager.ui;
 
-import javax.swing.JComponent;
+import javax.swing.*;
 
 public interface UITab {
 	

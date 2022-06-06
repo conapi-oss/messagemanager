@@ -1,12 +1,11 @@
 package nl.queuemanager.fakemq;
 
-import java.util.Random;
-
-import javax.jms.JMSException;
-
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSQueue;
+
+import javax.jms.JMSException;
+import java.util.Random;
 
 public class FakeMQQueue implements JMSQueue {
 

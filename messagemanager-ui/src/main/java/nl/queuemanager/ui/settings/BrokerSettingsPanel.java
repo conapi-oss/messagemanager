@@ -1,17 +1,11 @@
 package nl.queuemanager.ui.settings;
 
-import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.JComponent;
-import javax.swing.JList;
-import javax.swing.JPanel;
-
 import com.google.inject.Inject;
-
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.jms.JMSBroker;
+
+import javax.swing.*;
+import java.util.List;
 
 @SuppressWarnings("serial")
 class BrokerSettingsPanel extends JPanel implements SettingsPanel {

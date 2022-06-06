@@ -3,7 +3,6 @@ package nl.queuemanager.smm.ui;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.sonicsw.ma.gui.domain.JDomainConnectionDialog;
-
 import nl.queuemanager.ui.util.DesktopHelper;
 
 /**

@@ -1,16 +1,15 @@
 package nl.queuemanager.solace;
 
-import static nl.queuemanager.solace.SempConnectionMethod.SEMP_OVER_HTTP;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import com.google.common.base.Strings;
-
 import lombok.Getter;
 import lombok.Setter;
 import nl.queuemanager.core.configuration.Configuration;
 import nl.queuemanager.core.util.BasicCredentials;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import static nl.queuemanager.solace.SempConnectionMethod.SEMP_OVER_HTTP;
 
 /**
  * SempConnectionDescriptor adds semp connection properties to SmfConnectionDescriptor

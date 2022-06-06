@@ -15,17 +15,15 @@
  */
 package nl.queuemanager.ui.tasks;
 
-import java.util.List;
-
-import javax.swing.SwingUtilities;
-
 import com.google.common.eventbus.EventBus;
-
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.BackgroundTask;
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.ui.util.ListTableModel;
+
+import javax.swing.*;
+import java.util.List;
 
 public class RefreshMessageCountsTask extends BackgroundTask {
 

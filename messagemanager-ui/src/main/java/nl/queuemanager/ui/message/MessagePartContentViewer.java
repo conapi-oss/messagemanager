@@ -1,8 +1,8 @@
 package nl.queuemanager.ui.message;
 
-import javax.swing.JComponent;
-
 import nl.queuemanager.jms.JMSPart;
+
+import javax.swing.*;
 
 /**
  * Interface for components that can create a GUI to display a Message Part.

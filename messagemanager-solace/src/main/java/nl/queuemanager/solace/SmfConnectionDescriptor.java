@@ -1,17 +1,15 @@
 package nl.queuemanager.solace;
 
-import java.io.File;
-import java.net.URI;
-
 import com.google.common.base.Strings;
 import com.solacesystems.jms.SolConnectionFactory;
 import com.solacesystems.jms.SupportedProperty;
-
 import lombok.Data;
 import nl.queuemanager.core.configuration.Configuration;
 import nl.queuemanager.core.util.BasicCredentials;
 import nl.queuemanager.core.util.Credentials;
-import nl.queuemanager.jms.JMSBroker;
+
+import java.io.File;
+import java.net.URI;
 
 /**
  * SolaceConnectionDescriptor holds all properties required for creating

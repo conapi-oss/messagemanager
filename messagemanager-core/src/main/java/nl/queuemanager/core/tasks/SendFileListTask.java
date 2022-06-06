@@ -15,12 +15,17 @@
  */
 package nl.queuemanager.core.tasks;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
+import com.google.common.eventbus.EventBus;
+import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
+import nl.queuemanager.core.ESBMessage;
+import nl.queuemanager.core.jms.JMSDomain;
+import nl.queuemanager.core.task.CancelableTask;
+import nl.queuemanager.core.task.Task;
+import nl.queuemanager.core.util.CollectionFactory;
+import nl.queuemanager.jms.JMSDestination;
+import nl.queuemanager.jms.impl.MessageFactory;
+import org.xml.sax.SAXException;
 
 import javax.annotation.Nullable;
 import javax.jms.DeliveryMode;
@@ -29,20 +34,12 @@ import javax.jms.Message;
 import javax.jms.TextMessage;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
-
-import nl.queuemanager.core.ESBMessage;
-import nl.queuemanager.core.jms.JMSDomain;
-import nl.queuemanager.core.task.CancelableTask;
-import nl.queuemanager.core.task.Task;
-import nl.queuemanager.core.util.CollectionFactory;
-import nl.queuemanager.jms.JMSDestination;
-import nl.queuemanager.jms.impl.MessageFactory;
-
-import org.xml.sax.SAXException;
-
-import com.google.common.eventbus.EventBus;
-import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 public class SendFileListTask extends Task implements CancelableTask {
 	

@@ -15,9 +15,9 @@
  */
 package nl.queuemanager.smm;
 
-import javax.jms.JMSException;
-
 import nl.queuemanager.jms.JMSQueue;
+
+import javax.jms.JMSException;
 
 class SonicMQSimpleQueue extends SonicMQDestination implements JMSQueue {
 	protected final String name;

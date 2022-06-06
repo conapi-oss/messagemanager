@@ -4,7 +4,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.multibindings.MapBinder;
-
 import nl.queuemanager.ConnectivityProviderPlugin;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.ui.MessageSendTabPanel;

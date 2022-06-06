@@ -1,17 +1,15 @@
 package nl.queuemanager.core.configuration;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-
+import com.google.common.base.Strings;
+import lombok.NonNull;
+import lombok.extern.java.Log;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.google.common.base.Strings;
-
-import lombok.NonNull;
-import lombok.extern.java.Log;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
 
 @Log
 class XmlConfigurationSection implements Configuration {

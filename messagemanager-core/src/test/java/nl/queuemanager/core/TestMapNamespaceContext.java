@@ -15,16 +15,14 @@
  */
 package nl.queuemanager.core;
 
-import static org.junit.Assert.*;
+import nl.queuemanager.core.util.CollectionFactory;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Iterator;
 import java.util.List;
 
-import nl.queuemanager.core.MapNamespaceContext;
-import nl.queuemanager.core.util.CollectionFactory;
-
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class TestMapNamespaceContext {
 

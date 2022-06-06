@@ -15,15 +15,10 @@
  */
 package nl.queuemanager.smm;
 
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanException;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
-
 import com.sonicsw.mf.common.IDirectoryFileSystemService;
 import com.sonicsw.mf.mgmtapi.runtime.IAgentManagerProxy;
+
+import javax.management.*;
 
 public interface ConnectionModel extends Comparable<ConnectionModel> {
 

@@ -1,22 +1,20 @@
 package nl.queuemanager.ui;
 
-import java.text.SimpleDateFormat;
-import java.util.Enumeration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.google.common.base.Strings;
+import com.google.common.eventbus.Subscribe;
+import nl.queuemanager.jms.JMSMultipartMessage;
+import nl.queuemanager.jms.JMSPart;
+import nl.queuemanager.jms.MessageType;
+import nl.queuemanager.ui.util.HighlighterSupport;
 
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.TextMessage;
-
-import com.google.common.base.Strings;
-import com.google.common.eventbus.Subscribe;
-
-import nl.queuemanager.jms.JMSMultipartMessage;
-import nl.queuemanager.jms.JMSPart;
-import nl.queuemanager.jms.MessageType;
-import nl.queuemanager.ui.util.HighlighterSupport;
+import java.text.SimpleDateFormat;
+import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public final class MessageHighlighter extends HighlighterSupport<Message> {
 

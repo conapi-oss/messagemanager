@@ -1,12 +1,11 @@
 package nl.queuemanager.app.tasks;
 
-import javax.inject.Inject;
-
 import com.google.common.eventbus.EventBus;
 import com.google.inject.assistedinject.Assisted;
-
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.task.BackgroundTask;
+
+import javax.inject.Inject;
 
 public class SetUserPrefTask extends BackgroundTask {
 

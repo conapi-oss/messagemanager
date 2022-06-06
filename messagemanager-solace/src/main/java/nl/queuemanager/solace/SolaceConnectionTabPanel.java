@@ -1,21 +1,18 @@
 package nl.queuemanager.solace;
 
+import nl.queuemanager.core.configuration.Configuration;
+import nl.queuemanager.core.task.TaskExecutor;
+import nl.queuemanager.ui.util.ListTableModel;
+
+import javax.inject.Inject;
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.event.ActionEvent;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import javax.inject.Inject;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.ImageIcon;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
-import nl.queuemanager.core.configuration.Configuration;
-import nl.queuemanager.core.task.TaskExecutor;
-import nl.queuemanager.ui.util.ListTableModel;
 
 @SuppressWarnings("serial")
 class SolaceConnectionTabPanel extends SolaceConnectionTabPanelUI {

@@ -1,16 +1,14 @@
 package nl.queuemanager.core.tasks;
 
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.jms.Message;
-
+import com.google.common.eventbus.EventBus;
+import com.google.inject.assistedinject.Assisted;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.jms.JMSQueue;
 
-import com.google.common.eventbus.EventBus;
-import com.google.inject.assistedinject.Assisted;
+import javax.inject.Inject;
+import javax.jms.Message;
+import java.util.List;
 
 public class DeleteMessagesTask extends Task {
 	private final JMSDomain domain;

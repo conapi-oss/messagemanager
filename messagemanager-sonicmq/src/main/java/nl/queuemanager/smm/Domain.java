@@ -15,33 +15,25 @@
  */
 package nl.queuemanager.smm;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.inject.Provider;
-import javax.jms.Destination;
-import javax.jms.ExceptionListener;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
-import javax.jms.QueueBrowser;
-import javax.jms.Session;
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.JMException;
-import javax.management.MBeanException;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
-
+import com.google.common.eventbus.EventBus;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.sonicsw.ma.mgmtapi.config.IMgmtBeanBase;
+import com.sonicsw.ma.mgmtapi.config.MgmtException;
+import com.sonicsw.mf.common.IDirectoryFileSystemService;
+import com.sonicsw.mf.common.config.IElementIdentity;
+import com.sonicsw.mf.common.dirconfig.DirectoryServiceException;
+import com.sonicsw.mf.common.runtime.IComponentState;
+import com.sonicsw.mf.common.runtime.IContainerState;
+import com.sonicsw.mf.common.runtime.IIdentity;
+import com.sonicsw.mf.mgmtapi.runtime.IAgentManagerProxy;
+import com.sonicsw.mq.common.runtime.IQueueData;
+import com.sonicsw.mq.common.runtime.ReplicationStateConstants;
+import com.sonicsw.mq.mgmtapi.config.*;
+import com.sonicsw.mq.mgmtapi.config.IAcceptorsBean.IAcceptorMapType;
+import com.sonicsw.mq.mgmtapi.config.IAcceptorsBean.IDefaultAcceptorsType;
+import com.sonicsw.mq.mgmtapi.config.constants.IBackupBrokerConstants;
+import com.sonicsw.mq.mgmtapi.config.constants.IBrokerConstants;
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.DomainEvent.EVENT;
@@ -58,29 +50,13 @@ import nl.queuemanager.ui.BrokerCredentialsDialog;
 import progress.message.jclient.MultipartMessage;
 import progress.message.jclient.XMLMessage;
 
-import com.google.common.eventbus.EventBus;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.sonicsw.ma.mgmtapi.config.IMgmtBeanBase;
-import com.sonicsw.ma.mgmtapi.config.MgmtException;
-import com.sonicsw.mf.common.IDirectoryFileSystemService;
-import com.sonicsw.mf.common.config.IElementIdentity;
-import com.sonicsw.mf.common.dirconfig.DirectoryServiceException;
-import com.sonicsw.mf.common.runtime.IComponentState;
-import com.sonicsw.mf.common.runtime.IContainerState;
-import com.sonicsw.mf.common.runtime.IIdentity;
-import com.sonicsw.mf.mgmtapi.runtime.IAgentManagerProxy;
-import com.sonicsw.mq.common.runtime.IQueueData;
-import com.sonicsw.mq.common.runtime.ReplicationStateConstants;
-import com.sonicsw.mq.mgmtapi.config.IAcceptorTcpsBean;
-import com.sonicsw.mq.mgmtapi.config.IAcceptorsBean;
-import com.sonicsw.mq.mgmtapi.config.IAcceptorsBean.IAcceptorMapType;
-import com.sonicsw.mq.mgmtapi.config.IAcceptorsBean.IDefaultAcceptorsType;
-import com.sonicsw.mq.mgmtapi.config.IBackupBrokerBean;
-import com.sonicsw.mq.mgmtapi.config.IBrokerBean;
-import com.sonicsw.mq.mgmtapi.config.MQMgmtBeanFactory;
-import com.sonicsw.mq.mgmtapi.config.constants.IBackupBrokerConstants;
-import com.sonicsw.mq.mgmtapi.config.constants.IBrokerConstants;
+import javax.inject.Provider;
+import javax.jms.*;
+import javax.management.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
+import java.util.Map.Entry;
 
 @Singleton
 public class Domain implements JMSDomain {

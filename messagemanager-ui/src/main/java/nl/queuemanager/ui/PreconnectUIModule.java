@@ -2,7 +2,6 @@ package nl.queuemanager.ui;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
-
 import nl.queuemanager.ui.util.DesktopHelper;
 import nl.queuemanager.ui.util.DesktopHelperJRE6;
 

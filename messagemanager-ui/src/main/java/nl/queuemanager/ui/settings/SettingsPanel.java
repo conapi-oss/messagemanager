@@ -1,6 +1,6 @@
 package nl.queuemanager.ui.settings;
 
-import javax.swing.JComponent;
+import javax.swing.*;
 
 public interface SettingsPanel {
 

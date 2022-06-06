@@ -15,6 +15,20 @@
  */
 package nl.queuemanager.ui;
 
+import com.google.common.eventbus.EventBus;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+import nl.queuemanager.core.Pair;
+import nl.queuemanager.core.jms.JMSDomain;
+import nl.queuemanager.core.jms.JMSFeature;
+import nl.queuemanager.core.task.BackgroundTask;
+import nl.queuemanager.core.task.TaskExecutor;
+import nl.queuemanager.core.tasks.TaskFactory;
+import nl.queuemanager.jms.JMSDestination;
+import nl.queuemanager.jms.JMSQueue;
+
+import javax.jms.Message;
+import javax.swing.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -25,23 +39,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
-
-import javax.jms.Message;
-import javax.swing.JComponent;
-import javax.swing.TransferHandler;
-
-import nl.queuemanager.core.Pair;
-import nl.queuemanager.core.jms.JMSDomain;
-import nl.queuemanager.core.jms.JMSFeature;
-import nl.queuemanager.core.task.BackgroundTask;
-import nl.queuemanager.core.task.TaskExecutor;
-import nl.queuemanager.core.tasks.TaskFactory;
-import nl.queuemanager.jms.JMSDestination;
-import nl.queuemanager.jms.JMSQueue;
-
-import com.google.common.eventbus.EventBus;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 
 @SuppressWarnings("serial")
 class JMSDestinationTransferHandler extends TransferHandler {

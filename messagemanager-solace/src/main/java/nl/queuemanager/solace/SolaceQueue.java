@@ -1,10 +1,10 @@
 package nl.queuemanager.solace;
 
-import javax.jms.JMSException;
-
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSQueue;
+
+import javax.jms.JMSException;
 
 class SolaceQueue implements JMSQueue {
 

@@ -15,17 +15,12 @@
  */
 package nl.queuemanager.core.task;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import javax.inject.Inject;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-
-import javax.inject.Inject;
 
 class MultiQueueTaskExecutor implements TaskExecutor 
 {

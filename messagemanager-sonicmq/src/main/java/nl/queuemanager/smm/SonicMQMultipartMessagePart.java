@@ -15,12 +15,11 @@
  */
 package nl.queuemanager.smm;
 
-import java.util.Enumeration;
-
-import javax.jms.JMSException;
-
 import nl.queuemanager.jms.JMSPart;
 import progress.message.jclient.Part;
+
+import javax.jms.JMSException;
+import java.util.Enumeration;
 
 /**
  * Wraps a SonicMQ specfic multipart message in a JMSMultipartMessage interface to

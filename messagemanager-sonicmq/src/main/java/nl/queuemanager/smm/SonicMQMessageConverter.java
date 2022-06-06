@@ -15,21 +15,6 @@
  */
 package nl.queuemanager.smm;
 
-import java.util.Enumeration;
-
-import javax.jms.BytesMessage;
-import javax.jms.DeliveryMode;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.MapMessage;
-import javax.jms.Message;
-import javax.jms.MessageEOFException;
-import javax.jms.ObjectMessage;
-import javax.jms.Queue;
-import javax.jms.StreamMessage;
-import javax.jms.TextMessage;
-import javax.jms.Topic;
-
 import nl.queuemanager.jms.JMSMultipartMessage;
 import nl.queuemanager.jms.JMSPart;
 import nl.queuemanager.jms.JMSXMLMessage;
@@ -37,6 +22,9 @@ import progress.message.jclient.MultipartMessage;
 import progress.message.jclient.Part;
 import progress.message.jclient.Session;
 import progress.message.jclient.XMLMessage;
+
+import javax.jms.*;
+import java.util.Enumeration;
 
 /**
  * Converts messages from foreign JMS providers (anything that implements javax.jms.Message)

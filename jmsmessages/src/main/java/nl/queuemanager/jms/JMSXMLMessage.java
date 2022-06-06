@@ -15,9 +15,9 @@
  */
 package nl.queuemanager.jms;
 
-import javax.jms.TextMessage;
-
 import org.w3c.dom.Document;
+
+import javax.jms.TextMessage;
 
 public interface JMSXMLMessage extends TextMessage {
 	

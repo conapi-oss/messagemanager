@@ -8,7 +8,6 @@ import com.google.inject.multibindings.MapBinder;
 import com.google.inject.spi.InjectionListener;
 import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
-
 import lombok.extern.java.Log;
 import nl.queuemanager.app.tasks.TaskFactory;
 import nl.queuemanager.core.DebugProperty;

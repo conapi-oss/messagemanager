@@ -1,20 +1,11 @@
 package nl.queuemanager.app;
 
-import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.border.EmptyBorder;
-
 import nl.queuemanager.ui.util.TableColumnAdjuster;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
 
 @SuppressWarnings("serial")
 public class AddPluginDialog extends JDialog {

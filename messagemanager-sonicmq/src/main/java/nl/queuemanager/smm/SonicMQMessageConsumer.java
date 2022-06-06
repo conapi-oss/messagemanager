@@ -15,13 +15,13 @@
  */
 package nl.queuemanager.smm;
 
+import progress.message.jclient.MultipartMessage;
+import progress.message.jclient.XMLMessage;
+
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
-
-import progress.message.jclient.MultipartMessage;
-import progress.message.jclient.XMLMessage;
 
 class SonicMQMessageConsumer implements MessageConsumer {
 	private final MessageConsumer delegate;

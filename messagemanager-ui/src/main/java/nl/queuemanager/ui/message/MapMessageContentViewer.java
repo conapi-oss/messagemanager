@@ -1,14 +1,13 @@
 package nl.queuemanager.ui.message;
 
-import javax.inject.Inject;
-import javax.jms.MapMessage;
-import javax.jms.Message;
-import javax.swing.JComponent;
-import javax.swing.JScrollPane;
-
 import nl.queuemanager.core.Pair;
 import nl.queuemanager.ui.util.HighlightsModel;
 import nl.queuemanager.ui.util.ListTableModel;
+
+import javax.inject.Inject;
+import javax.jms.MapMessage;
+import javax.jms.Message;
+import javax.swing.*;
 
 class MapMessageContentViewer implements MessageContentViewer {
 

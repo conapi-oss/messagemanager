@@ -15,16 +15,14 @@
  */
 package nl.queuemanager.ui.util;
 
-import static org.junit.Assert.assertEquals;
+import nl.queuemanager.core.Pair;
+import nl.queuemanager.core.util.CollectionFactory;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 
-import nl.queuemanager.core.Pair;
-import nl.queuemanager.core.util.CollectionFactory;
-import nl.queuemanager.ui.util.PairTableModel;
-
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 public class TestPairTableModel {
 

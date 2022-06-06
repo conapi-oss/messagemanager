@@ -1,10 +1,9 @@
 package nl.queuemanager.activemq;
 
-import java.net.URI;
+import nl.queuemanager.jms.JMSBroker;
 
 import javax.management.ObjectName;
-
-import nl.queuemanager.jms.JMSBroker;
+import java.net.URI;
 
 class ActiveMQBroker implements JMSBroker {
 

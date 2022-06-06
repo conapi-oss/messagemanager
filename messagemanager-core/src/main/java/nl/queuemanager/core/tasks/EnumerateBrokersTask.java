@@ -1,11 +1,10 @@
 package nl.queuemanager.core.tasks;
 
-import javax.inject.Inject;
-
 import com.google.common.eventbus.EventBus;
-
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.Task;
+
+import javax.inject.Inject;
 
 public class EnumerateBrokersTask extends Task {
 

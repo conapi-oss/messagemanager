@@ -15,20 +15,14 @@
  */
 package nl.queuemanager.ui;
 
-import java.awt.Frame;
+import nl.queuemanager.core.util.CollectionFactory;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.Map;
-
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.KeyStroke;
-
-import nl.queuemanager.core.util.CollectionFactory;
 
 @SuppressWarnings("serial")
 public class PropertiesDialog extends JDialog {

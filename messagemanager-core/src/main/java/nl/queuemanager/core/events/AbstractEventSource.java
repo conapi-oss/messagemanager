@@ -15,13 +15,12 @@
  */
 package nl.queuemanager.core.events;
 
+import com.google.common.eventbus.EventBus;
+import nl.queuemanager.core.util.CollectionFactory;
+
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import nl.queuemanager.core.util.CollectionFactory;
-
-import com.google.common.eventbus.EventBus;
 
 public abstract class AbstractEventSource<T> implements EventSource<T> {
 	private final Logger log = Logger.getLogger(getClass().getName());

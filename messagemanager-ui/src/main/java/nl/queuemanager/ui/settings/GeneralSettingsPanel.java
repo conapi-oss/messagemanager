@@ -1,23 +1,12 @@
 package nl.queuemanager.ui.settings;
 
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
-
 import com.google.inject.Inject;
-
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.ui.util.JIntegerField;
+
+import javax.swing.*;
+import javax.swing.UIManager.LookAndFeelInfo;
+import java.awt.*;
 
 @SuppressWarnings("serial")
 class GeneralSettingsPanel extends JPanel implements SettingsPanel {

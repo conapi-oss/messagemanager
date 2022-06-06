@@ -15,9 +15,9 @@
  */
 package nl.queuemanager.jms.impl;
 
-import javax.jms.JMSException;
-
 import nl.queuemanager.jms.JMSBroker;
+
+import javax.jms.JMSException;
 
 class JMSQueueImpl extends JMSDestinationImpl implements nl.queuemanager.jms.JMSQueue {
 	

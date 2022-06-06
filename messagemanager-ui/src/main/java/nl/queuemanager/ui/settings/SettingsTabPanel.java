@@ -1,19 +1,13 @@
 package nl.queuemanager.ui.settings;
 
-import java.awt.Dimension;
+import com.google.inject.Inject;
+import nl.queuemanager.ui.UITab;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
-
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-
-import com.google.inject.Inject;
-
-import nl.queuemanager.ui.UITab;
 
 @SuppressWarnings("serial")
 public class SettingsTabPanel extends JPanel implements UITab {

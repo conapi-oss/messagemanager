@@ -1,15 +1,13 @@
 package nl.queuemanager.solace;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import com.google.common.base.Strings;
+import lombok.extern.java.Log;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
-import javax.jms.BytesMessage;
-import javax.jms.DeliveryMode;
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.Topic;
+import javax.jms.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -18,15 +16,8 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import com.google.common.base.Strings;
-
-import lombok.extern.java.Log;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 @Log
 class SmfSempConnection implements SempConnection {

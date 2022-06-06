@@ -1,15 +1,9 @@
 package nl.queuemanager.solace;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-
 import nl.queuemanager.core.util.BasicCredentials;
+
+import javax.swing.*;
+import java.awt.*;
 
 class BasicAuthenticationPanel extends JPanel implements DataPanel<BasicCredentials> {
 	JPasswordField passwordField;

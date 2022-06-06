@@ -1,5 +1,10 @@
 package nl.queuemanager.fakemq;
 
+import nl.queuemanager.jms.JMSMultipartMessage;
+import nl.queuemanager.jms.JMSPart;
+import nl.queuemanager.jms.impl.MessageFactory;
+
+import javax.jms.*;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -7,16 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
-
-import javax.jms.BytesMessage;
-import javax.jms.JMSException;
-import javax.jms.MapMessage;
-import javax.jms.Message;
-import javax.jms.TextMessage;
-
-import nl.queuemanager.jms.JMSMultipartMessage;
-import nl.queuemanager.jms.JMSPart;
-import nl.queuemanager.jms.impl.MessageFactory;
 
 public class FakeMQMessageCreator {
 

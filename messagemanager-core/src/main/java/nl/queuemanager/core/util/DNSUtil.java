@@ -1,9 +1,8 @@
 package nl.queuemanager.core.util;
 
+import javax.naming.Context;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.naming.Context;
 
 public class DNSUtil {
 	

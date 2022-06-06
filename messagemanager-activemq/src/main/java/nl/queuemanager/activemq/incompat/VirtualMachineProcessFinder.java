@@ -1,12 +1,11 @@
 package nl.queuemanager.activemq.incompat;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.sun.tools.attach.VirtualMachineDescriptor;
 import nl.queuemanager.activemq.ui.JavaProcessDescriptor;
 import nl.queuemanager.activemq.ui.JavaProcessFinder;
 
-import com.sun.tools.attach.VirtualMachineDescriptor;
+import java.util.ArrayList;
+import java.util.List;
 
 public class VirtualMachineProcessFinder implements JavaProcessFinder {
 

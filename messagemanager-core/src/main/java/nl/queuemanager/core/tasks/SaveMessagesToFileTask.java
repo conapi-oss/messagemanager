@@ -15,22 +15,9 @@
  */
 package nl.queuemanager.core.tasks;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.List;
-
-import javax.jms.BytesMessage;
-import javax.jms.JMSException;
-import javax.jms.TextMessage;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactoryConfigurationError;
-
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-
 import nl.queuemanager.core.ESBMessage;
 import nl.queuemanager.core.Pair;
 import nl.queuemanager.core.task.CancelableTask;
@@ -39,6 +26,17 @@ import nl.queuemanager.core.task.TaskEvent;
 import nl.queuemanager.jms.JMSMultipartMessage;
 import nl.queuemanager.jms.JMSPart;
 import nl.queuemanager.jms.MessageType;
+
+import javax.jms.BytesMessage;
+import javax.jms.JMSException;
+import javax.jms.TextMessage;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.List;
 
 public class SaveMessagesToFileTask extends Task implements CancelableTask {
 	private final List<Pair<javax.jms.Message, File>> messages;

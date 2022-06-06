@@ -1,28 +1,13 @@
 package nl.queuemanager.solace;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import nl.queuemanager.ui.util.JIntegerField;
+import org.eclipse.wb.swing.FocusTraversalOnArray;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
-
-import org.eclipse.wb.swing.FocusTraversalOnArray;
-
-import nl.queuemanager.ui.util.JIntegerField;
+import java.awt.*;
 
 @SuppressWarnings("serial")
 class SempConnectionDescriptorPanelUI extends JPanel {

@@ -17,8 +17,6 @@ package nl.queuemanager.core;
 
 import java.util.EventObject;
 
-import nl.queuemanager.core.events.EventSource;
-
 /**
  * Events relating to message receivers.
  * 

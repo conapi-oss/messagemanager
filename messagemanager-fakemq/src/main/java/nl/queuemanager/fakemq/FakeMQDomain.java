@@ -1,18 +1,6 @@
 package nl.queuemanager.fakemq;
 
 import com.google.common.eventbus.EventBus;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.management.JMException;
-import javax.management.MalformedObjectNameException;
 import nl.queuemanager.core.events.AbstractEventSource;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.DomainEvent.EVENT;
@@ -24,6 +12,19 @@ import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.jms.JMSTopic;
 import nl.queuemanager.jms.impl.DestinationFactory;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import javax.management.JMException;
+import javax.management.MalformedObjectNameException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 
 @Singleton
 public class FakeMQDomain extends AbstractEventSource<DomainEvent> implements JMSDomain {

@@ -15,20 +15,19 @@
  */
 package nl.queuemanager.core.jms;
 
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.List;
-
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-
 import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.jms.JMSTopic;
+
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.List;
 
 /**
  * Interface to a JMS Domain.

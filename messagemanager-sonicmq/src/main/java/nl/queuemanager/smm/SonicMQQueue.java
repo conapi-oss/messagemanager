@@ -15,11 +15,10 @@
  */
 package nl.queuemanager.smm;
 
-import javax.jms.JMSException;
-
+import com.sonicsw.mq.common.runtime.IQueueData;
 import nl.queuemanager.jms.JMSQueue;
 
-import com.sonicsw.mq.common.runtime.IQueueData;
+import javax.jms.JMSException;
 
 /**
  * SonicMQ based implementation of {@link JMSQueue}.

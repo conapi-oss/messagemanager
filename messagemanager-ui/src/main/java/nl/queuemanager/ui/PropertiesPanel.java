@@ -15,10 +15,14 @@
  */
 package nl.queuemanager.ui;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
+import nl.queuemanager.core.util.EnumerationIterator;
+import nl.queuemanager.ui.message.MessagePropertiesTable;
+import nl.queuemanager.ui.util.SpringUtilities;
+
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,25 +32,6 @@ import java.io.StringReader;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.SpringLayout;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
-import nl.queuemanager.core.util.EnumerationIterator;
-import nl.queuemanager.ui.message.MessagePropertiesTable;
-import nl.queuemanager.ui.util.SpringUtilities;
 
 @SuppressWarnings("serial")
 public class PropertiesPanel extends JPanel {

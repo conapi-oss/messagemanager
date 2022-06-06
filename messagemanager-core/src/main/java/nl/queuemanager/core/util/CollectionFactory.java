@@ -15,11 +15,7 @@
  */
 package nl.queuemanager.core.util;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Static class to allow for easy creation of JDK collection classes. Inspired by Google Collections

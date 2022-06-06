@@ -15,18 +15,16 @@
  */
 package nl.queuemanager.ui.message;
 
-import java.awt.Dimension;
-import java.util.Enumeration;
-import java.util.List;
-
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.table.TableColumn;
-
 import nl.queuemanager.core.Pair;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.jms.JMSPart;
 import nl.queuemanager.ui.util.PairTableModel;
+
+import javax.swing.*;
+import javax.swing.table.TableColumn;
+import java.awt.*;
+import java.util.Enumeration;
+import java.util.List;
 
 /**
  * This class represents the message headers table for a message

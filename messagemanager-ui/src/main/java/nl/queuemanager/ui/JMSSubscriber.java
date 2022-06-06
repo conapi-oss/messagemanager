@@ -15,17 +15,9 @@
  */
 package nl.queuemanager.ui;
 
-import java.util.List;
-import java.util.Observable;
-
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.swing.SwingUtilities;
-
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-
 import nl.queuemanager.core.MessageBuffer;
 import nl.queuemanager.core.MessageEvent;
 import nl.queuemanager.core.configuration.CoreConfiguration;
@@ -36,6 +28,12 @@ import nl.queuemanager.core.task.BackgroundTask;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.util.Clearable;
 import nl.queuemanager.jms.JMSDestination;
+
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.swing.*;
+import java.util.List;
+import java.util.Observable;
 
 /**
  * Contains a MessageBuffer and possibly a MessageConsumer subscribed to a JMS Topic.

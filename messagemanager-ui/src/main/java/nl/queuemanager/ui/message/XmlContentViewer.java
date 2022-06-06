@@ -1,22 +1,14 @@
 package nl.queuemanager.ui.message;
 
-import java.io.StringWriter;
-
-import javax.swing.text.Highlighter;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Result;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
 import nl.queuemanager.core.Xerces210DocumentWrapper;
-
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.w3c.dom.Document;
+
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.StringWriter;
 
 abstract class XmlContentViewer<T> extends TextAreaContentViewer<T> {
 

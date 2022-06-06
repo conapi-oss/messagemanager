@@ -2,7 +2,6 @@ package nl.queuemanager.ui.message;
 
 import com.google.common.base.Strings;
 import com.google.common.eventbus.Subscribe;
-
 import nl.queuemanager.core.Pair;
 import nl.queuemanager.ui.GlobalHighlightEvent;
 import nl.queuemanager.ui.util.HighlighterSupport;

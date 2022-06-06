@@ -15,19 +15,13 @@
  */
 package nl.queuemanager.core;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import nl.queuemanager.core.events.AbstractEventSource;
+import nl.queuemanager.core.util.Clearable;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
-
-import nl.queuemanager.core.events.AbstractEventSource;
-import nl.queuemanager.core.util.Clearable;
+import java.util.*;
 
 /**
  * Receives and holds JMSMessages received from a JMS MessageConsumer.

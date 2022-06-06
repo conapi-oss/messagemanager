@@ -1,17 +1,16 @@
 package nl.queuemanager.core.tasks;
 
-import javax.jms.JMSException;
-
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.core.util.UserCanceledException;
 import nl.queuemanager.jms.JMSBroker;
+
+import javax.jms.JMSException;
 
 public class ConnectToBrokerTask extends Task {
 	private final JMSDomain domain;

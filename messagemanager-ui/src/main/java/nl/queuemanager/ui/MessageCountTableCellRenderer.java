@@ -15,11 +15,9 @@
  */
 package nl.queuemanager.ui;
 
-import java.awt.Color;
-import java.awt.Component;
-
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
+import java.awt.*;
 
 /**
  * <p>

@@ -1,22 +1,15 @@
 package nl.queuemanager.app;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-
 import com.google.common.base.Strings;
-
 import nl.queuemanager.Profile;
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.ui.settings.SettingsPanel;
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
-import javax.swing.JComboBox;
-import javax.swing.JCheckBox;
+
+import javax.inject.Inject;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Set;
 
 @SuppressWarnings("serial")
 public class AutoloadProfileSettingsPanel extends JPanel implements SettingsPanel {

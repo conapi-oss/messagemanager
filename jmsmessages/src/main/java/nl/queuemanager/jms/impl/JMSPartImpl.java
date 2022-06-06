@@ -15,6 +15,10 @@
  */
 package nl.queuemanager.jms.impl;
 
+import nl.queuemanager.jms.JMSPart;
+
+import javax.activation.DataHandler;
+import javax.jms.JMSException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -22,11 +26,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.activation.DataHandler;
-import javax.jms.JMSException;
-
-import nl.queuemanager.jms.JMSPart;
 
 public class JMSPartImpl implements JMSPart {
 

@@ -1,16 +1,14 @@
 package nl.queuemanager.ui.message;
 
-import java.io.IOException;
-import java.io.StringReader;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import nl.queuemanager.jms.JMSPart;
-
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.StringReader;
 
 class TextPartContentViewer extends XmlContentViewer<JMSPart> implements MessagePartContentViewer {
 	

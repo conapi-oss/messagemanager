@@ -1,15 +1,5 @@
 package nl.queuemanager.debug;
 
-import java.util.Enumeration;
-import java.util.List;
-
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.management.JMException;
-import javax.management.MalformedObjectNameException;
-
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.JMSDomain;
@@ -20,6 +10,15 @@ import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.jms.JMSTopic;
+
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import javax.management.JMException;
+import javax.management.MalformedObjectNameException;
+import java.util.Enumeration;
+import java.util.List;
 
 public class NullDomain implements JMSDomain {
 

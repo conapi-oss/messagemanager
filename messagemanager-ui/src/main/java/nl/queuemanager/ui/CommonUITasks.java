@@ -15,27 +15,8 @@
  */
 package nl.queuemanager.ui;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.awt.Window;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.jms.Message;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.event.DocumentEvent;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.text.BadLocationException;
-
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-
 import nl.queuemanager.core.Pair;
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.task.TaskExecutor;
@@ -44,6 +25,17 @@ import nl.queuemanager.core.util.Clearable;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.ui.util.DocumentAdapter;
 import nl.queuemanager.ui.util.SingleExtensionFileFilter;
+
+import javax.jms.Message;
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.text.BadLocationException;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CommonUITasks {
 

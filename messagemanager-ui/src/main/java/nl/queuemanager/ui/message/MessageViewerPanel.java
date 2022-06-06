@@ -15,45 +15,29 @@
  */
 package nl.queuemanager.ui.message;
 
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.datatransfer.Transferable;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
-import javax.jms.BytesMessage;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTree;
-import javax.swing.ListSelectionModel;
-import javax.swing.TransferHandler;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
-
+import com.google.common.eventbus.EventBus;
+import com.google.inject.Inject;
 import nl.queuemanager.core.Pair;
 import nl.queuemanager.jms.JMSMultipartMessage;
 import nl.queuemanager.jms.JMSPart;
 import nl.queuemanager.ui.MessageListTransferable;
 import nl.queuemanager.ui.util.Highlighter;
-import nl.queuemanager.ui.util.HighlighterListener;
 import nl.queuemanager.ui.util.HighlightsModel;
 import nl.queuemanager.ui.util.ListTableModel;
 import nl.queuemanager.ui.util.TreeNodeInfo;
 
-import com.google.common.eventbus.EventBus;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
+import javax.jms.BytesMessage;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.swing.*;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.*;
+import java.awt.*;
+import java.awt.datatransfer.Transferable;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class MessageViewerPanel extends JPanel implements TreeSelectionListener {
 

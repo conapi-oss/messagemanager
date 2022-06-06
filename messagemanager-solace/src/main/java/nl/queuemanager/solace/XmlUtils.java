@@ -1,7 +1,8 @@
 package nl.queuemanager.solace;
 
-import java.io.ByteArrayOutputStream;
-import java.io.StringReader;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -12,10 +13,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathFactory;
 import javax.xml.xpath.XPathVariableResolver;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.InputSource;
+import java.io.ByteArrayOutputStream;
+import java.io.StringReader;
 
 class XmlUtils {
 	

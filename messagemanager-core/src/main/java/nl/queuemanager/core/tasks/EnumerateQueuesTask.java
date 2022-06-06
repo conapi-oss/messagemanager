@@ -15,15 +15,14 @@
  */
 package nl.queuemanager.core.tasks;
 
-import javax.annotation.Nullable;
-
+import com.google.common.eventbus.EventBus;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.BackgroundTask;
 import nl.queuemanager.jms.JMSBroker;
 
-import com.google.common.eventbus.EventBus;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
+import javax.annotation.Nullable;
 
 public class EnumerateQueuesTask extends BackgroundTask {
 	

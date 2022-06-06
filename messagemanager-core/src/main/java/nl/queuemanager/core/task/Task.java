@@ -15,13 +15,12 @@
  */
 package nl.queuemanager.core.task;
 
-import java.util.Set;
-
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import nl.queuemanager.core.task.TaskEvent.EVENT;
 import nl.queuemanager.core.util.WeakHashSet;
 
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
+import java.util.Set;
 
 /**
  * This class is the base class for all tasks to be executed on the TaskExecutor. 

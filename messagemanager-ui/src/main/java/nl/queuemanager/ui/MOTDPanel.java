@@ -1,20 +1,14 @@
 package nl.queuemanager.ui;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
-import javax.inject.Inject;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JLabel;
-import javax.swing.SwingUtilities;
-
 import com.google.common.eventbus.Subscribe;
-
 import nl.queuemanager.core.util.ReleasePropertiesEvent;
 import nl.queuemanager.ui.util.MarqueePanel;
+
+import javax.inject.Inject;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class MOTDPanel extends MarqueePanel {
 

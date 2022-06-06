@@ -1,6 +1,6 @@
 package nl.queuemanager.ui.message;
 
-import javax.swing.JComponent;
+import javax.swing.*;
 
 interface ContentViewer<T> {
 

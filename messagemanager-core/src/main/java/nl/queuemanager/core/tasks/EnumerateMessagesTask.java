@@ -15,23 +15,21 @@
  */
 package nl.queuemanager.core.tasks;
 
-import java.util.Enumeration;
-import java.util.EventObject;
-import java.util.NoSuchElementException;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-import javax.jms.Message;
-
 import com.google.common.eventbus.EventBus;
 import com.google.inject.assistedinject.Assisted;
-
 import nl.queuemanager.core.events.AbstractEventSource;
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.CancelableTask;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.jms.JMSQueue;
+
+import javax.inject.Inject;
+import javax.jms.Message;
+import java.util.Enumeration;
+import java.util.EventObject;
+import java.util.NoSuchElementException;
+import java.util.logging.Logger;
 
 public class EnumerateMessagesTask extends Task implements CancelableTask {
 	private final Logger log = Logger.getLogger(getClass().getName());
