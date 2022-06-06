@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -206,7 +207,7 @@ class HttpSEMPConnection implements SempConnection {
 		conn.setConnectTimeout(5000); // TODO Make timeout configurable
 		String userInfo = url.getUserInfo();
 		if(userInfo != null && userInfo.trim().length() > 0) {
-			String base64 = javax.xml.bind.DatatypeConverter.printBase64Binary(userInfo.getBytes());
+			String base64 = Base64.getEncoder().encodeToString(userInfo.getBytes());
 			conn.setRequestProperty("Authorization", "Basic " + base64);
 		}
 		conn.setRequestProperty("Content-Length", Integer.toString(requestBytes.length));

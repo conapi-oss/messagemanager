@@ -18,8 +18,8 @@ subprojects {
     group = 'nl.queuemanager'
     version = '4.0-SNAPSHOT'
 
-    sourceCompatibility = 15
-    targetCompatibility = 15
+    sourceCompatibility = 17
+    targetCompatibility = 17
 
     repositories {
         mavenLocal()

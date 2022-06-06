@@ -7,3 +7,4 @@ logging.properties
 .idea
 .gradle
 *.iml
+build

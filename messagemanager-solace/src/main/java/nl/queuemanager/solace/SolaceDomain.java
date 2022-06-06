@@ -25,13 +25,13 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.google.common.eventbus.EventBus;
 import com.solacesystems.jcsmp.CapabilityType;
+import com.solacesystems.jcsmp.InvalidOperationException;
 import com.solacesystems.jcsmp.JCSMPException;
 import com.solacesystems.jcsmp.JCSMPProperties;
 import com.solacesystems.jcsmp.JCSMPSession;
@@ -282,8 +282,7 @@ class SolaceDomain extends AbstractEventSource<DomainEvent> implements JMSDomain
 
 	@Override
 	public void forwardMessage(JMSQueue from, JMSDestination to, String messageID) throws Exception {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException();
+		throw new InvalidOperationException("Not implemented");
 	}
 
 	@Override
