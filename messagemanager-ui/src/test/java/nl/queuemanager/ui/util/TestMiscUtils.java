@@ -38,7 +38,7 @@ public class TestMiscUtils {
 	
 	@Test
 	public void humanReadableRoundToDecimalGB() {
-		assertEquals("1.3GB", MiscUtils.humanReadableSize(1343*1024*1024));
+		assertEquals(String.format("%1.1fGB", 1.3), MiscUtils.humanReadableSize(1343*1024*1024));
 	}
 	
 	@Test
