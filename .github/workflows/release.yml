@@ -21,7 +21,7 @@ jobs:
         arguments: build installDist
     - name: Package Mac
       if: matrix.os == 'macOS'
-      run: sh -c ./package-mac.sh
+      run: sh package-mac.sh
     - name: Package Windows
       if: matrix.os == 'windows'
       run: package-win.bat
