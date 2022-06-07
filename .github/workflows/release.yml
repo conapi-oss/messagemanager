@@ -7,25 +7,29 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [macOS, windows]
+        os: [macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     permissions:
       contents: read
       packages: write
 
     steps:
+    - uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
     - uses: actions/checkout@v3
     - name: Build with Gradle
       uses: gradle/gradle-build-action@0d13054264b0bb894ded474f08ebb30921341cee
       with:
         arguments: build installDist
     - name: Package Mac
-      if: matrix.os == 'macOS'
+      if: matrix.os == 'macos-latest'
       run: sh package-mac.sh
     - name: Package Windows
-      if: matrix.os == 'windows'
+      if: matrix.os == 'windows-latest'
       run: package-win.bat
     - uses: actions/upload-artifact@v3
       with:
-        name: Message Manager
+        name: Message Manager ${{ matrix.os }}
         path: build/install/*
