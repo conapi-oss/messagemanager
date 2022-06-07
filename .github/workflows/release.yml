@@ -28,7 +28,7 @@ jobs:
       run: sh package-mac.sh
     - name: Package Windows
       if: matrix.os == 'windows-latest'
-      run: package-win.bat
+      run: .\package-win.bat
     - uses: actions/upload-artifact@v3
       with:
         name: Message Manager ${{ matrix.os }}

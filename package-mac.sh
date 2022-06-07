@@ -15,3 +15,7 @@ jpackage --type app-image \
     --mac-package-identifier MSGM \
     --mac-package-name "Message Manager.app" \
     --verbose
+
+cd build/install
+zip -r "Message Manager.zip" "Message Manager.app"
+rm -rf "Message Manager.app"
