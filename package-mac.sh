@@ -1,8 +1,8 @@
 #!/bin/sh
 
 jpackage --type dmg \
-    --input messagemanager-app/build/install/messagemanager-app/lib \
-    --main-jar messagemanager-app-4.0-SNAPSHOT.jar \
+    --input build/fatjar \
+    --main-jar messagemanager-4.0-SNAPSHOT.jar \
     --main-class nl.queuemanager.app.Main \
     --java-options -Xmx512m \
     --java-options -DSolace_JMS_Browser_Timeout_In_MS=1000 \

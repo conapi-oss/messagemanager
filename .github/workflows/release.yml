@@ -5,9 +5,28 @@ on:
 
 jobs:
   build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - uses: actions/checkout@v3
+      - name: Build fat jar
+        uses: gradle/gradle-build-action@0d13054264b0bb894ded474f08ebb30921341cee
+        with:
+          arguments: messagemanager-app:fatJar
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Message Manager Fat Jar
+          path: messagemanager-app/build/libs/messagemanager-4*.jar
+
+  package:
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     permissions:
       contents: read
@@ -19,24 +38,16 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
     - uses: actions/checkout@v3
-    - name: Build with Gradle
-      uses: gradle/gradle-build-action@0d13054264b0bb894ded474f08ebb30921341cee
+    - uses: actions/download-artifact@v3
       with:
-        arguments: build installDist
+        name: Message Manager Fat Jar
+        path: build/fatjar
     - name: Package Mac
       if: matrix.os == 'macos-latest'
       run: sh package-mac.sh
     - name: Package Windows
       if: matrix.os == 'windows-latest'
       run: .\package-win.bat
-    - name: Package Linux
-      if: matrix.os == 'ubuntu-latest'
-      uses: gradle/gradle-build-action@0d13054264b0bb894ded474f08ebb30921341cee
-      with:
-        arguments: messagemanager-app:fatJar
-    - name: Move Linux artifact into place
-      if: matrix.os == 'ubuntu-latest'
-      run: sh package-linux.sh
     - uses: actions/upload-artifact@v3
       with:
         name: Message Manager ${{ matrix.os }}
