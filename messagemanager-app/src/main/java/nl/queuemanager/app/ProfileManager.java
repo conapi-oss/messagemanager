@@ -54,12 +54,7 @@ public class ProfileManager {
 	public Set<Profile> getAllProfiles() {
 		return profiles;
 	}
-	
-	@Subscribe
-	public void profileActivated(ProfileActivatedEvent e) {
-		tryToSaveProfile(e.getProfile());
-	}
-	
+
 	public void putProfileIfNotExist(Profile profile) {
 		profiles.add(profile);
 	}

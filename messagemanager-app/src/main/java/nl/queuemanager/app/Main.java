@@ -15,6 +15,9 @@
  */
 package nl.queuemanager.app;
 
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatIntelliJLaf;
+import com.formdev.flatlaf.FlatLightLaf;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -47,13 +50,14 @@ public class Main {
 	private Main() {}
 	
 	public static void main(String[] args) {
+		enableFlatLAF();
 		enableDebugLogging(DebugProperty.developer.isEnabled());
 
 		// Create boot injector so we can set LAF before creating any UI
 		final Injector bootInjector = Guice.createInjector(Stage.PRODUCTION, new BootModule());
 		
 		// Set the LAF
-		setConfiguredLAF(bootInjector.getInstance(CoreConfiguration.class));
+		// setConfiguredLAF(bootInjector.getInstance(CoreConfiguration.class));
 		
 		if(DebugProperty.enableSwingDebug.isEnabled()) {
 			enableSwingDebug();
@@ -110,6 +114,15 @@ public class Main {
 	private static void enableDebugLogging(boolean enabled) {
 		Logger ourLogger = Logger.getLogger(Main.class.getPackage().getName());
 		ourLogger.setLevel(Level.ALL);
+	}
+
+	private static void enableFlatLAF() {
+		FlatLightLaf.setup();
+		try {
+			UIManager.setLookAndFeel( new FlatLightLaf() );
+		} catch (UnsupportedLookAndFeelException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private static void setConfiguredLAF(CoreConfiguration config) { 

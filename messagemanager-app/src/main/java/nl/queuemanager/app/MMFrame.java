@@ -18,7 +18,9 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import nl.queuemanager.AddUITabEvent;
+import nl.queuemanager.Profile;
 import nl.queuemanager.ProfileActivatedEvent;
+import nl.queuemanager.app.tasks.TaskFactory;
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.events.ApplicationInitializedEvent;
 import nl.queuemanager.core.jms.DomainEvent;
@@ -27,7 +29,6 @@ import nl.queuemanager.core.platform.PlatformHelper;
 import nl.queuemanager.core.platform.PreferencesEvent;
 import nl.queuemanager.core.platform.QuitEvent;
 import nl.queuemanager.core.task.TaskExecutor;
-import nl.queuemanager.core.tasks.PreconnectTaskFactory;
 import nl.queuemanager.ui.MOTDPanel;
 import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.settings.SettingsTabPanel;
@@ -35,6 +36,7 @@ import nl.queuemanager.ui.task.TaskQueuePanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Collections;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -51,15 +53,15 @@ public class MMFrame extends JFrame {
 	
 	private UITab.ConnectionState currentState;
 	private TaskExecutor worker;
-	private PreconnectTaskFactory taskFactory;
-	
+	private TaskFactory taskFactory;
+
 	@Inject
-	public MMFrame(CoreConfiguration config, TaskQueuePanel taskQueuePanel, PlatformHelper platformHelper, MOTDPanel motdPanel, ProfileTabPanel profileTab,
-			TaskExecutor worker, PreconnectTaskFactory taskFactory, SettingsTabPanel settingsTab) {
+	public MMFrame(CoreConfiguration config, TaskQueuePanel taskQueuePanel, PlatformHelper platformHelper, MOTDPanel motdPanel,
+				   TaskExecutor worker, TaskFactory taskFactory, SettingsTabPanel settingsTab) {
 		this.config = config;
 		this.worker = worker;
 		this.taskFactory = taskFactory;
-		
+
 		setTitle(String.format("%s %s", APP_NAME, Version.VERSION));
 
 		platformHelper.setFullScreenEnabled(this, true);
@@ -75,11 +77,13 @@ public class MMFrame extends JFrame {
 		tabsPane = new JTabbedPane();
 		tabsPane.setToolTipText("");
 		
-		addTab(new AddUITabEvent(0, profileTab));
-		getRootPane().setDefaultButton(profileTab.getDefaultButton());
-		
 		addTab(new AddUITabEvent(99, settingsTab));
-		
+
+		// Activate Solace profile
+		var profile = new Profile();
+		profile.setPlugins(Collections.singletonList("nl.queuemanager.solace.SolaceModule"));
+		worker.execute(taskFactory.activateProfile(profile));
+
 		// Now add the TabbedPane to the layout
 		contentPane.add(tabsPane, BorderLayout.CENTER);
 		setTabStates(UITab.ConnectionState.DISCONNECTED);
@@ -92,6 +96,16 @@ public class MMFrame extends JFrame {
 		setSize(new Dimension(800, 600));
 		restoreWindowPositionAndSize();
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	}
+
+	@Subscribe
+	public void profileActivated(ProfileActivatedEvent e) {
+		if(!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(() -> profileActivated(e));
+			return;
+		}
+
+		tabsPane.setSelectedIndex(0);
 	}
 	
 	@Subscribe
@@ -131,21 +145,6 @@ public class MMFrame extends JFrame {
 		
 		// Kick off the ReleaseNote task. It will fire an event if we have a release note
 		worker.execute(taskFactory.checkReleaseNote("smm.queuemanager.nl", Version.BUILD_ID));
-	}
-	
-	@Subscribe
-	public void profileActivated(final ProfileActivatedEvent e) {
-		if(!SwingUtilities.isEventDispatchThread()) {
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					profileActivated(e);
-				}
-			});
-			return;
-		}
-		removeTab(0);
-		getRootPane().setDefaultButton(null);
 	}
 	
 	public void removeTab(final int index) {
