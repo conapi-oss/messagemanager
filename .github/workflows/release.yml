@@ -24,6 +24,7 @@ jobs:
           path: messagemanager-app/build/libs/messagemanager-4*.jar
 
   package:
+    needs: build
     strategy:
       matrix:
         os: [macos-latest, windows-latest]
