@@ -32,7 +32,7 @@ task fatJar(type: Jar) {
     manifest {
         attributes 'Main-Class': application.mainClassName
     }
-    baseName = 'all-in-one-jar'
+    baseName = 'messagemanager'
     from {
         exclude '**/module-info.class'
         exclude 'META-INF/**'
