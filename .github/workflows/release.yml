@@ -1,0 +1,31 @@
+name: Package Mac App
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [macOS, windows]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build with Gradle
+      uses: gradle/gradle-build-action@0d13054264b0bb894ded474f08ebb30921341cee
+      with:
+        arguments: build installDist
+    - name: Package Mac
+      if: matrix.os == 'macOS'
+      run: sh -c package-mac.sh
+    - name: Package Windows
+      if: matrix.os == 'windows'
+      run: package-win.bat
+    - uses: actions/upload-artifact@v3
+      with:
+        name: Message Manager
+        path: build/install/*

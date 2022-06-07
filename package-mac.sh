@@ -1,7 +1,7 @@
 #!/bin/sh
 
-jpackage --type dmg \
-    --input messagemanager-app\build\install\messagemanager-app\lib \
+jpackage --type app-image \
+    --input messagemanager-app/build/install/messagemanager-app/lib \
     --main-jar messagemanager-app-4.0-SNAPSHOT.jar \
     --main-class nl.queuemanager.app.Main \
     --java-options -Xmx512m \
@@ -11,8 +11,12 @@ jpackage --type dmg \
     --vendor "Gerco Dries" \
     --copyright "(c) 2008-2022 Gerco Dries" \
     --description "A Compelling Replacement for the JMS Test Client" \
-    --dest build\install \
+    --dest build/install \
     --about-url "https://queuemanager.nl" \
     --mac-package-identifier MSGM \
     --mac-package-name "Message Manager" \
     --verbose
+
+cd build/install
+zip -r "Message Manager.zip" "Message Manager.app"
+rm -rf "Message Manager.app"

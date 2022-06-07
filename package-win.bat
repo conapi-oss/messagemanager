@@ -1,6 +1,6 @@
 @echo off
 
-jpackage --type exe ^
+jpackage --type msi ^
     --input messagemanager-app\build\install\messagemanager-app\lib ^
     --main-jar messagemanager-app-4.0-SNAPSHOT.jar ^
     --main-class nl.queuemanager.app.Main ^
