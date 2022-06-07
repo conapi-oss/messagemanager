@@ -12,7 +12,6 @@ jpackage --type app-image \
     --copyright "(c) 2008-2022 Gerco Dries" \
     --description "A Compelling Replacement for the JMS Test Client" \
     --dest build/install \
-    --about-url "https://queuemanager.nl" \
     --mac-package-identifier MSGM \
     --mac-package-name "Message Manager" \
     --verbose
