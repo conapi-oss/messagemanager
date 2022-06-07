@@ -1,4 +1,4 @@
-name: Package Mac App
+name: Package
 
 on:
   workflow_dispatch:
