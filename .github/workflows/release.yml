@@ -7,7 +7,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, linux-latest]
+        os: [macos-latest, windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     permissions:
       contents: read
@@ -30,12 +30,12 @@ jobs:
       if: matrix.os == 'windows-latest'
       run: .\package-win.bat
     - name: Package Linux
-      if: matrix.os == 'linux-latest'
+      if: matrix.os == 'ubuntu-latest'
       uses: gradle/gradle-build-action@0d13054264b0bb894ded474f08ebb30921341cee
       with:
         arguments: messagemanager-app:fatJar
     - name: Move Linux artifact into place
-      if: matrix.os == 'linux-latest'
+      if: matrix.os == 'ubuntu-latest'
       run: mv messagemanager-app/build/libs/messagemanager-4*.jar build/install/
     - uses: actions/upload-artifact@v3
       with:
