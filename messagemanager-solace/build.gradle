@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    implementation 'com.google.inject:guice:5.0.1'
+    implementation 'com.google.inject:guice:5.1.0'
     implementation('com.solacesystems:sol-jms:10.14.0') {
         exclude group: 'org.apache.geronimo.specs', module: 'geronimo-jms_1.1_spec'
     }

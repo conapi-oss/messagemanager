@@ -16,7 +16,7 @@ public class PlatformHelper {
 	// FIXME REALLY REALLY REALLY BAD!!
 	public static PlatformHelper platformHelper;
 
-	private EventBus eventBus;
+	private final EventBus eventBus;
 
 	@Inject
 	public PlatformHelper(EventBus eventBus) {
@@ -24,9 +24,16 @@ public class PlatformHelper {
 
 		this.eventBus = eventBus;
 
-		Desktop.getDesktop().setAboutHandler(this::handleAbout);
-		Desktop.getDesktop().setPreferencesHandler(this::handlePreferences);
-		Desktop.getDesktop().setQuitHandler(this::handleQuit);
+		var desktop = Desktop.getDesktop();
+
+		if(desktop.isSupported(Desktop.Action.APP_ABOUT))
+			desktop.setAboutHandler(this::handleAbout);
+
+		if(desktop.isSupported(Desktop.Action.APP_PREFERENCES))
+			desktop.setPreferencesHandler(this::handlePreferences);
+
+		if(desktop.isSupported(Desktop.Action.APP_QUIT_HANDLER))
+			desktop.setQuitHandler(this::handleQuit);
 	}
 
 	private void handleAbout(java.awt.desktop.AboutEvent aboutEvent) {

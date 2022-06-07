@@ -10,20 +10,33 @@ application {
     mainClass = 'nl.queuemanager.app.Main'
 }
 
+description = 'messagemanager-app'
+
 dependencies {
     implementation project(':messagemanager-ui')
     implementation project(':messagemanager-plugin-api')
 
-    implementation project(':messagemanager-fakemq')
+//    implementation project(':messagemanager-fakemq')
 
 //    implementation project(':messagemanager-activemq')
     implementation project(':messagemanager-solace')
 //    implementation project(':messagemanager-sonicmq')
 
-    implementation 'com.formdev:flatlaf:1.1'
+    implementation 'com.formdev:flatlaf:2.3'
 
-    compileOnly 'org.projectlombok:lombok:1.18.18'
-    annotationProcessor 'org.projectlombok:lombok:1.18.18'
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
 }
 
-description = 'messagemanager-app'
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': application.mainClassName
+    }
+    baseName = 'all-in-one-jar'
+    from {
+        exclude '**/module-info.class'
+        exclude 'META-INF/**'
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    with jar
+}
