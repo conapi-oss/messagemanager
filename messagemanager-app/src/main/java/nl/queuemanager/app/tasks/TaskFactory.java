@@ -6,7 +6,6 @@ import nl.queuemanager.core.tasks.CheckMotdTask;
 import nl.queuemanager.core.tasks.CheckReleaseNoteTask;
 
 public interface TaskFactory {
-	public abstract ActivateProfileTask activateProfile(Profile profile);
 	public abstract SetUserPrefTask setUserPref(@Assisted("key") String key, @Assisted("value") String value);
 	
 	// Release note & motd tasks

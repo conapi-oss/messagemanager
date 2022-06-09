@@ -56,8 +56,14 @@ public class MMFrame extends JFrame {
 	private TaskFactory taskFactory;
 
 	@Inject
-	public MMFrame(CoreConfiguration config, TaskQueuePanel taskQueuePanel, PlatformHelper platformHelper, MOTDPanel motdPanel,
-				   TaskExecutor worker, TaskFactory taskFactory, SettingsTabPanel settingsTab) {
+	public MMFrame(CoreConfiguration config,
+				   PlatformHelper platformHelper,
+				   TaskExecutor worker,
+				   TaskFactory taskFactory,
+				   MOTDPanel motdPanel,
+				   TaskQueuePanel taskQueuePanel,
+				   SettingsTabPanel settingsTab)
+	{
 		this.config = config;
 		this.worker = worker;
 		this.taskFactory = taskFactory;
@@ -76,13 +82,8 @@ public class MMFrame extends JFrame {
 		// Create the tabbedpane and add all the panels to it
 		tabsPane = new JTabbedPane();
 		tabsPane.setToolTipText("");
-		
-		addTab(new AddUITabEvent(99, settingsTab));
 
-		// Activate Solace profile
-		var profile = new Profile();
-		profile.setPlugins(Collections.singletonList("nl.queuemanager.solace.SolaceModule"));
-		worker.execute(taskFactory.activateProfile(profile));
+		addTab(new AddUITabEvent(99, settingsTab));
 
 		// Now add the TabbedPane to the layout
 		contentPane.add(tabsPane, BorderLayout.CENTER);
@@ -99,24 +100,9 @@ public class MMFrame extends JFrame {
 	}
 
 	@Subscribe
-	public void profileActivated(ProfileActivatedEvent e) {
-		if(!SwingUtilities.isEventDispatchThread()) {
-			SwingUtilities.invokeLater(() -> profileActivated(e));
-			return;
-		}
-
-		tabsPane.setSelectedIndex(0);
-	}
-	
-	@Subscribe
 	public void addTab(final AddUITabEvent e) {
 		if(!SwingUtilities.isEventDispatchThread()) {
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					addTab(e);
-				}
-			});
+			SwingUtilities.invokeLater(() -> addTab(e));
 			return;
 		}
 		
@@ -127,12 +113,7 @@ public class MMFrame extends JFrame {
 	@Subscribe
 	public void removeTab(final RemoveUITabEvent e) {
 		if(!SwingUtilities.isEventDispatchThread()) {
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					removeTab(e);
-				}
-			});
+			SwingUtilities.invokeLater(() -> removeTab(e));
 			return;
 		}
 		removeTab(e.getKey());
@@ -140,6 +121,8 @@ public class MMFrame extends JFrame {
 	
 	@Subscribe
 	public void applicationInitialized(ApplicationInitializedEvent e) {
+		tabsPane.setSelectedIndex(0);
+
 		// Kick off the MOTD task. It will fire an event when MOTD is known
 		worker.execute(taskFactory.checkMotdTask(config.getUniqueId(), "smm.queuemanager.nl"));
 		
@@ -149,12 +132,7 @@ public class MMFrame extends JFrame {
 	
 	public void removeTab(final int index) {
 		if(!SwingUtilities.isEventDispatchThread()) {
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					removeTab(index);
-				}
-			});
+			SwingUtilities.invokeLater(() -> removeTab(index));
 			return;
 		}
 		
@@ -253,13 +231,11 @@ public class MMFrame extends JFrame {
 	public void processEvent(DomainEvent event) {
 		switch(event.getId()) {
 		case JMX_CONNECT:
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					setTabStates(UITab.ConnectionState.CONNECTED);
-					int nextIndex = tabsPane.getSelectedIndex() + 1;
-					if(nextIndex < tabsPane.getTabCount()) {
-						tabsPane.setSelectedIndex(nextIndex);
-					}
+			SwingUtilities.invokeLater(() -> {
+				setTabStates(UITab.ConnectionState.CONNECTED);
+				int nextIndex = tabsPane.getSelectedIndex() + 1;
+				if(nextIndex < tabsPane.getTabCount()) {
+					tabsPane.setSelectedIndex(nextIndex);
 				}
 			});
 			break;
@@ -272,11 +248,8 @@ public class MMFrame extends JFrame {
 			});
 			break;
 		case BROKER_DISCONNECT:
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					setTabStates(UITab.ConnectionState.CONNECTED);
-				}
-			});
+			SwingUtilities.invokeLater(() ->
+					setTabStates(UITab.ConnectionState.CONNECTED));
 			break;
 		case JMX_DISCONNECT:
 			SwingUtilities.invokeLater(new Runnable() {
@@ -306,10 +279,10 @@ public class MMFrame extends JFrame {
 		}
 		
 		try {
-			int x = Integer.valueOf(values[0]);
-			int y = Integer.valueOf(values[1]);
-			int w = Integer.valueOf(values[2]);
-			int h = Integer.valueOf(values[3]);
+			int x = Integer.parseInt(values[0]);
+			int y = Integer.parseInt(values[1]);
+			int w = Integer.parseInt(values[2]);
+			int h = Integer.parseInt(values[3]);
 			
 			// Clamp size to screen size
 			final Rectangle maxBounds = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();

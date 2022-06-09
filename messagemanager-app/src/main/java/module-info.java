@@ -8,6 +8,7 @@ module messagemanager.app {
     requires messagemanager.core;
     requires messagemanager.plugin.api;
     requires messagemanager.jmsmessages;
+    requires messagemanager.solace;
 
     requires com.formdev.flatlaf;
     requires jakarta.jms.api;

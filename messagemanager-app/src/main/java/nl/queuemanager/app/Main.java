@@ -22,6 +22,8 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
+import nl.queuemanager.ConnectivityProviderPlugin;
+import nl.queuemanager.core.CoreModule;
 import nl.queuemanager.core.DebugProperty;
 import nl.queuemanager.core.PreconnectCoreModule;
 import nl.queuemanager.core.configuration.CoreConfiguration;
@@ -31,7 +33,9 @@ import nl.queuemanager.core.platform.QuitEvent;
 import nl.queuemanager.core.task.MultiQueueTaskExecutorModule;
 import nl.queuemanager.debug.DebugEventListener;
 import nl.queuemanager.debug.TracingEventQueue;
+import nl.queuemanager.solace.SolaceModule;
 import nl.queuemanager.ui.PreconnectUIModule;
+import nl.queuemanager.ui.UIModule;
 import nl.queuemanager.ui.settings.SettingsModule;
 
 import javax.swing.*;
@@ -55,60 +59,61 @@ public class Main {
 
 		// Create boot injector so we can set LAF before creating any UI
 		final Injector bootInjector = Guice.createInjector(Stage.PRODUCTION, new BootModule());
-		
-		// Set the LAF
-		// setConfiguredLAF(bootInjector.getInstance(CoreConfiguration.class));
-		
-		if(DebugProperty.enableSwingDebug.isEnabled()) {
+
+		if (DebugProperty.enableSwingDebug.isEnabled()) {
 			enableSwingDebug();
 		}
-		
+
 		// Now create the real injector as a child with the default modules
 		List<com.google.inject.Module> modules = new ArrayList<>();
 		modules.add(new SettingsModule());
-        modules.add(new MultiQueueTaskExecutorModule());
+		modules.add(new MultiQueueTaskExecutorModule());
 		modules.add(new PreconnectCoreModule());
 		modules.add(new PreconnectUIModule());
 		modules.add(new AppModule());
-		
+		modules.add(new CoreModule());
+		modules.add(new UIModule());
+		modules.add(new SolaceModule());
+
 		// Now that the module list is complete, create the injector
 		final Injector injector = bootInjector.createChildInjector(modules);
-				
+
 		// Enable the event debugger
-		if(DebugProperty.developer.isEnabled()) {
+		if (DebugProperty.developer.isEnabled()) {
 			injector.getInstance(EventBusDebugger.class);
 		}
-		
-		// FIXME Find all installed plugins and load their default profiles
-		injector.getInstance(PluginManager.class);
-		
-		final EventBus eventBus = injector.getInstance(EventBus.class);
-		
-		// Invoke initializing the GUI on the EDT
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				// Set some platform properties before the UI really loads
-				PlatformHelper helper = injector.getInstance(PlatformHelper.class);
-				helper.setApplicationName("Message Manager");
-				
-				// Create the main application frame
-				final JFrame frame = injector.getInstance(MMFrame.class);
 
-				// When this frame closes, quit the application by posting a QuitEvent
-				frame.addWindowListener(new WindowAdapter() {
-					@Override
-					public void windowClosed(WindowEvent e) {
-						eventBus.post(new QuitEvent());
-					}
-				});
-				
-				// Make the frame visible
-				frame.setVisible(true);
-				
-				// Send the ApplicationInitializedEvent
-				eventBus.post(new ApplicationInitializedEvent());
+		final EventBus eventBus = injector.getInstance(EventBus.class);
+
+		// Invoke initializing the GUI on the EDT
+		SwingUtilities.invokeLater(() -> initializeUI(injector, eventBus));
+	}
+
+	private static void initializeUI(Injector injector, EventBus eventBus) {
+		// Set some platform properties before the UI really loads
+		PlatformHelper helper = injector.getInstance(PlatformHelper.class);
+		helper.setApplicationName("Message Manager");
+
+		// Create the main application frame
+		final JFrame frame = injector.getInstance(MMFrame.class);
+
+		// When this frame closes, quit the application by posting a QuitEvent
+		frame.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosed(WindowEvent e) {
+				eventBus.post(new QuitEvent());
 			}
 		});
+
+		// Make the frame visible
+		frame.setVisible(true);
+
+		// Now that the application has initialized, start the Solace plugin
+		var connectivityProvider = injector.getInstance(ConnectivityProviderPlugin.class);
+		connectivityProvider.initialize();
+
+		// Send the ApplicationInitializedEvent
+		eventBus.post(new ApplicationInitializedEvent());
 	}
 	
 	private static void enableDebugLogging(boolean enabled) {

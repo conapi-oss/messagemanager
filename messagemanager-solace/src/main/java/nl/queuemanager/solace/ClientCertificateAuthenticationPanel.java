@@ -12,7 +12,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.Optional;
 import java.util.logging.Level;
 
 @SuppressWarnings("serial")
@@ -42,7 +44,7 @@ class ClientCertificateAuthenticationPanel extends JPanel implements DataPanel<S
 		panel = new JPanel();
 		GridBagConstraints gbc_panel = new GridBagConstraints();
 		gbc_panel.fill = GridBagConstraints.BOTH;
-		gbc_panel.insets = new Insets(0, 0, 5, 0);
+		gbc_panel.insets = new Insets(5, 0, 5, 0);
 		gbc_panel.gridx = 1;
 		gbc_panel.gridy = 0;
 		add(panel, gbc_panel);
@@ -212,13 +214,12 @@ class ClientCertificateAuthenticationPanel extends JPanel implements DataPanel<S
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			File[] files = PlatformHelper.platformHelper.chooseFiles(getFileField(), "Select", false, new AllFilesFilter());
-			if (files.length == 1) {
-				File file = files[0];
-				if (file != null) {
-					getFileField().setFile(file);
-				}
-			}
+			var maybeFiles = Optional.ofNullable(
+					PlatformHelper.platformHelper.chooseFiles(
+							getFileField(), "Select", false, new AllFilesFilter()));
+			maybeFiles
+				.flatMap(files -> Arrays.stream(files).findFirst())
+				.ifPresent(getFileField()::setFile);
 		}
 	};
 

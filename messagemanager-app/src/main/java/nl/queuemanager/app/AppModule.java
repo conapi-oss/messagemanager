@@ -34,8 +34,7 @@ public class AppModule extends AbstractModule {
 
 		install(new FactoryModuleBuilder().build(TaskFactory.class));
 		
-		MapBinder<String, SettingsPanel> mapbinder = MapBinder.newMapBinder(binder(), String.class, SettingsPanel.class);
-		mapbinder.addBinding("Profile").to(AutoloadProfileSettingsPanel.class);
+		var mapbinder = MapBinder.newMapBinder(binder(), String.class, SettingsPanel.class);
 	}
 
 }

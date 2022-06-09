@@ -8,6 +8,10 @@ plugins {
 
 application {
     mainClass = 'nl.queuemanager.app.Main'
+    applicationDefaultJvmArgs = [
+            '-Xmx512m',
+//            '-Ddeveloper=true',
+            '-DSolace_JMS_Browser_Timeout_In_MS=1000']
 }
 
 description = 'messagemanager-app'
@@ -15,18 +19,32 @@ description = 'messagemanager-app'
 dependencies {
     implementation project(':messagemanager-ui')
     implementation project(':messagemanager-plugin-api')
-
-//    implementation project(':messagemanager-fakemq')
-
-//    implementation project(':messagemanager-activemq')
     implementation project(':messagemanager-solace')
-//    implementation project(':messagemanager-sonicmq')
-
     implementation 'com.formdev:flatlaf:2.3'
 
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
 }
+
+task versionJava()  {
+    doLast {
+        var versionFile = new File("$projectDir/build/generated/version/nl/queuemanager/app", "Version.java")
+        versionFile.parentFile.mkdirs()
+        versionFile.createNewFile()
+        versionFile.text = """
+package nl.queuemanager.app;
+
+public class Version {
+\tpublic static final String VERSION = "${project.version}";
+\tpublic static final String SUFFIX = "";
+\tpublic static final String BUILD_ID = "1234";
+}
+"""
+    }
+}
+
+sourceSets.main.java.srcDirs += "$projectDir/build/generated/version"
+compileJava.dependsOn versionJava
 
 task fatJar(type: Jar) {
     manifest {

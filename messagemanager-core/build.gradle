@@ -12,7 +12,7 @@ dependencies {
     api 'com.google.inject:guice:5.1.0'
     api 'com.google.inject.extensions:guice-assistedinject:5.1.0'
     api 'com.google.guava:guava:31.1-jre'
-    api 'javax.inject:javax.inject:1'
+    // api 'javax.inject:javax.inject:1'
 
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     implementation 'aopalliance:aopalliance:1.0'
