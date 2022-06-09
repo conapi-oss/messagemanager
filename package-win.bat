@@ -1,7 +1,7 @@
 @echo off
 
 jpackage --type msi ^
-    --input build\jatjar ^
+    --input build\fatjar ^
     --main-jar messagemanager-4.0-SNAPSHOT.jar ^
     --main-class nl.queuemanager.app.Main ^
     --java-options -Xmx512m ^
