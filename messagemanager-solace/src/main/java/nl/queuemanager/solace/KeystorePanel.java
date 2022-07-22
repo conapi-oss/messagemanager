@@ -12,6 +12,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileInputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.util.logging.Level;
 
@@ -48,7 +50,7 @@ class KeystorePanel extends JPanel implements ValidationStatusListener {
 		gbc_panel.gridy = 0;
 		add(panel, gbc_panel);
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-		
+
 		fileField = new JFileField();
 		panel.add(fileField);
 		fileField.setInputVerifier(new KeystoreFileValidator(this, "Keystore format not recognized"));
@@ -76,7 +78,7 @@ class KeystorePanel extends JPanel implements ValidationStatusListener {
 		add(passwordField, gbc_passwordField);
 		passwordField.setInputVerifier(new KeystorePasswordValidator(this, "Keystore password is incorrect"));
 	}
-	
+
 	/**
 	 * Validate just the keystore file without a password to make sure it is a keystore
 	 */

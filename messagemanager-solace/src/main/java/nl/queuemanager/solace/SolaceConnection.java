@@ -1,5 +1,6 @@
 package nl.queuemanager.solace;
 
+import com.solacesystems.jms.SolConnection;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.jms.JMSDestination;
 
@@ -14,7 +15,7 @@ import java.util.Map;
  */
 class SolaceConnection {
 	private final MessageVPN messageVpn;
-	private final Connection connection;
+	private final SolConnection connection;
 	private final Session syncSession;
 	private final Session asyncSession;
 	
@@ -24,7 +25,7 @@ class SolaceConnection {
 	 */
 	private final Map<JMSDestination, MessageProducer> messageProducers;
 	
-	public SolaceConnection(MessageVPN messageVpn, Connection connection, Session syncSession, Session asyncSession) {
+	public SolaceConnection(MessageVPN messageVpn, SolConnection connection, Session syncSession, Session asyncSession) {
 		this.messageVpn = messageVpn;
 		this.connection = connection;
 		this.syncSession = syncSession;

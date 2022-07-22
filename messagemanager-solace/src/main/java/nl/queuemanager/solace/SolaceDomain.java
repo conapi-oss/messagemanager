@@ -352,9 +352,12 @@ class SolaceDomain extends AbstractEventSource<DomainEvent> implements JMSDomain
 			try {
 				Hashtable<String, Object> env = new Hashtable<>();
 				// Make sure browsers time out quickly to keep the application responsive
-				env.put(SupportedProperty.SOLACE_JMS_BROWSER_TIMEOUT_IN_MS, 1000);
+				env.put(SupportedProperty.SOLACE_JMS_BROWSER_TIMEOUT_IN_MS, 50);
 				// Allow message manager connections to be easily identified by administrators
 				env.put(SupportedProperty.SOLACE_JMS_CLIENT_DESCRIPTION, "Message Manager");
+				// Let the descriptor customize the environment, if desired
+				descriptor.apply(env);
+
 				factory = SolJmsUtility.createConnectionFactory(env);
 				
 				// We are a "monitoring application" so we want to receive all messages even if
@@ -374,7 +377,7 @@ class SolaceDomain extends AbstractEventSource<DomainEvent> implements JMSDomain
 				throw new JMSException(e.toString());
 			}
 			
-			Connection connection = factory.createConnection();
+			SolConnection connection = (SolConnection) factory.createConnection();
 			connection.setExceptionListener(new ExceptionListener());
 			
 			Session syncSession = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
@@ -387,18 +390,15 @@ class SolaceDomain extends AbstractEventSource<DomainEvent> implements JMSDomain
 		}
 	}
 	
-	private String getRouterNameFromSolConnection(Connection connection) {
-		if(connection instanceof SolConnection) {
-			SolConnection solCon = ((SolConnection)connection);
-			ConnectionProperties props = solCon.getProperties();
-			JCSMPSession jcsmp = props.getJCSMPSession();
-			try {
-				return (String)jcsmp.getCapability(CapabilityType.PEER_ROUTER_NAME);
-			} catch (JCSMPException e) {
-				e.printStackTrace();
-			}
+	private String getRouterNameFromSolConnection(SolConnection connection) {
+		ConnectionProperties props = connection.getProperties();
+		JCSMPSession jcsmp = props.getJCSMPSession();
+		try {
+			return (String)jcsmp.getCapability(CapabilityType.PEER_ROUTER_NAME);
+		} catch (JCSMPException e) {
+			e.printStackTrace();
 		}
-		
+
 		return "";
 	}
 	

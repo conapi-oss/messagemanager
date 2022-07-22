@@ -4,7 +4,9 @@ import com.solacesystems.jms.SupportedProperty;
 
 enum AuthenticationScheme {
 	BASIC("Basic authentication", SupportedProperty.AUTHENTICATION_SCHEME_BASIC), 
-	CLIENT_CERTIFICATE("Client certificate", SupportedProperty.AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE);
+	CLIENT_CERTIFICATE("Client certificate", SupportedProperty.AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE),
+
+	OAUTH2("OAuth 2", SupportedProperty.AUTHENTICATION_SCHEME_OAUTH2);
 	
 	private final String displayName;
 	private final String solacePropertyValue;

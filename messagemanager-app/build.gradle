@@ -11,7 +11,7 @@ application {
     applicationDefaultJvmArgs = [
             '-Xmx512m',
 //            '-Ddeveloper=true',
-            '-DSolace_JMS_Browser_Timeout_In_MS=1000']
+            '-DSolace_JMS_Browser_Timeout_In_MS=50']
 }
 
 description = 'messagemanager-app'

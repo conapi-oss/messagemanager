@@ -52,7 +52,11 @@ class SolaceConnectionTabPanel extends SolaceConnectionTabPanelUI {
 		if(getSempConnectionDescriptorPanel().getDescriptor() != null) {
 			getSempConnectionDescriptorPanel().updateItem(getSempConnectionDescriptorPanel().getDescriptor());
 		}
-		getSempConnectionDescriptorPanel().displayItem(descriptor);
+		try {
+			getSempConnectionDescriptorPanel().displayItem(descriptor);
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
 	}
 	
 	private final ListSelectionListener tableSelectionListener = new ListSelectionListener() {

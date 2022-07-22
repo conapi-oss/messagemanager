@@ -15,6 +15,9 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
+import static nl.queuemanager.solace.SempConnectionMethod.SEMP_OVER_HTTP;
+import static nl.queuemanager.solace.SempConnectionMethod.SEMP_OVER_MESSAGEBUS;
+
 @SuppressWarnings("serial")
 @Log
 class SempConnectionDescriptorPanel extends SempConnectionDescriptorPanelUI implements DataPanel<SempConnectionDescriptor> {
@@ -37,7 +40,7 @@ class SempConnectionDescriptorPanel extends SempConnectionDescriptorPanelUI impl
 		@Override
 		public void focusLost(FocusEvent e) {
 			updateItem(descriptor);
-			if(descriptor.getConnectionMethod() == SempConnectionMethod.SEMP_OVER_HTTP 
+			if(descriptor.getConnectionMethod() == SEMP_OVER_HTTP
 			&& !Strings.isNullOrEmpty(descriptor.getHttpHost())
 			&& descriptor.getHttpPort() > 0
 			&& basicAuthenticationPanel.usernameField.getText().length() > 0
@@ -90,34 +93,37 @@ class SempConnectionDescriptorPanel extends SempConnectionDescriptorPanelUI impl
 			
 			basicAuthenticationPanel.setVisible(scheme == AuthenticationScheme.BASIC);
 			clientCertificateAuthenticationPanel.setVisible(scheme == AuthenticationScheme.CLIENT_CERTIFICATE);
+			oauth2AuthenticationPanel.setVisible(scheme == AuthenticationScheme.OAUTH2);
 			
-			if(scheme == AuthenticationScheme.CLIENT_CERTIFICATE) {
+			if(scheme == AuthenticationScheme.CLIENT_CERTIFICATE || scheme == AuthenticationScheme.OAUTH2) {
 				chkUseTLS.setSelected(true);
 			}
-			chkUseTLS.setEnabled(scheme != AuthenticationScheme.CLIENT_CERTIFICATE);
+			chkUseTLS.setEnabled(scheme != AuthenticationScheme.CLIENT_CERTIFICATE && scheme != AuthenticationScheme.OAUTH2);
 		}
 	};
 	
 	private final ItemListener chkUseTLSItemListener = new ItemListener() {
 		public void itemStateChanged(ItemEvent e) {
 			trustStorePanel.setVisible(chkUseTLS.isSelected());
-			updateItem(descriptor);
-			setDefaultPortNumbers(descriptor);
-			displayItem(descriptor);
+			setDefaultPortNumbers();
 		}
 	};
 	
-	private void setDefaultPortNumbers(SempConnectionDescriptor descriptor) {
+	private void setDefaultPortNumbers() {
 		final int[] defaultPorts = {0, 80, 443, 55443, 55555};
 
-		if(descriptor != null) {
-			// If the port numbers in the relevant fields are set to their default values
-			// change them to be the defaults for the new value of the "secure" check box.
-			if(Arrays.binarySearch(defaultPorts, descriptor.getSmfPort()) >= 0) {
-				descriptor.setSmfPort(chkUseTLS.isSelected() ? 55443 : 55555);
-			}
-			if(Arrays.binarySearch(defaultPorts, descriptor.getHttpPort()) >= 0) {
-				descriptor.setHttpPort(chkUseTLS.isSelected() ? 443 : 80);
+		// If the port numbers in the relevant fields are set to their default values
+		// change them to be the defaults for the new value of the "secure" check box.
+		if(Arrays.binarySearch(defaultPorts, messagingPortField.getValue()) >= 0) {
+			messagingPortField.setValue(chkUseTLS.isSelected() ? 55443 : 55555);
+		}
+
+		if(Arrays.binarySearch(defaultPorts, appliancePortField.getValue()) >= 0) {
+			var selectedConnectionMethod = connectionMethodCombo.getSelectedItem();
+			if(selectedConnectionMethod == SEMP_OVER_HTTP) {
+				appliancePortField.setValue(chkUseTLS.isSelected() ? 443 : 80);
+			} else if(selectedConnectionMethod == SEMP_OVER_MESSAGEBUS) {
+				appliancePortField.setValue(chkUseTLS.isSelected() ? 55443 : 55555);
 			}
 		}
 	}
@@ -128,20 +134,18 @@ class SempConnectionDescriptorPanel extends SempConnectionDescriptorPanelUI impl
 			switch(e.getStateChange()) {
 			case ItemEvent.SELECTED: {
 				final SempConnectionMethod method = (SempConnectionMethod) e.getItem();
-				authenticationSchemeCombo.setVisible(method == SempConnectionMethod.SEMP_OVER_MESSAGEBUS);
-				if(method == SempConnectionMethod.SEMP_OVER_HTTP) {
+				authenticationSchemeCombo.setVisible(method == SEMP_OVER_MESSAGEBUS);
+				if(method == SEMP_OVER_HTTP) {
 					authenticationSchemeCombo.setSelectedItem(AuthenticationScheme.BASIC);
 				}
-				sempOverMessageBusPanel.setVisible(method == SempConnectionMethod.SEMP_OVER_MESSAGEBUS);
-				verticalStrut_4.setVisible(method == SempConnectionMethod.SEMP_OVER_MESSAGEBUS);
+				sempOverMessageBusPanel.setVisible(method == SEMP_OVER_MESSAGEBUS);
+				verticalStrut_4.setVisible(method == SEMP_OVER_MESSAGEBUS);
 				
-				messagingPropertiesPanel.setVisible(method == SempConnectionMethod.SEMP_OVER_HTTP);
-				verticalStrut_3.setVisible(method == SempConnectionMethod.SEMP_OVER_HTTP);
+				messagingPropertiesPanel.setVisible(method == SEMP_OVER_HTTP);
+				verticalStrut_3.setVisible(method == SEMP_OVER_HTTP);
 				
 				if(descriptor != null && descriptor.getConnectionMethod() != e.getItem()) {
-					updateItem(descriptor);
-					setDefaultPortNumbers(descriptor);
-					displayItem(descriptor);
+					setDefaultPortNumbers();
 				}
 			}}
 		}
@@ -156,10 +160,11 @@ class SempConnectionDescriptorPanel extends SempConnectionDescriptorPanelUI impl
 	}
 	
 	public void displayItem(SempConnectionDescriptor descriptor) {
+		System.out.printf("displayItem(%s)\n", descriptor);
 		this.descriptor = descriptor;
 		
 		if(descriptor == null) {
-			connectionMethodCombo.setSelectedItem(SempConnectionMethod.SEMP_OVER_HTTP);
+			connectionMethodCombo.setSelectedItem(SEMP_OVER_HTTP);
 			
 			applianceHostField.setText("");
 			appliancePortField.setText("");
@@ -169,6 +174,7 @@ class SempConnectionDescriptorPanel extends SempConnectionDescriptorPanelUI impl
 			authenticationSchemeCombo.setSelectedIndex(0);
 			basicAuthenticationPanel.displayItem(null);
 			clientCertificateAuthenticationPanel.displayItem(null);
+			oauth2AuthenticationPanel.displayItem(null);
 			
 			chkUseTLS.setSelected(false);
 			trustStorePanel.setFile(null);
@@ -177,7 +183,8 @@ class SempConnectionDescriptorPanel extends SempConnectionDescriptorPanelUI impl
 			messagingHostField.setText("");
 			messagingPortField.setText("");
 		} else {
-			setDefaultPortNumbers(descriptor);
+			setDefaultPortNumbers();
+
 			// Set this value only if different to prevent a loop because of the itemStateChanged listener on this combo 
 			if(connectionMethodCombo.getSelectedItem() != descriptor.getConnectionMethod()) {
 				connectionMethodCombo.setSelectedItem(descriptor.getConnectionMethod());
@@ -194,18 +201,22 @@ class SempConnectionDescriptorPanel extends SempConnectionDescriptorPanelUI impl
 				applianceHostField.setText(descriptor.getSmfHost());
 				appliancePortField.setValue(descriptor.getSmfPort());
 				break;
-				
 			}}
 			
 			sempOverMessageBusPanel.displayItem(descriptor);
-			
-			authenticationSchemeCombo.setSelectedItem(descriptor.getAuthenticationScheme());
+
+			if(authenticationSchemeCombo.getSelectedItem() != descriptor.getAuthenticationScheme()) {
+				authenticationSchemeCombo.setSelectedItem(descriptor.getAuthenticationScheme());
+			}
 			switch(descriptor.getAuthenticationScheme()) {
 			case BASIC:
 				basicAuthenticationPanel.displayItem((BasicCredentials)descriptor.getCredentials());
 				break;
 			case CLIENT_CERTIFICATE:
 				clientCertificateAuthenticationPanel.displayItem((SolaceClientCertificateCredentials)descriptor.getCredentials());
+				break;
+			case OAUTH2:
+				oauth2AuthenticationPanel.displayItem((SolaceOAuth2Credentials) descriptor.getCredentials());
 				break;
 			}
 			
@@ -237,6 +248,7 @@ class SempConnectionDescriptorPanel extends SempConnectionDescriptorPanelUI impl
 		authenticationSchemeCombo.setEnabled(enabled);
 		basicAuthenticationPanel.setEnabled(enabled);
 		clientCertificateAuthenticationPanel.setEnabled(enabled);
+		oauth2AuthenticationPanel.setEnabled(enabled);
 		
 		chkUseTLS.setEnabled(enabled);
 		trustStorePanel.setEnabled(enabled);
@@ -248,6 +260,7 @@ class SempConnectionDescriptorPanel extends SempConnectionDescriptorPanelUI impl
 	}
 	
 	public void updateItem(SempConnectionDescriptor descriptor) {
+		System.out.printf("updateItem(%s)\n", descriptor);
 		descriptor.setConnectionMethod((SempConnectionMethod)connectionMethodCombo.getSelectedItem());
 		
 		// Appliance
@@ -281,13 +294,22 @@ class SempConnectionDescriptorPanel extends SempConnectionDescriptorPanelUI impl
 			descriptor.setCredentials(cred);
 			break;
 		}
-		
+
 		case CLIENT_CERTIFICATE: {
 			SolaceClientCertificateCredentials cred = new SolaceClientCertificateCredentials();
 			clientCertificateAuthenticationPanel.updateItem(cred);
 			descriptor.setCredentials(cred);
 			break;
-		}}
+		}
+
+		case OAUTH2: {
+			SolaceOAuth2Credentials cred = new SolaceOAuth2Credentials();
+			oauth2AuthenticationPanel.updateItem(cred);
+			descriptor.setCredentials(cred);
+			break;
+		}
+
+		}
 
 		// TLS
 		descriptor.setSecure(chkUseTLS.isSelected());

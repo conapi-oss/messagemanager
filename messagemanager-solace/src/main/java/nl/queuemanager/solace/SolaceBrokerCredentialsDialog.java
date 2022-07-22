@@ -37,6 +37,7 @@ class SolaceBrokerCredentialsDialog extends SolaceBrokerCredentialsDialogUI {
 			
 			basicAuthenticationPanel.setVisible(scheme == AuthenticationScheme.BASIC);
 			clientCertificateAuthenticationPanel.setVisible(scheme == AuthenticationScheme.CLIENT_CERTIFICATE);
+			oAuth2AuthenticationPanel.setVisible(scheme == AuthenticationScheme.OAUTH2);
 			truststorePanel.setVisible(scheme == AuthenticationScheme.CLIENT_CERTIFICATE);
 			
 			pack();
@@ -60,7 +61,14 @@ class SolaceBrokerCredentialsDialog extends SolaceBrokerCredentialsDialogUI {
 				returnValue = ret;
 				break;
 			}
-			
+
+			case OAUTH2: {
+				SolaceOAuth2Credentials ret = new SolaceOAuth2Credentials();
+				oAuth2AuthenticationPanel.updateItem(ret);
+				returnValue = ret;
+				break;
+			}
+
 			default: {
 				throw new IllegalStateException(String.format("Authentication scheme %s not supported", authenticationSchemeCombo.getSelectedItem()));
 			}}

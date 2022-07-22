@@ -11,6 +11,7 @@ class SolaceBrokerCredentialsDialogUI extends JDialog {
 	protected JComboBox<AuthenticationScheme> authenticationSchemeCombo;
 	protected BasicAuthenticationPanel basicAuthenticationPanel;
 	protected ClientCertificateAuthenticationPanel clientCertificateAuthenticationPanel;
+	protected OAuth2AuthenticationPanel oAuth2AuthenticationPanel;
 	protected KeystorePanel truststorePanel;
 	private Component verticalStrut;
 	private Component verticalStrut_1;
@@ -52,10 +53,13 @@ class SolaceBrokerCredentialsDialogUI extends JDialog {
 		
 		basicAuthenticationPanel = new BasicAuthenticationPanel();
 		panel.add(basicAuthenticationPanel);
-		
+
 		clientCertificateAuthenticationPanel = new ClientCertificateAuthenticationPanel();
 		panel.add(clientCertificateAuthenticationPanel);
-		
+
+		oAuth2AuthenticationPanel = new OAuth2AuthenticationPanel();
+		panel.add(oAuth2AuthenticationPanel);
+
 		truststorePanel = new KeystorePanel();
 		truststorePanel.setPrefix("Trust");
 		panel.add(truststorePanel);

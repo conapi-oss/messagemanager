@@ -23,6 +23,7 @@ class SempConnectionDescriptorPanelUI extends JPanel {
 	protected JComboBox<AuthenticationScheme> authenticationSchemeCombo;
 	protected BasicAuthenticationPanel basicAuthenticationPanel;
 	protected ClientCertificateAuthenticationPanel clientCertificateAuthenticationPanel;
+	protected OAuth2AuthenticationPanel oauth2AuthenticationPanel;
 	protected JPanel messagingPropertiesPanel;
 	protected KeystorePanel trustStorePanel;
 	protected Component verticalStrut_3;
@@ -110,11 +111,15 @@ class SempConnectionDescriptorPanelUI extends JPanel {
 		
 		basicAuthenticationPanel = new BasicAuthenticationPanel();
 		authenticationPanel.add(basicAuthenticationPanel);
-		
+
 		clientCertificateAuthenticationPanel = new ClientCertificateAuthenticationPanel();
 		clientCertificateAuthenticationPanel.setVisible(false);
 		authenticationPanel.add(clientCertificateAuthenticationPanel);
-				
+
+		oauth2AuthenticationPanel = new OAuth2AuthenticationPanel();
+		oauth2AuthenticationPanel.setVisible(false);
+		authenticationPanel.add(oauth2AuthenticationPanel);
+
 		Component verticalStrut_1 = Box.createVerticalStrut(20);
 		add(verticalStrut_1);
 		

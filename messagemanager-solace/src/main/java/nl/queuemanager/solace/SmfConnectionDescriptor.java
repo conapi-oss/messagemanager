@@ -7,9 +7,13 @@ import lombok.Data;
 import nl.queuemanager.core.configuration.Configuration;
 import nl.queuemanager.core.util.BasicCredentials;
 import nl.queuemanager.core.util.Credentials;
+import nl.queuemanager.ui.util.JFileField;
 
 import java.io.File;
 import java.net.URI;
+import java.nio.file.Paths;
+import java.util.Hashtable;
+import java.util.Optional;
 
 /**
  * SolaceConnectionDescriptor holds all properties required for creating
@@ -33,6 +37,21 @@ class SmfConnectionDescriptor {
 	private boolean secure;
 	private File trustStoreFile;
 	private String trustStorePassword;
+
+	public SmfConnectionDescriptor() {
+		System.out.printf("SmfConnectionDescriptor[%s] Created\n", System.identityHashCode(this));
+		setTrustStoreFile(getDefaultTrustStore());
+		if(getTrustStoreFile() != null) setTrustStorePassword("changeit");
+	}
+
+	public void setTrustStoreFile(File newTrustStoreFile) {
+		var ste = new Throwable().getStackTrace()[1];
+		System.out.printf("SmfConnectionDescriptor[%s].setTrustStoreFile(%s), was %s\n" +
+				"From %s:%d\n",
+				System.identityHashCode(this), newTrustStoreFile, trustStoreFile,
+				ste.getFileName(), ste.getLineNumber());
+		this.trustStoreFile = newTrustStoreFile;
+	}
 
 	public URI createSmfUri() throws SempException {
 		final String format = "smf%s://%s:%d";
@@ -61,12 +80,17 @@ class SmfConnectionDescriptor {
 		
 		setAuthenticationScheme(AuthenticationScheme.valueOf(config.getValue(SupportedProperty.SOLACE_JMS_AUTHENTICATION_SCHEME, AuthenticationScheme.BASIC.name())));
 		switch(getAuthenticationScheme()) {
-		case BASIC:
-			setCredentials(new BasicCredentials().loadFrom(config));
-			break;
-		case CLIENT_CERTIFICATE:
-			setCredentials(new SolaceClientCertificateCredentials().loadFrom(config));
-			break;
+			case BASIC:
+				setCredentials(new BasicCredentials().loadFrom(config));
+				break;
+
+			case CLIENT_CERTIFICATE:
+				setCredentials(new SolaceClientCertificateCredentials().loadFrom(config));
+				break;
+
+			case OAUTH2:
+				setCredentials(new SolaceOAuth2Credentials().loadFrom(config));
+				break;
 		}
 		
 		setSecure(Boolean.parseBoolean(config.getValue(SECURE, "false")));
@@ -74,11 +98,17 @@ class SmfConnectionDescriptor {
 		if(!Strings.isNullOrEmpty(tmpTrustStoreFile)) {
 			setTrustStoreFile(new File(tmpTrustStoreFile));
 		}
-		setTrustStorePassword(config.getValue(SupportedProperty.SOLACE_JMS_SSL_TRUST_STORE_PASSWORD, null));
+		setTrustStorePassword(config.getValue(SupportedProperty.SOLACE_JMS_SSL_TRUST_STORE_PASSWORD, trustStorePassword));
 		setMessageVpn(config.getValue(SupportedProperty.SOLACE_JMS_VPN, null));
 		return this;
 	}
-	
+
+	public void apply(Hashtable<String, Object> env) {
+		if(getCredentials() != null && getCredentials() instanceof SolaceOAuth2Credentials) {
+			((SolaceOAuth2Credentials)getCredentials()).apply(env);
+		}
+	}
+
 	void apply(SolConnectionFactory cf) throws Exception {
 		URI uri = createSmfUri();
 		
@@ -93,6 +123,15 @@ class SmfConnectionDescriptor {
 		if(getCredentials() != null) {
 			getCredentials().apply(cf);
 		}
+	}
+
+	private File getDefaultTrustStore() {
+		String javaHome = System.getProperty("java.home");
+		File trustStoreFile = Paths.get(javaHome, "lib", "security", "cacerts").toFile();
+		if(trustStoreFile.exists()) {
+			return trustStoreFile;
+		}
+		return null;
 	}
 
 }
