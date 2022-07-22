@@ -22,4 +22,4 @@ jobs:
       with:
         arguments: build
     - name: Package
-      run: sh -c package-mac.sh
+      run: sh package-mac.sh
