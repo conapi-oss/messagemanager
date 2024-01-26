@@ -8,6 +8,7 @@ plugins {
 
 dependencies {
     implementation 'com.google.inject:guice:5.1.0'
+    // https://mvnrepository.com/artifact/com.solacesystems/sol-jms
     implementation('com.solacesystems:sol-jms:10.14.0') {
         exclude group: 'org.apache.geronimo.specs', module: 'geronimo-jms_1.1_spec'
     }
@@ -16,4 +17,4 @@ dependencies {
     implementation project(':messagemanager-plugin-api')
 }
 
-description = 'Message Manager FakeMQ connector'
+description = 'Message Manager Solace connector'

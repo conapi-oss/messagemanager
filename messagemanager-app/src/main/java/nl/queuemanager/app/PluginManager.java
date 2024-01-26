@@ -225,6 +225,7 @@ public class PluginManager {
 	}
 
 	public List<com.google.inject.Module> loadPluginModules(Collection<? extends PluginDescriptor> plugins, List<URL> classpath) throws PluginManagerException {
+
 		if(pluginClassloader != null) {
 			// Unload the existing plugins so we can try again
 			pluginClassloader = null;

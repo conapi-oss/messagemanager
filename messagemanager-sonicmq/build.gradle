@@ -6,21 +6,86 @@ plugins {
     id 'java-library'
 }
 
+
+configurations {
+    soniclibs {
+        transitive = false
+    }
+}
+
+def sonicLibsToExtractV10 = [
+        "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\smc.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\xercesImpl.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\mgmt_config.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\sonic_Client.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\sonic_Crypto.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\sonic_XMessage.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\MFdirectory.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\mgmt_client.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\sonic_mgmt_client.jar"
+]
+
+def sonicLibsToExtractV12 = [
+        "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\smc.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\xercesImpl.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\mgmt_config.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\sonic_Client.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\sonic_Crypto.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\sonic_XMessage.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\MFdirectory.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\mgmt_client.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\sonic_mgmt_client.jar"
+]
+
+task unzipSonic(type: Copy) {
+    dependsOn configurations.soniclibs
+
+    // Check if the folder for MQ10.0 exists
+    def sonicHome = "${System.getenv('SONIC_HOME')}"
+    def sonicLibsFolder = "${sonicHome}\\MQ10.0"
+    def chosenSonicLibs = new File(sonicLibsFolder).exists() ? sonicLibsToExtractV10 : sonicLibsToExtractV12
+
+    into "$buildDir/libs/soniclibs"
+    from chosenSonicLibs.collect { zipTree(it) }
+    include "**/*.class"
+    exclude "javax/**/*.class"
+    includeEmptyDirs = false
+}
+
+
+task zipSonicJar(type: Zip) {
+    dependsOn(unzipSonic)
+    destinationDirectory = file("$buildDir/libs")
+    archiveFileName = 'soniclibs.jar'
+    from "$buildDir/libs/soniclibs"
+}
+
 dependencies {
     implementation project(':messagemanager-plugin-api')
     implementation project(':messagemanager-core')
     implementation project(':messagemanager-ui')
-    implementation 'com.google.inject:guice:5.0.1'
+
+    implementation 'com.google.inject:guice:5.1.0'
+
     testImplementation 'junit:junit:[4,5)'
 
-    compileOnly 'com.aurea.sonic.mq:mgmt_client:10.0'
-    compileOnly 'com.aurea.sonic.mq:mgmt_config:10.0'
-    compileOnly 'com.aurea.sonic.mq:smc:10.0'
-    compileOnly 'com.aurea.sonic.mq:sonic_Client:10.0'
-    compileOnly 'com.aurea.sonic.mq:sonic_Crypto:10.0'
-    compileOnly 'com.aurea.sonic.mq:sonic_mgmt_client:10.0'
-    compileOnly 'com.aurea.sonic.mq:sonic_XMessage:10.0'
-    compileOnly 'com.aurea.sonic.mq:xercesImpl:10.0'
+    //TODO: need to see if this should be part of sonicLibs
+    //implementation 'javax.activation:activation:1.1.1'
+    //compileOnly 'javax.activation:activation:1.1.1' // if this is set then remove the activation lines form modules-info
+    implementation 'com.sun.activation:javax.activation:1.2.0'
+
+    // this is lazy evaluated
+    compileOnly files("$buildDir/libs/soniclibs.jar")
 }
 
+compileJava.dependsOn zipSonicJar
+
 description = 'Message Manager for SonicMQ'
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs += [
+            // Sonic libs have a split package issue, therefore use this approach to allow compilation
+            '--patch-module', "soniclibs=" + files("$buildDir/libs/soniclibs.jar").asPath
+            
+    ]
+}

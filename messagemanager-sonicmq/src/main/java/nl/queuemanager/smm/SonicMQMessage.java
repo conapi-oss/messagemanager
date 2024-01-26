@@ -21,6 +21,7 @@ import java.util.Enumeration;
 
 class SonicMQMessage implements javax.jms.Message {
 	protected final javax.jms.Message delegate;
+	private long deliveryTime;
 
 	protected SonicMQMessage(javax.jms.Message delegate) {
 		this.delegate = delegate;
@@ -217,5 +218,25 @@ class SonicMQMessage implements javax.jms.Message {
 
 	public void setStringProperty(String name, String value) throws JMSException {
 		delegate.setStringProperty(name, value);
+	}
+
+	// Below are not implemented in Sonic but need to add the method as javax.jms is 2.x
+	@Override
+	public long getJMSDeliveryTime() throws JMSException {
+		return deliveryTime;
+	}
+
+	@Override
+	public void setJMSDeliveryTime(long deliveryTime) throws JMSException {
+		this.deliveryTime = deliveryTime;
+	}
+	@Override
+	public <T> T getBody(Class<T> c) throws JMSException {
+		return null;
+	}
+
+	@Override
+	public boolean isBodyAssignableTo(Class c) throws JMSException {
+		return false;
 	}
 }

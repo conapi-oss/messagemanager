@@ -7,8 +7,14 @@ include(':jmsmessages')
 include(':messagemanager-core')
 include(':messagemanager-ui')
 include(':messagemanager-plugin-api')
-include(':messagemanager-fakemq')
+//include(':messagemanager-fakemq')
 //include(':messagemanager-activemq')
-//include(':messagemanager-sonicmq')
-include(':messagemanager-solace')
+
+// only build Sonic if it is installed locally
+if (System.getenv('SONIC_HOME') != null) {
+    include(':messagemanager-sonicmq')
+}
+
+
+//include(':messagemanager-solace')
 include(':messagemanager-app')

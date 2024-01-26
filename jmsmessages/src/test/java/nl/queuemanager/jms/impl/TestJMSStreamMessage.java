@@ -41,7 +41,7 @@ public class TestJMSStreamMessage {
 		msg.writeFloat(2.0f);
 		msg.writeInt(3);
 		msg.writeLong(4L);
-		msg.writeObject(new Integer(31337));
+		msg.writeObject(31337);
 		msg.writeShort((short)123);
 		msg.writeString("UTF string");
 
@@ -79,7 +79,7 @@ public class TestJMSStreamMessage {
 		msg.writeFloat(2.0f);
 		msg.writeInt(3);
 		msg.writeLong(4L);
-		msg.writeObject(new Integer(31337));
+		msg.writeObject(31337);
 		msg.writeShort((short)123);
 		msg.writeString("UTF string");
 
@@ -98,7 +98,7 @@ public class TestJMSStreamMessage {
 	
 	@Test
 	public void testWriteReadInt() throws JMSException {
-		msg.writeObject(new Integer(123));
+		msg.writeObject(123);
 		msg.reset();
 		assertEquals(123, msg.readInt());
 	}
