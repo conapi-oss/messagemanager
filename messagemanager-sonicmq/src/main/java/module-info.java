@@ -7,11 +7,13 @@ module messagemanager.sonicmq {
 
     opens nl.queuemanager.smm to com.google.guice;
 
+    opens nl.queuemanager.smm.ui;
+
+
     requires messagemanager.core;
     requires messagemanager.jmsmessages;
     requires messagemanager.plugin.api;
     requires messagemanager.ui;
-
 
     requires com.google.common;
     requires com.google.guice;
@@ -26,5 +28,5 @@ module messagemanager.sonicmq {
     requires jakarta.jms.api;
     requires java.activation;
 
-    requires static soniclibs; // static or remove?
+    requires static soniclibs;
 }

@@ -20,11 +20,18 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.*;
+import java.lang.module.Configuration;
+import java.lang.module.ModuleFinder;
+import java.lang.module.ModuleReference;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,7 +46,7 @@ public class PluginManager {
 	
 	private final File pluginsFolder;
 	private Map<String, PluginDescriptor> plugins = new HashMap<>();
-	private URLClassLoader pluginClassloader;
+	private ClassLoader pluginClassloader;
 	
 	@Inject
 	public PluginManager(PlatformHelper platform, ProfileManager profileManager, TaskExecutor worker) {
@@ -246,8 +253,9 @@ public class PluginManager {
 			urls.addAll(classpath);
 
 			// Create the classloader for the plugins, using the "current" classloader as a parent.
-			URLClassLoader classLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]), getClass().getClassLoader());
-			logger.finest("Created classloader: " + Arrays.toString(classLoader.getURLs()) + " with parent " + classLoader.getParent());
+			ClassLoader classLoader = PluginModuleHelper.createModuleClassLoader(urls, getClass().getClassLoader());
+
+			//logger.finest("Created classloader: " + Arrays.toString(classLoader.getURLs()) + " with parent " + classLoader.getParent());
 
 			// Set the ClassLoader on the worker and the current thread to make sure any class loading
 			// magic done by the plugins or any dependent classes (such as trying to use the context
@@ -270,7 +278,6 @@ public class PluginManager {
 			throw new PluginManagerException("Unable to load plugin modules", e);
 		}
 	}
-
 	private PluginDescriptor toPlugin(ServiceLoader.Provider<Module> provider) {
 		PluginDescriptor desc = new PluginDescriptor();
 		desc.setName("Auto " + provider.type().getSimpleName());

@@ -157,7 +157,6 @@ public abstract class Task implements Runnable {
 				Thread.currentThread().setContextClassLoader(previousClassLoader);
 			}
 		}
-		
 		dispatchTaskFinished();
 	}
 

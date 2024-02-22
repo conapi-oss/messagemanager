@@ -75,6 +75,7 @@ dependencies {
     implementation 'com.sun.activation:javax.activation:1.2.0'
 
     // this is lazy evaluated
+    // use implementation if these should be loaded from the module cp instead of profile
     compileOnly files("$buildDir/libs/soniclibs.jar")
 }
 
@@ -85,7 +86,8 @@ description = 'Message Manager for SonicMQ'
 tasks.withType(JavaCompile) {
     options.compilerArgs += [
             // Sonic libs have a split package issue, therefore use this approach to allow compilation
-            '--patch-module', "soniclibs=" + files("$buildDir/libs/soniclibs.jar").asPath
+            '--patch-module', "soniclibs=" + files("$buildDir/libs/soniclibs.jar").asPath,
+            //'--add-exports nl.queuemanager.smm=ALL-UNNAMED'
             
     ]
 }
