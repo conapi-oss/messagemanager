@@ -28,5 +28,19 @@ module messagemanager.sonicmq {
     requires jakarta.jms.api;
     requires java.activation;
 
-    requires static soniclibs;
+    //requires static soniclibs;
+    // below are automatic module names
+    requires static smc;
+    requires static sonic.SSL;
+    requires static sonic.Client;
+    requires static sonic.mgmt.client;
+    requires static sonic.Selector;
+    requires static sonic.Crypto;
+    requires static mail;
+    requires static mgmt.client;
+    requires static sonic.XMessage;
+    requires static sonic.Client.ext;
+    requires static sonic.ASPI;
+    requires static mgmt.config;
+    requires static xercesImpl;
 }

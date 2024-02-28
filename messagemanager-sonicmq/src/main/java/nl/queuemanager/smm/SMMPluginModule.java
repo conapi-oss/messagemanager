@@ -55,9 +55,9 @@ public class SMMPluginModule extends AbstractModule {
 	static class ConnectionDialogProvider implements Provider<JDomainConnectionDialog> {
 		@Override
 		public JDomainConnectionDialog get() {
-		//	return new JDomainConnectionDialog(null);
+			return new JDomainConnectionDialog(null);
 
-			try {
+		/*	try {
 				// Load JDomainConnectionDialog using the customClassLoader
 				Class<?> clazzClass = Thread.currentThread().getContextClassLoader().loadClass(JDomainConnectionDialog.class.getName());
 
@@ -66,6 +66,8 @@ public class SMMPluginModule extends AbstractModule {
 			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
 				throw new RuntimeException("Error creating instance of " + JDomainConnectionDialog.class.getName(), e);
 			}
+
+		 */
 		}
 
 

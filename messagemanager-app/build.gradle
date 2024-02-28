@@ -20,7 +20,7 @@ dependencies {
 
     //implementation project(':messagemanager-activemq')
     //implementation project(':messagemanager-solace')
-    implementation project(':messagemanager-sonicmq')
+//    implementation project(':messagemanager-sonicmq')
 
     implementation 'com.formdev:flatlaf:2.3'
 

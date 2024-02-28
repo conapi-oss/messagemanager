@@ -14,6 +14,7 @@ module messagemanager.app {
     requires com.google.common;
     requires com.google.guice;
     requires com.google.guice.extensions.assistedinject;
+
     uses com.google.inject.Module;
     requires static lombok;
 

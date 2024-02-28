@@ -20,18 +20,10 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.*;
-import java.lang.module.Configuration;
-import java.lang.module.ModuleFinder;
-import java.lang.module.ModuleReference;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -53,7 +45,9 @@ public class PluginManager {
 		this.worker = worker;
 		this.profileManager = profileManager;
 
-		pluginsFolder = new File(new File(platform.getDataFolder(), "plugins"), Version.VERSION);
+		//pluginsFolder = new File(new File(platform.getDataFolder(), "plugins"), Version.VERSION);
+
+		pluginsFolder = new File("C:/dev/git/conapi/messagemanager-sonicbranch/messagemanager-sonicmq/build/libs");
 
 		installProvidedPluginsFromResources(pluginsFolder);
 		plugins.putAll(findInstalledPlugins(pluginsFolder));
@@ -231,7 +225,7 @@ public class PluginManager {
 		throw new PluginManagerException("Plugin " + classname + " does not exist!");
 	}
 
-	public List<com.google.inject.Module> loadPluginModules(Collection<? extends PluginDescriptor> plugins, List<URL> classpath) throws PluginManagerException {
+	public List<Module> loadPluginModules(Collection<? extends PluginDescriptor> plugins, List<URL> classpath) throws PluginManagerException {
 
 		if(pluginClassloader != null) {
 			// Unload the existing plugins so we can try again
@@ -253,8 +247,10 @@ public class PluginManager {
 			urls.addAll(classpath);
 
 			// Create the classloader for the plugins, using the "current" classloader as a parent.
-			ClassLoader classLoader = PluginModuleHelper.createModuleClassLoader(urls, getClass().getClassLoader());
 
+			ModuleLayer moduleLayer = PluginModuleHelper.createModuleClassLoader(urls, getClass().getClassLoader());
+			String firstLoadedModule = moduleLayer.modules().stream().findFirst().get().getName();
+			ClassLoader classLoader = moduleLayer.findLoader(firstLoadedModule);
 			//logger.finest("Created classloader: " + Arrays.toString(classLoader.getURLs()) + " with parent " + classLoader.getParent());
 
 			// Set the ClassLoader on the worker and the current thread to make sure any class loading
@@ -263,18 +259,28 @@ public class PluginManager {
 			worker.setContextClassLoader(classLoader);
 			Thread.currentThread().setContextClassLoader(classLoader);
 
+
 			List<com.google.inject.Module> result = new ArrayList<>();
+
+			ServiceLoader<Module> slPlugins = ServiceLoader.load(moduleLayer, Module.class);
+			for(Module ext : slPlugins) {
+				result.add(ext);         // add each found plugin module
+			}
+
+			/*
 			for(PluginDescriptor plugin: plugins) {
 				@SuppressWarnings("unchecked")
 				Class<com.google.inject.Module> moduleClass =
 						(Class<com.google.inject.Module>) classLoader.loadClass(plugin.getModuleClassName());
 				com.google.inject.Module module = moduleClass.getDeclaredConstructor().newInstance();
 				result.add(module);
-			}
+			}*/
 			
 			pluginClassloader = classLoader;
 			return result;
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
+			//return moduleLayer;
+		} catch (Exception e) {
+				//InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
 			throw new PluginManagerException("Unable to load plugin modules", e);
 		}
 	}

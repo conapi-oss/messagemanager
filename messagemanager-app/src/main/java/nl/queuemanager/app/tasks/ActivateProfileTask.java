@@ -3,8 +3,10 @@ package nl.queuemanager.app.tasks;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.eventbus.EventBus;
+import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import com.google.inject.Stage;
 import com.google.inject.assistedinject.Assisted;
 import nl.queuemanager.ConnectivityProviderPlugin;
 import nl.queuemanager.Profile;
@@ -21,6 +23,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.ServiceLoader;
 
 public class ActivateProfileTask extends Task {
 	public static final String LAST_ACTIVE_PROFILE = "lastActiveProfile";
@@ -55,15 +58,21 @@ public class ActivateProfileTask extends Task {
 		
 		// Load all the modules into the plugin classloader
 		List<Module> pluginModules = pluginManager.loadPluginModules(pluginDescriptors, profile.getClasspath());
-		
+
 		// Load the configured plugin modules
 		List<Module> modules = new ArrayList<Module>();
 		modules.add(new CoreModule());
 		modules.add(new UIModule());
 		modules.addAll(pluginModules);
-		
+
+		//ModuleLayer pluginLayer = pluginManager.loadPluginModules(pluginDescriptors, profile.getClasspath());
+
 		try {
 			final Injector injector = parentInjector.createChildInjector(modules);
+			//final Injector temp = parentInjector.createChildInjector(ServiceLoader.load(pluginLayer, Module.class));
+			//Injector injector = temp.createChildInjector(modules);
+			//Injector injector = Guice.createInjector( ServiceLoader.load(pluginLayer, Module.class));
+			//Injector injector = Guice.createInjector(modules);
 			ConnectivityProviderPlugin provider = injector.getInstance(ConnectivityProviderPlugin.class);
 			provider.initialize();
 		} catch (NoClassDefFoundError e) {

@@ -12,7 +12,9 @@ open module messagemanager.ui {
     requires com.google.common;
     requires com.google.guice;
 
+
     requires java.desktop;
     requires java.logging;
     requires javax.inject;
+
 }

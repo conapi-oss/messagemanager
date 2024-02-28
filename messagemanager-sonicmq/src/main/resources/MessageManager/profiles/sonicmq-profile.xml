@@ -15,7 +15,7 @@
 		<jar>mgmt_agent.jar</jar>
 		<jar>mgmt_client.jar</jar>
 		<jar>mgmt_config.jar</jar>
-		<jar>smc.jar</jar>
+		<!--<jar>smc.jar</jar>-->
 		<jar>sonic_Client.jar</jar>
 		<jar>sonic_Crypto.jar</jar>
 		<jar>sonic_XMessage.jar</jar>

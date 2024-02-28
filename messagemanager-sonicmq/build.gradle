@@ -8,9 +8,9 @@ plugins {
 
 
 configurations {
-    soniclibs {
+    /*soniclibs {
         transitive = false
-    }
+    }*/
 }
 
 def sonicLibsToExtractV10 = [
@@ -38,7 +38,7 @@ def sonicLibsToExtractV12 = [
 ]
 
 task unzipSonic(type: Copy) {
-    dependsOn configurations.soniclibs
+//    dependsOn configurations.soniclibs
 
     // Check if the folder for MQ10.0 exists
     def sonicHome = "${System.getenv('SONIC_HOME')}"
@@ -60,6 +60,7 @@ task zipSonicJar(type: Zip) {
     from "$buildDir/libs/soniclibs"
 }
 
+
 dependencies {
     implementation project(':messagemanager-plugin-api')
     implementation project(':messagemanager-core')
@@ -76,17 +77,20 @@ dependencies {
 
     // this is lazy evaluated
     // use implementation if these should be loaded from the module cp instead of profile
-    compileOnly files("$buildDir/libs/soniclibs.jar")
+    //compileOnly files("$buildDir/libs/soniclibs.jar")
+//still need to get these jars "cleaned" in the script
+    compileOnly fileTree(dir: 'sonic-libs/compileOnly', includes: ['*.jar'])
+    implementation fileTree(dir: 'sonic-libs/implementation', includes: ['*.jar'])
 }
 
-compileJava.dependsOn zipSonicJar
+//compileJava.dependsOn zipSonicJar
 
 description = 'Message Manager for SonicMQ'
 
 tasks.withType(JavaCompile) {
     options.compilerArgs += [
             // Sonic libs have a split package issue, therefore use this approach to allow compilation
-            '--patch-module', "soniclibs=" + files("$buildDir/libs/soniclibs.jar").asPath,
+   //         '--patch-module', "soniclibs=" + files("$buildDir/libs/soniclibs.jar").asPath,
             //'--add-exports nl.queuemanager.smm=ALL-UNNAMED'
             
     ]

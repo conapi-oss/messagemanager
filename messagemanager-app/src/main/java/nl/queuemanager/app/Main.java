@@ -50,8 +50,12 @@ public class Main {
 		enableDebugLogging(DebugProperty.developer.isEnabled());
 
 		// Create boot injector so we can set LAF before creating any UI
+		//ClassLoader currentCl = Thread.currentThread().getContextClassLoader();
+		//Thread.currentThread().setContextClassLoader(new AlwaysUseThreadContextClassLoader());
 		final Injector bootInjector = Guice.createInjector(Stage.PRODUCTION, new BootModule());
-		
+		//Thread.currentThread().setContextClassLoader(currentCl);
+
+
 		// Set the LAF
 		setConfiguredLAF(bootInjector.getInstance(CoreConfiguration.class));
 		
