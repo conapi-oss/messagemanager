@@ -17,9 +17,6 @@ subprojects {
     apply plugin: 'org.javamodularity.moduleplugin'
     apply plugin: 'maven-publish'
 
-    group = 'nl.queuemanager'
-    version = '4.0-SNAPSHOT'
-
     sourceCompatibility = 17
     targetCompatibility = 17
 
@@ -55,4 +52,55 @@ subprojects {
         }
     }
 
+    def appVersion = project.version // from gradle.properties
+    def buildTimeStamp = new Date().toString()
+
+    compileJava {
+
+        doFirst {
+            if (project.file("src/main/java-templates/Version.java").exists()) {
+
+                ant.mkdir(dir: "${projectDir}/src/main/java/${project.targetPackage}")
+                def newBuildInfo = new File("${projectDir}/src/main/java/${targetPackage}/Version.java")
+                def templateBuildInfo = new File("${projectDir}/src/main/java-templates/Version.java")
+
+                newBuildInfo.withWriter { def writer ->
+                    templateBuildInfo.eachLine { def line ->
+                        def newLine = line.replace("__PACKAGE", targetPackageJava)
+                                .replace("__VERSION", appVersion)
+                                .replace("__BUILD_ID", appVersion)
+                                .replace("__BUILD_TIMESTAMP", buildTimeStamp)
+                        writer.write(newLine + "\n");
+                    }
+                }
+            }
+        }
+    }
+
+
+    task copyJar(type: Copy) {
+        onlyIf {
+            // only copy jar for plugins to the user data folder
+            file("${projectDir}/src/main/resources/MessageManager/plugins").exists()
+        }
+        from "build/libs/${project.name}-${project.version}.jar" // Source path (replace with your JAR name)
+        into  getUserDataFolder().toString() + "/MessageManager/plugins/${project.version}" // Destination directory i.e.
+    }
+
+    build.dependsOn copyJar // Ensure copying happens after JAR is built
+
+}
+
+protected File getUserDataFolder() {
+    def configPath = System.getenv("XDG_CONFIG_DIR")
+    if (!configPath) {
+        configPath = System.getenv("APPDATA")
+    }
+
+    if (!configPath) {
+        def userHome = new File(System.getProperty("user.home"))
+        return new File(userHome, ".config")
+    } else {
+        return new File(configPath)
+    }
 }

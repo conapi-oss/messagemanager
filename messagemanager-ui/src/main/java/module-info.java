@@ -11,10 +11,9 @@ open module messagemanager.ui {
     requires jakarta.jms.api;
     requires com.google.common;
     requires com.google.guice;
-
+    requires com.google.guice.extensions.assistedinject;
 
     requires java.desktop;
     requires java.logging;
     requires javax.inject;
-
 }

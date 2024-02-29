@@ -12,6 +12,7 @@ application {
 
 description = 'messagemanager-app'
 
+
 dependencies {
     implementation project(':messagemanager-ui')
     implementation project(':messagemanager-plugin-api')

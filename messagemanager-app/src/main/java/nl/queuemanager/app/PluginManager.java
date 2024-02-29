@@ -20,7 +20,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -45,10 +44,7 @@ public class PluginManager {
 		this.worker = worker;
 		this.profileManager = profileManager;
 
-		//pluginsFolder = new File(new File(platform.getDataFolder(), "plugins"), Version.VERSION);
-
-		pluginsFolder = new File("C:/dev/git/conapi/messagemanager-sonicbranch/messagemanager-sonicmq/build/libs");
-
+		pluginsFolder = new File(new File(platform.getDataFolder(), "plugins"), Version.VERSION);
 		installProvidedPluginsFromResources(pluginsFolder);
 		plugins.putAll(findInstalledPlugins(pluginsFolder));
 
@@ -248,39 +244,29 @@ public class PluginManager {
 
 			// Create the classloader for the plugins, using the "current" classloader as a parent.
 
-			ModuleLayer moduleLayer = PluginModuleHelper.createModuleClassLoader(urls, getClass().getClassLoader());
-			String firstLoadedModule = moduleLayer.modules().stream().findFirst().get().getName();
-			ClassLoader classLoader = moduleLayer.findLoader(firstLoadedModule);
-			//logger.finest("Created classloader: " + Arrays.toString(classLoader.getURLs()) + " with parent " + classLoader.getParent());
+			final ModuleLayer moduleLayer = PluginModuleHelper.createPluginModuleLayer(urls, getClass().getClassLoader());
+
+			final String firstLoadedModule = moduleLayer.modules().stream().findFirst().get().getName();
+			final ClassLoader classLoader = moduleLayer.findLoader(firstLoadedModule);
 
 			// Set the ClassLoader on the worker and the current thread to make sure any class loading
 			// magic done by the plugins or any dependent classes (such as trying to use the context
 			// class loader directly) will hopefully work.
+			// TODO: not sure all this is still needed with Java 9 modules
 			worker.setContextClassLoader(classLoader);
 			Thread.currentThread().setContextClassLoader(classLoader);
 
+			final List<com.google.inject.Module> result = new ArrayList<>();
 
-			List<com.google.inject.Module> result = new ArrayList<>();
-
+			// Load the jars for the plugins using service loader using our Module Layer
 			ServiceLoader<Module> slPlugins = ServiceLoader.load(moduleLayer, Module.class);
 			for(Module ext : slPlugins) {
-				result.add(ext);         // add each found plugin module
+				result.add(ext);// add each found plugin module
 			}
 
-			/*
-			for(PluginDescriptor plugin: plugins) {
-				@SuppressWarnings("unchecked")
-				Class<com.google.inject.Module> moduleClass =
-						(Class<com.google.inject.Module>) classLoader.loadClass(plugin.getModuleClassName());
-				com.google.inject.Module module = moduleClass.getDeclaredConstructor().newInstance();
-				result.add(module);
-			}*/
-			
 			pluginClassloader = classLoader;
 			return result;
-			//return moduleLayer;
 		} catch (Exception e) {
-				//InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
 			throw new PluginManagerException("Unable to load plugin modules", e);
 		}
 	}

@@ -167,10 +167,6 @@ class JMSDestinationTransferHandler extends TransferHandler {
 	
 	/**
 	 * Import a list of message ids into the component
-	 * 
-	 * @param component
-	 * @param messageList
-	 * @return
 	 */
 	protected boolean importMessageIDList(JMSDestinationHolder destinationHolder, final List<Pair<JMSQueue, String>> messageList) {
 		final JMSQueue toQueue = (JMSQueue)destinationHolder.getJMSDestination();
@@ -184,11 +180,7 @@ class JMSDestinationTransferHandler extends TransferHandler {
 	}
 
 	/**
-	 * Import a list of {@link Message} objects into the component.
-	 * 
-	 * @param component
-	 * @param messageList
-	 * @return
+	 * Import a list of {@link Message} objects into the component.	 *
 	 */
 	protected boolean importMessageList(JMSDestinationHolder destinationHolder, List<Message> messageList) {
 		final JMSDestination destination = destinationHolder.getJMSDestination();
@@ -203,10 +195,6 @@ class JMSDestinationTransferHandler extends TransferHandler {
 
 	/**
 	 * Import a list of files into the component.
-	 * 
-	 * @param component
-	 * @param fileList
-	 * @return
 	 */
 	protected boolean importFileList(JMSDestinationHolder destinationHolder, List<File> fileList) {
 		final JMSDestination destination = destinationHolder.getJMSDestination();

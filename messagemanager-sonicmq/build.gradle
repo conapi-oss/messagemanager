@@ -4,6 +4,7 @@
 
 plugins {
     id 'java-library'
+    id 'base' // to get access to the clean task
 }
 
 
@@ -37,29 +38,52 @@ def sonicLibsToExtractV12 = [
         "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\sonic_mgmt_client.jar"
 ]
 
-task unzipSonic(type: Copy) {
-//    dependsOn configurations.soniclibs
 
-    // Check if the folder for MQ10.0 exists
-    def sonicHome = "${System.getenv('SONIC_HOME')}"
-    def sonicLibsFolder = "${sonicHome}\\MQ10.0"
-    def chosenSonicLibs = new File(sonicLibsFolder).exists() ? sonicLibsToExtractV10 : sonicLibsToExtractV12
 
-    into "$buildDir/libs/soniclibs"
-    from chosenSonicLibs.collect { zipTree(it) }
-    include "**/*.class"
-    exclude "javax/**/*.class"
-    includeEmptyDirs = false
+def deleteTempSonicSubfolder = tasks.register('deleteTempSonicSubfolder', Delete){
+    dependsOn processSonicJars
+    mustRunAfter processSonicJars
+    doLast {
+        fileTree(dir: "$projectDir/.sonic-libs/compileOnly").exclude("*.jar").visit { FileVisitDetails details ->
+            delete details.file
+        }
+        println "Deleted temporary folders in: $projectDir/.sonic-libs/compileOnly"
+    }
 }
 
+task processSonicJars {
+    def libsDir = new File("$projectDir/.sonic-libs/compileOnly")
+    // only extract if the libs folder does not exist yet
+    if (!libsDir.exists()) {
+        // Check if the folder for MQ10.0 exists
+        def sonicHome = "${System.getenv('SONIC_HOME')}"
+        def sonicLibsFolder = "${sonicHome}\\MQ10.0"
+        def chosenSonicLibs = new File(sonicLibsFolder).exists() ? sonicLibsToExtractV10 : sonicLibsToExtractV12
 
-task zipSonicJar(type: Zip) {
-    dependsOn(unzipSonic)
-    destinationDirectory = file("$buildDir/libs")
-    archiveFileName = 'soniclibs.jar'
-    from "$buildDir/libs/soniclibs"
+        chosenSonicLibs.each { jarFileName ->
+            def jarFile = new File(jarFileName)
+            copy {
+                from project.zipTree(jarFile)
+                into new File(project.projectDir, ".sonic-libs/compileOnly/" + jarFile.name.replace(".jar",""))
+                exclude "**/javax/**"
+            }
+            println "Extracted JAR: $jarFileName" // Print progress
+        }
+
+        // Loop through extracted subfolders and create JAR for each
+        libsDir.eachDir { subfolder ->
+            println "Zip/Jar processing folder: " + subfolder.name + " (" + subfolder.isDirectory()+ ")"
+            def taskName = "zip${subfolder.name.capitalize()}"
+            task "$taskName"(type: Jar) {
+                getDestinationDirectory().set(file("$projectDir/.sonic-libs/compileOnly/"))
+                getArchiveFileName().set("${subfolder.name}.jar")
+                from(subfolder)
+            }
+            processSonicJars.dependsOn(taskName)
+        }
+    }
+
 }
-
 
 dependencies {
     implementation project(':messagemanager-plugin-api')
@@ -75,23 +99,11 @@ dependencies {
     //compileOnly 'javax.activation:activation:1.1.1' // if this is set then remove the activation lines form modules-info
     implementation 'com.sun.activation:javax.activation:1.2.0'
 
-    // this is lazy evaluated
-    // use implementation if these should be loaded from the module cp instead of profile
-    //compileOnly files("$buildDir/libs/soniclibs.jar")
-//still need to get these jars "cleaned" in the script
-    compileOnly fileTree(dir: 'sonic-libs/compileOnly', includes: ['*.jar'])
-    implementation fileTree(dir: 'sonic-libs/implementation', includes: ['*.jar'])
+    compileOnly fileTree(dir: '.sonic-libs/compileOnly', includes: ['*.jar'])
+    //implementation fileTree(dir: './sonic-libs/implementation', includes: ['*.jar'])
 }
 
-//compileJava.dependsOn zipSonicJar
+compileJava.dependsOn deleteTempSonicSubfolder
+
 
 description = 'Message Manager for SonicMQ'
-
-tasks.withType(JavaCompile) {
-    options.compilerArgs += [
-            // Sonic libs have a split package issue, therefore use this approach to allow compilation
-   //         '--patch-module', "soniclibs=" + files("$buildDir/libs/soniclibs.jar").asPath,
-            //'--add-exports nl.queuemanager.smm=ALL-UNNAMED'
-            
-    ]
-}
