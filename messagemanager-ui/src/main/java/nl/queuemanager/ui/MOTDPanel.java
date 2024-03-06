@@ -4,7 +4,7 @@ import com.google.common.eventbus.Subscribe;
 import nl.queuemanager.core.util.ReleasePropertiesEvent;
 import nl.queuemanager.ui.util.MarqueePanel;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;

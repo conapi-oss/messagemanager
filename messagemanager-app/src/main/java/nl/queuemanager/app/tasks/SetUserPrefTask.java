@@ -5,7 +5,7 @@ import com.google.inject.assistedinject.Assisted;
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.task.BackgroundTask;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class SetUserPrefTask extends BackgroundTask {
 

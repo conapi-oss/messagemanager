@@ -1,0 +1,19 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'at.conapi.messagemanager.bootstrap.config'
+
+repositories {
+    mavenCentral()
+}
+
+application {
+    mainClass = 'at.conapi.messagemanager.bootstrap.config.CreateConfig'
+}
+
+dependencies {
+    implementation 'org.update4j:update4j:1.5.9'
+//    implementation project(':messagemanager-app')
+}

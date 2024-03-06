@@ -5,7 +5,7 @@ import nl.queuemanager.Profile;
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.ui.settings.SettingsPanel;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

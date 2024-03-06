@@ -24,7 +24,7 @@ public class PluginModuleHelper {
     // packages which are known to cause issues, we will filter them out
     // TODO: potentially make this configurable
     private static List<String> packagesToBeFiltered = Arrays.asList("javax.jms") ;
-    public static ModuleLayer createPluginModuleLayer(final List<URL> urls, final ClassLoader parentClassloader) {
+    public static ModuleLayer createPluginModuleLayer(final List<URL> urls, final Class parentClass) {
         final List<Path> jarPaths;
         try {
             final String tempFolder = Files.createTempDirectory("pluginJars").toString();
@@ -47,9 +47,14 @@ public class PluginModuleHelper {
 
         final ModuleFinder moduleFinder = ModuleFinder.of(jarPaths.toArray(Path[]::new));
         // Create a Configuration based on the ModuleReferencess
-        final Configuration configuration = ModuleLayer.boot().configuration().resolveAndBind(moduleFinder, ModuleFinder.of(),List.of());
+
+        // this does not always work, especially if more than a boot layer exists
+        //ModuleLayer parentLayer = ModuleLayer.boot();
+        final ModuleLayer parentLayer = parentClass.getModule().getLayer();
+
+        final Configuration configuration = parentLayer.configuration().resolveAndBind(moduleFinder, ModuleFinder.of(),List.of());
         // Create a ModuleLayer based on the Configuration
-        return ModuleLayer.boot().defineModulesWithOneLoader(configuration, parentClassloader );//ClassLoader.getSystemClassLoader());
+        return parentLayer.defineModulesWithOneLoader(configuration, parentClass.getClassLoader() );//ClassLoader.getSystemClassLoader());
     }
     private static void repackageJars(final List<Path> badJars) throws IOException {
         for (Path jar : badJars) {

@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.extern.java.Log;
 import nl.queuemanager.core.util.BasicCredentials;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.swing.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;

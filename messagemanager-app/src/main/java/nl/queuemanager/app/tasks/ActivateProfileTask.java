@@ -18,7 +18,7 @@ import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.util.CoreException;
 import nl.queuemanager.ui.UIModule;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

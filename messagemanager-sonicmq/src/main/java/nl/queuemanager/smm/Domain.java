@@ -50,7 +50,7 @@ import nl.queuemanager.ui.BrokerCredentialsDialog;
 import progress.message.jclient.MultipartMessage;
 import progress.message.jclient.XMLMessage;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 import javax.jms.*;
 import javax.management.*;
 import java.net.URI;

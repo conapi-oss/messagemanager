@@ -9,7 +9,7 @@ import nl.queuemanager.core.util.DNSUtil;
 import nl.queuemanager.core.util.ReleasePropertiesEvent;
 import nl.queuemanager.core.util.ReleasePropertiesEvent.EVENT;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.logging.Logger;
 
 /**

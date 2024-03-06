@@ -8,7 +8,7 @@ import nl.queuemanager.core.task.BackgroundTask;
 import nl.queuemanager.core.util.DNSUtil;
 import nl.queuemanager.core.util.ReleasePropertiesEvent;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.Calendar;
 import java.util.logging.Logger;
 

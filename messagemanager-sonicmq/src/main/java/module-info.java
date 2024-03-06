@@ -20,7 +20,7 @@ module messagemanager.sonicmq {
 
     requires java.desktop;
     requires java.management;
-    requires javax.inject;
+    requires jakarta.inject;
     requires java.logging;
 
     requires jakarta.jms.api;

@@ -15,7 +15,7 @@
  */
 package nl.queuemanager.ui.util;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.Dialog.ModalityType;

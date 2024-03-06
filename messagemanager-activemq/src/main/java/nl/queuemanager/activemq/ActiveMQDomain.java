@@ -17,8 +17,8 @@ import nl.queuemanager.jms.impl.DestinationFactory;
 import nl.queuemanager.ui.BrokerCredentialsDialog;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import javax.jms.*;
 import javax.management.*;
 import javax.management.remote.JMXConnector;

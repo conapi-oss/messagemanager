@@ -6,7 +6,7 @@ import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.jms.JMSQueue;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.jms.Message;
 import java.util.List;
 

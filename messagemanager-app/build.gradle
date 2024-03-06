@@ -4,12 +4,49 @@
 
 plugins {
     id 'application'
+    id "org.beryx.jlink" version "3.0.1"
 }
 
 application {
     mainClass = 'nl.queuemanager.app.Main'
+ }
+
+// Application Configuration
+ext {
+    appName = "Message Manager"
+    appLauncher = "MessageManager"
+    appPackaging = "messagemanager"
+    appModuleName = "messagemanager.app"
+    appMainClass = "nl.queuemanager.app.Main"
+}
+mainClassName = "${ext.appModuleName}/${ext.appMainClass}"
+
+jlink {
+    //imageZip = project.file("${buildDir}/distributions/${appPackaging}-${javafx.platform.classifier}.zip")
+    imageZip = project.file("${buildDir}/distributions/${appPackaging}.zip")
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    launcher {
+        name = "${appLauncher}"
+    }
 }
 
+// task to copy dependencies
+task copyAllDependencies(type: Copy) {
+    from configurations.default
+    into "${buildDir}/update4j/messagemanager"
+
+    from "build/libs/${project.name}-${project.version}.jar"
+    into "${buildDir}/update4j/messagemanager"
+}
+
+build.dependsOn(copyAllDependencies)
+
+task dist {
+    dependsOn clean, jlinkZip
+    description "Calls clean and then jlinkZip [default]"
+}
+
+defaultTasks 'dist'
 description = 'messagemanager-app'
 
 
@@ -17,16 +54,17 @@ dependencies {
     implementation project(':messagemanager-ui')
     implementation project(':messagemanager-plugin-api')
 
-//    implementation project(':messagemanager-fakemq')
-
+    // DO NOT ADD THESE DEPENDENCIES OTHERWISE THE JAVA9+ MODULE PATH WILL NOT WORK
+    //implementation project(':messagemanager-fakemq')
     //implementation project(':messagemanager-activemq')
     //implementation project(':messagemanager-solace')
-//    implementation project(':messagemanager-sonicmq')
+    //implementation project(':messagemanager-sonicmq')
 
     implementation 'com.formdev:flatlaf:2.3'
 
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
+   // implementation 'org.update4j:update4j:1.5.9'
 }
 
 task fatJar(type: Jar) {
@@ -41,3 +79,6 @@ task fatJar(type: Jar) {
     }
     with jar
 }
+
+
+

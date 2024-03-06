@@ -5,7 +5,7 @@ import nl.queuemanager.AddUITabEvent;
 import nl.queuemanager.ConnectivityProviderPlugin;
 import nl.queuemanager.ui.UITab;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.net.Authenticator;
 import java.util.Map;
 import java.util.Map.Entry;

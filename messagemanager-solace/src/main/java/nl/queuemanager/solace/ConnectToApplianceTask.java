@@ -4,7 +4,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.assistedinject.Assisted;
 import nl.queuemanager.core.task.Task;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.jms.Session;
 
 class ConnectToApplianceTask extends Task {

@@ -13,8 +13,8 @@ import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.jms.JMSTopic;
 import nl.queuemanager.jms.impl.DestinationFactory;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;

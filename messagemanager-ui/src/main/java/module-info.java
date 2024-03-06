@@ -15,5 +15,5 @@ open module messagemanager.ui {
 
     requires java.desktop;
     requires java.logging;
-    requires javax.inject;
+    requires jakarta.inject;
 }

@@ -17,7 +17,7 @@ import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.util.DocumentAdapter;
 import nl.queuemanager.ui.util.SingleExtensionFileFilter;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.ListSelectionEvent;

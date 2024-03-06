@@ -11,8 +11,8 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -23,6 +23,7 @@ import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,6 +48,11 @@ public class PluginManager {
 		pluginsFolder = new File(new File(platform.getDataFolder(), "plugins"), Version.VERSION);
 		installProvidedPluginsFromResources(pluginsFolder);
 		plugins.putAll(findInstalledPlugins(pluginsFolder));
+
+		// load bootstrapped plugins
+		final File bootStrapPluginsFolder = Path.of("", "plugins").toAbsolutePath().toFile();
+		installProvidedPluginsFromResources(bootStrapPluginsFolder);
+		plugins.putAll(findInstalledPlugins(bootStrapPluginsFolder));
 
 		ServiceLoader<Module> serviceLoader = ServiceLoader.load(Module.class);
 		serviceLoader.stream()
@@ -244,7 +250,7 @@ public class PluginManager {
 
 			// Create the classloader for the plugins, using the "current" classloader as a parent.
 
-			final ModuleLayer moduleLayer = PluginModuleHelper.createPluginModuleLayer(urls, getClass().getClassLoader());
+			final ModuleLayer moduleLayer = PluginModuleHelper.createPluginModuleLayer(urls, getClass());
 
 			final String firstLoadedModule = moduleLayer.modules().stream().findFirst().get().getName();
 			final ClassLoader classLoader = moduleLayer.findLoader(firstLoadedModule);

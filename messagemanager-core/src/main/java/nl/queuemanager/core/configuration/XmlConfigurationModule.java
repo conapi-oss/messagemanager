@@ -4,7 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import nl.queuemanager.core.platform.PlatformHelper;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import java.io.File;
 
 public class XmlConfigurationModule extends AbstractModule {

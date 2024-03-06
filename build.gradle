@@ -78,16 +78,32 @@ subprojects {
     }
 
 
-    task copyJar(type: Copy) {
+   /* task copyJarToUserData(type: Copy) {
         onlyIf {
             // only copy jar for plugins to the user data folder
             file("${projectDir}/src/main/resources/MessageManager/plugins").exists()
         }
+
         from "build/libs/${project.name}-${project.version}.jar" // Source path (replace with your JAR name)
-        into  getUserDataFolder().toString() + "/MessageManager/plugins/${project.version}" // Destination directory i.e.
+        into getUserDataFolder().toString() + "/MessageManager/plugins/${project.version}"
+    }*/
+
+    task copyJarToBootstrap(type: Copy) {
+        onlyIf {
+            // only copy jar for plugins to the user data folder
+            file("${projectDir}/src/main/resources/MessageManager/plugins").exists()
+        }
+
+        ant.mkdir(dir: "${projectDir}/../messagemanager-bootstrap/build/root/target/config/plugins")
+
+        from "build/libs/${project.name}-${project.version}.jar" // Source path (replace with your JAR name)
+        rename '([a-z]*-[a-z]*).*.jar', '$1.jar' // remove version from jar
+        into "${projectDir}/../messagemanager-bootstrap/build/root/target/config/plugins"
     }
 
-    build.dependsOn copyJar // Ensure copying happens after JAR is built
+    // Ensure copying happens after JAR is built
+   // build.dependsOn copyJarToUserData
+    build.dependsOn copyJarToBootstrap
 
 }
 

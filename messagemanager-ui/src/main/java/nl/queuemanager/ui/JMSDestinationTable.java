@@ -24,7 +24,7 @@ import nl.queuemanager.ui.JMSDestinationTransferHandler.JMSDestinationHolder;
 import nl.queuemanager.ui.util.FilteredTableModel;
 import nl.queuemanager.ui.util.ListTableModel;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.swing.*;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;

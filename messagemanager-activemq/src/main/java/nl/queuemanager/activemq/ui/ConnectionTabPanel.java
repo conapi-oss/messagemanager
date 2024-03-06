@@ -9,7 +9,7 @@ import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.util.ListTableModel;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;

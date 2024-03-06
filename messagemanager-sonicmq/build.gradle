@@ -90,7 +90,7 @@ dependencies {
     implementation project(':messagemanager-core')
     implementation project(':messagemanager-ui')
 
-    implementation 'com.google.inject:guice:5.1.0'
+    implementation 'com.google.inject:guice:7.0.0'
 
     testImplementation 'junit:junit:[4,5)'
 

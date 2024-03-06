@@ -20,6 +20,7 @@ open module messagemanager.core {
     requires java.naming;
     requires java.xml;
     requires java.logging;
-    requires javax.inject;
+    //requires javax.inject;
+    requires jakarta.inject;
     requires jsr305;
 }

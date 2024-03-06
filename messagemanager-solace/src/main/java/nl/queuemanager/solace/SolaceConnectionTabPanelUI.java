@@ -2,7 +2,7 @@ package nl.queuemanager.solace;
 
 import nl.queuemanager.ui.UITab;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;

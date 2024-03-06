@@ -9,3 +9,4 @@ logging.properties
 *.iml
 build
 /messagemanager-sonicmq/.sonic-libs
+/messagemanager-bootstrap/messagemanager

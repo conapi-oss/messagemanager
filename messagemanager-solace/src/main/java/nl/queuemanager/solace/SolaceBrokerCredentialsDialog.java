@@ -4,7 +4,7 @@ import nl.queuemanager.core.util.BasicCredentials;
 import nl.queuemanager.core.util.Credentials;
 import nl.queuemanager.jms.JMSBroker;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

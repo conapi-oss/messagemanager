@@ -20,6 +20,6 @@ module messagemanager.solace {
 
     requires java.desktop;
     requires java.management;
-    requires javax.inject;
+    requires jakarta.inject;
     requires java.logging;
 }

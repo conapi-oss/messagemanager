@@ -4,7 +4,7 @@ import com.google.common.eventbus.EventBus;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.Task;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class EnumerateBrokersTask extends Task {
 

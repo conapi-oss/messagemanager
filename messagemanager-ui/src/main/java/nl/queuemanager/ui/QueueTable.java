@@ -25,7 +25,7 @@ import nl.queuemanager.ui.util.ListTableModel;
 import nl.queuemanager.ui.util.MessageCountComparator;
 import nl.queuemanager.ui.util.MiscUtils;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;

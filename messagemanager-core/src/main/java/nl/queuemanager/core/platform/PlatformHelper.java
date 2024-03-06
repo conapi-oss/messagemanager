@@ -3,7 +3,7 @@ package nl.queuemanager.core.platform;
 import com.google.common.base.Strings;
 import com.google.common.eventbus.EventBus;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
