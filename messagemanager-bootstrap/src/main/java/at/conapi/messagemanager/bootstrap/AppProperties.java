@@ -21,7 +21,7 @@ public class AppProperties {
 
     static{
 
-        propertiesLocation = Path.of("", "app.properties");
+        propertiesLocation = Path.of("", "launcher.properties");
 
         loadProperties();
         autoUpdate = Boolean.valueOf(appProperties.getProperty(PROP_AUTO_UPDATE, "false"));

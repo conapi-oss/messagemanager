@@ -1,17 +1,5 @@
 package at.conapi.messagemanager.bootstrap;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Optional;
-
-import javafx.scene.paint.Color;
-import javafx.stage.StageStyle;
-import javafx.stage.WindowEvent;
-import org.update4j.*;
-import org.update4j.inject.InjectSource;
-import org.update4j.inject.Injectable;
-import org.update4j.service.UpdateHandler;
-
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -19,24 +7,30 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.shape.SVGPath;
+import javafx.scene.paint.Color;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
+import org.update4j.*;
+import org.update4j.inject.InjectSource;
+import org.update4j.inject.Injectable;
+import org.update4j.service.UpdateHandler;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Optional;
 
 public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 
@@ -48,23 +42,6 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 	@FXML
 	private ImageView image;
 
-	@FXML
-	private GridPane launchContainer;
-
-	@FXML
-	@InjectSource
-	private CheckBox singleInstanceCheckbox;
-
-	@FXML
-	@InjectSource
-	private TextField singleInstanceMessage;
-
-	@FXML
-	@InjectSource
-	private CheckBox newWindowCheckbox;
-
-	@FXML
-	private GridPane updateContainer;
 
 	@FXML
 	private Pane primary;
@@ -74,21 +51,7 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 
 	@FXML
 	private StackPane progressContainer;
-	
-	@FXML
-	private CheckBox slow;
 
-	@FXML
-	private Button update;
-
-	@FXML
-	private Button launch;
-
-	@FXML
-	private SVGPath updatePath;
-
-	@FXML
-	private SVGPath cancelPath;
 
 	private DoubleProperty primaryPercent;
 	private DoubleProperty secondaryPercent;
@@ -99,18 +62,15 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 	@InjectSource
 	private Stage primaryStage;
 
-	@InjectSource
-	private Image inverted = App.inverted;
-
 	public StartupView(Configuration config, Stage primaryStage) {
 		this.config = config;
 		this.primaryStage = primaryStage;
 
 		// no min/max/close buttons to look like a splash screen
 		primaryStage.initStyle(StageStyle.TRANSPARENT);//.UNDECORATED);
+		image.setImage(App.splash);
 
-		image.setImage(App.inverted);
-
+		// for the update progress bar
 		primaryPercent = new SimpleDoubleProperty(this, "primaryPercent");
 		secondaryPercent = new SimpleDoubleProperty(this, "secondaryPercent");
 
@@ -120,7 +80,6 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 		secondary.maxWidthProperty().bind(progressContainer.widthProperty().multiply(secondaryPercent));
 
 		status.setOpacity(0);
-
 
 		FadeTransition fade = new FadeTransition(Duration.seconds(1.5), status);
 		fade.setToValue(0);
@@ -139,42 +98,28 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 		primary.visibleProperty().bind(running);
 		secondary.visibleProperty().bind(primary.visibleProperty());
 
-		cancelPath.visibleProperty().bind(running);
-		updatePath.visibleProperty().bind(cancelPath.visibleProperty().not());
-
-		singleInstanceMessage.disableProperty().bind(singleInstanceCheckbox.selectedProperty().not());
-
-		TextSeparator launchSeparator = new TextSeparator("Launch");
-		launchContainer.add(launchSeparator, 0, 0, GridPane.REMAINING, 1);
-
-		TextSeparator updateSeparator = new TextSeparator("Update");
-		updateContainer.add(updateSeparator, 0, 0, GridPane.REMAINING, 1);
-
 		// do auto update when shown to show progress bar
 		primaryStage.setOnShown((WindowEvent event) -> {
 			if(AppProperties.isAutoUpdate()){
 				executeUpdateApplication(true);
 			}
+			else{
+				//run it
+				runApplication();
+			}
 		});
+
+		// ensure splash screen is shown.
+		primaryStage.setAlwaysOnTop(true);
+		primaryStage.toFront();
 	}
 
 	private void updateComplete() {
 		// we can now start
-        config.launch(this);
 		fadeOut();
+        config.launch(this);
 	}
-
-	@FXML
-	void launchPressed(ActionEvent event) {
-		runApplication();
-	}
-
-	@FXML
-	void updatePressed(ActionEvent event) {
-		executeUpdateApplication(false);
-	}
-
-	private void runApplication(){
+    private void runApplication(){
 		Task<Boolean> checkUpdates = checkUpdates();
 		checkUpdates.setOnSucceeded(evt -> {
 			Thread run = new Thread(() -> {
@@ -185,6 +130,10 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 
 			//FIXME: add opt-out checkbox
 			if (checkUpdates.getValue()) {
+
+				// otherwise dialog is in the background
+				primaryStage.setAlwaysOnTop(false);
+
 				ButtonType updateAndLaunch = new ButtonType("Yes", ButtonData.OK_DONE);
 				ButtonType skipAndLaunch = new ButtonType("Skip", ButtonData.CANCEL_CLOSE);
 				ButtonType alwaysAndLaunch = new ButtonType("ALWAYS", ButtonData.OK_DONE);
@@ -195,34 +144,38 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 				alert.getButtonTypes().setAll(updateAndLaunch, skipAndLaunch, alwaysAndLaunch);
 
 				Optional<ButtonType> result = alert.showAndWait();
+				primaryStage.setAlwaysOnTop(true);
+
 				if(result.isPresent() && result.get() != skipAndLaunch){
 					if(result.get() == alwaysAndLaunch){
 						AppProperties.setAutoUpdate(true);
 					}
 					// update
 					executeUpdateApplication(true);
-					// launch done when update is complete
-					//run.start();
 				}
 				else {
-					// simply start even if X is pressed
-					run.start();
+					// simply start
+					updateComplete();
 				}
 			} else {
-				run.start();
+				updateComplete();
 			}
 		});
 
-		//runAndFade(checkUpdates);
 		runSync(checkUpdates);
 	}
 
 	private void fadeOut(){
 		//to have a smooth transition
 		primaryStage.getScene().setFill(Color.TRANSPARENT);
-		primaryStage.setAlwaysOnTop(true);
-
-		FadeTransition fadeOut = new FadeTransition(Duration.seconds(1.5),primaryStage.getScene().getRoot());
+		//primaryStage.setAlwaysOnTop(true);
+		//primaryStage.show();
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+		}
+        // show for at least some time
+        FadeTransition fadeOut = new FadeTransition(Duration.seconds(2),primaryStage.getScene().getRoot());
 		fadeOut.setFromValue(1);
 		fadeOut.setToValue(0);
 		fadeOut.setCycleCount(1);
@@ -232,7 +185,8 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 	//		runner.setDaemon(true);
 	//		runner.start();
 			//primaryStage.hide();
-			primaryStage.setAlwaysOnTop(false);
+		//	primaryStage.setAlwaysOnTop(false);
+			//primaryStage.hide();
 		});
 		// we want this to remain on top
 		fadeOut.play();
@@ -253,19 +207,23 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 			if (!checkUpdates.getValue()) {
 				status.setText("No updates found");
 				running.set(false);
+				updateComplete();
 			} else {
 				Task<Void> doUpdate = new Task<>() {
 
 					@Override
 					protected Void call() throws Exception {
 						Path zip = Paths.get("messagemanager-update.zip");
-
 						final UpdateResult updateResult = config.update(UpdateOptions.archive(zip).updateHandler(StartupView.this));
 						if(updateResult.getException() == null) {
 							Archive.read(zip).install();
 							// only now the content is downloaded and loaded
 							updateComplete();
 						}
+
+						// we also launch if update failed
+						//updateComplete();
+
 						return null;
 					}
 
@@ -283,6 +241,18 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 			run(checkUpdates);
 		}
 	}
+
+	private void showAlert(final String headerText, final String contentText) {
+		primaryStage.setAlwaysOnTop(false);
+
+		Alert alert = new Alert(AlertType.ERROR);
+		alert.setHeaderText(headerText);
+		alert.setContentText(contentText);
+		alert.showAndWait();
+
+		primaryStage.setAlwaysOnTop(true);
+	}
+
 	private Task<Boolean> checkUpdates() {
 		return new Task<>() {
 
@@ -306,27 +276,6 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 		runner.run();
 	}
 
-	private void runAndFade(Runnable runnable) {
-		//to have a smooth transition
-		primaryStage.getScene().setFill(Color.TRANSPARENT);
-		primaryStage.setAlwaysOnTop(true);
-
-		FadeTransition fadeOut = new FadeTransition(Duration.seconds(1.5),primaryStage.getScene().getRoot());
-		fadeOut.setFromValue(1);
-		fadeOut.setToValue(0);
-		fadeOut.setCycleCount(1);
-		//After fade out, start Message Manager app
-		fadeOut.setOnFinished((e) -> {
-			Thread runner = new Thread(runnable);
-			runner.setDaemon(true);
-			runner.start();
-			//primaryStage.hide();
-			primaryStage.setAlwaysOnTop(false);
-		});
-		// we want this to remain on top
-		fadeOut.play();
-	}
-
 	/*
 	 * UpdateHandler methods
 	 */
@@ -346,7 +295,7 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 	public void updateDownloadProgress(float frac) throws InterruptedException {
 		Platform.runLater(() -> primaryPercent.set(frac));
 		// to make sure the user sees this
-		Thread.sleep(1);
+		Thread.sleep(10);
 	}
 
 	@Override
@@ -361,6 +310,9 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 				t.printStackTrace();
 				status.setText("Failed: " + t.getClass().getSimpleName() + ": " + t.getMessage());
 			}
+			showAlert("Update Failed", "Update failed: " + t.getMessage());
+			// launch here as only then the alert box remains
+			updateComplete();
 		});
 	}
 

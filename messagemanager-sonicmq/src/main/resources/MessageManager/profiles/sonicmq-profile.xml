@@ -1,8 +1,8 @@
 <profile>
-	<id>51c40d3c-79d6-11e5-8c47-7831c1c10182</id>
-	<name>SonicMQ</name>
-	<icon>MessageManager/profiles/sonicmq-logo.jpg</icon>
-	<description>Use this profile to connect to Sonic MQ. You will need to add the Sonic MQ jar files (sonic_Client.jar) from your installation to the classpath list below before this profile will work.</description>
+	<id>51c40d3c-79d6-11e5-8c47-7831c1c10181</id>
+	<name>Aurea Messenger / SonicMQ</name>
+	<icon>MessageManager/profiles/sonicmq-logo.png</icon>
+	<description>Use this profile to connect to Aurea Messenger (SonicMQ). You will need to add the Aurea Messenger(SonicMQ) jar files (i.e. sonic_Client.jar) from your installation to the classpath list below before this profile will work.</description>
 	<plugins>
 		<plugin>nl.queuemanager.smm.SMMPluginModule</plugin>
 	</plugins>
@@ -26,4 +26,18 @@
 		<jar></jar>
 		<class></class>
 	</requirements>
+	<classpath>
+		<entry>file:/C:/sonic/MQ10.0/lib/xercesImpl.jar</entry>
+		<entry>file:/C:/sonic/MQ10.0/lib/sonic_XMessage.jar</entry>
+		<entry>file:/C:/sonic/MQ10.0/lib/sonic_Client_ext.jar</entry>
+		<entry>file:/C:/sonic/MQ10.0/lib/smc.jar</entry>
+		<entry>file:/C:/sonic/MQ10.0/lib/sonic_Crypto.jar</entry>
+		<entry>file:/C:/sonic/MQ10.0/lib/mail.jar</entry>
+		<entry>file:/C:/sonic/MQ10.0/lib/sonic_Client.jar</entry>
+		<entry>file:/C:/sonic/MQ10.0/lib/mgmt_client.jar</entry>
+		<entry>file:/C:/sonic/MQ10.0/lib/mgmt_config.jar</entry>
+		<entry>file:/C:/sonic/MQ10.0/lib/sonic_Selector.jar</entry>
+		<entry>file:/C:/sonic/MQ10.0/lib/sonic_mgmt_client.jar</entry>
+		<entry>file:/C:/sonic/MQ10.0/lib/sonic_SSL.jar</entry>
+	</classpath>
 </profile>

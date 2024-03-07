@@ -31,11 +31,15 @@ import nl.queuemanager.debug.TracingEventQueue;
 import nl.queuemanager.ui.PreconnectUIModule;
 import nl.queuemanager.ui.settings.SettingsModule;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -89,6 +93,7 @@ public class Main {
 				
 				// Create the main application frame
 				final JFrame frame = injector.getInstance(MMFrame.class);
+				setIconImage(frame);
 
 				// When this frame closes, quit the application by posting a QuitEvent
 				frame.addWindowListener(new WindowAdapter() {
@@ -103,6 +108,21 @@ public class Main {
 				
 				// Send the ApplicationInitializedEvent
 				eventBus.post(new ApplicationInitializedEvent());
+			}
+
+			private void setIconImage(final JFrame frame) {
+
+                try {
+					String imagePath = "/images/messagemanager-icon-medium.png";
+					InputStream imgStream = this.getClass().getResourceAsStream(imagePath);
+                    BufferedImage img = ImageIO.read(imgStream);
+					// ImageIcon icon = new ImageIcon(myImg);
+					// use icon here
+					frame.setIconImage(img);
+				} catch (IOException e) {
+					// not critical
+                    e.printStackTrace();
+                }
 			}
 		});
 	}

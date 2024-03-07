@@ -176,25 +176,25 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		// space on left of the first picture
 		brandingPanel.add(new Box.Filler(minSize, prefSize, maxSize));		
 		
-		// Get Progaia logo
-		JLabel jLabelProgaia = new JLabel();
-		URL url = getClass().getResource("progaia.jpg");
-		jLabelProgaia.setIcon(new ImageIcon(url));
+		// Get conapi logo
+		JLabel labelConapi = new JLabel();
+		URL url = getClass().getResource("conapi_text_320x132px.png");
+		labelConapi.setIcon(new ImageIcon(url));
 		try {
-			desktop.addLink(jLabelProgaia, new URI("http://www.progaia.nl"));
+			desktop.addLink(labelConapi, new URI("https://www.conapi.at"));
 		} catch (URISyntaxException e) {
 		}
-		brandingPanel.add(jLabelProgaia);
+		brandingPanel.add(labelConapi);
 		
 		// space between the pictures
 		brandingPanel.add(new Box.Filler(minSize, prefSize, maxSize));		
 		
 		// Get Progress Sonic logo
 		JLabel jLabelSonic = new JLabel();
-		URL url2 = getClass().getResource("progresssonic.jpg");
+		URL url2 = getClass().getResource("aurea_messenger.png");
 		jLabelSonic.setIcon(new ImageIcon(url2));
 		try {
-			desktop.addLink(jLabelSonic, new URI("http://www.progress.com"));
+			desktop.addLink(jLabelSonic, new URI("http://www.aurea.com"));
 		} catch (URISyntaxException e) {
 		}
 		brandingPanel.add(jLabelSonic);

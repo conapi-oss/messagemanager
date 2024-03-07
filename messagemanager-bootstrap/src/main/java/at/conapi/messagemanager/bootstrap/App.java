@@ -36,20 +36,20 @@ public class App extends Application implements Delegate {
 	}
 
 	public static List<Image> images;
-	public static Image inverted;
+	public static Image splash;
 
 
 	@Override
 	public void init() {
 		System.setProperty("update4j.suppress.warning", "true");
 
-		List<String> sizes = List.of("tiny", "small", "medium", "large", "xlarge");
+		List<String> sizes = List.of("tiny", "small", "medium", "large");
 		images = sizes.stream()
-						.map(s -> ("/icons/update4j-icon-" + s + ".png"))
+						.map(s -> ("/icons/messagemanager-icon-" + s + ".png"))
 						.map(s -> getClass().getResource(s).toExternalForm())
 						.map(Image::new)
 						.collect(Collectors.toList());
-		inverted = createImage(this,"/icons/update4j-icon-invert.png");
+		splash = createImage(this,"/icons/splash.png");
 	}
 
 	public static Image createImage(Object context, String resourceName) {
