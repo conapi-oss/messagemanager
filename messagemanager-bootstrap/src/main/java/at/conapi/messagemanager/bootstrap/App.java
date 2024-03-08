@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import javafx.scene.paint.Color;
+import javafx.stage.StageStyle;
 import org.update4j.Configuration;
 import org.update4j.service.Delegate;
 
@@ -59,8 +61,18 @@ public class App extends Application implements Delegate {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		primaryStage.setMinWidth(650);
-		primaryStage.setMinHeight(500);
+		primaryStage.initStyle(StageStyle.UTILITY); // to avoid the taskbar icon
+		primaryStage.setOpacity(0);
+		primaryStage.setHeight(0);
+		primaryStage.setWidth(0);
+		primaryStage.show();
+
+		Stage mainStage = new Stage();
+		mainStage.initOwner(primaryStage);
+		mainStage.initStyle(StageStyle.TRANSPARENT);
+		mainStage.setMinWidth(650);
+		mainStage.setMinHeight(500);
+
 
 		URL configUrl = new URL(AppProperties.getUpdateUrl());
 		Configuration config = null;
@@ -78,16 +90,17 @@ public class App extends Application implements Delegate {
 		// ensure the base dir exists
 		Files.createDirectories(config.getBasePath());
 
-		StartupView startup = new StartupView(config, primaryStage);
+		StartupView startup = new StartupView(config, mainStage);
 
 		Scene scene = new Scene(startup);
 		scene.getStylesheets().add(getClass().getResource("root.css").toExternalForm());
 
-		primaryStage.getIcons().addAll(images);
-		primaryStage.setScene(scene);
+		// not needed as we now use UTILITY to hide from task bar
+		//primaryStage.getIcons().addAll(images);
+		mainStage.setScene(scene);
 
-		primaryStage.setTitle("Message Manager");
-		primaryStage.show();
+		mainStage.setTitle("Message Manager");
+		mainStage.show();
 	}
 
 }

@@ -172,7 +172,7 @@ public class PluginManager {
 						Profile profile = profileManager.readDescriptor(stream, pluginZip);
 						if(profile != null) {
 							logger.fine(String.format("Found profile: %s in file %s", profile.getName(), pluginFile.getName()));
-							profileManager.putProfileIfNotExist(profile);
+							profileManager.putProfileIfNotExist(profile, true);
 						}
 					}
 				}

@@ -8,7 +8,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
@@ -18,7 +17,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
@@ -60,14 +58,14 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 	private volatile boolean abort;
 
 	@InjectSource
-	private Stage primaryStage;
+	private Stage mainStage;
 
-	public StartupView(Configuration config, Stage primaryStage) {
+	public StartupView(Configuration config, Stage mainStage) {
 		this.config = config;
-		this.primaryStage = primaryStage;
+		this.mainStage = mainStage;
 
 		// no min/max/close buttons to look like a splash screen
-		primaryStage.initStyle(StageStyle.TRANSPARENT);//.UNDECORATED);
+		mainStage.initStyle(StageStyle.TRANSPARENT);//.UNDECORATED);
 		image.setImage(App.splash);
 
 		// for the update progress bar
@@ -98,8 +96,12 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 		primary.visibleProperty().bind(running);
 		secondary.visibleProperty().bind(primary.visibleProperty());
 
+		// ensure splash screen is shown.
+		mainStage.setAlwaysOnTop(true);
+		mainStage.toFront();
+
 		// do auto update when shown to show progress bar
-		primaryStage.setOnShown((WindowEvent event) -> {
+		mainStage.setOnShown((WindowEvent event) -> {
 			if(AppProperties.isAutoUpdate()){
 				executeUpdateApplication(true);
 			}
@@ -108,10 +110,6 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 				runApplication();
 			}
 		});
-
-		// ensure splash screen is shown.
-		primaryStage.setAlwaysOnTop(true);
-		primaryStage.toFront();
 	}
 
 	private void updateComplete() {
@@ -122,17 +120,15 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
     private void runApplication(){
 		Task<Boolean> checkUpdates = checkUpdates();
 		checkUpdates.setOnSucceeded(evt -> {
-			Thread run = new Thread(() -> {
+			/*Thread run = new Thread(() -> {
 				config.launch(this);
 				//config.launch();
 			});
 			run.setName("messagemanager-app-thread");
-
-			//FIXME: add opt-out checkbox
+		  */
 			if (checkUpdates.getValue()) {
-
 				// otherwise dialog is in the background
-				primaryStage.setAlwaysOnTop(false);
+				mainStage.setAlwaysOnTop(false);
 
 				ButtonType updateAndLaunch = new ButtonType("Yes", ButtonData.OK_DONE);
 				ButtonType skipAndLaunch = new ButtonType("Skip", ButtonData.CANCEL_CLOSE);
@@ -144,7 +140,7 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 				alert.getButtonTypes().setAll(updateAndLaunch, skipAndLaunch, alwaysAndLaunch);
 
 				Optional<ButtonType> result = alert.showAndWait();
-				primaryStage.setAlwaysOnTop(true);
+				mainStage.setAlwaysOnTop(true);
 
 				if(result.isPresent() && result.get() != skipAndLaunch){
 					if(result.get() == alwaysAndLaunch){
@@ -167,29 +163,21 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 
 	private void fadeOut(){
 		//to have a smooth transition
-		primaryStage.getScene().setFill(Color.TRANSPARENT);
-		//primaryStage.setAlwaysOnTop(true);
-		//primaryStage.show();
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-		}
-        // show for at least some time
-        FadeTransition fadeOut = new FadeTransition(Duration.seconds(2),primaryStage.getScene().getRoot());
-		fadeOut.setFromValue(1);
-		fadeOut.setToValue(0);
-		fadeOut.setCycleCount(1);
-		//After fade out, start Message Manager app
-		fadeOut.setOnFinished((e) -> {
-	//		Thread runner = new Thread(runnable);
-	//		runner.setDaemon(true);
-	//		runner.start();
-			//primaryStage.hide();
-		//	primaryStage.setAlwaysOnTop(false);
-			//primaryStage.hide();
+		mainStage.getScene().setFill(Color.TRANSPARENT);
+
+        // show for at least some time, without the outer transition the behavior was not consistent
+		FadeTransition fakeFadeShowSplash = new FadeTransition(Duration.seconds(2), mainStage.getScene().getRoot());
+		fakeFadeShowSplash.setFromValue(1);
+		fakeFadeShowSplash.setToValue(1);
+		fakeFadeShowSplash.setCycleCount(1);
+		fakeFadeShowSplash.setOnFinished((e) -> {
+			FadeTransition fadeOut = new FadeTransition(Duration.seconds(2), mainStage.getScene().getRoot());
+			fadeOut.setFromValue(1);
+			fadeOut.setToValue(0);
+			fadeOut.setCycleCount(1);
+			fadeOut.play();
 		});
-		// we want this to remain on top
-		fadeOut.play();
+		fakeFadeShowSplash.play();
 	}
 
 
@@ -243,14 +231,14 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 	}
 
 	private void showAlert(final String headerText, final String contentText) {
-		primaryStage.setAlwaysOnTop(false);
+		mainStage.setAlwaysOnTop(false);
 
 		Alert alert = new Alert(AlertType.ERROR);
 		alert.setHeaderText(headerText);
 		alert.setContentText(contentText);
 		alert.showAndWait();
 
-		primaryStage.setAlwaysOnTop(true);
+		mainStage.setAlwaysOnTop(true);
 	}
 
 	private Task<Boolean> checkUpdates() {

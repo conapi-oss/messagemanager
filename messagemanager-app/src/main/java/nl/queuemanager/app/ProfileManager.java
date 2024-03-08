@@ -59,9 +59,43 @@ public class ProfileManager {
 	public void profileActivated(ProfileActivatedEvent e) {
 		tryToSaveProfile(e.getProfile());
 	}
-	
+
 	public void putProfileIfNotExist(Profile profile) {
-		profiles.add(profile);
+		putProfileIfNotExist(profile, false);
+	}
+	public void putProfileIfNotExist(Profile profile, boolean refreshMetadata) {
+		if(refreshMetadata){
+			final Set<Profile> toBeRemoved = new HashSet<>();
+			final Set<Profile> toBeAdded = new HashSet<>();
+
+			profiles.forEach( p -> {
+				if(p.getId().equals(profile.getId()) || p.getPlugins().get(0).equals(profile.getPlugins().get(0))){
+					// same ID or same type of plugin
+					// we want to update the metadata for all plugins that used the same plugin ID or class
+					toBeRemoved.add(p);
+					// always use latest commercial icons
+					p.setIconData(profile.getIconData());
+					//TODO: what if user changed the name and
+					//existing.setDescription(profile.getDescription());
+					//existing.setName(profile.getName());
+
+					// important if we change plugins, this loop depends on the plugin classes therefore will only work to add additional classes
+					p.setPlugins(profile.getPlugins()); //??
+					toBeRemoved.add(p);
+					toBeAdded.add(p);
+				}
+			}
+			);
+
+			toBeAdded.add(profile);
+
+			// refresh the set
+			profiles.removeAll(toBeRemoved);
+			profiles.addAll(toBeAdded);
+		}
+		else{
+			profiles.add(profile);
+		}
 	}
 	
 	public void removeProfile(Profile profile) {

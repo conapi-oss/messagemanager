@@ -1,5 +1,5 @@
 <profile>
-	<id>51c40d3c-79d6-11e5-8c47-7831c1c10181</id>
+	<id>51c40d3c-79d6-11e5-8c47-7831c1c10182</id>
 	<name>Aurea Messenger / SonicMQ</name>
 	<icon>MessageManager/profiles/sonicmq-logo.png</icon>
 	<description>Use this profile to connect to Aurea Messenger (SonicMQ). You will need to add the Aurea Messenger(SonicMQ) jar files (i.e. sonic_Client.jar) from your installation to the classpath list below before this profile will work.</description>
