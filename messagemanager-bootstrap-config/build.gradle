@@ -15,5 +15,4 @@ application {
 
 dependencies {
     implementation 'org.update4j:update4j:1.5.9'
-//    implementation project(':messagemanager-app')
 }

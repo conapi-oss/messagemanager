@@ -272,7 +272,8 @@ public class PluginManager {
 
 			pluginClassloader = classLoader;
 			return result;
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			throw new PluginManagerException("Unable to load plugin modules", e);
 		}
 	}

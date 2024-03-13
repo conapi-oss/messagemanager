@@ -38,7 +38,7 @@ public class CreateConfig {
         // where to create and create the config
 
 
-        String baseUrl = "http://localhost/messagemanager";//TODO: replace with proper hosting URL
+        String baseUrl = "https://product.conapi.at/messagemanager"; //http://localhost/messagemanager";//TODO: replace with proper hosting URL
 
         String dir = configLoc + "/app";
         Files.createDirectories(Paths.get(dir));
@@ -48,7 +48,6 @@ public class CreateConfig {
                 .basePath("${user.dir}/app")
                 .files(FileMetadata.streamDirectory(dir).filter( r -> !r.getSource().endsWith("config.xml"))
                         .peek(r -> r.modulepath(r.getSource().toString().endsWith(".jar"))))
-
 
                 // plugins
                 .files(FileMetadata.streamDirectory(configLoc + "/plugins")

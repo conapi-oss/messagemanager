@@ -21,7 +21,6 @@ def sonicLibsToExtractV10 = [
         "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\sonic_Client.jar",
         "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\sonic_Crypto.jar",
         "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\sonic_XMessage.jar",
-        "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\MFdirectory.jar",
         "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\mgmt_client.jar",
         "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\sonic_mgmt_client.jar"
 ]
@@ -33,7 +32,6 @@ def sonicLibsToExtractV12 = [
         "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\sonic_Client.jar",
         "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\sonic_Crypto.jar",
         "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\sonic_XMessage.jar",
-        "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\MFdirectory.jar",
         "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\mgmt_client.jar",
         "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\sonic_mgmt_client.jar"
 ]

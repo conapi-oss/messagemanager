@@ -1,4 +1,20 @@
 package at.conapi.messagemanager.bootstrap;
+/**
+
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 
 import java.io.*;
 import java.net.URL;
@@ -77,12 +93,14 @@ public class App extends Application implements Delegate {
 		URL configUrl = new URL(AppProperties.getUpdateUrl());
 		Configuration config = null;
 		System.out.println("Loading: " + configUrl);
+		boolean workOffline = false;
 		try (Reader in = new InputStreamReader(configUrl.openStream(), StandardCharsets.UTF_8)) {
 			config = Configuration.read(in);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.err.println("Could not load remote config, falling back to local.");
-			try (Reader in = Files.newBufferedReader(Paths.get("messagemanager/config.xml"))) {
+			workOffline = true;
+			try (Reader in = Files.newBufferedReader(Paths.get("app/config.xml"))) {
 				config = Configuration.read(in);
 			}
 		}
@@ -90,7 +108,7 @@ public class App extends Application implements Delegate {
 		// ensure the base dir exists
 		Files.createDirectories(config.getBasePath());
 
-		StartupView startup = new StartupView(config, mainStage);
+		StartupView startup = new StartupView(config, mainStage, workOffline);
 
 		Scene scene = new Scene(startup);
 		scene.getStylesheets().add(getClass().getResource("root.css").toExternalForm());

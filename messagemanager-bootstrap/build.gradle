@@ -4,6 +4,7 @@ plugins {
     id 'org.openjfx.javafxplugin' version '0.1.0'
     id "org.beryx.jlink" version "3.0.1"
 
+
 //    id 'org.beryx.runtime' version '1.13.1'
 
 // fat jar
@@ -84,11 +85,13 @@ mainClassName = "${ext.appModuleName}/${ext.appMainClass}"
 //.\gradlew :messagemanager-bootstrap:jlink
 jlink {
 
-//check https://bitbucket.org/walczak_it/pdf-decorator/src/master/build.gradle
+    //check https://bitbucket.org/walczak_it/pdf-decorator/src/master/build.gradle
     //imageDir = file("${buildDir}/distributions/imageDir")
     //imageZip = file("${buildDir}/distributions/${appPackaging}.zip")
  //   imageZip = project.file("${buildDir}/distributions/${appPackaging}-${javafx.platform.classifier}.zip")
+
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+
     launcher {
         name = "${appLauncher}"
     }
@@ -100,37 +103,50 @@ jlink {
 
         installerOptions = [
                 '--description', project.description,
-                '--copyright', 'Copyrigth 2024 conapi GmbH'
+                '--copyright', 'Copyright 2024 conapi GmbH',
+                '--name' , 'Message Manager',
+                '--app-version', project.version,
+                '--verbose'
+
+                // No application block needed, launcher script handles execution
+
+            /*    --input ./jpackage/input
+                --dest ./jpackage/output
+                --module-path 'C:\Program Files\Java\javafx-sdk-21\lib'
+                --add-modules javafx.controls
+                --java-options '--add-opens=javafx.graphics/javafx.scene=ALL-UNNAMED'
+                --main-jar ./myapp-jar-with-dependencies.jar
+
+             */
         ]
 
-        installerType = project.findProperty('installerType') // we will pass this from the command line (example: -PinstallerType=msi)
+        installerType = project.findProperty('installerType')
+        // we will pass this from the command line (example: -PinstallerType=msi)
         if (installerType == 'msi') {
-            //imageOptions += ['--icon', 'src/main/resources/pdfdecorator/gui/icon.ico']
+            // check if png works on windows
+            imageOptions += ['--icon', 'src/main/resources/icons/messagemanager-icon-large.png']
             installerOptions += [
-                    '--win-per-user-install', '--win-dir-chooser',
-                    '--win-menu', '--win-shortcut'
+                    '--win-per-user-install',
+                    '--win-dir-chooser',
+                    '--win-menu',
+                    '--win-shortcut',
+                    '--win-menu-group', 'conapi',
+                    '--launcher', 'build/jpackage/input/bin/launch.cmd'
             ]
         }
-        if (installerType == 'pkg') {
-           // imageOptions += ['--icon', 'src/main/resources/pdfdecorator/gui/icon.icns']
+        // mac
+        if (installerType == 'dmg') {
+           // imageOptions += ['--icon', 'src/main/resources/icons/messagemanager-icon-large.png']
         }
+        // linux
         if (installerType in ['deb', 'rpm']) {
-            //imageOptions += ['--icon', 'src/main/resources/pdfdecorator/gui/icon_256x256.png']
+            //imageOptions += ['--icon', 'src/main/resources/icons/messagemanager-icon-large.png']
             installerOptions += [
-                    '--linux-menu-group', 'Office',
+                    '--linux-menu-group', 'conapi',
                     '--linux-shortcut'
             ]
         }
-        if (installerType == 'deb') {
-            installerOptions += [
-                    '--linux-deb-maintainer', 'office@walczak.it'
-            ]
-        }
-        if (installerType == 'rpm') {
-            installerOptions += [
-                    '--linux-rpm-license-type', 'GPLv3'
-            ]
-        }
+
     }
 
 
@@ -161,6 +177,7 @@ task copyJavaFxJars(type: Copy) {
 task copyBootstrapJars(type: Copy) {
     from "${buildDir}/libs"
     include '**/*.jar'
+    rename '([a-z]*-[a-z]*).*.jar', '$1.jar' // remove version
     into "${bootstrapTarget}/config/bootstrap"
 }
 
@@ -173,13 +190,15 @@ task copyLaunchScripts(type: Copy) {
 task copyUpdate4jJar(type: Copy) {
     from configurations.runtimeClasspath
     include '**/update4j-*.jar'
-    rename '([a-z]*-[a-z]*).*.jar', '$1.jar' // remove version from jar
+    rename '(update4j).*.jar', '$1.jar' // remove version from jar
     into "${bootstrapTarget}/config/bootstrap"
 }
 
 task copyAppJars(type: Copy) {
     from "${buildDir}/../../messagemanager-app/build/update4j/messagemanager"
     include '**/*.jar'
+    rename '(jmsmessages)-.*.jar', '$1.jar' // remove version
+    rename '(messagemanager-[a-z]*).*.jar', '$1.jar' // remove version
     into "${bootstrapTarget}/config/app"
 }
 
@@ -201,5 +220,58 @@ task createUpdate4JConfig(type: JavaExec){
 
 
 //build.compileJava.dependsOn copyPluginJars
-
 build.dependsOn createUpdate4JConfig
+
+
+//gradle createPackages.windows
+//gradle createPackages.linux
+//gradle createPackages.macos
+
+tasks.register("createPackages") {
+    def platformArgs = [:]
+    each {
+        def platform = name.substring(name.lastIndexOf('.') + 1)
+
+        // Populate platform-specific arguments (modify as needed)
+        platformArgs[platform] += ['--icon', 'src/main/resources/icons/messagemanager-icon-large.png']
+
+        if (platform == 'windows') {
+            // check if png works on windows
+            platformArgs[platform] += [
+                    '--win-per-user-install',
+                    '--win-dir-chooser',
+                    '--win-menu',
+                    '--win-shortcut',
+                    '--win-menu-group', 'conapi',
+                    '--launcher', 'build/jpackage/input/bin/launch.cmd',
+                    '--type', 'msi'
+            ]
+        }
+
+        // Package the image using jpackage (optional)
+        exec {
+            commandLine {
+                args 'jpackage'
+                args '--input', "build/image/${platform}"   // Use the created image
+                args '--resource-dir', 'build/root/target/config'   // Include lib folder content as resources
+                args platformArgs[platform]  // Add all values as individual arguments
+            }
+        }
+
+    }
+}
+/*
+
+jpackage {
+    appName = 'YourAppName'
+    appVersion = '1.0.0'
+    installerType = 'msi'
+    // Other jpackage configurations
+
+    input = file('build/root/target/config')
+
+    windowsMsi {
+        // Set the path to your launch script relative to the input directory
+        launcherScript = file('launch.cmd')
+    }
+}*/

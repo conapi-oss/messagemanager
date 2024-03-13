@@ -1,4 +1,19 @@
 package at.conapi.messagemanager.bootstrap;
+/**
+
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
@@ -57,12 +72,15 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 	private BooleanProperty running;
 	private volatile boolean abort;
 
+	private boolean workOffline;
+
 	@InjectSource
 	private Stage mainStage;
 
-	public StartupView(Configuration config, Stage mainStage) {
+	public StartupView(Configuration config, Stage mainStage, boolean workOffline) {
 		this.config = config;
 		this.mainStage = mainStage;
+		this.workOffline = workOffline;
 
 		// no min/max/close buttons to look like a splash screen
 		mainStage.initStyle(StageStyle.TRANSPARENT);//.UNDECORATED);
@@ -103,7 +121,7 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 		// do auto update when shown to show progress bar
 		mainStage.setOnShown((WindowEvent event) -> {
 			if(AppProperties.isAutoUpdate()){
-				executeUpdateApplication(true);
+				executeUpdateApplication();
 			}
 			else{
 				//run it
@@ -147,7 +165,7 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 						AppProperties.setAutoUpdate(true);
 					}
 					// update
-					executeUpdateApplication(true);
+					executeUpdateApplication();
 				}
 				else {
 					// simply start
@@ -158,7 +176,7 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 			}
 		});
 
-		runSync(checkUpdates);
+		run(checkUpdates);
 	}
 
 	private void fadeOut(){
@@ -181,7 +199,7 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 	}
 
 
-	private void executeUpdateApplication(boolean sync){
+	private void executeUpdateApplication(){
 		if (running.get()) {
 			abort = true;
 			return;
@@ -220,14 +238,7 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 				run(doUpdate);
 			}
 		});
-
-
-		if(sync) {
-            runSync(checkUpdates);
-        }
-		else {
-			run(checkUpdates);
-		}
+        run(checkUpdates);
 	}
 
 	private void showAlert(final String headerText, final String contentText) {
@@ -242,13 +253,18 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 	}
 
 	private Task<Boolean> checkUpdates() {
-		return new Task<>() {
 
+		return new Task<>() {
 			@Override
 			protected Boolean call() throws Exception {
-				return config.requiresUpdate();
+				if(workOffline) {
+					return false;
+				}
+				else {
+					//TODO: only check for updates once every x days, if online connection possible
+					return config.requiresUpdate();
+				}
 			}
-
 		};
 	}
 
@@ -256,12 +272,6 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 		Thread runner = new Thread(runnable);
 		runner.setDaemon(true);
 		runner.start();
-	}
-
-	private void runSync(Runnable runnable) {
-		Thread runner = new Thread(runnable);
-		runner.setDaemon(true);
-		runner.run();
 	}
 
 	/*

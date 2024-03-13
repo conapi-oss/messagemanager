@@ -1,0 +1,5 @@
+#!/bin/bash
+
+export JVM_OPTS=-DSolace_JMS_Browser_Timeout_In_MS=1000 -Djavax.net.ssl.trustStore="/conapi/messagemanager/SSL/truststore.jks" -Djavax.net.ssl.trustStorePassword=secret
+
+export LAUNCHER_JAVA_HOME=$JAVA_HOME/bin

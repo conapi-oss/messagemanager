@@ -25,7 +25,7 @@ public class AppProperties {
 
         loadProperties();
         autoUpdate = Boolean.valueOf(appProperties.getProperty(PROP_AUTO_UPDATE, "false"));
-        updateUrl = appProperties.getProperty(PROP_UPDATE_URL, "http://localhost/messagemanager/app/config.xml");
+        updateUrl = appProperties.getProperty(PROP_UPDATE_URL,"https://product.conapi.at/messagemanager/app/config.xml");//http://localhost/messagemanager/app/config.xml");
         saveProperties(); // to ensure we have a file next time, even if it has just defaults
     }
     private static void loadProperties(){

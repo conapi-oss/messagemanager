@@ -23,7 +23,7 @@ public class PluginModuleHelper {
 
     // packages which are known to cause issues, we will filter them out
     // TODO: potentially make this configurable
-    private static List<String> packagesToBeFiltered = Arrays.asList("javax.jms") ;
+    private static List<String> packagesToBeFiltered = Arrays.asList("javax.jms","sonic_Client:com.sonicsw.security.ssl") ;
     public static ModuleLayer createPluginModuleLayer(final List<URL> urls, final Class parentClass) {
         final List<Path> jarPaths;
         try {
@@ -66,7 +66,7 @@ public class PluginModuleHelper {
         try (JarOutputStream zs = new JarOutputStream(Files.newOutputStream(outputJar)); JarFile inputJarFile = new JarFile(inputJar.toFile())) {
             try (Stream<? extends JarEntry> entries = inputJarFile.stream()) {
                 entries
-                        .filter( entry -> !isInsideBadPackage(entry) || entry.isDirectory())
+                        .filter( entry -> !isInsideBadPackage(entry, inputJar.getFileName().toString().replaceAll(".jar$","") ) || entry.isDirectory())
                         .forEach(entry -> {
                             try {
                                 zs.putNextEntry(entry);
@@ -82,7 +82,7 @@ public class PluginModuleHelper {
         Files.move(outputJar,inputJar);
     }
 
-    private static boolean isInsideBadPackage(final JarEntry entry) {
+    private static boolean isInsideBadPackage(final JarEntry entry, final String jarName) {
         if(!entry.isDirectory()){
             // this is a file
             String name = entry.getName();
@@ -91,7 +91,23 @@ public class PluginModuleHelper {
                 // not a file in the root folder
                 name = name.substring(0, lastIndex);
                 final String packageName = name.replace("/", ".");
-                return packagesToBeFiltered.contains(packageName);
+                return isPackageToBeFiltered(jarName,packageName);
+            }
+        }
+        return false;
+    }
+
+    private static boolean isPackageToBeFiltered(final String jarName, final String packageName) {
+        for(String badPackage :packagesToBeFiltered) {
+            if(badPackage.contains(":")){
+                // check also jar name
+                final String[] badPackageInfo = badPackage.split(":");
+                if(badPackageInfo[0].equals(jarName) && badPackageInfo[1].equals(packageName))
+                    return true;
+            }
+            else{
+                if(badPackage.equals(packageName))
+                    return true;
             }
         }
         return false;
@@ -102,7 +118,7 @@ public class PluginModuleHelper {
         final ModuleFinder tempFinder = ModuleFinder.of(jarPaths.toArray(Path[]::new));
         tempFinder.findAll().forEach(m -> {
             m.descriptor().packages().forEach( p -> {
-                if(packagesToBeFiltered.contains(p)){
+                if(isPackageToBeFiltered(m.descriptor().name(),p)){ // for automatic modules the jar and module name are identical
                     if(m.descriptor().isAutomatic()){
                         // automatic module name --> legacy
                         final Path badJar = Paths.get(m.location().get());

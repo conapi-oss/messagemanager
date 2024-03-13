@@ -84,11 +84,15 @@ public class TaskErrorListener {
 			return "Unknown error! (Exception in TaskEvent was null)";
 		
 		if(DEBUG) return captureStackTrace(e);
-		
+
 		// Handle known Exceptions first. If the Exception is unknown, dig deeper
 		if(e instanceof java.net.UnknownHostException)
 			return "The host was not found";
-		
+
+		if(e instanceof java.lang.module.ResolutionException){
+			return "Please check the template profile for recommended JARs: " + e.getMessage();
+		}
+
 		if(MANAGE_PERMISSION_DENIED.equals(e.getClass().getName())
 		|| CONFIGURE_PERMISSION_DENIED.equals(e.getClass().getName()))
 			return "You do not have permission to perform this action";

@@ -290,8 +290,7 @@ public class Domain implements JMSDomain {
 	 * <p>
 	 * 
 	 * @param containerHost
-	 * @param acceptorUrl
-	 * @param primary
+	 * @param acceptor	 *
 	 * @return
 	 */
 	private String getAcceptorUrl(String containerHost, IAcceptorTcpsBean acceptor) throws MgmtException {
@@ -334,15 +333,14 @@ public class Domain implements JMSDomain {
 		}
 	}
 
+	//TODO: need abilitiy for user to choose
 	private IAcceptorTcpsBean getPrimaryAcceptor(IAcceptorsBean acceptorsBean) throws MgmtException {
-		// Check if the primary acceptor is a non-ssl TCP acceptor and if so, return it.
 		IDefaultAcceptorsType defaultAcceptors = acceptorsBean.getDefaultAcceptors();
 		IMgmtBeanBase primaryAcceptorRef = defaultAcceptors.getPrimaryAcceptorRef();
 		if(primaryAcceptorRef instanceof IAcceptorTcpsBean) {
 			IAcceptorTcpsBean primaryAcceptor = (IAcceptorTcpsBean) primaryAcceptorRef;
-			if(!primaryAcceptor.getAcceptorUrl().startsWith("ssl:")) {
-				return primaryAcceptor;
-			}
+			// this will only work for ssl if truststore set properly and soni_SSL.jar is on cp
+			return primaryAcceptor;
 		}
 		
 		// The primary acceptor is not usable, try to find another one.
@@ -353,19 +351,11 @@ public class Domain implements JMSDomain {
 			
 			if(IAcceptorTcpsBean.class.isAssignableFrom(acceptorBean.getClass())) {
 				IAcceptorTcpsBean acceptor = (IAcceptorTcpsBean)acceptorBean;
-				
-				// Skip SSL acceptors, we don't have the appropriate library for them on the classpath.
-				// This prevents us from using SSL-only brokers, we may have to find a solution for
-				// that.
-				if(acceptor.getAcceptorUrl().startsWith("ssl:")) {
-					continue;
-				}
-				
 				// We found a good acceptor, use it.
 				return acceptor;
 			}
 		}
-		
+
 		// No usable acceptors found
 		return null;
 	}
@@ -471,7 +461,6 @@ public class Domain implements JMSDomain {
 	 * Open an asynchronous consumer for the specified destination.
 	 * 
 	 * @param destination
-	 * @param listener
 	 */
 	private MessageConsumer openASyncConsumer(JMSDestination destination) throws JMSException {
 		SonicMQConnection connection = brokerConnections.get(destination.getBroker());
@@ -627,6 +616,7 @@ public class Domain implements JMSDomain {
 	public Credentials getCredentials(JMSBroker broker, Credentials def, Exception exception) {
 		BrokerCredentialsDialog dialog = credentialsDialogProvider.get();
 		try {
+			exception.printStackTrace();
 			return dialog.getCredentials(broker, def, exception);
 		} finally {
 			if(dialog != null) {
@@ -634,7 +624,7 @@ public class Domain implements JMSDomain {
 			}
 		}
 	}
-	
+
 	private Credentials getDefaultCredentials(SonicMQBroker broker) {
 		return new BasicCredentials(model.getUserName(), model.getPassword());
 	}
