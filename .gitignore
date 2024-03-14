@@ -10,3 +10,4 @@ logging.properties
 build
 /messagemanager-sonicmq/.sonic-libs
 /messagemanager-bootstrap/messagemanager
+/messagemanager-bootstrap/launcher.properties
