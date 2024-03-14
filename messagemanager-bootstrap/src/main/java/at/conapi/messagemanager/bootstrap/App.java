@@ -119,8 +119,5 @@ public class App extends Application implements Delegate {
 
 		mainStage.setTitle("Message Manager");
 		mainStage.show();
-
-		startup.runApplication();
 	}
-
 }
