@@ -150,9 +150,15 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 				if(!AppProperties.isAutoUpdate()) {
 					// otherwise dialog is in the background
 					mainStage.setAlwaysOnTop(false);
+
 					Alert alert = new Alert(AlertType.CONFIRMATION);
+					// ensure it is shown on mac
+					alert.initStyle(StageStyle.UTILITY);
+					alert.initOwner(mainStage);
+
 					alert.setHeaderText("Update required");
 					alert.setContentText("Application is not up-to-date, update now?");
+
 					alert.getButtonTypes().setAll(updateAndLaunch, skipAndLaunch, alwaysAndLaunch);
 					result = alert.showAndWait();
 					if(result.get() == alwaysAndLaunch){
@@ -227,6 +233,10 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 	private void showAlert(final String headerText, final String contentText) {
 		mainStage.setAlwaysOnTop(false);
 		Alert alert = new Alert(AlertType.ERROR);
+		// ensure it is shown on mac
+		alert.initStyle(StageStyle.UTILITY);
+		alert.initOwner(mainStage);
+
 		alert.setHeaderText(headerText);
 		alert.setContentText(contentText);
 		alert.showAndWait();

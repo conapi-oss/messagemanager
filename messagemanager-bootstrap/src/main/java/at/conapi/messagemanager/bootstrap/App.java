@@ -17,10 +17,13 @@ package at.conapi.messagemanager.bootstrap;
 
 
 import java.io.*;
+import java.net.URI;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -77,6 +80,7 @@ public class App extends Application implements Delegate {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+
 		primaryStage.initStyle(StageStyle.UTILITY); // to avoid the taskbar icon
 		primaryStage.setOpacity(0);
 		primaryStage.setHeight(0);
