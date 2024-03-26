@@ -53,40 +53,40 @@ public class Main {
 	public static void main(String[] args) {
 		enableDebugLogging(DebugProperty.developer.isEnabled());
 
-		// Create boot injector so we can set LAF before creating any UI
-		final Injector bootInjector = Guice.createInjector(Stage.PRODUCTION, new BootModule());
-
-		// Set the LAF
-		setConfiguredLAF(bootInjector.getInstance(CoreConfiguration.class));
-		
-		if(DebugProperty.enableSwingDebug.isEnabled()) {
-			enableSwingDebug();
-		}
-		
-		// Now create the real injector as a child with the default modules
-		List<com.google.inject.Module> modules = new ArrayList<>();
-		modules.add(new SettingsModule());
-        modules.add(new MultiQueueTaskExecutorModule());
-		modules.add(new PreconnectCoreModule());
-		modules.add(new PreconnectUIModule());
-		modules.add(new AppModule());
-		
-		// Now that the module list is complete, create the injector
-		final Injector injector = bootInjector.createChildInjector(modules);
-				
-		// Enable the event debugger
-		if(DebugProperty.developer.isEnabled()) {
-			injector.getInstance(EventBusDebugger.class);
-		}
-		
-		// FIXME Find all installed plugins and load their default profiles
-		injector.getInstance(PluginManager.class);
-		
-		final EventBus eventBus = injector.getInstance(EventBus.class);
-		
 		// Invoke initializing the GUI on the EDT
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
+				// Create boot injector so we can set LAF before creating any UI
+				final Injector bootInjector = Guice.createInjector(Stage.PRODUCTION, new BootModule());
+
+				// Set the LAF
+				setConfiguredLAF(bootInjector.getInstance(CoreConfiguration.class));
+
+				if(DebugProperty.enableSwingDebug.isEnabled()) {
+					enableSwingDebug();
+				}
+
+				// Now create the real injector as a child with the default modules
+				List<com.google.inject.Module> modules = new ArrayList<>();
+				modules.add(new SettingsModule());
+				modules.add(new MultiQueueTaskExecutorModule());
+				modules.add(new PreconnectCoreModule());
+				modules.add(new PreconnectUIModule());
+				modules.add(new AppModule());
+
+				// Now that the module list is complete, create the injector
+				final Injector injector = bootInjector.createChildInjector(modules);
+
+				// Enable the event debugger
+				if(DebugProperty.developer.isEnabled()) {
+					injector.getInstance(EventBusDebugger.class);
+				}
+
+				// FIXME Find all installed plugins and load their default profiles
+				injector.getInstance(PluginManager.class);
+
+				final EventBus eventBus = injector.getInstance(EventBus.class);
+
 				// Set some platform properties before the UI really loads
 				PlatformHelper helper = injector.getInstance(PlatformHelper.class);
 				helper.setApplicationName("Message Manager");

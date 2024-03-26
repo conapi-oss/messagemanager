@@ -7,13 +7,6 @@ plugins {
     id 'base' // to get access to the clean task
 }
 
-
-configurations {
-    /*soniclibs {
-        transitive = false
-    }*/
-}
-
 def sonicLibsToExtractV10 = [
         "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\smc.jar",
         "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\xercesImpl.jar",
@@ -38,21 +31,25 @@ def sonicLibsToExtractV12 = [
 
 
 
-def deleteTempSonicSubfolder = tasks.register('deleteTempSonicSubfolder', Delete){
-    dependsOn processSonicJars
-    mustRunAfter processSonicJars
+tasks.register('deleteTempSonicSubfolder', Delete){
     doLast {
         fileTree(dir: "$projectDir/.sonic-libs/compileOnly").exclude("*.jar").visit { FileVisitDetails details ->
-            delete details.file
+           delete details.file
         }
         println "Deleted temporary folders in: $projectDir/.sonic-libs/compileOnly"
     }
+    dependsOn processSonicJars
+    mustRunAfter processSonicJars
 }
 
-task processSonicJars {
-    def libsDir = new File("$projectDir/.sonic-libs/compileOnly")
+
+tasks.register('processSonicJars', Task) {
+    //done in configuration phase
+    println 'Running processSonicJars'
+    def libsDir = layout.projectDirectory.file(".sonic-libs/compileOnly")
     // only extract if the libs folder does not exist yet
-    if (!libsDir.exists()) {
+    if (!libsDir.asFile.exists()) {
+        println 'Creating Sonic libs directory: ' + libsDir
         // Check if the folder for MQ10.0 exists
         def sonicHome = "${System.getenv('SONIC_HOME')}"
         def sonicLibsFolder = "${sonicHome}\\MQ10.0"
@@ -60,28 +57,46 @@ task processSonicJars {
 
         chosenSonicLibs.each { jarFileName ->
             def jarFile = new File(jarFileName)
+            def extractedJar = new File(project.projectDir, ".sonic-libs/compileOnly/" + jarFile.name.replace(".jar", ""))
+            // Extract JARs and remove unwanted classes ( javax should not be bundled)
             copy {
                 from project.zipTree(jarFile)
-                into new File(project.projectDir, ".sonic-libs/compileOnly/" + jarFile.name.replace(".jar",""))
-                exclude "**/javax/**"
+                into extractedJar
+                exclude "**/javax/**"  // filters out the javax classes which should not be there
             }
+
             println "Extracted JAR: $jarFileName" // Print progress
+
+            // Repackage extracted files into JAR using ANT as all other approaches failed with Gradle 8+
+            def repackagedJar = new File(project.projectDir, ".sonic-libs/compileOnly/" + jarFile.name)
+            println "Recreating JAR: " + extractedJar
+            ant.zip(destfile: repackagedJar) {
+                FileSet(dir: extractedJar)
+            }
         }
 
+/*
         // Loop through extracted subfolders and create JAR for each
-        libsDir.eachDir { subfolder ->
-            println "Zip/Jar processing folder: " + subfolder.name + " (" + subfolder.isDirectory()+ ")"
+       libsDir.asFile.eachDir { subfolder ->
+            println "Zip/Jar processing folder: " + subfolder.name + " (" + subfolder.isDirectory() + ")"
             def taskName = "zip${subfolder.name.capitalize()}"
-            task "$taskName"(type: Jar) {
+
+            //task "$taskName"(type: Jar) {
+            dependsOn tasks.register("$taskName",  Jar) {
                 getDestinationDirectory().set(file("$projectDir/.sonic-libs/compileOnly/"))
                 getArchiveFileName().set("${subfolder.name}.jar")
                 from(subfolder)
+              //  mustRunAfter("processSonicJars")
             }
-            processSonicJars.dependsOn(taskName)
-        }
+            //processSonicJars.dependsOn(taskName)
+           //dependsOn(taskName)
+        }*/
     }
-
+    else {
+        println 'Sonic libs directory already exists: ' + libsDir
+    }
 }
+
 
 dependencies {
     implementation project(':messagemanager-plugin-api')
@@ -98,10 +113,8 @@ dependencies {
     implementation 'com.sun.activation:javax.activation:1.2.0'
 
     compileOnly fileTree(dir: '.sonic-libs/compileOnly', includes: ['*.jar'])
-    //implementation fileTree(dir: './sonic-libs/implementation', includes: ['*.jar'])
 }
 
 compileJava.dependsOn deleteTempSonicSubfolder
-
 
 description = 'Message Manager for SonicMQ'

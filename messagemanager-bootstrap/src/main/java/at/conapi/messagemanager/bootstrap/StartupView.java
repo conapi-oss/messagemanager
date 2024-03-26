@@ -41,9 +41,15 @@ import org.update4j.inject.InjectSource;
 import org.update4j.inject.Injectable;
 import org.update4j.service.UpdateHandler;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 
@@ -121,23 +127,25 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 	}
 
 	private void launchConfig() {
-		// we can now start
-		fadeOut();
+			// we can now start
+			fadeOut();
 
-		final AppLauncher launcher = new AppLauncher();
-		config.launch(launcher);
+			final AppLauncher launcher = new AppLauncher();
+			config.launch(launcher);
 
-		if(launcher.isLaunchFailed()){
-			final Exception e = launcher.getLaunchError();
-			Platform.runLater(new Runnable() {
-				@Override public void run() {
-					showAlert("Launch Failed", "Unable to launch the application: " + e.getMessage());
-					// exit the app
-					Platform.exit();
-				}
-			});
-		}
+			if (launcher.isLaunchFailed()) {
+				final Exception e = launcher.getLaunchError();
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						showAlert("Launch Failed", "Unable to launch the application: " + e.getMessage());
+						// exit the app
+						Platform.exit();
+					}
+				});
+			}
 	}
+
     private void runApplication(){
 		Task<Boolean> checkUpdates = checkUpdates();
 		checkUpdates.setOnSucceeded(evt -> {
@@ -173,13 +181,15 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 				}
 				else{
 					// skipped update
-					launchConfig();
+					//launchConfig();
+					justLaunch();
+
 				}
 			}
 			else{
 				// no update needed, simply launch
-				launchConfig();
-			}
+				//launchConfig();
+				justLaunch();			}
 		});
 
 		run(checkUpdates);
@@ -221,6 +231,20 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 				if(updateResult.getException() == null) {
 					Archive.read(zip).install();
 					// only now the content is downloaded and loaded
+					//TODO: on linux this the file permissions are not properly set after extracting a shell script
+					// +x is missing. Ideally the Archive.install would take care but we cannot override it here
+					// below workaround can be removed if we fork our own update4j
+					// ensure all scripts in bin are executeable
+					try (DirectoryStream<Path> stream = java.nio.file.Files.newDirectoryStream(Path.of("", "bin"), "*.sh")) {
+						stream.forEach(script -> {
+							System.out.println("Setting execute permission for: "+ script );
+                            try {
+								script.toFile().setExecutable(true);
+                                Files.setPosixFilePermissions(script, PosixFilePermissions.fromString("rwxr-xr-x"));
+                            } catch (Exception ignore) {
+                            }
+                        });
+					}
 				}
 				// always launch
 				launchConfig();
@@ -228,6 +252,22 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 			}
 		};
 		run(doUpdate);
+	}
+
+	private void justLaunch(){
+		if (running.get()) {
+			return;
+		}
+		running.set(true);
+		status.setText("Launching...");
+		Task<Void> doLaunch = new Task<>() {
+			@Override
+			protected Void call() throws Exception {
+				launchConfig();
+				return null;
+			}
+		};
+		run(doLaunch);
 	}
 
 	private void showAlert(final String headerText, final String contentText) {
@@ -301,5 +341,10 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 	@Override
 	public void stop() {
 		Platform.runLater(() -> running.set(false));
+	}
+
+	@Override
+	public void doneDownloadFile(FileMetadata file, Path path) throws Throwable {
+		System.out.println("DownloadFile: "+ path );
 	}
 }

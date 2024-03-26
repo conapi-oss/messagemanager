@@ -1,9 +1,4 @@
 
-@font-face {
-    font-family: Roboto;
-    src: url("/font/roboto/Roboto-Regular.ttf");
-}
-
 .root {
 	primary-color: #ef767b;
 	primary-light-color: #f5a4a7;

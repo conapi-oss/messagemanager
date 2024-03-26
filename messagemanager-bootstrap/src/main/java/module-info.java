@@ -1,4 +1,6 @@
 module messagemanager.bootstrap {
+    exports at.conapi.messagemanager.bootstrap;
+
     opens at.conapi.messagemanager.bootstrap to javafx.fxml, javafx.graphics, org.update4j;
 
     requires org.update4j;

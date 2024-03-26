@@ -48,16 +48,13 @@ public class CreateConfig {
                 .basePath("${user.dir}/app")
                 .files(FileMetadata.streamDirectory(dir).filter( r -> !r.getSource().endsWith("config.xml"))
                         .peek(r -> r.modulepath(r.getSource().toString().endsWith(".jar"))))
-
                 // plugins
                 .files(FileMetadata.streamDirectory(configLoc + "/plugins")
                         .peek(f -> f.uri(baseUrl +"/plugins/" + f.getSource().toFile().getName()))
                         .peek( f -> f.path("../plugins/" + f.getSource().toFile().getName())))
-
-
                 .property("default.launcher.main.class", "nl.queuemanager.app.Main")
-        //default.launcher.argument.<num>
-        //default.launcher.system.<key>
+                //default.launcher.argument.<num>
+                //default.launcher.system.<key>
                 .property("maven.central", MAVEN_BASE)
                 .build();
 
@@ -73,18 +70,21 @@ public class CreateConfig {
         catch (Exception e){
             e.printStackTrace();
         }
-
+        config = null;
 
         String cacheLoc = jarsLocation+ "/fxcache";
         dir = configLoc + "/bootstrap";
 
         cacheJavafx(jarsLocation, bootstrapJarsLocation);
 
-        config = Configuration.builder()
+        Configuration setup = Configuration.builder()
                 .basePath("${user.dir}/bootstrap")
+
+                // once removed this as it caused file size warnings, BUT it is needed to allow the app to work offline!
                 .file(FileMetadata.readFrom(configLocationPath)//dir + "/../app/config.xml") // fall back if no internet
                         .uri(baseUrl + "/app/config.xml")
                         .path("../app/config.xml"))
+
                 //.file(FileMetadata.readFrom(dir + "/messagemanager-bootstrap-1.0.jar")
                 //        .modulepath()
                  //       .uri(baseUrl +"/bootstrap/messagemanager-bootstrap-1.0.jar"))
@@ -113,7 +113,7 @@ public class CreateConfig {
                         .peek(f -> f.uri(baseUrl +"/bootstrap/" + f.getSource().toFile().getName()))
                         .peek(f -> f.ignoreBootConflict()))
 
-                // launch scripts
+                // launch scripts, still keep these here as duplicate as a last resort option if app update fails
                 .files(FileMetadata.streamDirectory(configLoc + "/bin")
                         .filter( fm -> !fm.getSource().getFileName().toFile().toString().startsWith("update4j"))
                         .peek(f -> f.uri(baseUrl +"/bin/" + f.getSource().toFile().getName()))
@@ -125,13 +125,13 @@ public class CreateConfig {
                         .peek(f -> f.ignoreBootConflict()) // if run with JDK 9/10
                         .peek(f -> f.osFromFilename())
                         .peek(f -> f.uri(extractJavafxURL(f.getSource(), f.getOs()))))
-                .property("default.launcher.main.class", "at.conapi.messagemanager.bootstrap.App")
+                .property("default.launcher.main.class", "at.conapi.messagemanager.bootstrap.Delegate")
                 .property("maven.central", MAVEN_BASE)
                 .property("maven.central.javafx", "${maven.central}/org/openjfx/")
                 .build();
 
         try (Writer out = Files.newBufferedWriter(Paths.get(configLoc + "/setup.xml"))) {
-            config.write(out);
+            setup.write(out);
         }
 
     }

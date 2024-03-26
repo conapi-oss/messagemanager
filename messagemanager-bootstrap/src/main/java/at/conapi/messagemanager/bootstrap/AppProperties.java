@@ -1,9 +1,6 @@
 package at.conapi.messagemanager.bootstrap;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
@@ -32,7 +29,12 @@ public class AppProperties {
         try {
             appProperties.load(new FileInputStream(propertiesLocation.toFile()));
         } catch (IOException e) {
-            e.printStackTrace();
+            if(e instanceof FileNotFoundException){
+                System.out.println("Using defaults, could not load : " + propertiesLocation.toFile());
+            }
+            else {
+                e.printStackTrace();
+            }
             // we use defaults
         }
     }

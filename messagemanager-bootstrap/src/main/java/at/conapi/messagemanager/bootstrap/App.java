@@ -24,13 +24,20 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.AccessControlException;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import javafx.application.Platform;
+import javafx.event.EventHandler;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;
+import javafx.stage.WindowEvent;
 import org.update4j.Configuration;
 import org.update4j.service.Delegate;
 
@@ -39,19 +46,22 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-public class App extends Application implements Delegate {
+public class App extends Application {
 
-	@Override
-	public long version() {
-		return 0;
+	public static final boolean MAC;
+
+	static {
+		boolean mac = false;
+		try {
+			final String osName = System.getProperty("os.name");
+			mac = osName != null && osName.toLowerCase().contains("mac");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		MAC = mac;
 	}
 
-	@Override
-	public void main(List<String> args) throws Throwable {
-		launch();
-	}
 
-	// for testing purposes only
 	public static void main(String[] args) {
 		launch();
 	}
@@ -85,13 +95,21 @@ public class App extends Application implements Delegate {
 		primaryStage.setOpacity(0);
 		primaryStage.setHeight(0);
 		primaryStage.setWidth(0);
+
+		if(MAC){
+			// show a proper menu to at least exit
+			showMacQuitMenu(primaryStage);
+
+			// without this the quit is freezing the VM on Mac
+			primaryStage.setOnCloseRequest(event -> shutdown());
+		}
 		primaryStage.show();
 
 		Stage mainStage = new Stage();
 		mainStage.initOwner(primaryStage);
 		mainStage.initStyle(StageStyle.TRANSPARENT);
-		mainStage.setMinWidth(650);
-		mainStage.setMinHeight(500);
+		mainStage.setMinWidth(600);
+		mainStage.setMinHeight(300);
 
 
 		URL configUrl = new URL(AppProperties.getUpdateUrl());
@@ -123,5 +141,25 @@ public class App extends Application implements Delegate {
 
 		mainStage.setTitle("Message Manager");
 		mainStage.show();
+	}
+
+
+	private void showMacQuitMenu(final Stage primaryStage) {
+		/*final MenuBar menuBar = new MenuBar();
+		menuBar.setUseSystemMenuBar(true);
+		final Menu menu = new Menu("Message Manager");
+	    menuBar.getMenus().add(menu);
+		Platform.runLater(() -> menuBar.setUseSystemMenuBar(true));
+
+		BorderPane borderPane = new BorderPane();
+		borderPane.setTop (menuBar);
+		primaryStage.setScene (new Scene (borderPane));
+		*/
+		// just add the shutdown handler for now
+	}
+
+	private void shutdown(){
+		Platform.exit();
+		System.exit(0);
 	}
 }

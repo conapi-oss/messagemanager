@@ -3,8 +3,8 @@
  */
 
 plugins {
-    id "com.github.ben-manes.versions" version "0.42.0"
-    id 'org.javamodularity.moduleplugin' version '1.8.7' apply false
+    id "com.github.ben-manes.versions" version "0.51.0"
+    id 'org.javamodularity.moduleplugin' version '1.8.15' apply false
 }
 
 repositories {
@@ -26,10 +26,10 @@ subprojects {
     }
 
     dependencies {
-        compileOnly 'org.projectlombok:lombok:1.18.20'
-        annotationProcessor 'org.projectlombok:lombok:1.18.20'
+        compileOnly 'org.projectlombok:lombok:1.18.24'
+        annotationProcessor 'org.projectlombok:lombok:1.18.24'
 
-        testImplementation 'org.projectlombok:lombok:1.18.20'
+        testImplementation 'org.projectlombok:lombok:1.18.24'
         testImplementation 'junit:junit:[4,5)'
         testImplementation 'org.mockito:mockito-core:3.11.1'
     }
@@ -56,7 +56,6 @@ subprojects {
     def buildTimeStamp = new Date().toString()
 
     compileJava {
-
         doFirst {
             if (project.file("src/main/java-templates/Version.java").exists()) {
 
@@ -77,7 +76,6 @@ subprojects {
         }
     }
 
-
    /* task copyJarToUserData(type: Copy) {
         onlyIf {
             // only copy jar for plugins to the user data folder
@@ -88,7 +86,8 @@ subprojects {
         into getUserDataFolder().toString() + "/MessageManager/plugins/${project.version}"
     }*/
 
-    task copyJarToBootstrap(type: Copy) {
+    tasks.register('copyJarToBootstrap',Copy) {
+        println 'Running copyJarToBootstrap'
         onlyIf {
             // only copy jar for plugins to the user data folder
             file("${projectDir}/src/main/resources/MessageManager/plugins").exists()
@@ -103,8 +102,7 @@ subprojects {
 
     // Ensure copying happens after JAR is built
    // build.dependsOn copyJarToUserData
-    build.dependsOn copyJarToBootstrap
-
+    jar.finalizedBy('copyJarToBootstrap')
 }
 
 protected File getUserDataFolder() {
