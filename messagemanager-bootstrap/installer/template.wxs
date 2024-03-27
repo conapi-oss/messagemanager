@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  <Product>
+    <SetProperty Id="INSTALLDIR" Value="[LocalAppDataFolder]conapi\MessageManager" Sequence="first" Before="CostFinalize">NOT Installed AND NOT INSTALLDIR</SetProperty>
+
+    <DirectoryRef Id="INSTALLDIR">
+      <Component Id="install_path">
+        <RegistryKey ForceDeleteOnUninstall="yes" Id="install_path_reg" Key="Software\conapi gmbh\Message Manager\LastInstallDir" Root="HKCU">
+          <RegistryValue Type="string" Value="[INSTALLDIR]"/>
+        </RegistryKey>
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="ApplicationProgramsFolder">
+
+    <Component Id="shortcuts_ApplicationProgramsFolder">
+      <!-- minimized shortcut -->
+      <!-- https://github.com/wixtoolset/wix/blob/8db36166ee5a051983025c3311ebb654e5c2e5d9/src/wix/WixToolset.Core/Compiler_Package.cs#L4088 -->
+      <Shortcut Icon="icon.ico" Id="launch.cmd" Name="Message Manager" Target="[INSTALLDIR]bin\launch.cmd" WorkingDirectory="bin" Show="minimized"/>
+    </Component>
+
+  </DirectoryRef>
+
+    <Property Id="INSTALLDIR">
+      <RegistrySearch Id="SearchInstallDir" Key="Software\conapi gmbh\Message Manager\LastInstallDir" Root="HKCU" Type="directory"/>
+    </Property>
+
+  </Product>
+</Wix>
