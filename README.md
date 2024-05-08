@@ -7,3 +7,7 @@ Message Manager is an application aimed at providing and easy to use messaging c
 
 
 
+
+
+
+

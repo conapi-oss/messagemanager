@@ -10,19 +10,26 @@ public class AppProperties {
 
     private final static String PROP_AUTO_UPDATE = "autoupdate";
     private final static String PROP_UPDATE_URL = "updateurl";
+    private final static String PROP_CONNECT_TIMEOUT = "connecttimeout";
+    private final static String PROP_READ_TIMEOUT = "readtimeout";
 
     private static Path propertiesLocation;
     private static Properties appProperties = new Properties();
     private static String updateUrl;
     private static Boolean autoUpdate;
+    private static Integer connectTimeout;
+    private static Integer readTimeout;
 
     static{
-
         propertiesLocation = Path.of("", "launcher.properties");
 
         loadProperties();
         autoUpdate = Boolean.valueOf(appProperties.getProperty(PROP_AUTO_UPDATE, "false"));
         updateUrl = appProperties.getProperty(PROP_UPDATE_URL,"https://product.conapi.at/messagemanager/app/config.xml");//http://localhost/messagemanager/app/config.xml");
+
+        connectTimeout = Integer.valueOf(appProperties.getProperty(PROP_CONNECT_TIMEOUT, "5000"));
+        readTimeout = Integer.valueOf(appProperties.getProperty(PROP_READ_TIMEOUT, "5000"));
+
         saveProperties(); // to ensure we have a file next time, even if it has just defaults
     }
     private static void loadProperties(){
@@ -61,6 +68,13 @@ public class AppProperties {
     public static void setAutoUpdate(boolean newAutoUpdate){
         autoUpdate = newAutoUpdate;
         saveProperties();
+    }
+    public static int getReadTimeout(){
+        return readTimeout;
+    }
+
+    public static int getConnectTimeout(){
+        return connectTimeout;
     }
 
 }

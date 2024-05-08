@@ -89,8 +89,9 @@ public class TaskErrorListener {
 		if(e instanceof java.net.UnknownHostException)
 			return "The host was not found";
 
-		if(e instanceof java.lang.module.ResolutionException){
-			return "Please check the template profile for recommended JARs: " + e.getMessage();
+		if( e instanceof java.lang.module.ResolutionException ||
+			e instanceof java.lang.module.FindException){
+			return "Please check the TEMPLATE profile for recommended JARs and adjust the classpath: " + e.getMessage();
 		}
 
 		if(MANAGE_PERMISSION_DENIED.equals(e.getClass().getName())

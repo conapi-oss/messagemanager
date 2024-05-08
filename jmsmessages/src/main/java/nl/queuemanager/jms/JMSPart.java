@@ -28,6 +28,8 @@ import java.util.Enumeration;
 public interface JMSPart {	
 	public static final String CONTENT_TEXT = "text/plain";
 	public static final String CONTENT_XML = "text/xml";
+	public static final String CONTENT_APPLICATION_XML = "application/xml";
+	public static final String CONTENT_APPLICATION_JSON = "application/json";
 	public static final String CONTENT_BYTES = "application/octet-stream";
 	public static final String CONTENT_MESSAGE = "application/x-jms-message";
 	

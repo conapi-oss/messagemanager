@@ -22,6 +22,7 @@ application {
 javafx {
     version = '17'
     modules = [ 'javafx.controls', 'javafx.fxml' , 'javafx.graphics']
+    platform = 'win' // change or remove if building on non Windows platform, added as we need to be able to override it during build
 }
 
 ext {
@@ -33,7 +34,7 @@ ext {
     appModuleName = "messagemanager.bootstrap"
     appMainClass = "at.conapi.messagemanager.bootstrap.App"
 
-    bootstrapRoot = "${buildDir}/root" as GStringImpl
+    bootstrapRoot = "${project.layout.buildDirectory.asFile.get()}/root" as GStringImpl
     bootstrapTarget = "${bootstrapRoot}/target" as GStringImpl
     bootstrapConfigLocation= "${bootstrapTarget}/config" as GStringImpl
 }
@@ -53,7 +54,6 @@ tasks.register('copyJavaFxJars', Copy) {
 
 tasks.register('copyBootstrapJars', Copy) {
     dependsOn(jar)
-
     from "${buildDir}/libs"
     include '**/*.jar'
     rename '([a-z]*-[a-z]*).*.jar', '$1.jar' // remove version
@@ -113,6 +113,7 @@ setupBuilder {
     application = "Message Manager"
     appIdentifier = "MessageManager"
     version = project.version.toString().replaceAll('-SNAPSHOT','')
+
  //   licenseFile = 'license.txt'
     // icons in different sizes for different usage. you can also use a single *.ico or *.icns file
    // icons = ['icon16.png', 'icon32.png', 'icon48.png', 'icon128.png']
@@ -193,4 +194,94 @@ msi {
     runAfterIsOptional = false
 }
 
-msi.dependsOn('jar') //,'createUpdate4JConfig')
+// usually we do NOT want to ship/upload these as the update4j pulls them from Maven repository
+// but in some companies the automatic update fails and therefore we are forced to do this
+//tasks.register('copyJavaFxJarsForMsi', Copy) {
+ //   from configurations.runtimeClasspath
+ //   include '**/javafx-*win.jar'
+ //   into "${bootstrapTarget}/config/bootstrap"
+//}
+tasks.register('copyAllPlatformsJavaFxLibs', Copy) {
+    from configurations.runtimeClasspath
+    include '**/javafx-*.jar'
+    into "${bootstrapTarget}/config/bootstrap"
+}
+
+tasks.register('renameMsi') {
+    def dir = "${project.layout.buildDirectory.asFile.get()}/distributions"
+    doLast {
+        ant.move file: "${dir}/MessageManager-${project.version.toString().replaceAll('-SNAPSHOT','')}.msi",
+                 tofile: "${dir}/MessageManager.msi"
+    }
+}
+msi.dependsOn('jar','copyAllPlatformsJavaFxLibs')
+msi.finalizedBy('renameMsi','buildOtherDistributions')
+
+// tasks to create the tar.gz and zip files
+// also create a minimal bootstrap version
+// needs to be run after msi
+tasks.register('buildOtherDistributions') {
+    dependsOn('msi')
+    dependsOn('buildTarGz')
+    dependsOn('buildZip')
+    dependsOn('buildMiniTarGz')
+    dependsOn('buildMiniZip')
+    finalizedBy('deleteTempDistributionFiles')
+}
+
+tasks.register('deleteTempDistributionFiles', Delete){
+    doLast {
+        fileTree(dir: project.layout.buildDirectory.dir("distributions")).exclude("MessageManager*.*").visit { FileVisitDetails details ->
+            delete details.file
+        }
+    }
+}
+
+tasks.register('buildTarGz', Tar) {
+    dependsOn('copyAllPlatformsJavaFxLibs')
+
+    archiveFileName = "MessageManager.tar.gz"
+    destinationDirectory = project.layout.buildDirectory.dir("distributions")
+    compression = Compression.GZIP
+    from ("${bootstrapTarget}/config") {
+        // do not include them as currently the build only adds the windows version
+        exclude("**/javafx*.jar")
+    }
+}
+
+tasks.register('buildZip', Zip) {
+    dependsOn('copyAllPlatformsJavaFxLibs')
+
+    archiveFileName = "MessageManager.zip"
+    destinationDirectory = project.layout.buildDirectory.dir("distributions")
+    from ("${bootstrapTarget}/config") {
+        // do not include them as currently the build only adds the windows version
+        exclude("**/javafx*.jar")
+    }
+}
+
+tasks.register('buildMiniTarGz', Tar) {
+    dependsOn('copyAllPlatformsJavaFxLibs')
+
+    archiveFileName = "MessageManagerLauncher.tar.gz"
+    destinationDirectory = project.layout.buildDirectory.dir("distributions")
+    compression = Compression.GZIP
+    from ("${bootstrapTarget}/config") {
+        // do not include them as currently the build only adds the windows version
+        exclude("**/javafx*.jar")
+        exclude("app")
+        exclude("plugins")
+    }
+}
+
+tasks.register('buildMiniZip', Zip) {
+    dependsOn('copyAllPlatformsJavaFxLibs')
+    archiveFileName = "MessageManagerLauncher.zip"
+    destinationDirectory = project.layout.buildDirectory.dir("distributions")
+    from ("${bootstrapTarget}/config") {
+        // do not include them as currently the build only adds the windows version
+        exclude("**/javafx*.jar")
+        exclude("app")
+        exclude("plugins")
+    }
+}

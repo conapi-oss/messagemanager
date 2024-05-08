@@ -183,7 +183,6 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 					// skipped update
 					//launchConfig();
 					justLaunch();
-
 				}
 			}
 			else{
@@ -277,6 +276,10 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 		alert.initStyle(StageStyle.UTILITY);
 		alert.initOwner(mainStage);
 
+		Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+		stage.setAlwaysOnTop(true);
+		stage.toFront();
+
 		alert.setHeaderText(headerText);
 		alert.setContentText(contentText);
 		alert.showAndWait();
@@ -288,6 +291,10 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 			@Override
 			protected Boolean call() throws Exception {
 				if(workOffline) {
+					// auto update is not possible
+					Platform.runLater(() -> {
+						showAlert("Automatic Update Check Failed", "Unable to connect to the automatic update site. Please check proxy settings (see setenv script in '" + Path.of("").toAbsolutePath().normalize() + "')");
+					});
 					return false;
 				}
 				else {

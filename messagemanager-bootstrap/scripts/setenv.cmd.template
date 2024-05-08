@@ -1,3 +1,5 @@
-set JVM_OPTS=-Djavafx.embed.singleThread=true -DSolace_JMS_Browser_Timeout_In_MS=1000 -Djavax.net.ssl.trustStore="C:\conapi\messagemanager\SSL\truststore.jks" -Djavax.net.ssl.trustStorePassword=secret
+rem If you use a proxy then it might be needed to add the proxy SSL root certificate to the cacerts/truststore of the JVM
+set JVM_OPTS=-Djavax.net.ssl.trustStore=NUL -Djavax.net.ssl.trustStoreType=Windows-ROOT -Djava.net.useSystemProxies=true -Djavafx.embed.singleThread=true -Dswing.systemlaf=com.sun.java.swing.plaf.windows.WindowsLookAndFeel -DSolace_JMS_Browser_Timeout_In_MS=1000
+rem -Djavax.net.ssl.trustStore="C:\conapi\messagemanager\SSL\truststore.jks" -Djavax.net.ssl.trustStorePassword=secret
 
 set LAUNCHER_JAVA=%JAVA_HOME%\bin\java.exe

@@ -17,34 +17,26 @@ package at.conapi.messagemanager.bootstrap;
 
 
 import java.io.*;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.security.AccessControlException;
-import java.util.Date;
+import java.security.KeyStore;
 import java.util.List;
-import java.util.Properties;
 import java.util.stream.Collectors;
 
 import javafx.application.Platform;
-import javafx.event.EventHandler;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;
-import javafx.stage.WindowEvent;
 import org.update4j.Configuration;
-import org.update4j.service.Delegate;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 
 public class App extends Application {
 
@@ -112,15 +104,24 @@ public class App extends Application {
 		mainStage.setMinHeight(300);
 
 
-		URL configUrl = new URL(AppProperties.getUpdateUrl());
+		final URL configUrl = new URL(AppProperties.getUpdateUrl());
 		Configuration config = null;
 		System.out.println("Loading: " + configUrl);
 		boolean workOffline = false;
-		try (Reader in = new InputStreamReader(configUrl.openStream(), StandardCharsets.UTF_8)) {
+		final URLConnection con = configUrl.openConnection();
+		System.out.println("Connection opened: " + configUrl);
+		// maybe make these configurable
+		con.setConnectTimeout(AppProperties.getConnectTimeout());
+		con.setReadTimeout(AppProperties.getReadTimeout());
+		// Some downloads may fail with HTTP/403, this may solve it
+		con.addRequestProperty("User-Agent", "Mozilla/5.0");
+
+		try (Reader in = new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8)) {
 			config = Configuration.read(in);
 		} catch (IOException e) {
 			e.printStackTrace();
-			System.err.println("Could not load remote config, falling back to local.");
+			System.err.println("Could not load remote update config, falling back to local config.");
+
 			workOffline = true;
 			try (Reader in = Files.newBufferedReader(Paths.get("app/config.xml"))) {
 				config = Configuration.read(in);
