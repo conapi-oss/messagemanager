@@ -13,7 +13,9 @@ dependencies {
     implementation project(':messagemanager-ui')
     implementation project(':messagemanager-plugin-api')
 
-    implementation 'org.apache.activemq:activemq-client:5.16.2'
+    implementation('org.apache.activemq:activemq-client:5.18.4'){
+        exclude group: 'org.apache.geronimo.specs', module: 'geronimo-jms_1.1_spec'
+    }
 }
 
 description = 'Message Manager ActiveMQ connector'

@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.jar.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -52,9 +53,12 @@ public class PluginModuleHelper {
         //ModuleLayer parentLayer = ModuleLayer.boot();
         final ModuleLayer parentLayer = parentClass.getModule().getLayer();
 
-        final Configuration configuration = parentLayer.configuration().resolveAndBind(moduleFinder, ModuleFinder.of(),List.of());
+        //ModuleNames to be loaded
+        final Set<String>  moduleNames       = moduleFinder.findAll().stream().map(moduleRef -> moduleRef.descriptor().name()).collect(Collectors.toSet());
+        final Configuration configuration = parentLayer.configuration().resolveAndBind(moduleFinder, ModuleFinder.of(),moduleNames);//List.of());
         // Create a ModuleLayer based on the Configuration
-        return parentLayer.defineModulesWithOneLoader(configuration, parentClass.getClassLoader() );//ClassLoader.getSystemClassLoader());
+        final ModuleLayer pluginLayer = parentLayer.defineModulesWithOneLoader(configuration, parentClass.getClassLoader() );//ClassLoader.getSystemClassLoader());
+        return pluginLayer;
     }
     private static void repackageJars(final List<Path> badJars) throws IOException {
         for (Path jar : badJars) {
@@ -138,6 +142,7 @@ public class PluginModuleHelper {
         final List<Path> jarPaths = new ArrayList<>();
         for(URL url: urls) {
             final Path path = Paths.get(URI.create(url.toString()));
+            //final Path newJarPath = Files.copy(path, Paths.get(tempFolder,deriveModuleName(path.getFileName().toString())), StandardCopyOption.REPLACE_EXISTING);
             final Path newJarPath = Files.copy(path, Paths.get(tempFolder,path.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING);
             jarPaths.add(newJarPath);
         }
@@ -149,7 +154,7 @@ public class PluginModuleHelper {
      * @param jarFileName
      * @return
      */
-    /*private static String deriveModuleName(String jarFileName) {
+    private static String deriveModuleName(String jarFileName) {
         // Replace non-alphanumeric characters with underscores
         String sanitized = jarFileName.replaceAll(".jar$", "");
         sanitized = sanitized.replaceAll("[^A-Za-z0-9]", "");
@@ -160,5 +165,5 @@ public class PluginModuleHelper {
         }
 
         return sanitized + ".jar";
-    } */
+    }
 }

@@ -56,7 +56,11 @@ public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements 
 		}
 		
 		JMXServiceURL url = new JMXServiceURL(u);
-		connector = JMXConnectorFactory.connect(url);
+		HashMap   environment = new HashMap();
+		String[]  credentials = new String[] {"admin", "activemq"};
+		environment.put (JMXConnector.CREDENTIALS, credentials);
+
+		connector = JMXConnectorFactory.connect(url,environment);
 		mbeanServer = connector.getMBeanServerConnection();
 		brokerConnections = CollectionFactory.newHashMap();
 		
