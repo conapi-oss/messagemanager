@@ -24,4 +24,5 @@ module messagemanager.app {
     requires java.management;
     requires java.xml;
     requires jakarta.inject;
+    requires com.jthemedetector;
 }

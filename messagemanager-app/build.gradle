@@ -36,10 +36,12 @@ dependencies {
     //implementation project(':messagemanager-solace')
     //implementation project(':messagemanager-sonicmq')
 
-    implementation 'com.formdev:flatlaf:2.3'
+    implementation 'com.formdev:flatlaf:3.4.1'
+    implementation 'com.github.Dansoftowner:jSystemThemeDetector:3.9.1'
 
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
+
 }
 
 

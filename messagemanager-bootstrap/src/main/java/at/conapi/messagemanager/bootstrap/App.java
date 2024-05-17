@@ -41,7 +41,7 @@ import javax.net.ssl.TrustManagerFactory;
 public class App extends Application {
 
 	public static final boolean MAC;
-
+	//TODO: move to implementation 'com.github.Dansoftowner:jSystemThemeDetector:3.6' when changing the UI
 	static {
 		boolean mac = false;
 		try {

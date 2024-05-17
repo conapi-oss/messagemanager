@@ -116,7 +116,7 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		}
 		profilesList = new JList<Profile>(profilesModel);
 		profilesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		profilesList.setSelectionBackground(Color.lightGray); // default is blue and does not work well with some icons
+		//profilesList.setSelectionBackground(Color.lightGray); // default is blue and does not work well with some icons
 		profilesList.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
@@ -136,7 +136,6 @@ public class ProfileTabPanel extends JPanel implements UITab {
 					setIcon(profile.getIcon());
 					setToolTipText(profile.getName());
 					setText(profile.getName());
-
 				}
 				return comp;
 			}

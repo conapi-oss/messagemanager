@@ -18,6 +18,10 @@ package nl.queuemanager.ui;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Map;
+import java.util.List;
 
 /**
  * <p>
@@ -35,15 +39,15 @@ public class MessageCountTableCellRenderer extends DefaultTableCellRenderer {
 		
 		Component cell = super.getTableCellRendererComponent(table, value,
 				isSelected, hasFocus, row, column);
-		
+
 		if (!isSelected) {
 			int amount = (value instanceof Integer) ? (Integer) value : 0;
 			if (amount > 0) {
 				cell.setForeground(Color.WHITE);
 				cell.setBackground(Color.RED);
 			} else {
-				cell.setForeground(Color.BLACK);
-				cell.setBackground(Color.WHITE);
+				cell.setForeground((Color) UIManager.get("Table.foreground"));
+				cell.setBackground((Color) UIManager.get("Table.background"));
 			}
 		}
 		

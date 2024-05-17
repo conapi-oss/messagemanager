@@ -15,10 +15,17 @@
  */
 package nl.queuemanager.app;
 
+import com.formdev.flatlaf.FlatDarculaLaf;
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLaf;
+import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.themes.FlatMacDarkLaf;
+import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
+import com.jthemedetecor.OsThemeDetector;
 import nl.queuemanager.core.DebugProperty;
 import nl.queuemanager.core.PreconnectCoreModule;
 import nl.queuemanager.core.configuration.CoreConfiguration;
@@ -132,11 +139,44 @@ public class Main {
 		ourLogger.setLevel(Level.ALL);
 	}
 
-	private static void setConfiguredLAF(CoreConfiguration config) { 
+	private static void setConfiguredLAF(CoreConfiguration config) {
+
+		final OsThemeDetector detector = OsThemeDetector.getDetector();
+		final boolean isDarkThemeUsed = detector.isDark();
+
+		String defaultLaF;
+		FlatLaf laf;
+		if(System.getProperty("os.name").toLowerCase().contains("mac")) {
+			FlatMacDarkLaf.installLafInfo();
+			FlatMacLightLaf.installLafInfo();
+
+			if(isDarkThemeUsed) {
+				laf = new FlatMacLightLaf();
+			}
+			else {
+				laf = new FlatMacDarkLaf();
+			}
+		}
+		else{
+			FlatLightLaf.installLafInfo();
+			FlatDarculaLaf.installLafInfo();
+			FlatDarkLaf.installLafInfo();
+
+			if(isDarkThemeUsed) {
+				laf = new FlatDarculaLaf();
+			}
+			else {
+				laf = new FlatLightLaf();
+			}
+		}
+
+		defaultLaF = laf.getClass().getName();
+
 		String configuredClassName = config.getUserPref(
 				CoreConfiguration.PREF_LOOK_AND_FEEL,
-				UIManager.getSystemLookAndFeelClassName());
-				
+				defaultLaF); // default to FlatLightLaf
+				//UIManager.getSystemLookAndFeelClassName());
+
 		try {
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 		        if (info.getClassName().equals(configuredClassName)) {
@@ -144,6 +184,7 @@ public class Main {
 		            break;
 		        }
 		    }
+
 			if(Boolean.TRUE.equals(Toolkit.getDefaultToolkit().getDesktopProperty("awt.dynamicLayoutSupported")))
 				Toolkit.getDefaultToolkit().setDynamicLayout(true);
 		} catch (Exception e) {
