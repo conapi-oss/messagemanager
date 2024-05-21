@@ -529,7 +529,7 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 	}
 	
 	public String getUITabName() {
-		return "Queue browser";
+		return "Queue Browser";
 	}
 
 	public JComponent getUITabComponent() {

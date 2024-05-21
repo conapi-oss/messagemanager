@@ -237,7 +237,7 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 	}
 		
 	private JButton createNewConnectionButton() {
-		JButton button = CommonUITasks.createButton("New connection",
+		JButton button = CommonUITasks.createButton("New Connection",
 		new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				// Start up the connection dialog with an empty connection
@@ -275,7 +275,7 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 	}
 	
 	private JButton createDeleteButton() {
-		JButton button = CommonUITasks.createButton("Delete connection", 
+		JButton button = CommonUITasks.createButton("Delete Connection",
 		new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				removeConnection();

@@ -17,6 +17,7 @@ package nl.queuemanager.ui.util;
 
 import org.fife.ui.rsyntaxtextarea.DocumentRange;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.SearchContext;
 import org.fife.ui.rtextarea.SearchEngine;
 import org.fife.ui.rtextarea.SearchResult;
@@ -25,6 +26,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * JTextArea with search option. The search option is enabled by default.
@@ -48,8 +51,27 @@ public class JSearchableTextArea extends RSyntaxTextArea {
 	 */
 	public JSearchableTextArea() {
 		setSearchEnabled(true);
+		setTheme();
 	}
-	
+
+	private void setTheme() {
+		// set the RSyntaxTextArea theme based on the current look and feel. if the look and feel class name contains Dark or Darcula, then use the dark theme
+		String className = UIManager.getLookAndFeel().getClass().getName();
+		String themeName = "org/fife/ui/rsyntaxtextarea/themes/idea.xml";
+
+		if (className.contains("Dark") || className.contains("Darcula")) {
+			themeName = "org/fife/ui/rsyntaxtextarea/themes/dark.xml";//monokai.xml vs dark.xml
+		}
+
+        try {
+			Theme theme = Theme.load(getClass().getClassLoader().getResourceAsStream(themeName));
+			theme.apply(this);
+        } catch (IOException e) {
+			// just log it for now and use default theme, should never happen
+            e.printStackTrace();
+        }
+	}
+
 	/**
 	 * Return whether the search function is enabled.
 	 * 

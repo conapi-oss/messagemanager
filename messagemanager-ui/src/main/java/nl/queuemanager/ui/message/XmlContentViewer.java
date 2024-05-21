@@ -28,8 +28,14 @@ abstract class XmlContentViewer<T> extends TextAreaContentViewer<T> {
 		
 		// At this point, formatXml() will already have been called by super.createTextArea() so 
 		// we can rely on the flag being set correctly. Set some flags to make Xml look nice.
-		if(isXml) { 
+		if(isXml) {
+			//TODO: make this more flexible
 			textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
+			textArea.setCodeFoldingEnabled(true);
+		}
+		else {
+			//assume json/plain text
+			textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
 			textArea.setCodeFoldingEnabled(true);
 		}
 		

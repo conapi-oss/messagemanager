@@ -46,7 +46,7 @@ class JMSHeadersTable extends MMJTable {
 		super();
 		
 		PairTableModel<String, String> model = new PairTableModel<String, String>();
-		model.setColumnNames(new String[] {"JMS header", "Value"});
+		model.setColumnNames(new String[] {"JMS Header", "Value"});
 		model.setColumnTypes(new Class[] {String.class, String.class});
 		setModel(model);
 		

@@ -147,6 +147,7 @@ public class Main {
 		String defaultLaF;
 		FlatLaf laf;
 		if(System.getProperty("os.name").toLowerCase().contains("mac")) {
+			// MAC OS X
 			FlatMacDarkLaf.installLafInfo();
 			FlatMacLightLaf.installLafInfo();
 
@@ -158,6 +159,7 @@ public class Main {
 			}
 		}
 		else{
+			// Register the LAFs for Windows/Linux
 			FlatLightLaf.installLafInfo();
 			FlatDarculaLaf.installLafInfo();
 			FlatDarkLaf.installLafInfo();

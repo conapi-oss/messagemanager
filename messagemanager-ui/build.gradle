@@ -9,7 +9,7 @@ plugins {
 dependencies {
     api project(':messagemanager-core')
 
-    implementation 'com.fifesoft:rsyntaxtextarea:3.2.0'
+    implementation 'com.fifesoft:rsyntaxtextarea:3.4.0'
 }
 
 description = 'Message Manager UI'

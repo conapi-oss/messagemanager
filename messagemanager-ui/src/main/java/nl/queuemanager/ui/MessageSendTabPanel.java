@@ -224,7 +224,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		CommonUITasks.makeSegmented(removeTopicButton, Segmented.ONLY);
 				
 		// Add button 
-		final JButton addTopicButton = CommonUITasks.createButton("Add publisher", new ActionListener() {
+		final JButton addTopicButton = CommonUITasks.createButton("Add Publisher", new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				final String topicName = topicNameField.getText();
 				
@@ -305,7 +305,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 				updateSendButton();
 			}
 		});
-		formPanel.add(createLabelFor(numberOfMessagesField, "Number of messages:"));
+		formPanel.add(createLabelFor(numberOfMessagesField, "Number of Messages:"));
 		formPanel.add(numberOfMessagesField);
 		numRows++;
 		
@@ -354,7 +354,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		jmsTTLField.setMinValue(0);
 		jmsTTLField.setValue(0);
 		jmsTTLField.setToolTipText("The number of seconds after which the message is no longer valid.");
-		formPanel.add(createLabelFor(jmsTTLField, "Time to live (sec):"));
+		formPanel.add(createLabelFor(jmsTTLField, "Time to Live (sec):"));
 		formPanel.add(jmsTTLField);
 		numRows++;
 		
@@ -369,7 +369,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		numRows++;
 		
 		JPanel propertiesButtonPanel = createPropertiesButtonPanel();
-		formPanel.add(createLabelFor(propertiesButtonPanel, "Custom JMS properties:"));
+		formPanel.add(createLabelFor(propertiesButtonPanel, "Custom JMS Properties:"));
 		formPanel.add(propertiesButtonPanel);
 		numRows++;
 		
@@ -377,7 +377,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		JPanel typeMyOwnPanel = createTypeMyOwnPanel();
 		
 		JPanel radioPanel = createRadioButtonPanel(fileBrowsePanel, typeMyOwnPanel);
-		formPanel.add(createLabelFor(radioPanel, "Message content:"));
+		formPanel.add(createLabelFor(radioPanel, "Message Content:"));
 		formPanel.add(radioPanel);
 		numRows++;
 		
@@ -493,6 +493,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		
 		typingArea = new JSearchableTextArea();
+		//TODO: make this more flexible
 		typingArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
 		typingArea.setCodeFoldingEnabled(true);
 		
@@ -553,7 +554,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 	}
 
 	private JButton createSendButton() {
-		sendButton = CommonUITasks.createButton("Send message", 
+		sendButton = CommonUITasks.createButton("Send Message",
 		new ActionListener() {
 			String messageContent = null;
 			
@@ -914,7 +915,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 	}		
 	
 	public String getUITabName() {
-		return "Message sender";
+		return "Message Sender";
 	}
 
 	public JComponent getUITabComponent() {

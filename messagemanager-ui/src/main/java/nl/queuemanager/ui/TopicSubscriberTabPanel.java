@@ -106,7 +106,7 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 		
 		JPanel topicTablePanel = new JPanel();
 		topicTablePanel.setLayout(new BoxLayout(topicTablePanel, BoxLayout.Y_AXIS));
-		topicTablePanel.setBorder(BorderFactory.createTitledBorder("Topic subscribers"));
+		topicTablePanel.setBorder(BorderFactory.createTitledBorder("Topic Subscribers"));
 		topicTablePanel.add(brokerCombo);
 		topicTablePanel.add(topicTableScrollPane);
 		topicTablePanel.add(topicActionPanel);
@@ -164,7 +164,7 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 		messagesActionPanel.setBorder(BorderFactory.createEmptyBorder(3, 0, 0, 0));
 		
 		// Delete all messages button
-		JButton clearBufferButton = CommonUITasks.createButton("Clear buffer", new ActionListener() {
+		JButton clearBufferButton = CommonUITasks.createButton("Clear Buffer", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				clearCurrentBuffer();
 			}
@@ -482,7 +482,7 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 		CommonUITasks.makeSegmented(removeTopicButton, Segmented.ONLY);
 				
 		// Add button 
-		final JButton addTopicButton = CommonUITasks.createButton("Add subscriber", new ActionListener() {
+		final JButton addTopicButton = CommonUITasks.createButton("Add Subscriber", new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				final String topicName = topicNameField.getText();
 				
@@ -549,7 +549,7 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 	}
 	
 	public String getUITabName() {
-		return "Topic subscriber";
+		return "Topic Subscriber";
 	}
 
 	public JComponent getUITabComponent() {

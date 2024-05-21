@@ -38,7 +38,9 @@ class TextPartContentViewer extends XmlContentViewer<JMSPart> implements Message
 		String contentType = part.getContentType();
 		
 		return contentType.startsWith("text/")
-			|| contentType.startsWith("application/x-sonicxq-bpheader");
+				|| contentType.startsWith("application/x-sonicxq-bpheader")
+				|| contentType.startsWith("application/xml")
+				|| contentType.startsWith("application/json");
 	}
 
 	public String getDescription(JMSPart part) {
