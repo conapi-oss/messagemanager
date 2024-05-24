@@ -94,7 +94,7 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		final JButton denyButton;
 		final Box box = Box.createHorizontalBox();
 		
-		box.setBorder(new TitledBorder("Mailing list"));
+		box.setBorder(new TitledBorder("Mailing List"));
 		box.add(new JLabel("To subscribe to our mailing list, enter your e-mail address:"));
 		box.add(Box.createHorizontalStrut(5));
 		box.add(emailAddressField = new JTextField(15));
@@ -334,7 +334,7 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		}
 		preferencemanager.setString("connections", "firstN", stringbuffer.toString(), false);
 	}
-	
+
 	private void disconnect() {
 		worker.execute(new Task(sonic, eventBus) {
 			@Override

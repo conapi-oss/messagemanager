@@ -49,7 +49,10 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		this.eventBus = eventBus;
 		this.config = myconfig;
 		
-		setBorder(new CompoundBorder(new EmptyBorder(5, 5, 5, 5), new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Connect to ActiveMQ Broker", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+		setBorder(new CompoundBorder(new EmptyBorder(5, 5, 5, 5),
+				new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null),
+						"Connect to ActiveMQ Broker", TitledBorder.LEADING, TitledBorder.TOP, null,
+				UIManager.getColor("label.foreground"))));
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{136, 0};
 		gridBagLayout.rowWeights = new double[]{0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0};

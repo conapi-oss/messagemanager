@@ -37,21 +37,36 @@ subprojects {
     }
 
     publishing {
+
+        description 'Upload jars to local artifactory'
+        //group 'publishing'
+
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+                artifactId = project.name  // Use the project name for the artifactId
+            }
+        }
         repositories {
+            mavenLocal()
+        }
+
+        /*repositories {
             maven {
-                name = "GitHubPackages"
+               name = "GitHubPackages"
                 url = uri("https://maven.pkg.github.com/gerco/messagemanager")
                 credentials {
                     username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
                     password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
                 }
+
             }
         }
         publications {
             gpr(MavenPublication) {
                 from(components.java)
             }
-        }
+        }*/
     }
 
     def appVersion = project.version // from gradle.properties

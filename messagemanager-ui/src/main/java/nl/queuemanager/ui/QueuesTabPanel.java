@@ -230,7 +230,7 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 		queuesActionPanel.add(refreshQueuesButton);
 		
 		// Clear messages button
-		final JButton clearMessagesButton = createButton("Clear messages", new ActionListener() {
+		final JButton clearMessagesButton = createButton("Clear Messages", new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int[] selectedRows = queueTable.getSelectedRows();
 				List<JMSQueue> queueList = CollectionFactory.newArrayList();

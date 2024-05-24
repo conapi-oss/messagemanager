@@ -72,6 +72,9 @@ public class JSearchableTextArea extends RSyntaxTextArea {
         }
 	}
 
+
+
+
 	/**
 	 * Return whether the search function is enabled.
 	 * 

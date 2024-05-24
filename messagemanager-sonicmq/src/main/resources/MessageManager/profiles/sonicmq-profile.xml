@@ -1,7 +1,7 @@
 <profile>
 	<id>51c40d3c-79d6-11e5-8c47-7831c1c10190</id>
 	<name>Aurea Messenger / SonicMQ - TEMPLATE</name>
-	<icon>MessageManager/profiles/sonicmq-logo-white.png</icon>
+	<icon>MessageManager/profiles/sonicmq-logo.png</icon>
 	<description>Use this profile to connect to Aurea Messenger (SonicMQ). You will need to add the Aurea Messenger(SonicMQ) jar files (i.e. sonic_Client.jar) from your installation to the classpath list below before this profile will work.</description>
 	<plugins>
 		<plugin>nl.queuemanager.smm.SMMPluginModule</plugin>

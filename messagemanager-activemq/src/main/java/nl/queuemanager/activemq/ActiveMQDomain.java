@@ -175,7 +175,7 @@ public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements 
 	 * Open an asynchronous consumer for the specified destination.
 	 * 
 	 * @param destination
-	 * @param listener
+	 *
 	 */
 	private MessageConsumer openASyncConsumer(JMSDestination destination) throws JMSException {
 		ActiveMQConnection connection = brokerConnections.get(destination.getBroker());

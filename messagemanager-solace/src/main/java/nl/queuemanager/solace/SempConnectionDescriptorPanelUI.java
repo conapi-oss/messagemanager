@@ -41,7 +41,7 @@ class SempConnectionDescriptorPanelUI extends JPanel {
 		
 		JPanel appliancePropertiesPanel = new JPanel();
 		add(appliancePropertiesPanel);
-		appliancePropertiesPanel.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Appliance Properties", TitledBorder.CENTER, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		appliancePropertiesPanel.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Appliance Properties", TitledBorder.CENTER, TitledBorder.TOP, null, null));
 		GridBagLayout gbl_appliancePropertiesPanel = new GridBagLayout();
 		gbl_appliancePropertiesPanel.columnWidths = new int[]{10, 63, 0};
 		gbl_appliancePropertiesPanel.rowHeights = new int[]{26, 0, 0};
@@ -120,7 +120,7 @@ class SempConnectionDescriptorPanelUI extends JPanel {
 		
 		JPanel tlsPropertiesPanel = new JPanel();
 		add(tlsPropertiesPanel);
-		tlsPropertiesPanel.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "TLS Properties", TitledBorder.CENTER, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		tlsPropertiesPanel.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "TLS Properties", TitledBorder.CENTER, TitledBorder.TOP, null, null));
 		tlsPropertiesPanel.setLayout(new BoxLayout(tlsPropertiesPanel, BoxLayout.Y_AXIS));
 		
 		JPanel panel = new JPanel();

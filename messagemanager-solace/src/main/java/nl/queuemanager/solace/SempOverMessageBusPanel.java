@@ -10,7 +10,7 @@ class SempOverMessageBusPanel extends JPanel implements DataPanel<SempConnection
 //	private JTextField applianceNameField;
 	
 	public SempOverMessageBusPanel() {
-		setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "SEMP over Message Bus", TitledBorder.CENTER, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "SEMP over Message Bus", TitledBorder.CENTER, TitledBorder.TOP, null, null));
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{0, 0, 0};
 		gridBagLayout.rowHeights = new int[]{0, 0, 0};

@@ -59,6 +59,7 @@ public class ActivateProfileTask extends Task {
 
 		// Load the configured plugin modules
 		final List<Module> modules = new ArrayList<Module>();
+
 		modules.add(new CoreModule());
 		modules.add(new UIModule());
 		modules.addAll(pluginModules);
