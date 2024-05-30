@@ -22,21 +22,22 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("serial")
 public class PropertiesDialog extends JDialog {
 	private PropertiesPanel propPanel;
 	private boolean okPressed = false;
-	
-	private PropertiesDialog(Frame owner, Map<String, Object> prop) {
+
+	private PropertiesDialog(Frame owner, Map<String, Object> prop, List<String> predefinedPropertyNames) {
 		super(owner, true);
-		
-		setTitle("Edit message properties");
+
+		setTitle("Edit Message Properties");
 		setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		setResizable(false);
 		
-		propPanel = new PropertiesPanel(prop);
+		propPanel = new PropertiesPanel(prop,predefinedPropertyNames);
 		propPanel.refreshTable();
 		getContentPane().add(propPanel);
 		
@@ -60,10 +61,10 @@ public class PropertiesDialog extends JDialog {
 		pack();
 	}
 	
-	public static Map<String, Object> editProperties(Map<String, ? extends Object> properties) {
+	public static Map<String, Object> editProperties(Map<String, ? extends Object> properties, List<String> predefinedPropertyNames) {
 		Map<String, Object> tempProps = CollectionFactory.newHashMap(properties);
 		
-		PropertiesDialog dialog = new PropertiesDialog(null, tempProps);
+		PropertiesDialog dialog = new PropertiesDialog(null, tempProps, predefinedPropertyNames);
 		CommonUITasks.centerWindow(dialog);
 		dialog.setVisible(true);
 		

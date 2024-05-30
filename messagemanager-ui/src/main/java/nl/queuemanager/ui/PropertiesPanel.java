@@ -30,6 +30,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.StringReader;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -43,14 +44,11 @@ public class PropertiesPanel extends JPanel {
 		Integer.class.getSimpleName(), 
 		Long.class.getSimpleName(), 
 		Float.class.getSimpleName(), 
-		Double.class.getSimpleName()};
+		Double.class.getSimpleName()
+	};
 	
-	// TODO Replace these constants with some kind of provider-dependent list
-	private static final String[] PATTERNS = {
-			"JMSType",
-            "JMS_SonicMQ_preserveUndelivered",
-            "JMS_SonicMQ_notifyUndelivered",
-            "JMS_SonicMQ_destinationUndelivered"};
+
+	private final java.util.List<String> predefinedPropertyNames;
 
 	private final MessagePropertiesTable messagePropertiesTable;
 	private final JComboBox propNameCombo;
@@ -58,9 +56,10 @@ public class PropertiesPanel extends JPanel {
 	private final JComboBox propTypeCombo;
 	private final Map<String, Object> properties;
 
-	public PropertiesPanel(final Map<String, Object> properties) {
+	public PropertiesPanel(final Map<String, Object> properties, List<String> predefinedPropertyNames) {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		this.predefinedPropertyNames = predefinedPropertyNames;
 		
 		/**
 		 * The upper panel (edit properties)
@@ -235,7 +234,7 @@ public class PropertiesPanel extends JPanel {
 	}
 	
 	private JComboBox createPropNameCombo() {
-		JComboBox cmb = new JComboBox(PATTERNS);
+		JComboBox cmb = new JComboBox(predefinedPropertyNames.toArray(new String[0]));
 		cmb.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
 		cmb.setSelectedIndex(-1);
 		cmb.setEditable(true);

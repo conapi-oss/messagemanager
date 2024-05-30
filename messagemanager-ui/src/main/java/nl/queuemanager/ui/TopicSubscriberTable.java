@@ -77,7 +77,7 @@ public class TopicSubscriberTable extends JTable implements Clearable, JMSDestin
 	
 	private void setModel(TopicTableModel model) {
 		realModel = model;
-		filteredModel = new FilteredTableModel<JMSSubscriber>(model, 0); 
+		filteredModel = new FilteredTableModel<JMSSubscriber>(model, 1);
 		super.setModel(filteredModel);
 	}
 	

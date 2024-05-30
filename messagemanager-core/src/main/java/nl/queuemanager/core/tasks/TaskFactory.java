@@ -19,6 +19,7 @@ public interface TaskFactory {
 
 	public abstract ClearQueuesTask clearQueues(List<JMSQueue> queues);
 	public abstract EnumerateQueuesTask enumerateQueues(JMSBroker broker, String filter);
+	public abstract EnumerateTopicsTask enumerateTopics(JMSBroker broker, String filter);
 	
 	public abstract EnumerateMessagesTask enumerateMessages(JMSQueue queue, EventListener<QueueBrowserEvent> listener);	
 	public abstract DeleteMessagesTask deleteMessages(JMSQueue queue, List<Message> messages);

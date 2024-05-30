@@ -103,13 +103,19 @@ public class JMSDestinationTable extends JTable implements Clearable, JMSDestina
 			setData(destinations);
 		} else {
 			for(JMSDestination d: destinations) {
-				if(TYPE.QUEUE != d.getType())
-					continue;
+//				if(TYPE.QUEUE != d.getType())
+//					continue;
 				
 				int row = realModel.getItemRow(d);
 				if(row != -1) {
-					JMSQueue item = (JMSQueue) realModel.getRowItem(row);
-					if(item.getMessageCount() != ((JMSQueue)d).getMessageCount()) {
+					// already exists
+					if(TYPE.QUEUE == d.getType()) {
+						JMSQueue item = (JMSQueue) realModel.getRowItem(row);
+						if (item.getMessageCount() != ((JMSQueue) d).getMessageCount()) {
+							realModel.setRowItem(row, d);
+						}
+					} else {
+						// topic
 						realModel.setRowItem(row, d);
 					}
 				} else {

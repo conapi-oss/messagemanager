@@ -78,7 +78,11 @@ class SolaceDomain extends AbstractEventSource<DomainEvent> implements JMSDomain
 			return false;
 			
 //		case QUEUE_CAPACITY:
+		case JMS_HEADERS:
+		case TOPIC_SUBSCRIBER_CREATION:
 		case QUEUE_MESSAGES_SIZE:
+		case DESTINATION_TYPE_QUEUE:
+		case DESTINATION_TYPE_TOPIC:
 			return true;
 		
 		case QUEUE_CLEAR_MESSAGES:

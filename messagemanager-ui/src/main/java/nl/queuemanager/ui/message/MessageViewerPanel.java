@@ -18,6 +18,7 @@ package nl.queuemanager.ui.message;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import nl.queuemanager.core.Pair;
+import nl.queuemanager.core.jms.JMSFeature;
 import nl.queuemanager.jms.JMSMultipartMessage;
 import nl.queuemanager.jms.JMSPart;
 import nl.queuemanager.ui.MessageListTransferable;
@@ -100,7 +101,7 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 
 		if(message != null) try {
 
-			if(message.getJMSMessageID() != null) {
+			if(message.getJMSDestination() != null) {
 				JMSHeadersTable messageHeadersTable = new JMSHeadersTable();
 				messageHeadersTable.setHighlightsModel(HighlightsModel.with(
 						(ListTableModel<? extends Pair<?, ?>>) messageHeadersTable.getModel(), highlighter));

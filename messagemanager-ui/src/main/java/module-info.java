@@ -4,6 +4,7 @@ open module messagemanager.ui {
     exports nl.queuemanager.ui.util;
     exports nl.queuemanager.ui.util.validation;
     exports nl.queuemanager.ui.task;
+    exports nl.queuemanager.ui.message;
 
     requires messagemanager.jmsmessages;
     requires messagemanager.core;

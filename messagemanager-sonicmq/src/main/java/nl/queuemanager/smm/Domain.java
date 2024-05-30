@@ -86,17 +86,21 @@ public class Domain implements JMSDomain {
 		
 	public boolean isFeatureSupported(JMSFeature feature) {
 		switch(feature) {
-		case FORWARD_MESSAGE:
-		case QUEUE_CLEAR_MESSAGES:
-		case MESSAGE_SET_PRIORITY:
-			return true;
+			case JMS_HEADERS:
+			case TOPIC_SUBSCRIBER_CREATION:
+			case FORWARD_MESSAGE:
+			case QUEUE_CLEAR_MESSAGES:
+			case MESSAGE_SET_PRIORITY:
+			case DESTINATION_TYPE_QUEUE:
+			case DESTINATION_TYPE_TOPIC:
+				return true;
 		
-		case QUEUE_MESSAGES_SIZE:
-			return com.sonicsw.mf.common.Version.getMajorVersion() >= 7;
-			
-		default:
-			return false;
-		}
+			case QUEUE_MESSAGES_SIZE:
+				return com.sonicsw.mf.common.Version.getMajorVersion() >= 7;
+
+			default:
+				return false;
+			}
 	}
 	
 	/* (non-Javadoc)
@@ -403,8 +407,7 @@ public class Domain implements JMSDomain {
 	/**
 	 * Get topics that have a durable subscription on them for a certain broker.
 	 * 
-	 * @param broker
-	 * @param filter
+	 * @param broker	 *
 	 * @return
 	 * @throws MalformedObjectNameException
 	 * @throws NullPointerException
@@ -753,6 +756,15 @@ public class Domain implements JMSDomain {
 			}
 			return ret;
 		}
+	}
+
+	public List<String> getPredefinedPropertyNames() {
+		List<String> ret = new ArrayList<>();
+		ret.add("JMSType");
+		ret.add("JMS_SonicMQ_preserveUndelivered");
+		ret.add("JMS_SonicMQ_notifyUndelivered");
+		ret.add("JMS_SonicMQ_destinationUndelivered");
+		return ret;
 	}
 	
 }

@@ -26,6 +26,7 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -51,6 +52,19 @@ public interface JMSDomain {
 	 * @throws Exception 
 	 */
 	public abstract void enumerateQueues(JMSBroker broker, String filter) throws Exception;
+
+	/**
+	 * Enumerate the topics on a particular JMS broker. Dispatches a TOPICS_ENUMERATED event
+	 * when the queues have been retrieved.
+	 *
+	 * @param broker
+	 * @param filter
+	 * @return
+	 * @throws Exception
+	 */
+	default public void enumerateTopics(JMSBroker broker, String filter) throws Exception {
+		// default does nothing, this allows this to be optionally implemented
+	}
 
 	/**
 	 * Enumerates the queues on a JMSBroker without raising a QUEUES_ENUMERATED event.
@@ -155,5 +169,15 @@ public interface JMSDomain {
 	 * @throws JMSException 
 	 */
 	public abstract void connectToBroker(JMSBroker aBroker, Credentials credentials) throws JMSException;
+
+	/**
+	 * Get a list of predefined property names for this Messagging provider.
+	 * These will be displayed in the property editor.
+	 *
+	 * @return
+	 */
+	default public List<String> getPredefinedPropertyNames() {
+		return new ArrayList<>();
+	}
 
 }

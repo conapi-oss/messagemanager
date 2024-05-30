@@ -67,11 +67,15 @@ public class PlatformHelper {
 		fileChooser.setFileFilter(filter);
 		fileChooser.setMultiSelectionEnabled(allowMultiple);
 		if(fileChooser.showDialog(parent, approveButtonText) == JFileChooser.APPROVE_OPTION) {
-			return fileChooser.getSelectedFiles();
+			if(allowMultiple) {
+				return fileChooser.getSelectedFiles();
+			}
+			return new File[]{fileChooser.getSelectedFile()};
 		}
 		
 		return null;
 	}
+
 
 	/**
 	 * Return the non application specific directory where programs can store data 

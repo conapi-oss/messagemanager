@@ -21,14 +21,17 @@ import java.io.IOException;
 public class JMSDestinationField extends Box {
 		private final JTextField nameField;
 		private final JComboBox<?> typeField;
-		
+
 		public JMSDestinationField() {
+			this(new TYPE[]{TYPE.QUEUE, TYPE.TOPIC});
+		}
+
+		public JMSDestinationField(JMSDestination.TYPE[] types) {
 			super(BoxLayout.X_AXIS);
 			nameField = new JTextField();
 			nameField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 
 					(int)nameField.getPreferredSize().getHeight()));
-			typeField = new JComboBox<Object>(new TYPE[] {
-					JMSDestination.TYPE.QUEUE, JMSDestination.TYPE.TOPIC});
+			typeField = new JComboBox<Object>(types);
 			typeField.setMaximumSize(typeField.getPreferredSize());
 //			typeField.setPrototypeDisplayValue(JMSDestination.TYPE.QUEUE);
 			add(nameField);
