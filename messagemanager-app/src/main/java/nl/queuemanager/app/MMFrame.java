@@ -283,7 +283,7 @@ public class MMFrame extends JFrame {
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 					setTitle("");
-					setTabStates(UITab.ConnectionState.CONNECTED);
+					setTabStates(UITab.ConnectionState.DISCONNECTED);
 				}
 			});
 			break;

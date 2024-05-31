@@ -70,11 +70,15 @@ public class TaskErrorListener {
 				return;
 			}
 				
-			if(!((Task)event.getSource()).isBackground()) {
+			if(!((Task)event.getSource()).isBackground() || DEBUG) {
 				String message = translateExceptionMessage((Throwable)event.getInfo());
 				showMessage(parent, "Error in task " + event.getSource().toString(), message, true);
 			}
-			
+			else{
+				// even if the task was a background task, we still want to show the error on the console
+				log.info(translateExceptionMessage((Throwable)event.getInfo()));
+			}
+
 			break;
 		}
 	}

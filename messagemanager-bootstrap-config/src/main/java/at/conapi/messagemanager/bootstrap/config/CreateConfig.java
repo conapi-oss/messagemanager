@@ -18,6 +18,8 @@ import org.update4j.Configuration;
 import org.update4j.FileMetadata;
 import org.update4j.OS;
 
+
+
 public class CreateConfig {
 
     public static void main(String[] args) throws IOException {
@@ -46,12 +48,22 @@ public class CreateConfig {
         Configuration config = Configuration.builder()
                 .baseUri(baseUrl + "/app")
                 .basePath("${user.dir}/app")
-                .files(FileMetadata.streamDirectory(dir).filter( r -> !r.getSource().endsWith("config.xml"))
+                // app jars
+                .files(FileMetadata.streamDirectory(dir)
+                        .filter( r -> !r.getSource().toString().endsWith("config.xml"))
                         .peek(r -> r.modulepath(r.getSource().toString().endsWith(".jar"))))
                 // plugins
                 .files(FileMetadata.streamDirectory(configLoc + "/plugins")
+                        .filter( r -> !r.getSource().toString().endsWith("-common.jar"))
                         .peek(f -> f.uri(baseUrl +"/plugins/" + f.getSource().toFile().getName()))
                         .peek( f -> f.path("../plugins/" + f.getSource().toFile().getName())))
+
+                // put common plugin jars on modulepath
+                .files(FileMetadata.streamDirectory(configLoc + "/plugins")
+                        .filter( r -> r.getSource().toString().endsWith("-common.jar"))
+                        .peek(f -> f.uri(baseUrl +"/plugins/" + f.getSource().toFile().getName()))
+                        //.peek(r -> r.modulepath(r.getSource().toString().endsWith(".jar"))))
+                        .peek(r -> r.modulepath().path("../plugins/" + r.getSource().toFile().getName())))
                 .property("default.launcher.main.class", "nl.queuemanager.app.Main")
                 //default.launcher.argument.<num>
                 //default.launcher.system.<key>
