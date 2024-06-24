@@ -84,7 +84,11 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		add(connectionsPanel);
 	}
 
-	private JComponent createMailingListPanel() {		
+	private JComponent createMailingListPanel() {
+		// MM is no longer Sonic only... therefore this is not the proper place to put this
+		return null;
+
+		/*
 		if(!"unknown".equals(config.getUserPref(SMMConfiguration.PREF_MAILINGLIST_STATUS, "unknown"))) {
 			return null;
 		}
@@ -134,6 +138,7 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		});
 			
 		return box;
+		*/
 	}
 
 	private JPanel createConnectionsPanel() {

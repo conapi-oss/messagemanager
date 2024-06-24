@@ -25,8 +25,23 @@ public class AppProperties {
 
         loadProperties();
         autoUpdate = Boolean.valueOf(appProperties.getProperty(PROP_AUTO_UPDATE, "false"));
-        updateUrl = appProperties.getProperty(PROP_UPDATE_URL,"https://product.conapi.at/messagemanager/app/config.xml");//http://localhost/messagemanager/app/config.xml");
 
+        // check if there is an override configured, otherwise take env variable and defaults
+        updateUrl = appProperties.getProperty(PROP_UPDATE_URL);
+        if(updateUrl==null) {
+            // seems there is no override, let's figure the app update url out
+            updateUrl = System.getenv("UPDATE_URL");
+            if (updateUrl == null) {
+                // use default
+                updateUrl = appProperties.getProperty(PROP_UPDATE_URL, "https://files.conapi.at/mm/stable/app/config.xml");//http://localhost/messagemanager/app/config.xml");
+            } else {
+                //strip any quotes
+                updateUrl = updateUrl.replaceAll("\"", "");
+                updateUrl = updateUrl.replaceAll("'", "");
+                // https://files.conapi.at/mm/stable/setup.xml
+                updateUrl = updateUrl.replaceAll("setup.xml", "app/config.xml");
+            }
+        }
         connectTimeout = Integer.valueOf(appProperties.getProperty(PROP_CONNECT_TIMEOUT, "5000"));
         readTimeout = Integer.valueOf(appProperties.getProperty(PROP_READ_TIMEOUT, "5000"));
 
@@ -78,3 +93,4 @@ public class AppProperties {
     }
 
 }
+

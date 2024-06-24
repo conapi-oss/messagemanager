@@ -98,7 +98,11 @@ tasks.register('createUpdate4JConfig', JavaExec) {
     mainClass = 'at.conapi.messagemanager.bootstrap.config.CreateConfig'
 
     // arguments to pass to the application
-    args(bootstrapRoot, bootstrapTarget, bootstrapConfigLocation)
+    // only works if defined in gradle.properties!!!!
+    mmbuild = project.hasProperty('mmbuild') ? project.getProperty('mmbuild') : 'dev'
+    println "Building for : " + mmbuild
+
+    args(bootstrapRoot, bootstrapTarget, bootstrapConfigLocation,mmbuild)
 }
 
 
@@ -112,9 +116,13 @@ setupBuilder {
     vendor = 'conapi gmbh'
     application = "Message Manager"
     appIdentifier = "MessageManager"
+    copyright       = "Copyright © 2024 conapi GmbH"
+    description     = "conapi Message Manager";
+
     version = project.version.toString().replaceAll('-SNAPSHOT','')
 
- //   licenseFile = 'license.txt'
+    licenseFile = 'build/root/target/config/bin/conapi-TERMS-AND-CONDITIONS.txt'
+
     // icons in different sizes for different usage. you can also use a single *.ico or *.icns file
    // icons = ['icon16.png', 'icon32.png', 'icon48.png', 'icon128.png']
     icons = "src/main/resources/icons/conapi.icns"
@@ -161,7 +169,21 @@ msi {
     dialogBmp = layout.projectDirectory.file("installer/setup_background.png").asFile.toString()
 
     // Set up information about the signtool
-    //signTool { ... }
+    // see https://github.com/i-net-software/SetupBuilder/wiki/DSL-of-Windows-Builder#property-signtool
+    signTool {
+
+        // the certificate store / file
+        certificate = "C:\\support\\tools\\SSL\\selfsigned.p12"
+
+        // the password of the certificate store
+        password = "secret"
+
+        // the certificate signature reuired for the /sha1 parameter of the signtool
+        // identifier of the certificate
+        //sha1 = "<signature>"
+    }
+
+
 
     // add a launch4j configuration to create an executable first
     // can be added multiple times
@@ -191,7 +213,7 @@ msi {
     //preGui "<script>"
 
     // optional, make the run after application optional. An option will be displayed to the user in the setup.
-    runAfterIsOptional = false
+    runAfterIsOptional = true
 }
 
 // usually we do NOT want to ship/upload these as the update4j pulls them from Maven repository

@@ -16,8 +16,9 @@ public class MOTDPanel extends MarqueePanel {
 	public MOTDPanel() {
 		super(10, 5);
 		
-		setBorder(BorderFactory.createLineBorder(Color.BLACK));
-		setBackground(Color.YELLOW);
+		//setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		setBackground(Color.decode("#a4d600"));
+		setForeground(Color.BLACK);
 		
 		// This panel starts out invisible. If there is an MOTD, it will be made visible.
 		setVisible(false);
@@ -38,6 +39,7 @@ public class MOTDPanel extends MarqueePanel {
 
 	public void addMessage(String message) {
 		JLabel label = new JLabel(message);
+		label.setForeground(Color.BLACK);
 		add(label);
 		add(Box.createHorizontalStrut(25));
 		setVisible(true);

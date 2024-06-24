@@ -1,6 +1,6 @@
 #!/bin/bash
 # set via setenv if needed
-export UPDATE_URL="https://product.conapi.at/messagemanager/setup.xml"
+export UPDATE_URL="https://files.conapi.at/mm/stable/setup.xml"
 
 if [[ -z "${JAVA_HOME}" ]]; then
   # no JAVA_HOME set

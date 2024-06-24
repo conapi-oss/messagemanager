@@ -59,8 +59,13 @@ public class MMFrame extends JFrame {
 		this.config = config;
 		this.worker = worker;
 		this.taskFactory = taskFactory;
-		
-		setTitle(String.format("%s %s", APP_NAME, Version.VERSION));
+		final String updateUrl = System.getenv("UPDATE_URL");
+		if(updateUrl!=null && updateUrl.contains("stable")) {
+			setTitle(String.format("%s %s", APP_NAME, Version.VERSION));
+		}
+		else{
+			setTitle(String.format("%s %s - DEVELOPMENT BUILD", APP_NAME, Version.VERSION));
+		}
 
 		platformHelper.setFullScreenEnabled(this, true);
 		
@@ -127,10 +132,10 @@ public class MMFrame extends JFrame {
 	@Subscribe
 	public void applicationInitialized(ApplicationInitializedEvent e) {
 		// Kick off the MOTD task. It will fire an event when MOTD is known
-		worker.execute(taskFactory.checkMotdTask(config.getUniqueId(), "smm.queuemanager.nl"));
+		worker.execute(taskFactory.checkMotdTask(config.getUniqueId(), "check.conapi.at"));
 		
 		// Kick off the ReleaseNote task. It will fire an event if we have a release note
-		worker.execute(taskFactory.checkReleaseNote("smm.queuemanager.nl", Version.BUILD_ID));
+		worker.execute(taskFactory.checkReleaseNote("check.conapi.at", Version.BUILD_ID));
 	}
 	
 	@Subscribe

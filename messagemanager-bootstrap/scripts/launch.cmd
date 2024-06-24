@@ -4,7 +4,7 @@ rem get the parent folder
 for %%i in ("%~dp0..") do set "INSTALL_DIR=%%~fi"
 
 rem set via setenv if needed
-set UPDATE_URL="https://product.conapi.at/messagemanager/setup.xml"
+set UPDATE_URL="https://files.conapi.at/mm/stable/setup.xml"
 
 set JVM_OPTS=-Djavax.net.ssl.trustStore=NUL -Djavax.net.ssl.trustStoreType=Windows-ROOT -Djavafx.embed.singleThread=true -Dswing.systemlaf=com.sun.java.swing.plaf.windows.WindowsLookAndFeel -Djava.net.useSystemProxies=true
 

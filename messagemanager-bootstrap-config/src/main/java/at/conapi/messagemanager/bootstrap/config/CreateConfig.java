@@ -34,13 +34,14 @@ public class CreateConfig {
         // run .\gradlew :messagemanager-bootstrap:jlink
         final String bootstrapJarsLocation = args[1]; // target
         String configLoc = args[2];
+        String build = args[3]; //default: stable
 
         //TODO:  Need to automate config creation per platform + hosting per platform then
 
         // where to create and create the config
 
 
-        String baseUrl = "https://product.conapi.at/messagemanager"; //http://localhost/messagemanager";//TODO: replace with proper hosting URL
+        String baseUrl = "https://files.conapi.at/mm/"+build; //http://localhost/messagemanager";//TODO: replace with proper hosting URL
 
         String dir = configLoc + "/app";
         Files.createDirectories(Paths.get(dir));
