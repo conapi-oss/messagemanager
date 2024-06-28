@@ -19,6 +19,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import nl.queuemanager.core.ESBMessage;
+import nl.queuemanager.core.MessageManagerMessage;
 import nl.queuemanager.core.Pair;
 import nl.queuemanager.core.task.CancelableTask;
 import nl.queuemanager.core.task.Task;
@@ -40,18 +41,18 @@ import java.util.List;
 
 public class SaveMessagesToFileTask extends Task implements CancelableTask {
 	private final List<Pair<javax.jms.Message, File>> messages;
-	private final boolean asESBMSG;
+	private final String msgExtension;
 	private volatile boolean canceled;
 	
 	@Inject
 	public SaveMessagesToFileTask(
 			@Assisted List<Pair<javax.jms.Message, File>> messages, 
-			@Assisted boolean asESBMSG, 
+			@Assisted String msgExtension,
 			EventBus eventBus) {
 		super(null, eventBus);
 		
 		this.messages = messages;
-		this.asESBMSG = asESBMSG;
+		this.msgExtension = msgExtension;
 	}
 	
 	@Override
@@ -66,8 +67,8 @@ public class SaveMessagesToFileTask extends Task implements CancelableTask {
 	}
 
 	private void saveSingleMessage(javax.jms.Message message, File file) throws IOException, ParserConfigurationException, TransformerFactoryConfigurationError, TransformerException, JMSException {
-		if(asESBMSG) {
-			saveAsESBMessage(message, file);
+		if(msgExtension!=null) {
+			saveAsMessage(message, file,msgExtension);
 		} else {
 			saveRegularMessage(message, file);
 		}
@@ -163,7 +164,7 @@ public class SaveMessagesToFileTask extends Task implements CancelableTask {
 		return new File(file.getAbsolutePath() + ".bin");
 	}
 
-	private void saveAsESBMessage(javax.jms.Message message, File file) throws ParserConfigurationException, IOException, TransformerFactoryConfigurationError, TransformerException, JMSException {
+	private void saveAsMessage(javax.jms.Message message, File file, String msgExtension) throws ParserConfigurationException, IOException, TransformerFactoryConfigurationError, TransformerException, JMSException {
 		File realFile = file;
 		
 		// Create a filename when a directory has been selected
@@ -172,11 +173,20 @@ public class SaveMessagesToFileTask extends Task implements CancelableTask {
 		
 		// If there is no extension, append .esbmsg
 		if(realFile.getName().indexOf('.') == -1) {
-			realFile = new File(realFile.getAbsolutePath() + ".esbmsg");
+			realFile = new File(realFile.getAbsolutePath() + msgExtension);
 		}
 		
 		// Save the message to file
-		ESBMessage.saveToFile(message, realFile);	
+		if(msgExtension.equals(ESBMessage.getFileExtension())) {
+			new ESBMessage().saveToFile(message, realFile);
+		}
+		else if(msgExtension.equals(MessageManagerMessage.getFileExtension())) {
+			new MessageManagerMessage().saveToFile(message, realFile);
+		}
+		else {
+			throw new RuntimeException("Unknown message extension: " + msgExtension);
+		}
+
 	}
 	
 	@Override

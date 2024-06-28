@@ -111,6 +111,8 @@ subprojects {
         }
 
         ant.mkdir(dir: "${projectDir}/../messagemanager-bootstrap/build/root/target/config/plugins")
+        // client jars will copied to this folder
+        ant.mkdir(dir: "${projectDir}/../messagemanager-bootstrap/build/root/target/config/clients")
 
         from "build/libs/${project.name}-${project.version}.jar" // Source path (replace with your JAR name)
         rename '([a-z]*-[a-z]*).*.jar', '$1.jar' // remove version from jar

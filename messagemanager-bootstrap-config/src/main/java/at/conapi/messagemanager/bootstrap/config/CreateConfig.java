@@ -46,6 +46,9 @@ public class CreateConfig {
         String dir = configLoc + "/app";
         Files.createDirectories(Paths.get(dir));
 
+        String clientsDir = configLoc + "/clients";
+        Files.createDirectories(Paths.get(clientsDir));
+
         Configuration config = Configuration.builder()
                 .baseUri(baseUrl + "/app")
                 .basePath("${user.dir}/app")
@@ -58,7 +61,18 @@ public class CreateConfig {
                         .filter( r -> !r.getSource().toString().endsWith("-common.jar"))
                         .peek(f -> f.uri(baseUrl +"/plugins/" + f.getSource().toFile().getName()))
                         .peek( f -> f.path("../plugins/" + f.getSource().toFile().getName())))
-
+                // clients, not put on modulepath nor classpath, including all subfolders
+                .files(FileMetadata.streamDirectory(configLoc + "/clients")
+                        .peek(r -> r.modulepath(false))
+                        .peek(r -> r.classpath(false))
+                        .peek( f -> {
+                            String pathToJar = f.getSource().toFile().getPath();
+                            pathToJar = pathToJar.substring(pathToJar.indexOf("clients") + 8);
+                            pathToJar = pathToJar.replace("\\", "/");
+                            f.path("../clients/" + pathToJar);
+                            f.uri(baseUrl +"/clients/" + pathToJar);
+                        })
+                )
                 // put common plugin jars on modulepath
                 .files(FileMetadata.streamDirectory(configLoc + "/plugins")
                         .filter( r -> r.getSource().toString().endsWith("-common.jar"))
@@ -84,6 +98,8 @@ public class CreateConfig {
             e.printStackTrace();
         }
         config = null;
+
+        // bootstrap config
 
         String cacheLoc = jarsLocation+ "/fxcache";
         dir = configLoc + "/bootstrap";

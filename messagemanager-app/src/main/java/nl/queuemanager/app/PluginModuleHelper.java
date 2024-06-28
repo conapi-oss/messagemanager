@@ -141,7 +141,10 @@ public class PluginModuleHelper {
     private static List<Path> copyJarsToTemporaryLocation(final List<URL> urls, final String tempFolder) throws IOException {
         final List<Path> jarPaths = new ArrayList<>();
         for(URL url: urls) {
-            final Path path = Paths.get(URI.create(url.toString()));
+            //replace any @MM_HOME@ placeholder with the actual value of the MM_HOME environment variable
+            String jarUrl = url.toString().replace("@MM_HOME@", System.getenv("MM_HOME"));
+            jarUrl = jarUrl.replace("\\", "/");
+            final Path path = Paths.get(URI.create(jarUrl));
             //final Path newJarPath = Files.copy(path, Paths.get(tempFolder,deriveModuleName(path.getFileName().toString())), StandardCopyOption.REPLACE_EXISTING);
             final Path newJarPath = Files.copy(path, Paths.get(tempFolder,path.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING);
             jarPaths.add(newJarPath);

@@ -38,11 +38,11 @@ import java.util.Base64;
 import java.util.Enumeration;
 
 /**
- * This class reads and writes .esbmsg files. 
+ * This class reads and writes .mmmsg files.
  * 
  * These files have the following structure:<br>
  * <pre>
- *  &lt;" + getQualifiedMessageElementName() + " type="Multipart-Message" xmlns:sonic_esbmsg="http://sonicsw.com/tools/esbmsg/namespace">
+ *  &lt;msg:msg type="Multipart-Message" xmlns:msg="http://www.conapi.at/message-manager/msg/namespace">
  *		&lt;header name="JMSCorrelationID" value="Header-Value">&lt;/header>
  *		&lt;header name="JMSReplyTo" value="dev.MessageListener">&lt;/header>
  *		&lt;header name="JMSType" value='Multipart Message'>&lt;/header>
@@ -57,17 +57,18 @@ import java.util.Enumeration;
  *		or
  *
  *      &lt;body content-type="text/plain" content-id="body-part" file-ref="sonicfs:///workspace/Test/multipart.esbmsg" use-file-ref="true">&lt;/body>
- *	&lt;/" + getQualifiedMessageElementName() + ">
+ *	&lt;/msg:msg>
  * </pre>
- * *
+ * 
+ * @author Stefan Fritz
  *
  */
-public final class ESBMessage extends BaseMessage {
+public final class MessageManagerMessage extends BaseMessage {
 
-	private static String MSG_PREFIX = "sonic_esbmsg";
-	private static String MSG_NAMESPACE = "http://sonicsw.com/tools/esbmsg/namespace";
-	private static String MSG_ROOT_ELEMENT= "esbmsg";
-	private static String FILE_EXTENSION= ".esbmsg";
+	private static String MSG_PREFIX = "msg";
+	private static String MSG_NAMESPACE = "http://www.conapi.at/message-manager/msg/namespace";
+	private static String MSG_ROOT_ELEMENT= "msg";
+	private static String FILE_EXTENSION= ".mmmsg";
 
 	{
 		initialize(MSG_PREFIX, MSG_NAMESPACE);
@@ -84,5 +85,4 @@ public final class ESBMessage extends BaseMessage {
 	protected String getQualifiedMessageElementName()	 {
 		return MSG_PREFIX + ":" + MSG_ROOT_ELEMENT;
 	}
-
 }

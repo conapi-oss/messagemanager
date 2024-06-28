@@ -1,7 +1,7 @@
 @echo off&setlocal
 
 rem get the parent folder
-for %%i in ("%~dp0..") do set "INSTALL_DIR=%%~fi"
+for %%i in ("%~dp0..") do set "MM_HOME=%%~fi"
 
 rem set via setenv if needed
 set UPDATE_URL="https://files.conapi.at/mm/stable/setup.xml"
@@ -9,9 +9,9 @@ set UPDATE_URL="https://files.conapi.at/mm/stable/setup.xml"
 set JVM_OPTS=-Djavax.net.ssl.trustStore=NUL -Djavax.net.ssl.trustStoreType=Windows-ROOT -Djavafx.embed.singleThread=true -Dswing.systemlaf=com.sun.java.swing.plaf.windows.WindowsLookAndFeel -Djava.net.useSystemProxies=true
 
 rem use shipped JRE if available, otherwise fallback to JAVA_HOME and PATH
-if exist "%INSTALL_DIR%\jre\" (
-    set LAUNCHER_JAVA=%INSTALL_DIR%\jre\bin\javaw.exe
-    set LAUNCHER_JAVA_DEBUG=%INSTALL_DIR%\jre\bin\java.exe
+if exist "%MM_HOME%\jre\" (
+    set LAUNCHER_JAVA=%MM_HOME%\jre\bin\javaw.exe
+    set LAUNCHER_JAVA_DEBUG=%MM_HOME%\jre\bin\java.exe
 ) else (
     if "%JAVA_HOME%"=="" (
        set LAUNCHER_JAVA=javaw

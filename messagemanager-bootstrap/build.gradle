@@ -87,9 +87,12 @@ tasks.register('copyAppJars', Copy) {
 tasks.register('createUpdate4JConfig', JavaExec) {
     dependsOn('copyBootstrapJars', 'copyAppJars', 'copyJavaFxJars', 'copyUpdate4jJar', 'copyLaunchScripts')
     dependsOn(":messagemanager-bootstrap-config:jar")
-
     // ensure the plugins are built!
     dependsOn(":messagemanager-sonicmq:jar")
+    // just to make sure the folders exist during configuration exec, should  if gradle task is properly done :-(
+    //ant.mkdir(dir: "${projectDir}/build/root/target/config/plugins")
+    //ant.mkdir(dir: "${projectDir}/build/root/target/config/clients")
+
     // Executable jars can have only _one_ jar on the classpath.
     //classpath = files("${buildDir}/bootstrap-jars/")
     classpath = sourceSets.main.runtimeClasspath
@@ -173,14 +176,15 @@ msi {
     signTool {
 
         // the certificate store / file
-        certificate = "C:\\support\\tools\\SSL\\selfsigned.p12"
+        //certificate = "C:\\support\\tools\\SSL\\selfsigned.p12"
 
         // the password of the certificate store
-        password = "secret"
+        //password = "123456"
 
         // the certificate signature reuired for the /sha1 parameter of the signtool
         // identifier of the certificate
-        //sha1 = "<signature>"
+        sha1 = "7F5EB3F7CCFC83EC01F30C56FA396572DD928512"
+        timestamp = [ "http://timestamp.digicert.com" ]
     }
 
 
@@ -293,6 +297,7 @@ tasks.register('buildMiniTarGz', Tar) {
         exclude("**/javafx*.jar")
         exclude("app")
         exclude("plugins")
+        exclude("clients")
     }
 }
 
@@ -305,5 +310,6 @@ tasks.register('buildMiniZip', Zip) {
         exclude("**/javafx*.jar")
         exclude("app")
         exclude("plugins")
+        exclude("clients")
     }
 }

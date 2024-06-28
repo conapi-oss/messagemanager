@@ -1,6 +1,8 @@
 #!/bin/bash
 # set via setenv if needed
 export UPDATE_URL="https://files.conapi.at/mm/stable/setup.xml"
+# this script is in the bin folder , set MM_HOME to the parent folder of bin
+export MM_HOME=="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
 if [[ -z "${JAVA_HOME}" ]]; then
   # no JAVA_HOME set

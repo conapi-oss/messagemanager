@@ -324,7 +324,7 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 	public void updateDownloadProgress(float frac) throws InterruptedException {
 		Platform.runLater(() -> primaryPercent.set(frac));
 		// to make sure the user sees this
-		Thread.sleep(10);
+		Thread.sleep(5);
 	}
 
 	@Override

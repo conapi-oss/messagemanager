@@ -24,7 +24,7 @@ public interface TaskFactory {
 	public abstract EnumerateMessagesTask enumerateMessages(JMSQueue queue, EventListener<QueueBrowserEvent> listener);	
 	public abstract DeleteMessagesTask deleteMessages(JMSQueue queue, List<Message> messages);
 	public abstract MoveMessageListTask moveMessages(JMSQueue toQueue, List<Pair<JMSQueue, String>> messageList);
-	public abstract SaveMessagesToFileTask saveToFile(List<Pair<javax.jms.Message, File>> messages, boolean asESBMSG);
+	public abstract SaveMessagesToFileTask saveToFile(List<Pair<javax.jms.Message, File>> messages, String messageFileExtension);
 	
 	// Send message (list) tasks
 	public abstract SendMessageListTask sendMessage(JMSDestination destination, Message message);
