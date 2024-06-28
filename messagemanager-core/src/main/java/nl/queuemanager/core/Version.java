@@ -1,4 +1,4 @@
-package nl.queuemanager.app;
+package nl.queuemanager.core;
 
 public class Version {
 

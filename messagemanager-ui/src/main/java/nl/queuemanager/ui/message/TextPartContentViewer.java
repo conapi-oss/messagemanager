@@ -39,6 +39,7 @@ class TextPartContentViewer extends XmlContentViewer<JMSPart> implements Message
 		
 		return contentType.startsWith("text/")
 				|| contentType.startsWith("application/x-sonicxq-bpheader")
+				|| contentType.startsWith("application/x-sonicxq-")
 				|| contentType.startsWith("application/xml")
 				|| contentType.startsWith("application/json");
 	}
