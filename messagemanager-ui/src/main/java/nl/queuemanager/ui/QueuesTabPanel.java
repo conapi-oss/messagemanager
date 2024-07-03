@@ -232,15 +232,19 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 		// Clear messages button
 		final JButton clearMessagesButton = createButton("Clear Messages", new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				int[] selectedRows = queueTable.getSelectedRows();
-				List<JMSQueue> queueList = CollectionFactory.newArrayList();
-				
-				for(int row: selectedRows) {
-					queueList.add(queueTable.getRowItem(row));
+
+				// show a confirmation dialog
+				int option = JOptionPane.showConfirmDialog(QueuesTabPanel.this, "Are you sure you want to clear all messages in the selected queues?", "Clear Messages", JOptionPane.YES_NO_OPTION);
+				if(option == JOptionPane.YES_OPTION) {
+					int[] selectedRows = queueTable.getSelectedRows();
+					List<JMSQueue> queueList = CollectionFactory.newArrayList();
+
+					for (int row : selectedRows) {
+						queueList.add(queueTable.getRowItem(row));
+					}
+					deleteQueueMessages(queueList);
+					messageTable.clear();
 				}
-				
-				deleteQueueMessages(queueList);
-				messageTable.clear();
 			}
 		});
 		CommonUITasks.makeSegmented(refreshQueuesButton, Segmented.FIRST);
