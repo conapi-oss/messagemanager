@@ -44,10 +44,11 @@ class VersionPanel extends JPanel implements AboutPanel {
 				"\n" +
 				"  <h3>Licensing Information:</h3>\n" +
 				"  <ul>\n" +
-				"    <li>Open Source Core/Plugins/Features: Apache License 2.0</li>\n" +
-				"    <li>Licensed Plugins/Features: Copyright (c) 2024 conapi GmbH. All rights reserved. Licensed under conapi GmbH terms of use.</li>\n" +
+				"    <li>Open Source Core/Plugins/Features: \n"+
+				"     <ul><li>Apache License 2.0</li></ul></li>\n" +
+				"    <li>Licensed Plugins/Features:\n"+
+				"      <ul><li>Copyright (c) 2024 conapi GmbH.</li><li>All rights reserved.</li><li>Licensed under conapi GmbH terms of use.</li></ul></li>\n" +
 				"  </ul>\n" +
-				"\n" +
 				"  <p>Website: <a href=\"https://www.conapi.at/message-manager\">https://www.conapi.at/message-manager</a></p>\n" +
 				"</div>";
 
