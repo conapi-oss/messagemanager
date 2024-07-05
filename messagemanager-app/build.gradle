@@ -33,7 +33,6 @@ dependencies {
     // DO NOT ADD THESE DEPENDENCIES OTHERWISE THE JAVA9+ MODULE PATH WILL NOT WORK
     //implementation project(':messagemanager-fakemq')
     //implementation project(':messagemanager-activemq')
-    //implementation project(':messagemanager-solace')
     //implementation project(':messagemanager-sonicmq')
 
     implementation 'com.formdev:flatlaf:3.4.1'

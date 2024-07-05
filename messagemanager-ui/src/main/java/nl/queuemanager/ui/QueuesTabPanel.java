@@ -32,7 +32,7 @@ import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
-import nl.queuemanager.ui.JMSDestinationTransferHandler.JMSDestinationHolder;
+import nl.queuemanager.core.tasks.FireRefreshRequiredTask.JMSDestinationHolder;
 import nl.queuemanager.ui.MessagesTable.MessageTableModel;
 import nl.queuemanager.ui.message.MessageViewerPanel;
 import nl.queuemanager.ui.util.HighlightsModel;
@@ -320,7 +320,7 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 			public void valueChanged(ListSelectionEvent e) {
 				if (e.getValueIsAdjusting())
 					return;
-				
+				// at least one message selected
 				displaySelectedMessage();
 			}
 		});
@@ -517,8 +517,9 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 			
 		case QUEUES_ENUMERATED:
 			final List<JMSQueue> queueList = (List<JMSQueue>)event.getInfo();
-			if(queueList.size() > 0 && queueList.get(0).getBroker().equals(brokerCombo.getSelectedItem()))
+			if(queueList.size() > 0 && queueList.get(0).getBroker().equals(brokerCombo.getSelectedItem())) {
 				populateQueueTable(queueList);
+			}
 			break;
 			
 		case BROKER_DISCONNECT:

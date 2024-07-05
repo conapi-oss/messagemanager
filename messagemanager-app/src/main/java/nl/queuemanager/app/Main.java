@@ -36,6 +36,7 @@ import nl.queuemanager.core.task.MultiQueueTaskExecutorModule;
 import nl.queuemanager.debug.DebugEventListener;
 import nl.queuemanager.debug.TracingEventQueue;
 import nl.queuemanager.ui.PreconnectUIModule;
+import nl.queuemanager.ui.about.AboutModule;
 import nl.queuemanager.ui.settings.SettingsModule;
 
 import javax.imageio.ImageIO;
@@ -76,6 +77,7 @@ public class Main {
 				// Now create the real injector as a child with the default modules
 				List<com.google.inject.Module> modules = new ArrayList<>();
 				modules.add(new SettingsModule());
+				modules.add(new AboutModule());
 				modules.add(new MultiQueueTaskExecutorModule());
 				modules.add(new PreconnectCoreModule());
 				modules.add(new PreconnectUIModule());

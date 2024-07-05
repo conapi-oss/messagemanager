@@ -16,7 +16,6 @@ if (System.getenv('SONIC_HOME') != null) {
     include(':messagemanager-sonicmq')
 }
 
-include(':messagemanager-solace')
 include(':messagemanager-app')
 include 'messagemanager-bootstrap'
 include 'messagemanager-bootstrap-config'

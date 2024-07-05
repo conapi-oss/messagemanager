@@ -37,5 +37,8 @@ public interface TaskFactory {
 	public abstract SendFileListTask sendFile(JMSDestination destination, File file, Message template, @Assisted("repeats") int repeats, @Assisted("delay") int delay);
 	public abstract SendFileListTask sendFiles(JMSDestination destination, List<File> files, Message template);
 	public abstract SendFileListTask sendFiles(JMSDestination destination, List<File> files, Message template, @Assisted("repeats") int repeats, @Assisted("delay") int delay);
+
+	// Forward message tasks
+	public abstract FireRefreshRequiredTask fireRefreshRequired(FireRefreshRequiredTask.JMSDestinationHolder target, JMSDestination destination);
 	
 }

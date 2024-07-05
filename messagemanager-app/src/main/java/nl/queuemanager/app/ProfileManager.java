@@ -80,7 +80,8 @@ public class ProfileManager {
 					//existing.setName(profile.getName());
 
 					// important if we change plugins, this loop depends on the plugin classes therefore will only work to add additional classes
-					p.setPlugins(profile.getPlugins()); //??
+					p.setPlugins(profile.getPlugins());
+
 					toBeRemoved.add(p);
 					toBeAdded.add(p);
 				}

@@ -112,7 +112,8 @@ class QueueTable extends JTable implements Clearable {
 	public void updateData(List<JMSQueue> queues) {
 		if(realModel.getData() == null) {
 			setData(queues);
-		} else {
+		}
+		else {
 			for(JMSQueue q: queues) {
 				int row = realModel.getItemRow(q);
 				if(row != -1) {

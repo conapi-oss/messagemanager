@@ -127,12 +127,26 @@ public class TaskErrorListener {
 	}
 
 	private void showMessage(final Component parent, final String title, final String message, final boolean error) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				JOptionPane.showMessageDialog(parent, 
-						message, title, 
-						error ? JOptionPane.ERROR_MESSAGE : JOptionPane.INFORMATION_MESSAGE);
-			}
-		});
+
+
+		if(!DEBUG){
+			// add ac contact us link
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					JOptionPane.showMessageDialog(parent,
+							new EditorPaneWithHyperlinks(message + "<br><br><a href='mailto:support@conapi.at'>Contact Support</a>"), title,
+							error ? JOptionPane.ERROR_MESSAGE : JOptionPane.INFORMATION_MESSAGE);
+				}
+			});
+		}
+		else{
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					JOptionPane.showMessageDialog(parent,
+							message, title,
+							error ? JOptionPane.ERROR_MESSAGE : JOptionPane.INFORMATION_MESSAGE);
+				}
+			});
+		}
 	}
 }
