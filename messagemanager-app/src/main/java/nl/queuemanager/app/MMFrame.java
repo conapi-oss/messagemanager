@@ -289,7 +289,7 @@ public class MMFrame extends JFrame {
 		case JMX_DISCONNECT:
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					setTitle("");
+				//	setTitle("");
 					setTabStates(UITab.ConnectionState.DISCONNECTED);
 				}
 			});
