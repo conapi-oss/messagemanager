@@ -270,7 +270,7 @@ public class TopicSubscriberTable extends JTable implements Clearable, JMSDestin
 				return entry.isActive();
 				
 			case 1:
-				return entry.getDestination().getName();
+				return entry.getDestination().toString(); // getName() sometimes holds a URI
 				
 			case 2:
 				int messageCount = entry.getMessageCount();

@@ -832,6 +832,9 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 	 */
 	private void enumerateTopics(final JMSBroker broker) {
 		destinationTable.updateData(getConfiguredTopics(broker));
+
+		// optionally, enumerate topics
+		worker.execute(taskFactory.enumerateTopics(broker, null));
 	}
 	
 	/**
