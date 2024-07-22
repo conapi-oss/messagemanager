@@ -19,6 +19,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import nl.queuemanager.core.ESBMessage;
+import nl.queuemanager.core.MessageManagerMessage;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.CancelableTask;
 import nl.queuemanager.core.task.Task;
@@ -101,10 +102,14 @@ public class SendFileListTask extends Task implements CancelableTask {
 				if(delay != 0 && i > 0)
 					sleep(delay);
 
-				Message message;
-				if(file.getPath().toLowerCase().endsWith(".esbmsg")) {
+				final Message message;
+				final String filePath = file.getPath().toLowerCase();
+				if(filePath.endsWith(ESBMessage.getFileExtension())) {
 					message = composeFromEsbMessage(file);
-				} else {
+				}
+				else if(filePath.endsWith(MessageManagerMessage.getFileExtension())) {
+					message = composeFromMessageManagerMessage(file);
+				}else {
 					message = composeMessage(template, readFile(file), file);
 					replaceFields(message, i+1);
 				}
@@ -140,19 +145,29 @@ public class SendFileListTask extends Task implements CancelableTask {
 	}
 
 	private Message composeFromEsbMessage(File file) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException, JMSException {
-		Message esbMessage = ESBMessage.readFromFile(file);
-		if(template != null) {
-			MessageFactory.copyProperties(template, esbMessage);
-			if(esbMessage.getJMSCorrelationID() != null)
-				esbMessage.setJMSCorrelationID(template.getJMSCorrelationID());
-			if(template.getJMSReplyTo() != null)
-				esbMessage.setJMSReplyTo(template.getJMSReplyTo());
-			if(template.getJMSExpiration() != 0)
-				esbMessage.setJMSExpiration(template.getJMSExpiration());
-		}
+		Message esbMessage = new ESBMessage().readFromFile(file);
+		applyTemplate(esbMessage);
 		return esbMessage;
 	}
-	
+
+	private void applyTemplate(Message message) throws JMSException {
+		if(template != null) {
+			MessageFactory.copyProperties(template, message);
+			if(message.getJMSCorrelationID() != null)
+				message.setJMSCorrelationID(template.getJMSCorrelationID());
+			if(template.getJMSReplyTo() != null)
+				message.setJMSReplyTo(template.getJMSReplyTo());
+			if(template.getJMSExpiration() != 0)
+				message.setJMSExpiration(template.getJMSExpiration());
+		}
+	}
+
+	private Message composeFromMessageManagerMessage(File file) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException, JMSException {
+		Message message = new MessageManagerMessage().readFromFile(file);
+		applyTemplate(message);
+		return message;
+	}
+
 	private Message composeMessage(final Message template, final byte[] content, final File file) throws JMSException {
 		TextMessage message;
 		String fileName = file.getName().toLowerCase();

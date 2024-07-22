@@ -3,7 +3,7 @@ package nl.queuemanager.core.platform;
 import com.google.common.base.Strings;
 import com.google.common.eventbus.EventBus;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
@@ -67,11 +67,15 @@ public class PlatformHelper {
 		fileChooser.setFileFilter(filter);
 		fileChooser.setMultiSelectionEnabled(allowMultiple);
 		if(fileChooser.showDialog(parent, approveButtonText) == JFileChooser.APPROVE_OPTION) {
-			return fileChooser.getSelectedFiles();
+			if(allowMultiple) {
+				return fileChooser.getSelectedFiles();
+			}
+			return new File[]{fileChooser.getSelectedFile()};
 		}
 		
 		return null;
 	}
+
 
 	/**
 	 * Return the non application specific directory where programs can store data 

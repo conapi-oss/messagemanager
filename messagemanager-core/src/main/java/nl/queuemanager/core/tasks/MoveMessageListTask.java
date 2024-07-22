@@ -8,7 +8,7 @@ import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskEvent;
 import nl.queuemanager.jms.JMSQueue;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.List;
 
 public class MoveMessageListTask extends Task {

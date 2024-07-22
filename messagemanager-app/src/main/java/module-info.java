@@ -2,6 +2,7 @@ module messagemanager.app {
     exports nl.queuemanager.app;
     exports nl.queuemanager.app.tasks;
 
+    opens nl.queuemanager.app;
     opens nl.queuemanager.app.tasks;
 
     requires messagemanager.ui;
@@ -14,6 +15,7 @@ module messagemanager.app {
     requires com.google.common;
     requires com.google.guice;
     requires com.google.guice.extensions.assistedinject;
+
     uses com.google.inject.Module;
     requires static lombok;
 
@@ -21,5 +23,6 @@ module messagemanager.app {
     requires java.logging;
     requires java.management;
     requires java.xml;
-    requires javax.inject;
+    requires jakarta.inject;
+    requires com.jthemedetector;
 }

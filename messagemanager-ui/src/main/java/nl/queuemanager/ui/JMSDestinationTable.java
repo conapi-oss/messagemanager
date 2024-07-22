@@ -20,11 +20,11 @@ import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSDestination.TYPE;
 import nl.queuemanager.jms.JMSQueue;
-import nl.queuemanager.ui.JMSDestinationTransferHandler.JMSDestinationHolder;
+import nl.queuemanager.core.tasks.FireRefreshRequiredTask.JMSDestinationHolder;
 import nl.queuemanager.ui.util.FilteredTableModel;
 import nl.queuemanager.ui.util.ListTableModel;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.swing.*;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -103,13 +103,19 @@ public class JMSDestinationTable extends JTable implements Clearable, JMSDestina
 			setData(destinations);
 		} else {
 			for(JMSDestination d: destinations) {
-				if(TYPE.QUEUE != d.getType())
-					continue;
+//				if(TYPE.QUEUE != d.getType())
+//					continue;
 				
 				int row = realModel.getItemRow(d);
 				if(row != -1) {
-					JMSQueue item = (JMSQueue) realModel.getRowItem(row);
-					if(item.getMessageCount() != ((JMSQueue)d).getMessageCount()) {
+					// already exists
+					if(TYPE.QUEUE == d.getType()) {
+						JMSQueue item = (JMSQueue) realModel.getRowItem(row);
+						if (item.getMessageCount() != ((JMSQueue) d).getMessageCount()) {
+							realModel.setRowItem(row, d);
+						}
+					} else {
+						// topic
 						realModel.setRowItem(row, d);
 					}
 				} else {

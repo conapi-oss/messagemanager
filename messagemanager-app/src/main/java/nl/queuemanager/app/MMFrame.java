@@ -30,6 +30,7 @@ import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.tasks.PreconnectTaskFactory;
 import nl.queuemanager.ui.MOTDPanel;
 import nl.queuemanager.ui.UITab;
+import nl.queuemanager.ui.about.AboutTabPanel;
 import nl.queuemanager.ui.settings.SettingsTabPanel;
 import nl.queuemanager.ui.task.TaskQueuePanel;
 
@@ -55,12 +56,17 @@ public class MMFrame extends JFrame {
 	
 	@Inject
 	public MMFrame(CoreConfiguration config, TaskQueuePanel taskQueuePanel, PlatformHelper platformHelper, MOTDPanel motdPanel, ProfileTabPanel profileTab,
-			TaskExecutor worker, PreconnectTaskFactory taskFactory, SettingsTabPanel settingsTab) {
+			TaskExecutor worker, PreconnectTaskFactory taskFactory, SettingsTabPanel settingsTab, AboutTabPanel aboutTab) {
 		this.config = config;
 		this.worker = worker;
 		this.taskFactory = taskFactory;
-		
-		setTitle(String.format("%s %s", APP_NAME, Version.VERSION));
+		final String updateUrl = System.getenv("UPDATE_URL");
+		if(updateUrl!=null && updateUrl.contains("stable")) {
+			setTitle(String.format("%s %s", APP_NAME, Version.VERSION));
+		}
+		else{
+			setTitle(String.format("%s %s - DEVELOPMENT BUILD", APP_NAME, Version.VERSION));
+		}
 
 		platformHelper.setFullScreenEnabled(this, true);
 		
@@ -78,7 +84,8 @@ public class MMFrame extends JFrame {
 		addTab(new AddUITabEvent(0, profileTab));
 		getRootPane().setDefaultButton(profileTab.getDefaultButton());
 		
-		addTab(new AddUITabEvent(99, settingsTab));
+		addTab(new AddUITabEvent(98, settingsTab));
+		addTab(new AddUITabEvent(99, aboutTab));
 		
 		// Now add the TabbedPane to the layout
 		contentPane.add(tabsPane, BorderLayout.CENTER);
@@ -127,10 +134,10 @@ public class MMFrame extends JFrame {
 	@Subscribe
 	public void applicationInitialized(ApplicationInitializedEvent e) {
 		// Kick off the MOTD task. It will fire an event when MOTD is known
-		worker.execute(taskFactory.checkMotdTask(config.getUniqueId(), "smm.queuemanager.nl"));
+		worker.execute(taskFactory.checkMotdTask(config.getUniqueId(), "check.conapi.at"));
 		
 		// Kick off the ReleaseNote task. It will fire an event if we have a release note
-		worker.execute(taskFactory.checkReleaseNote("smm.queuemanager.nl", Version.BUILD_ID));
+		worker.execute(taskFactory.checkReleaseNote("check.conapi.at", Version.BUILD_ID));
 	}
 	
 	@Subscribe
@@ -208,10 +215,10 @@ public class MMFrame extends JFrame {
 	@Subscribe
 	public void onAboutEvent(AboutEvent e) {
 		for(UITab tab: tabs.values()) {
-			if(tab.getUITabName().equals("Help")) {
-				tabsPane.setSelectedIndex(tabsPane.indexOfComponent(tab.getUITabComponent()));
+			//if(tab.getUITabName().equals("Help")) {
+			if(tab.getUITabName().equals("About")) {
+					tabsPane.setSelectedIndex(tabsPane.indexOfComponent(tab.getUITabComponent()));
 			}
-			
 		}
 	}
 	
@@ -282,8 +289,8 @@ public class MMFrame extends JFrame {
 		case JMX_DISCONNECT:
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					setTitle("");
-					setTabStates(UITab.ConnectionState.CONNECTED);
+				//	setTitle("");
+					setTabStates(UITab.ConnectionState.DISCONNECTED);
 				}
 			});
 			break;

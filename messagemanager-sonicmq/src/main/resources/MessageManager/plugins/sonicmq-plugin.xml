@@ -1,5 +1,5 @@
 <plugin>
-	<name>SonicMQ Plugin</name>
-	<description>Allows connections to Sonic MQ</description>
+	<name>Aurea Messenger / SonicMQ Plugin</name>
+	<description>Allows connections to Aurea Messenger (SonicMQ)</description>
 	<moduleClass>nl.queuemanager.smm.SMMPluginModule</moduleClass>
 </plugin>

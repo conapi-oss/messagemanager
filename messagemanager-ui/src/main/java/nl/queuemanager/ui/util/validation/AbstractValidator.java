@@ -59,10 +59,12 @@ public abstract class AbstractValidator extends InputVerifier {
         	}
 			
             c.setBackground(Color.PINK);
+            c.setForeground(Color.BLACK);
         	return false || !isBlockField();
         }
         
-        c.setBackground(Color.WHITE);		
+        c.setBackground((Color) UIManager.get("TextField.background"));
+        c.setForeground((Color) UIManager.get("TextField.foreground"));
         if(parent != null) {
         	parent.validatePassed(c);
         }

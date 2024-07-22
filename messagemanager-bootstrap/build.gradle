@@ -1,0 +1,315 @@
+import org.codehaus.groovy.runtime.GStringImpl
+
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+    id "de.inetsoftware.setupbuilder" version "8.4.21" // version depends on Gradle version
+}
+
+apply plugin: 'de.inetsoftware.setupbuilder'
+
+group = 'at.conapi.messagemanager.bootstrap'
+
+repositories {
+    mavenCentral()
+}
+
+application {
+    mainClass = 'at.conapi.messagemanager.bootstrap.App'
+}
+
+javafx {
+    version = '17'
+    modules = [ 'javafx.controls', 'javafx.fxml' , 'javafx.graphics']
+    platform = 'win' // change or remove if building on non Windows platform, added as we need to be able to override it during build
+}
+
+ext {
+    javaFxVersion = '17'
+
+    appName = "Message Manager Bootstrap"
+    appLauncher = "Message Manager"
+    appPackaging = "messagemanager-bootstrap"
+    appModuleName = "messagemanager.bootstrap"
+    appMainClass = "at.conapi.messagemanager.bootstrap.App"
+
+    bootstrapRoot = "${project.layout.buildDirectory.asFile.get()}/root" as GStringImpl
+    bootstrapTarget = "${bootstrapRoot}/target" as GStringImpl
+    bootstrapConfigLocation= "${bootstrapTarget}/config" as GStringImpl
+}
+
+dependencies {
+    implementation 'org.update4j:update4j:1.5.9'
+    implementation project(':messagemanager-app')
+    implementation project(':messagemanager-bootstrap-config')
+}
+
+tasks.register('copyJavaFxJars', Copy) {
+    from configurations.runtimeClasspath
+    include '**/javafx-*.jar'
+    rename '(javafx-[a-z]*-[0-9]*).*.jar', '$1.jar' // remove classified win/linux/mac
+    into "${bootstrapTarget}/javafx"
+}
+
+tasks.register('copyBootstrapJars', Copy) {
+    dependsOn(jar)
+    from "${buildDir}/libs"
+    include '**/*.jar'
+    rename '([a-z]*-[a-z]*).*.jar', '$1.jar' // remove version
+    into "${bootstrapTarget}/config/bootstrap"
+}
+
+tasks.register('copyLaunchScripts', Copy) {
+    from "${projectDir}/scripts"
+    include '**/*'
+    into "${bootstrapTarget}/config/bin"
+}
+
+tasks.register('copyUpdate4jJar', Copy) {
+    from configurations.runtimeClasspath
+    include '**/update4j-*.jar'
+    rename '(update4j).*.jar', '$1.jar' // remove version from jar
+    into "${bootstrapTarget}/config/bootstrap"
+}
+
+tasks.register('copyAppJars', Copy) {
+    dependsOn(":messagemanager-app:copyAllDependencies")
+
+    from "${buildDir}/../../messagemanager-app/build/update4j/messagemanager"
+    include '**/*.jar'
+    rename '(jmsmessages)-.*.jar', '$1.jar' // remove version
+    rename '(messagemanager-[a-z]*).*.jar', '$1.jar' // remove version
+    into "${bootstrapTarget}/config/app"
+}
+
+
+tasks.register('createUpdate4JConfig', JavaExec) {
+    dependsOn('copyBootstrapJars', 'copyAppJars', 'copyJavaFxJars', 'copyUpdate4jJar', 'copyLaunchScripts')
+    dependsOn(":messagemanager-bootstrap-config:jar")
+    // ensure the plugins are built!
+    dependsOn(":messagemanager-sonicmq:jar")
+    // just to make sure the folders exist during configuration exec, should  if gradle task is properly done :-(
+    //ant.mkdir(dir: "${projectDir}/build/root/target/config/plugins")
+    //ant.mkdir(dir: "${projectDir}/build/root/target/config/clients")
+
+    // Executable jars can have only _one_ jar on the classpath.
+    //classpath = files("${buildDir}/bootstrap-jars/")
+    classpath = sourceSets.main.runtimeClasspath
+
+    // 'main' does not need to be specified
+    mainClass = 'at.conapi.messagemanager.bootstrap.config.CreateConfig'
+
+    // arguments to pass to the application
+    // only works if defined in gradle.properties!!!!
+    mmbuild = project.hasProperty('mmbuild') ? project.getProperty('mmbuild') : 'dev'
+    println "Building for : " + mmbuild
+
+    args(bootstrapRoot, bootstrapTarget, bootstrapConfigLocation,mmbuild)
+}
+
+
+//build.compileJava.dependsOn copyPluginJars
+build.dependsOn('createUpdate4JConfig')
+
+
+def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
+// setup builder
+setupBuilder {
+    vendor = 'conapi gmbh'
+    application = "Message Manager"
+    appIdentifier = "MessageManager"
+    copyright       = "Copyright © 2024 conapi GmbH"
+    description     = "conapi Message Manager";
+
+    version = project.version.toString().replaceAll('-SNAPSHOT','')
+
+    licenseFile = 'build/root/target/config/bin/conapi-TERMS-AND-CONDITIONS.txt'
+
+    // icons in different sizes for different usage. you can also use a single *.ico or *.icns file
+   // icons = ['icon16.png', 'icon32.png', 'icon48.png', 'icon128.png']
+    icons = "src/main/resources/icons/conapi.icns"
+
+    // all files for all platforms
+    from( bootstrapConfigLocation ) {
+        include '**/*'
+    }
+
+    //mainClass = 'com.inet.testapplication.TestLauncher'
+    //mainJar = 'testBuilds.jar'
+
+    if(isWindows) {
+        // https://github.com/i-net-software/SetupBuilder/wiki/DSL-of-desktopStarter
+        desktopStarter {
+            displayName   = "Message Manager"
+            //description   = "This is an Application service"
+            location = com.inet.gradle.setup.abstracts.DesktopStarter.Location.ApplicationMenu
+            //ApplicationProgramsFolder
+            executable = "launch.cmd"
+            workDir = "bin"
+            // optional, additional arguments to start the service with
+            //startArguments = "--open"
+
+            // optional, an icon file. Defaults to setupBuilder.icons
+//            icons          = "service.icns"
+        }
+    }
+
+    //TODO: need to find a better way to do this
+    bundleJre = "c:/java/jdk17"
+}
+
+// see https://github.com/i-net-software/SetupBuilder/wiki/DSL-of-Windows-Builder
+msi {
+    // optional, architecture to build. Defaults to x64.
+    // Allows: x86, x64, ia64, x86-only
+    arch = "x64"
+
+    // A banner file for the installer with a typical size of 493 x 58
+    bannerBmp = layout.projectDirectory.file("installer/setup_banner.png").asFile.toString()
+
+    // A dialog banner file for the installer with a size of 493 x 312
+    dialogBmp = layout.projectDirectory.file("installer/setup_background.png").asFile.toString()
+
+    // Set up information about the signtool
+    // see https://github.com/i-net-software/SetupBuilder/wiki/DSL-of-Windows-Builder#property-signtool
+    signTool {
+
+        // the certificate store / file
+        //certificate = "C:\\support\\tools\\SSL\\selfsigned.p12"
+
+        // the password of the certificate store
+        //password = "123456"
+
+        // the certificate signature reuired for the /sha1 parameter of the signtool
+        // identifier of the certificate
+        sha1 = "7F5EB3F7CCFC83EC01F30C56FA396572DD928512"
+        timestamp = [ "http://timestamp.digicert.com" ]
+    }
+
+
+
+    // add a launch4j configuration to create an executable first
+    // can be added multiple times
+  //  launch4j { ... }
+
+    // optional, set a custom WXS template
+    wxsTemplate = layout.projectDirectory.file("installer/template.wxs").asFile.toString()
+
+    // optional, list of languages to build the setup for. By default all languages will be build which takes a long time
+    languages = [ "en-US", "de-DE" ]
+
+    // set the minimum OS version for this installer to work on. See below
+    //minOS = 10.0
+
+    // optional, indicated that the application can be installed as multiple instances
+    multiInstanceCount = 1
+
+    // optional, a VB-Script to allow the setup of multiple instances
+    //multiInstanceScript = "multi-instance-setup.vb"
+
+    // optional, set the installation scope to one of either `perUser` or `perMachine`
+    installScope = 'perUser'
+
+    // optional, add a VB-Script or Jscript to run before the setup GUI is displayed.
+    // Note: this script does not run with elevated permissions
+    // can be added multiple times.
+    //preGui "<script>"
+
+    // optional, make the run after application optional. An option will be displayed to the user in the setup.
+    runAfterIsOptional = true
+}
+
+// usually we do NOT want to ship/upload these as the update4j pulls them from Maven repository
+// but in some companies the automatic update fails and therefore we are forced to do this
+//tasks.register('copyJavaFxJarsForMsi', Copy) {
+ //   from configurations.runtimeClasspath
+ //   include '**/javafx-*win.jar'
+ //   into "${bootstrapTarget}/config/bootstrap"
+//}
+tasks.register('copyAllPlatformsJavaFxLibs', Copy) {
+    from configurations.runtimeClasspath
+    include '**/javafx-*.jar'
+    into "${bootstrapTarget}/config/bootstrap"
+}
+
+tasks.register('renameMsi') {
+    def dir = "${project.layout.buildDirectory.asFile.get()}/distributions"
+    doLast {
+        ant.move file: "${dir}/MessageManager-${project.version.toString().replaceAll('-SNAPSHOT','')}.msi",
+                 tofile: "${dir}/MessageManager.msi"
+    }
+}
+msi.dependsOn('jar','copyAllPlatformsJavaFxLibs')
+msi.finalizedBy('renameMsi','buildOtherDistributions')
+
+// tasks to create the tar.gz and zip files
+// also create a minimal bootstrap version
+// needs to be run after msi
+tasks.register('buildOtherDistributions') {
+    dependsOn('msi')
+    dependsOn('buildTarGz')
+    dependsOn('buildZip')
+    dependsOn('buildMiniTarGz')
+    dependsOn('buildMiniZip')
+    finalizedBy('deleteTempDistributionFiles')
+}
+
+tasks.register('deleteTempDistributionFiles', Delete){
+    doLast {
+        fileTree(dir: project.layout.buildDirectory.dir("distributions")).exclude("MessageManager*.*").visit { FileVisitDetails details ->
+            delete details.file
+        }
+    }
+}
+
+tasks.register('buildTarGz', Tar) {
+    dependsOn('copyAllPlatformsJavaFxLibs')
+
+    archiveFileName = "MessageManager.tar.gz"
+    destinationDirectory = project.layout.buildDirectory.dir("distributions")
+    compression = Compression.GZIP
+    from ("${bootstrapTarget}/config") {
+        // do not include them as currently the build only adds the windows version
+        exclude("**/javafx*.jar")
+    }
+}
+
+tasks.register('buildZip', Zip) {
+    dependsOn('copyAllPlatformsJavaFxLibs')
+
+    archiveFileName = "MessageManager.zip"
+    destinationDirectory = project.layout.buildDirectory.dir("distributions")
+    from ("${bootstrapTarget}/config") {
+        // do not include them as currently the build only adds the windows version
+        exclude("**/javafx*.jar")
+    }
+}
+
+tasks.register('buildMiniTarGz', Tar) {
+    dependsOn('copyAllPlatformsJavaFxLibs')
+
+    archiveFileName = "MessageManagerLauncher.tar.gz"
+    destinationDirectory = project.layout.buildDirectory.dir("distributions")
+    compression = Compression.GZIP
+    from ("${bootstrapTarget}/config") {
+        // do not include them as currently the build only adds the windows version
+        exclude("**/javafx*.jar")
+        exclude("app")
+        exclude("plugins")
+        exclude("clients")
+    }
+}
+
+tasks.register('buildMiniZip', Zip) {
+    dependsOn('copyAllPlatformsJavaFxLibs')
+    archiveFileName = "MessageManagerLauncher.zip"
+    destinationDirectory = project.layout.buildDirectory.dir("distributions")
+    from ("${bootstrapTarget}/config") {
+        // do not include them as currently the build only adds the windows version
+        exclude("**/javafx*.jar")
+        exclude("app")
+        exclude("plugins")
+        exclude("clients")
+    }
+}

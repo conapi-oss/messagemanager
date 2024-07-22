@@ -8,3 +8,6 @@ logging.properties
 .gradle
 *.iml
 build
+/messagemanager-sonicmq/.sonic-libs
+/messagemanager-bootstrap/messagemanager
+/messagemanager-bootstrap/launcher.properties

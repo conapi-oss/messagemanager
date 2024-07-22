@@ -7,8 +7,8 @@ import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.tasks.TaskFactory;
 import nl.queuemanager.jms.JMSBroker;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;

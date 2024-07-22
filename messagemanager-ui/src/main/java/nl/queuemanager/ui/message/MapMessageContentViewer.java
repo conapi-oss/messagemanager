@@ -4,7 +4,7 @@ import nl.queuemanager.core.Pair;
 import nl.queuemanager.ui.util.HighlightsModel;
 import nl.queuemanager.ui.util.ListTableModel;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.swing.*;

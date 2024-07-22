@@ -29,7 +29,7 @@ public class DomainEvent extends EventObject {
 		BROKER_DISCONNECT,
 		
 		QUEUES_ENUMERATED,
-//		TOPICS_ENUMERATED,
+		TOPICS_ENUMERATED,
 	}
 	
 	private final EVENT id;

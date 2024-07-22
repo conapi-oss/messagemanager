@@ -16,5 +16,5 @@ module messagemanager.fakemq {
 
     requires java.desktop;
     requires java.management;
-    requires javax.inject;
+    requires jakarta.inject;
 }

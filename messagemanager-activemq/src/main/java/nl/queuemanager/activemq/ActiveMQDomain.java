@@ -17,8 +17,8 @@ import nl.queuemanager.jms.impl.DestinationFactory;
 import nl.queuemanager.ui.BrokerCredentialsDialog;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import javax.jms.*;
 import javax.management.*;
 import javax.management.remote.JMXConnector;
@@ -56,7 +56,11 @@ public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements 
 		}
 		
 		JMXServiceURL url = new JMXServiceURL(u);
-		connector = JMXConnectorFactory.connect(url);
+		HashMap   environment = new HashMap();
+		String[]  credentials = new String[] {"admin", "activemq"};
+		environment.put (JMXConnector.CREDENTIALS, credentials);
+
+		connector = JMXConnectorFactory.connect(url,environment);
 		mbeanServer = connector.getMBeanServerConnection();
 		brokerConnections = CollectionFactory.newHashMap();
 		
@@ -171,7 +175,7 @@ public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements 
 	 * Open an asynchronous consumer for the specified destination.
 	 * 
 	 * @param destination
-	 * @param listener
+	 *
 	 */
 	private MessageConsumer openASyncConsumer(JMSDestination destination) throws JMSException {
 		ActiveMQConnection connection = brokerConnections.get(destination.getBroker());
@@ -314,6 +318,10 @@ public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements 
 		switch(feature) {
 		case FORWARD_MESSAGE:
 		case QUEUE_CLEAR_MESSAGES:
+		case JMS_HEADERS:
+		case TOPIC_SUBSCRIBER_CREATION:
+		case DESTINATION_TYPE_QUEUE:
+		case DESTINATION_TYPE_TOPIC:
 			return true;
 		default:
 			return false;

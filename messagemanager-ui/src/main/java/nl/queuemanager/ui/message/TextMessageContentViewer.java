@@ -40,7 +40,7 @@ class TextMessageContentViewer extends XmlContentViewer<Message> implements Mess
 				DocumentBuilder db = dbf.newDocumentBuilder();
 				db.setEntityResolver(new NullEntityResolver());
 				Document doc = db.parse(is);
-				
+				// might produce: [Fatal Error] :1:1: Content is not allowed in prolog.
 				return formatXml(doc);
 			} catch (SAXException e) {
 			} catch (IOException e) {

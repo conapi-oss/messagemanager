@@ -3,6 +3,7 @@ package nl.queuemanager.app.tasks;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.eventbus.EventBus;
+import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.assistedinject.Assisted;
@@ -17,7 +18,7 @@ import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.util.CoreException;
 import nl.queuemanager.ui.UIModule;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -54,17 +55,18 @@ public class ActivateProfileTask extends Task {
 		});
 		
 		// Load all the modules into the plugin classloader
-		List<Module> pluginModules = pluginManager.loadPluginModules(pluginDescriptors, profile.getClasspath());
-		
+		final List<Module> pluginModules = pluginManager.loadPluginModules(pluginDescriptors, profile.getClasspath());
+
 		// Load the configured plugin modules
-		List<Module> modules = new ArrayList<Module>();
+		final List<Module> modules = new ArrayList<Module>();
+
 		modules.add(new CoreModule());
 		modules.add(new UIModule());
 		modules.addAll(pluginModules);
-		
+
 		try {
 			final Injector injector = parentInjector.createChildInjector(modules);
-			ConnectivityProviderPlugin provider = injector.getInstance(ConnectivityProviderPlugin.class);
+			final ConnectivityProviderPlugin provider = injector.getInstance(ConnectivityProviderPlugin.class);
 			provider.initialize();
 		} catch (NoClassDefFoundError e) {
 			// Report the missing class to the user

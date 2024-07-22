@@ -84,7 +84,11 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		add(connectionsPanel);
 	}
 
-	private JComponent createMailingListPanel() {		
+	private JComponent createMailingListPanel() {
+		// MM is no longer Sonic only... therefore this is not the proper place to put this
+		return null;
+
+		/*
 		if(!"unknown".equals(config.getUserPref(SMMConfiguration.PREF_MAILINGLIST_STATUS, "unknown"))) {
 			return null;
 		}
@@ -94,7 +98,7 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		final JButton denyButton;
 		final Box box = Box.createHorizontalBox();
 		
-		box.setBorder(new TitledBorder("Mailing list"));
+		box.setBorder(new TitledBorder("Mailing List"));
 		box.add(new JLabel("To subscribe to our mailing list, enter your e-mail address:"));
 		box.add(Box.createHorizontalStrut(5));
 		box.add(emailAddressField = new JTextField(15));
@@ -134,6 +138,7 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		});
 			
 		return box;
+		*/
 	}
 
 	private JPanel createConnectionsPanel() {
@@ -176,25 +181,25 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		// space on left of the first picture
 		brandingPanel.add(new Box.Filler(minSize, prefSize, maxSize));		
 		
-		// Get Progaia logo
-		JLabel jLabelProgaia = new JLabel();
-		URL url = getClass().getResource("progaia.jpg");
-		jLabelProgaia.setIcon(new ImageIcon(url));
+		// Get conapi logo
+		JLabel labelConapi = new JLabel();
+		URL url = getClass().getResource("conapi_text_320x132px.png");
+		labelConapi.setIcon(new ImageIcon(url));
 		try {
-			desktop.addLink(jLabelProgaia, new URI("http://www.progaia.nl"));
+			desktop.addLink(labelConapi, new URI("https://www.conapi.at"));
 		} catch (URISyntaxException e) {
 		}
-		brandingPanel.add(jLabelProgaia);
+		brandingPanel.add(labelConapi);
 		
 		// space between the pictures
 		brandingPanel.add(new Box.Filler(minSize, prefSize, maxSize));		
 		
 		// Get Progress Sonic logo
 		JLabel jLabelSonic = new JLabel();
-		URL url2 = getClass().getResource("progresssonic.jpg");
+		URL url2 = getClass().getResource("aurea_messenger.png");
 		jLabelSonic.setIcon(new ImageIcon(url2));
 		try {
-			desktop.addLink(jLabelSonic, new URI("http://www.progress.com"));
+			desktop.addLink(jLabelSonic, new URI("http://www.aurea.com"));
 		} catch (URISyntaxException e) {
 		}
 		brandingPanel.add(jLabelSonic);
@@ -237,7 +242,7 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 	}
 		
 	private JButton createNewConnectionButton() {
-		JButton button = CommonUITasks.createButton("New connection",
+		JButton button = CommonUITasks.createButton("New Connection",
 		new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				// Start up the connection dialog with an empty connection
@@ -275,7 +280,7 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 	}
 	
 	private JButton createDeleteButton() {
-		JButton button = CommonUITasks.createButton("Delete connection", 
+		JButton button = CommonUITasks.createButton("Delete Connection",
 		new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				removeConnection();
@@ -334,7 +339,7 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		}
 		preferencemanager.setString("connections", "firstN", stringbuffer.toString(), false);
 	}
-	
+
 	private void disconnect() {
 		worker.execute(new Task(sonic, eventBus) {
 			@Override

@@ -1,0 +1,10 @@
+
+#primary {
+	-fx-background-color: rgba(0, 113, 172, 0.5);
+	-fx-max-height: 5;
+}
+
+#secondary {
+	-fx-background-color: rgba(164, 214, 0, 0.5);
+	-fx-max-height: 5;
+}

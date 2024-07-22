@@ -9,7 +9,7 @@ import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.util.ListTableModel;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -25,12 +25,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class ConnectionTabPanel extends JPanel implements UITab {
-	private JTable localProcessTable;
+
 	private JTextField jmxServiceURLField;
 	private JTextField descriptionField;
 	private JTable remoteProcessTable;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
-	private JRadioButton localProcess;
+
 	private JRadioButton remoteProcess;
 	private JButton connectButton;
 
@@ -43,13 +43,16 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 	 * Create the panel.
 	 */
 	@Inject
-	public ConnectionTabPanel(JavaProcessFinder processFinder, ActiveMQDomain domain, TaskExecutor worker, EventBus eventBus, ActiveMQConfiguration myconfig) {
+	public ConnectionTabPanel(ActiveMQDomain domain, TaskExecutor worker, EventBus eventBus, ActiveMQConfiguration myconfig) {
 		this.domain = domain;
 		this.worker = worker;
 		this.eventBus = eventBus;
 		this.config = myconfig;
 		
-		setBorder(new CompoundBorder(new EmptyBorder(5, 5, 5, 5), new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Connect to ActiveMQ Broker", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+		setBorder(new CompoundBorder(new EmptyBorder(5, 5, 5, 5),
+				new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null),
+						"Connect to ActiveMQ Broker", TitledBorder.LEADING, TitledBorder.TOP, null,
+				UIManager.getColor("label.foreground"))));
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{136, 0};
 		gridBagLayout.rowWeights = new double[]{0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0};
@@ -59,52 +62,13 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		ActionListener radioButtonChangedAction = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				localProcessTable.setEnabled(localProcess.isSelected());
 				
 				jmxServiceURLField.setEnabled(remoteProcess.isSelected());
 				descriptionField.setEnabled(remoteProcess.isSelected());
 				remoteProcessTable.setEnabled(remoteProcess.isSelected());
 			}
 		};
-		
-		localProcess = new JRadioButton("Local Process");
-		localProcess.addActionListener(radioButtonChangedAction);
-		buttonGroup.add(localProcess);
-		GridBagConstraints gbc_localProcess = new GridBagConstraints();
-		gbc_localProcess.gridwidth = 2;
-		gbc_localProcess.anchor = GridBagConstraints.WEST;
-		gbc_localProcess.insets = new Insets(0, 0, 5, 0);
-		gbc_localProcess.gridx = 0;
-		gbc_localProcess.gridy = 0;
-		add(localProcess, gbc_localProcess);
-		
-		localProcessTable = new JTable();
-		localProcessTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		GridBagConstraints gbc_table = new GridBagConstraints();
-		gbc_table.gridwidth = 2;
-		gbc_table.insets = new Insets(0, 25, 5, 0);
-		gbc_table.fill = GridBagConstraints.BOTH;
-		gbc_table.gridx = 0;
-		gbc_table.gridy = 1;
-		add(new JScrollPane(localProcessTable), gbc_table);
 
-		{ // Load the local processes
-			DefaultTableModel model = new DefaultTableModel() {
-				public boolean isCellEditable(int rowIndex, int mColIndex) {
-					return false;
-				}
-			};
-			model.setColumnIdentifiers(new String[] {"PID", "Description"});
-			for(JavaProcessDescriptor javaProcess: processFinder.find()) {
-				model.addRow(new Object[] {
-						javaProcess.id(),
-						javaProcess.displayName()
-				});
-			}
-			localProcessTable.setModel(model);
-			TableColumnAdjuster adjuster = new TableColumnAdjuster(localProcessTable, 15);
-			adjuster.adjustColumns();
-		}
 		
 		remoteProcess = new JRadioButton("Remote Process");
 		remoteProcess.addActionListener(radioButtonChangedAction);
@@ -259,36 +223,12 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		gbc_connectButton.gridy = 7;
 		add(connectButton, gbc_connectButton);
 		
-		if(processFinder.isSupported()) {
-			localProcess.setSelected(true);
-		} else {
-			localProcess.setText(localProcess.getText() + " (not supported on this JVM)");
-			localProcess.setEnabled(false);
-			remoteProcess.setSelected(true);
-		}
+
 		radioButtonChangedAction.actionPerformed(null);
 	}
 	
 	private void connect() {
-		if(localProcess.isSelected()) {
-			int row = localProcessTable.getSelectedRow();
-			if(row != -1) {
-				final String pid = (String)localProcessTable.getModel().getValueAt(row, 0);
-				worker.execute(new Task(domain, eventBus) {
-					@Override
-					public void execute() throws Exception {
-						// FIXME This isn't available anymore?
-//						@SuppressWarnings("restriction")
-//						final String url = sun.management.ConnectorAddressLink.importFrom(Integer.valueOf(pid));
-//						domain.connect(url);
-					}
-					@Override
-					public String toString() {
-						return "Connecting to ActiveMQ on PID " + pid;
-					}
-				});
-			}
-		} else
+
 		if(remoteProcess.isSelected()) {
 			final String url = jmxServiceURLField.getText();
 			if(url.length() > 0) {

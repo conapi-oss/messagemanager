@@ -19,11 +19,12 @@ public interface TaskFactory {
 
 	public abstract ClearQueuesTask clearQueues(List<JMSQueue> queues);
 	public abstract EnumerateQueuesTask enumerateQueues(JMSBroker broker, String filter);
+	public abstract EnumerateTopicsTask enumerateTopics(JMSBroker broker, String filter);
 	
 	public abstract EnumerateMessagesTask enumerateMessages(JMSQueue queue, EventListener<QueueBrowserEvent> listener);	
 	public abstract DeleteMessagesTask deleteMessages(JMSQueue queue, List<Message> messages);
 	public abstract MoveMessageListTask moveMessages(JMSQueue toQueue, List<Pair<JMSQueue, String>> messageList);
-	public abstract SaveMessagesToFileTask saveToFile(List<Pair<javax.jms.Message, File>> messages, boolean asESBMSG);
+	public abstract SaveMessagesToFileTask saveToFile(List<Pair<javax.jms.Message, File>> messages, String messageFileExtension);
 	
 	// Send message (list) tasks
 	public abstract SendMessageListTask sendMessage(JMSDestination destination, Message message);
@@ -36,5 +37,8 @@ public interface TaskFactory {
 	public abstract SendFileListTask sendFile(JMSDestination destination, File file, Message template, @Assisted("repeats") int repeats, @Assisted("delay") int delay);
 	public abstract SendFileListTask sendFiles(JMSDestination destination, List<File> files, Message template);
 	public abstract SendFileListTask sendFiles(JMSDestination destination, List<File> files, Message template, @Assisted("repeats") int repeats, @Assisted("delay") int delay);
+
+	// Forward message tasks
+	public abstract FireRefreshRequiredTask fireRefreshRequired(FireRefreshRequiredTask.JMSDestinationHolder target, JMSDestination destination);
 	
 }

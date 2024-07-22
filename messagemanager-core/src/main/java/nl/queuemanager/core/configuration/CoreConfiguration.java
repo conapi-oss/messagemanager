@@ -34,8 +34,12 @@ public interface CoreConfiguration {
 	public static final String PREF_LAST_MOTD_CHECK_TIME = "lastMotdCheckTime";
 	
 	public static final String PREF_LOOK_AND_FEEL = "lookAndFeel";
+    public static final String PREF_LICENSE_KEY = "licenseKey";
 
-	/**
+	public static final String PREF_LAST_VERSION = "lastVersion";
+	public static final String PREF_AUTOLOAD_PROFILE = "autoloadProfile";
+
+    /**
 	 * Return a unique identifier for this configuration
 	 * @return
 	 */

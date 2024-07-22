@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    implementation 'com.google.inject:guice:5.1.0'
+    implementation 'com.google.inject:guice:7.0.0'
     implementation project(':messagemanager-core')
     implementation project(':messagemanager-ui')
     implementation project(':messagemanager-plugin-api')

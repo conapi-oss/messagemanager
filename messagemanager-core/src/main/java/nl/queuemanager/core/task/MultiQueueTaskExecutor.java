@@ -15,7 +15,7 @@
  */
 package nl.queuemanager.core.task;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;

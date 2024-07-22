@@ -17,6 +17,8 @@ package nl.queuemanager.ui;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import nl.queuemanager.core.ESBMessage;
+import nl.queuemanager.core.MessageManagerMessage;
 import nl.queuemanager.core.Pair;
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.task.TaskExecutor;
@@ -94,8 +96,10 @@ public class CommonUITasks {
 	 * @param messagesToSave The messages to save
 	 */
 	public static void saveMessages(Component parent, List<Message> messagesToSave, TaskExecutor worker, TaskFactory taskFactory, CoreConfiguration config) {
-		final FileFilter esbmsgFileFilter = new SingleExtensionFileFilter(".esbmsg", "ESB Message File");
-		boolean saveAsESBMSG = false;
+		final FileFilter mmmsgFileFilter = new SingleExtensionFileFilter(MessageManagerMessage.getFileExtension(), "Message Manager - Message File");
+		final FileFilter esbmsgFileFilter = new SingleExtensionFileFilter(ESBMessage.getFileExtension(), "ESB Message File");
+		String messageFileExtension = null;
+
 		
 		int numMessages = messagesToSave.size();
 		if(numMessages == 0)
@@ -108,6 +112,7 @@ public class CommonUITasks {
 		chooser.setCurrentDirectory(new File(
 				config.getUserPref(CoreConfiguration.PREF_SAVE_DIRECTORY, ".")));
 		chooser.setMultiSelectionEnabled(false);
+		chooser.addChoosableFileFilter(mmmsgFileFilter);
 		chooser.addChoosableFileFilter(esbmsgFileFilter);
 		chooser.setAcceptAllFileFilterUsed(true);
 
@@ -125,9 +130,14 @@ public class CommonUITasks {
 						CoreConfiguration.PREF_SAVE_DIRECTORY, 
 						chooser.getCurrentDirectory().getAbsolutePath());
 				messages.add(Pair.create(selectedMessage, selectedFile));
-				saveAsESBMSG = 
-					selectedFile.getName().toLowerCase().endsWith(".esbmsg") ||
-					chooser.getFileFilter() == esbmsgFileFilter;
+				if(selectedFile.getName().toLowerCase().endsWith(ESBMessage.getFileExtension()) ||
+					chooser.getFileFilter() == esbmsgFileFilter){
+					messageFileExtension = ESBMessage.getFileExtension();
+				}
+				else if(selectedFile.getName().toLowerCase().endsWith(MessageManagerMessage.getFileExtension()) ||
+						chooser.getFileFilter() == mmmsgFileFilter){
+					messageFileExtension = MessageManagerMessage.getFileExtension();
+				}
 			}
 		} else if(numMessages >= 2) {
 			// Display a directory chooser
@@ -145,11 +155,17 @@ public class CommonUITasks {
 			for(Message m: messagesToSave) {
 				messages.add(Pair.create(m, selectedDir));
 			}
-			saveAsESBMSG = chooser.getFileFilter() == esbmsgFileFilter;
+
+			if(chooser.getFileFilter() == esbmsgFileFilter){
+				messageFileExtension = ESBMessage.getFileExtension();
+			}
+			else if(chooser.getFileFilter() == mmmsgFileFilter){
+				messageFileExtension = MessageManagerMessage.getFileExtension();
+			}
 		}
 		
 		if(messages.size() > 0) {
-			worker.execute(taskFactory.saveToFile(messages, saveAsESBMSG));
+			worker.execute(taskFactory.saveToFile(messages, messageFileExtension));
 		}
 	}
 	
@@ -159,6 +175,7 @@ public class CommonUITasks {
 		searchField.setMaximumSize(new Dimension(Integer.MAX_VALUE, searchField.getPreferredSize().height));
 		searchField.putClientProperty("JTextField.variant", "search");
 		searchField.setToolTipText("Type to search");
+
 		searchField.getDocument().addDocumentListener(new DocumentAdapter() {
 			@Override
 			public void updated(DocumentEvent e) {

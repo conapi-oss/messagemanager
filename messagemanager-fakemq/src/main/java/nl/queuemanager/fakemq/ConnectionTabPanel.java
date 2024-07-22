@@ -43,7 +43,7 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 	}
 
 	private JButton createNewConnectionButton() {
-		JButton button = CommonUITasks.createButton("New connection",
+		JButton button = CommonUITasks.createButton("New Connection",
 		new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				connect();

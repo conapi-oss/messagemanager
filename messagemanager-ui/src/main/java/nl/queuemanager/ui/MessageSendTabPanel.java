@@ -18,6 +18,7 @@ package nl.queuemanager.ui;
 import com.google.common.base.Strings;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
+import nl.queuemanager.core.MessageBuffer;
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.JMSDomain;
@@ -59,10 +60,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Collections;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 @SuppressWarnings("serial")
@@ -91,6 +90,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 	private JIntegerField delayPerMessageField;
 	private JButton sendButton;
 	private Map<String, Object> properties = CollectionFactory.newHashMap();
+	private List<String> predefinedPropertyNames = new ArrayList<>();
 	
 	@Inject
 	public MessageSendTabPanel(JMSDomain sonic, TaskExecutor worker, CoreConfiguration config, 
@@ -102,6 +102,8 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		this.config = config;
 		this.taskFactory = taskFactory;
 		this.qcRefresher = refresher;
+		predefinedPropertyNames = sonic.getPredefinedPropertyNames();
+
 				
 		/******************************
 		 * Left side -- Queues and topic tables **
@@ -168,19 +170,30 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 				switch(e.getStateChange()) {
 				case ItemEvent.DESELECTED: {
 					JMSBroker previouslySelectedBroker = (JMSBroker)e.getItem();
-					if(previouslySelectedBroker != null)
-						qcRefresher.unregisterInterest(previouslySelectedBroker);
+					if(previouslySelectedBroker != null) {
+						if(sonic.isFeatureSupported(JMSFeature.DESTINATION_TYPE_QUEUE)) {
+							qcRefresher.unregisterInterest(previouslySelectedBroker);
+						}
+					}
 				} break;
 				
 				case ItemEvent.SELECTED: {
 					JMSBroker selectedBroker = (JMSBroker)e.getItem();
 					
 					destinationTable.clear();
-					
-					qcRefresher.registerInterest(selectedBroker);
+
+					if(sonic.isFeatureSupported(JMSFeature.DESTINATION_TYPE_QUEUE)) {
+						qcRefresher.registerInterest(selectedBroker);
+					}
+
 					connectToBroker(selectedBroker);
-					enumerateTopics(selectedBroker);
-					enumerateQueues(selectedBroker);
+					if(sonic.isFeatureSupported(JMSFeature.DESTINATION_TYPE_TOPIC)) {
+						enumerateTopics(selectedBroker);
+					}
+
+					if(sonic.isFeatureSupported(JMSFeature.DESTINATION_TYPE_QUEUE)) {
+						enumerateQueues(selectedBroker);
+					}
 				} break;
 				}
 			}
@@ -195,100 +208,115 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 				refreshQueues();
 			}
 		});
-		CommonUITasks.makeSegmented(refreshButton, Segmented.ONLY);
-		
-		// Textfield for topic name
-		final JTextField topicNameField = new JTextField();
-		topicNameField.setMaximumSize(new Dimension(
-				Integer.MAX_VALUE,
-				topicNameField.getPreferredSize().height));
 
-		// Remove button
-		final JButton removeTopicButton = CommonUITasks.createButton("Remove", new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				final JMSDestination selectedItem = destinationTable.getSelectedItem();
-				if(selectedItem == null)
-					return;
-				
-				if(TYPE.TOPIC != selectedItem.getType()) {
-					JOptionPane.showMessageDialog(null, "Only topics can be removed from the list");
-					return;
-				}
-				
-				destinationTable.removeItem(selectedItem);
-				topicNameField.setText(selectedItem.getName());
-				
-				config.removeTopicPublisher((JMSTopic)selectedItem);
-			}
-		});
-		CommonUITasks.makeSegmented(removeTopicButton, Segmented.ONLY);
-				
-		// Add button 
-		final JButton addTopicButton = CommonUITasks.createButton("Add publisher", new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				final String topicName = topicNameField.getText();
-				
-				if(topicName != null && topicName.trim().length() > 0) {
-					JMSTopic topic = sonic.createTopic((JMSBroker)brokerCombo.getSelectedItem(), topicName);
-					
-					if(destinationTable.getItemRow(topic) == -1) {
-						destinationTable.addItem(topic);
-						config.addTopicPublisher(topic);
+		final JButton removeTopicButton;
+		final JTextField topicNameField;
+		final JButton addTopicButton;
+
+		if(sonic.isFeatureSupported(JMSFeature.TOPIC_SUBSCRIBER_CREATION)) {
+			CommonUITasks.makeSegmented(refreshButton, Segmented.ONLY);
+			// Textfield for topic name
+			topicNameField = new JTextField();
+			topicNameField.setMaximumSize(new Dimension(
+					Integer.MAX_VALUE,
+					topicNameField.getPreferredSize().height));
+
+			// Remove button
+			removeTopicButton = CommonUITasks.createButton("Remove", new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					final JMSDestination selectedItem = destinationTable.getSelectedItem();
+					if (selectedItem == null)
+						return;
+
+					if (TYPE.TOPIC != selectedItem.getType()) {
+						JOptionPane.showMessageDialog(null, "Only topics can be removed from the list");
+						return;
 					}
-					
-					topicNameField.setText("");
-					destinationTable.setSelectedItem(topic);
-					destinationTable.ensureRowVisible(destinationTable.getItemRow(topic));
+
+					destinationTable.removeItem(selectedItem);
+					topicNameField.setText(selectedItem.getName());
+
+					config.removeTopicPublisher((JMSTopic) selectedItem);
 				}
-			}
-		});
-		CommonUITasks.makeSegmented(addTopicButton, Segmented.ONLY);
-		
-		// Enter in topicNameField simulates Add button click
-		topicNameField.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-					addTopicButton.doClick();
+			});
+			CommonUITasks.makeSegmented(removeTopicButton, Segmented.ONLY);
+
+			// Add button
+			addTopicButton = CommonUITasks.createButton("Add Publisher", new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					final String topicName = topicNameField.getText();
+
+					if (topicName != null && topicName.trim().length() > 0) {
+						JMSTopic topic = sonic.createTopic((JMSBroker) brokerCombo.getSelectedItem(), topicName);
+
+						if (destinationTable.getItemRow(topic) == -1) {
+							destinationTable.addItem(topic);
+							config.addTopicPublisher(topic);
+						}
+
+						topicNameField.setText("");
+						destinationTable.setSelectedItem(topic);
+						destinationTable.ensureRowVisible(destinationTable.getItemRow(topic));
+					}
 				}
-			}
-		});
+			});
+			CommonUITasks.makeSegmented(addTopicButton, Segmented.ONLY);
+
+			// Enter in topicNameField simulates Add button click
+			topicNameField.addKeyListener(new KeyAdapter() {
+				@Override
+				public void keyPressed(KeyEvent e) {
+					if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+						addTopicButton.doClick();
+					}
+				}
+			});
+		}
+		else {
+			removeTopicButton = null;
+			topicNameField = null;
+			addTopicButton = null;
+		}
 
 		// Create the panel
 		final JPanel actionPanel = new JPanel();
 		actionPanel.setLayout(new BoxLayout(actionPanel, BoxLayout.X_AXIS));
 		actionPanel.setBorder(BorderFactory.createEmptyBorder(3, 0, 0, 0));
-		actionPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE,
-			Math.max(removeTopicButton.getPreferredSize().height, topicNameField.getPreferredSize().height)));
+		if(removeTopicButton != null && topicNameField != null) {
+			actionPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE,
+					Math.max(removeTopicButton.getPreferredSize().height, topicNameField.getPreferredSize().height)));
+		}
 		
 		// Add everything to the panel
 		actionPanel.add(refreshButton);
-		actionPanel.add(Box.createHorizontalStrut(5));
-		actionPanel.add(removeTopicButton);
-		actionPanel.add(Box.createHorizontalStrut(2));
-		actionPanel.add(topicNameField);
-		actionPanel.add(Box.createHorizontalStrut(2));
-		actionPanel.add(addTopicButton);
+		if(sonic.isFeatureSupported(JMSFeature.TOPIC_SUBSCRIBER_CREATION)) {
+			actionPanel.add(Box.createHorizontalStrut(5));
+			actionPanel.add(removeTopicButton);
+			actionPanel.add(Box.createHorizontalStrut(2));
+			actionPanel.add(topicNameField);
+			actionPanel.add(Box.createHorizontalStrut(2));
+			actionPanel.add(addTopicButton);
+		}
 
 		return actionPanel;
 	}
 	
 	private JPanel createForm() {
 		final JPanel panel = new JPanel();
-		
+
 		int numRows = 0;
-		
+
 		final JPanel formPanel = new JPanel();
 		formPanel.setLayout(new SpringLayout());
-		
-		sendDestinationField = new JMSDestinationField();
+
+		sendDestinationField = new JMSDestinationField(getSupportedDestinationTypes());
 		formPanel.add(createLabelFor(sendDestinationField, "Destination"));
 		formPanel.add(sendDestinationField);
 		numRows++;
-	
+
 		numberOfMessagesField = new JIntegerField(10);
 		numberOfMessagesField.setMaximumSize(new Dimension(
-				Integer.MAX_VALUE, 
+				Integer.MAX_VALUE,
 				numberOfMessagesField.getPreferredSize().height));
 		numberOfMessagesField.setValue(1);
 		numberOfMessagesField.setToolTipText("The number that the message to be sent");
@@ -305,10 +333,10 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 				updateSendButton();
 			}
 		});
-		formPanel.add(createLabelFor(numberOfMessagesField, "Number of messages:"));
+		formPanel.add(createLabelFor(numberOfMessagesField, "Number of Messages:"));
 		formPanel.add(numberOfMessagesField);
 		numRows++;
-		
+
 		delayPerMessageField = new JIntegerField(6);
 		delayPerMessageField.setMaximumSize(new Dimension(
 				Integer.MAX_VALUE,
@@ -318,58 +346,62 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		formPanel.add(createLabelFor(delayPerMessageField, "Delay (ms):"));
 		formPanel.add(delayPerMessageField);
 		numRows++;
-		
-		jmsCorrelationIDField = new JTextField();
-		jmsCorrelationIDField.setMaximumSize(new Dimension(
-				Integer.MAX_VALUE, 
-				jmsCorrelationIDField.getPreferredSize().height));
-		jmsCorrelationIDField.setToolTipText("CorrelationID, use %i for sequence number");
-		jmsCorrelationIDField.setText("Message %i");
-		formPanel.add(createLabelFor(jmsCorrelationIDField, "JMS Correlation ID:"));
-		formPanel.add(jmsCorrelationIDField);
-		numRows++;
-		
-		if(sonic.isFeatureSupported(JMSFeature.MESSAGE_SET_PRIORITY)) {
-			jmsPriorityField = new JIntegerField(1);
-			jmsPriorityField.setMaximumSize(new Dimension(
-					Integer.MAX_VALUE,
-					jmsPriorityField.getPreferredSize().height));
-			jmsPriorityField.setMaxValue(9);
-			jmsPriorityField.setToolTipText("The JMS Priority to use when sending the message (0-9");
-			formPanel.add(createLabelFor(jmsPriorityField, "JMS Priority:"));
-			formPanel.add(jmsPriorityField);
-			numRows++;
-		}
-			
-		jmsReplyToField = new JMSDestinationField();
-		jmsReplyToField.setToolTipText("Type a name or drag a destination from the table on the left");
-		formPanel.add(createLabelFor(jmsReplyToField, "JMS Reply to:"));
-		formPanel.add(jmsReplyToField);
-		numRows++;
 
-		jmsTTLField = new JIntegerField(10);
-		jmsTTLField.setMaximumSize(new Dimension(
-				Integer.MAX_VALUE, 
-				jmsTTLField.getPreferredSize().height));
-		jmsTTLField.setMinValue(0);
-		jmsTTLField.setValue(0);
-		jmsTTLField.setToolTipText("The number of seconds after which the message is no longer valid.");
-		formPanel.add(createLabelFor(jmsTTLField, "Time to live (sec):"));
-		formPanel.add(jmsTTLField);
-		numRows++;
-		
-		deliveryModeCombo = new JComboBox<String>(deliveryModes);
-		deliveryModeCombo.setMaximumSize(new Dimension(
-				Integer.MAX_VALUE, 
-				deliveryModeCombo.getPreferredSize().height));
-		deliveryModeCombo.setToolTipText("The delivery mode, persistent or non-persistent");
-		deliveryModeCombo.putClientProperty("JComboBox.isPopDown", Boolean.TRUE);
-		formPanel.add(createLabelFor(deliveryModeCombo, "JMS Delivery Mode:"));
-		formPanel.add(deliveryModeCombo);		
-		numRows++;
-		
+		if (sonic.isFeatureSupported(JMSFeature.JMS_HEADERS)) {
+			jmsCorrelationIDField = new JTextField();
+			jmsCorrelationIDField.setMaximumSize(new Dimension(
+					Integer.MAX_VALUE,
+					jmsCorrelationIDField.getPreferredSize().height));
+			jmsCorrelationIDField.setToolTipText("CorrelationID, use %i for sequence number");
+			jmsCorrelationIDField.setText("Message %i");
+			formPanel.add(createLabelFor(jmsCorrelationIDField, "JMS Correlation ID:"));
+			formPanel.add(jmsCorrelationIDField);
+			numRows++;
+
+
+			if (sonic.isFeatureSupported(JMSFeature.MESSAGE_SET_PRIORITY)) {
+				jmsPriorityField = new JIntegerField(1);
+				jmsPriorityField.setMaximumSize(new Dimension(
+						Integer.MAX_VALUE,
+						jmsPriorityField.getPreferredSize().height));
+				jmsPriorityField.setMaxValue(9);
+				jmsPriorityField.setToolTipText("The JMS Priority to use when sending the message (0-9");
+				formPanel.add(createLabelFor(jmsPriorityField, "JMS Priority:"));
+				formPanel.add(jmsPriorityField);
+				numRows++;
+			}
+
+			jmsReplyToField = new JMSDestinationField();
+			jmsReplyToField.setToolTipText("Type a name or drag a destination from the table on the left");
+			formPanel.add(createLabelFor(jmsReplyToField, "JMS Reply to:"));
+			formPanel.add(jmsReplyToField);
+			numRows++;
+
+			jmsTTLField = new JIntegerField(10);
+			jmsTTLField.setMaximumSize(new Dimension(
+					Integer.MAX_VALUE,
+					jmsTTLField.getPreferredSize().height));
+			jmsTTLField.setMinValue(0);
+			jmsTTLField.setValue(0);
+			jmsTTLField.setToolTipText("The number of seconds after which the message is no longer valid.");
+			formPanel.add(createLabelFor(jmsTTLField, "Time to Live (sec):"));
+			formPanel.add(jmsTTLField);
+			numRows++;
+
+			deliveryModeCombo = new JComboBox<String>(deliveryModes);
+			deliveryModeCombo.setMaximumSize(new Dimension(
+					Integer.MAX_VALUE,
+					deliveryModeCombo.getPreferredSize().height));
+			deliveryModeCombo.setToolTipText("The delivery mode, persistent or non-persistent");
+			deliveryModeCombo.putClientProperty("JComboBox.isPopDown", Boolean.TRUE);
+			formPanel.add(createLabelFor(deliveryModeCombo, "JMS Delivery Mode:"));
+			formPanel.add(deliveryModeCombo);
+			numRows++;
+
+		}
+
 		JPanel propertiesButtonPanel = createPropertiesButtonPanel();
-		formPanel.add(createLabelFor(propertiesButtonPanel, "Custom JMS properties:"));
+		formPanel.add(createLabelFor(propertiesButtonPanel, "Custom Message Properties:"));
 		formPanel.add(propertiesButtonPanel);
 		numRows++;
 		
@@ -377,7 +409,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		JPanel typeMyOwnPanel = createTypeMyOwnPanel();
 		
 		JPanel radioPanel = createRadioButtonPanel(fileBrowsePanel, typeMyOwnPanel);
-		formPanel.add(createLabelFor(radioPanel, "Message content:"));
+		formPanel.add(createLabelFor(radioPanel, "Message Content:"));
 		formPanel.add(radioPanel);
 		numRows++;
 		
@@ -404,7 +436,22 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		
 		return panel;		
 	}
-	
+
+	// allows subclasses to override this method and i.e. only show Topics
+	protected TYPE[] getSupportedDestinationTypes() {
+		List<TYPE> types = new ArrayList<>();
+
+		if(sonic.isFeatureSupported(JMSFeature.DESTINATION_TYPE_TOPIC)) {
+			types.add(TYPE.TOPIC);
+		}
+
+		if(sonic.isFeatureSupported(JMSFeature.DESTINATION_TYPE_QUEUE)) {
+			types.add(TYPE.QUEUE);
+		}
+
+		return types.toArray(new TYPE[0]);
+	}
+
 	private JPanel createPropertiesButtonPanel(){
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
@@ -418,7 +465,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		final JButton editButton = CommonUITasks.createButton("Edit...",
 		new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
-				properties = PropertiesDialog.editProperties(properties);
+				properties = PropertiesDialog.editProperties(properties, predefinedPropertyNames);
 				String propertiesText = createPropertiesText(properties);
 				customPropertiesField.setText(propertiesText);
 			}
@@ -493,6 +540,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		
 		typingArea = new JSearchableTextArea();
+		//TODO: make this more flexible
 		typingArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
 		typingArea.setCodeFoldingEnabled(true);
 		
@@ -553,7 +601,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 	}
 
 	private JButton createSendButton() {
-		sendButton = CommonUITasks.createButton("Send message", 
+		sendButton = CommonUITasks.createButton("Send Message",
 		new ActionListener() {
 			String messageContent = null;
 			
@@ -566,15 +614,16 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 					JMSDestination sendDestination = sendDestinationField.getDestination(
 						sonic, (JMSBroker) brokerCombo.getSelectedItem());
 					
-					String jmsCorrIdValue = jmsCorrelationIDField.getText();
+					String jmsCorrIdValue = jmsCorrelationIDField==null? null: jmsCorrelationIDField.getText();
+
 					Integer jmsPriorityValue = jmsPriorityField == null ? null : 
 							Strings.isNullOrEmpty(jmsPriorityField.getText()) 
 							? null : jmsPriorityField.getValue();
 					
-					JMSDestination jmsReplyToValue = jmsReplyToField.getDestination(
+					JMSDestination jmsReplyToValue = jmsReplyToField==null? null: jmsReplyToField.getDestination(
 						sonic, (JMSBroker) brokerCombo.getSelectedItem());
 					
-					long jmsTimeToLiveValue = jmsTTLField.getValue();
+					long jmsTimeToLiveValue = jmsTTLField==null? 0: jmsTTLField.getValue();
 										
 					if(sendDestination == null) {
 						JOptionPane.showMessageDialog(null,	"Please select or enter a destination" );
@@ -638,15 +687,20 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 	}
 	
 	protected void refreshQueues() {
-		final JMSBroker broker = (JMSBroker)brokerCombo.getSelectedItem();
-		
-		worker.execute(taskFactory.enumerateQueues(broker, null));
+		if(sonic.isFeatureSupported(JMSFeature.DESTINATION_TYPE_QUEUE)) {
+			final JMSBroker broker = (JMSBroker) brokerCombo.getSelectedItem();
+
+			worker.execute(taskFactory.enumerateQueues(broker, null));
+		}
 	};
 	
 	private int getDeliveryMode(){
-		String item = (String)deliveryModeCombo.getSelectedItem();
-		if(item.equalsIgnoreCase("NON-PERSISTENT"))
-			return DeliveryMode.NON_PERSISTENT;
+		// if deliveryModeCombo is null, then the this is not visible, default to PERSISTENT
+		if(deliveryModeCombo!=null){
+			String item = (String)deliveryModeCombo.getSelectedItem();
+			if(item.equalsIgnoreCase("NON-PERSISTENT"))
+				return DeliveryMode.NON_PERSISTENT;
+		}
 		return  DeliveryMode.PERSISTENT;
 	}
 	
@@ -731,6 +785,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 				jmsTimeToLive);
 
 		message.setText(messageContent);
+
 		message.setJMSDeliveryMode(deliveryMode);
 		
 		Map<String, Object> propsCopy = CollectionFactory.newHashMap();
@@ -777,6 +832,9 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 	 */
 	private void enumerateTopics(final JMSBroker broker) {
 		destinationTable.updateData(getConfiguredTopics(broker));
+
+		// optionally, enumerate topics
+		worker.execute(taskFactory.enumerateTopics(broker, null));
 	}
 	
 	/**
@@ -833,7 +891,8 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 			final JMSDestination jmsReplyToValue, 
 			final Long jmsTimeToLive) throws JMSException {
 		
-		message.setJMSCorrelationID(jmsCorrelationIdFieldValue);
+		if(jmsCorrelationIdFieldValue!=null)
+			message.setJMSCorrelationID(jmsCorrelationIdFieldValue);
 	
 		if(jmsPriorityValue != null)
 			message.setJMSPriority(jmsPriorityValue);
@@ -892,17 +951,17 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		case BROKERS_ENUMERATED:
 			populateBrokerCombo((List<JMSBroker>)event.getInfo());
 			break;
-		
+
+		case TOPICS_ENUMERATED:
 		case QUEUES_ENUMERATED:
-			final List<JMSQueue> queueList = (List<JMSQueue>)event.getInfo();
-			if(queueList.size() > 0 && queueList.get(0).getBroker().equals(brokerCombo.getSelectedItem())) {
+			List<JMSDestination> destinationList = (List<JMSDestination>)event.getInfo();
+			if(destinationList.size() > 0 && destinationList.get(0).getBroker().equals(brokerCombo.getSelectedItem())) {
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
-						destinationTable.updateData(queueList);
+						destinationTable.updateData(destinationList);
 					}
 				});
 			}
-			
 			break;
 			
 		case BROKER_DISCONNECT:
@@ -914,7 +973,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 	}		
 	
 	public String getUITabName() {
-		return "Message sender";
+		return "Message Sender";
 	}
 
 	public JComponent getUITabComponent() {

@@ -3,12 +3,20 @@
  */
 
 rootProject.name = 'messagemanager'
+
 include(':jmsmessages')
 include(':messagemanager-core')
 include(':messagemanager-ui')
 include(':messagemanager-plugin-api')
-include(':messagemanager-fakemq')
-//include(':messagemanager-activemq')
-//include(':messagemanager-sonicmq')
-include(':messagemanager-solace')
+//include(':messagemanager-fakemq')
+include(':messagemanager-activemq')
+
+// only build Sonic if it is installed locally
+if (System.getenv('SONIC_HOME') != null) {
+    include(':messagemanager-sonicmq')
+}
+
 include(':messagemanager-app')
+include 'messagemanager-bootstrap'
+include 'messagemanager-bootstrap-config'
+

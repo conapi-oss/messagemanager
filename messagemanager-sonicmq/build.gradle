@@ -4,23 +4,117 @@
 
 plugins {
     id 'java-library'
+    id 'base' // to get access to the clean task
 }
+
+def sonicLibsToExtractV10 = [
+        "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\smc.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\xercesImpl.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\mgmt_config.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\sonic_Client.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\sonic_Crypto.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\sonic_XMessage.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\mgmt_client.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ10.0\\lib\\sonic_mgmt_client.jar"
+]
+
+def sonicLibsToExtractV12 = [
+        "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\smc.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\xercesImpl.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\mgmt_config.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\sonic_Client.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\sonic_Crypto.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\sonic_XMessage.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\mgmt_client.jar",
+        "${System.getenv('SONIC_HOME')}\\MQ12.0\\lib\\sonic_mgmt_client.jar"
+]
+
+
+
+tasks.register('deleteTempSonicSubfolder', Delete){
+    doLast {
+        fileTree(dir: "$projectDir/.sonic-libs/compileOnly").exclude("*.jar").visit { FileVisitDetails details ->
+           delete details.file
+        }
+        println "Deleted temporary folders in: $projectDir/.sonic-libs/compileOnly"
+    }
+    dependsOn processSonicJars
+    mustRunAfter processSonicJars
+}
+
+
+tasks.register('processSonicJars', Task) {
+    //done in configuration phase
+    println 'Running processSonicJars'
+    def libsDir = layout.projectDirectory.file(".sonic-libs/compileOnly")
+    // only extract if the libs folder does not exist yet
+    if (!libsDir.asFile.exists()) {
+        println 'Creating Sonic libs directory: ' + libsDir
+        // Check if the folder for MQ10.0 exists
+        def sonicHome = "${System.getenv('SONIC_HOME')}"
+        def sonicLibsFolder = "${sonicHome}\\MQ10.0"
+        def chosenSonicLibs = new File(sonicLibsFolder).exists() ? sonicLibsToExtractV10 : sonicLibsToExtractV12
+
+        chosenSonicLibs.each { jarFileName ->
+            def jarFile = new File(jarFileName)
+            def extractedJar = new File(project.projectDir, ".sonic-libs/compileOnly/" + jarFile.name.replace(".jar", ""))
+            // Extract JARs and remove unwanted classes ( javax should not be bundled)
+            copy {
+                from project.zipTree(jarFile)
+                into extractedJar
+                exclude "**/javax/**"  // filters out the javax classes which should not be there
+            }
+
+            println "Extracted JAR: $jarFileName" // Print progress
+
+            // Repackage extracted files into JAR using ANT as all other approaches failed with Gradle 8+
+            def repackagedJar = new File(project.projectDir, ".sonic-libs/compileOnly/" + jarFile.name)
+            println "Recreating JAR: " + extractedJar
+            ant.zip(destfile: repackagedJar) {
+                FileSet(dir: extractedJar)
+            }
+        }
+
+/*
+        // Loop through extracted subfolders and create JAR for each
+       libsDir.asFile.eachDir { subfolder ->
+            println "Zip/Jar processing folder: " + subfolder.name + " (" + subfolder.isDirectory() + ")"
+            def taskName = "zip${subfolder.name.capitalize()}"
+
+            //task "$taskName"(type: Jar) {
+            dependsOn tasks.register("$taskName",  Jar) {
+                getDestinationDirectory().set(file("$projectDir/.sonic-libs/compileOnly/"))
+                getArchiveFileName().set("${subfolder.name}.jar")
+                from(subfolder)
+              //  mustRunAfter("processSonicJars")
+            }
+            //processSonicJars.dependsOn(taskName)
+           //dependsOn(taskName)
+        }*/
+    }
+    else {
+        println 'Sonic libs directory already exists: ' + libsDir
+    }
+}
+
 
 dependencies {
     implementation project(':messagemanager-plugin-api')
     implementation project(':messagemanager-core')
     implementation project(':messagemanager-ui')
-    implementation 'com.google.inject:guice:5.0.1'
+
+    implementation 'com.google.inject:guice:7.0.0'
+
     testImplementation 'junit:junit:[4,5)'
 
-    compileOnly 'com.aurea.sonic.mq:mgmt_client:10.0'
-    compileOnly 'com.aurea.sonic.mq:mgmt_config:10.0'
-    compileOnly 'com.aurea.sonic.mq:smc:10.0'
-    compileOnly 'com.aurea.sonic.mq:sonic_Client:10.0'
-    compileOnly 'com.aurea.sonic.mq:sonic_Crypto:10.0'
-    compileOnly 'com.aurea.sonic.mq:sonic_mgmt_client:10.0'
-    compileOnly 'com.aurea.sonic.mq:sonic_XMessage:10.0'
-    compileOnly 'com.aurea.sonic.mq:xercesImpl:10.0'
+    //TODO: need to see if this should be part of sonicLibs
+    //implementation 'javax.activation:activation:1.1.1'
+    //compileOnly 'javax.activation:activation:1.1.1' // if this is set then remove the activation lines form modules-info
+    implementation 'com.sun.activation:javax.activation:1.2.0'
+
+    compileOnly fileTree(dir: '.sonic-libs/compileOnly', includes: ['*.jar'])
 }
+
+compileJava.dependsOn deleteTempSonicSubfolder
 
 description = 'Message Manager for SonicMQ'

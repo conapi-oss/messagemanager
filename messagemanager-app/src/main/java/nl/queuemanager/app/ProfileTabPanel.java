@@ -17,7 +17,7 @@ import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.util.DocumentAdapter;
 import nl.queuemanager.ui.util.SingleExtensionFileFilter;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.ListSelectionEvent;
@@ -30,6 +30,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystems;
@@ -116,6 +117,7 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		}
 		profilesList = new JList<Profile>(profilesModel);
 		profilesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		//profilesList.setSelectionBackground(Color.lightGray); // default is blue and does not work well with some icons
 		profilesList.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
@@ -136,7 +138,6 @@ public class ProfileTabPanel extends JPanel implements UITab {
 					setToolTipText(profile.getName());
 					setText(profile.getName());
 				}
-				
 				return comp;
 			}
 		});
@@ -232,7 +233,11 @@ public class ProfileTabPanel extends JPanel implements UITab {
 				
 				if(value instanceof URL) {
 					try {
-						final File file = new File(((URL)value).toURI());
+						//replace any @MM_HOME@ placeholder with the actual value of the MM_HOME environment variable
+						String jarUrl = ((URL)value).toString().replace("@MM_HOME@", System.getenv("MM_HOME"));
+						jarUrl = jarUrl.replace("\\", "/");
+
+						final File file = new File(URI.create(jarUrl));
 						if(file != null) {
 							setIcon(fileChooser.getIcon(file));
 							setText(file.getName() + (!file.exists()?" (missing)": ""));
@@ -241,7 +246,7 @@ public class ProfileTabPanel extends JPanel implements UITab {
 								setForeground(Color.red);
 							}
 						}
-					} catch (URISyntaxException e) {
+					} catch (IllegalArgumentException e) {
 						// Ok then, no icon for you!
 						logger.log(Level.WARNING, String.format("Unable to resolve icon for %s", value), e);
 					}

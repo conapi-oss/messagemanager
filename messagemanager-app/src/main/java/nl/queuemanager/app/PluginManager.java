@@ -11,8 +11,8 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -20,11 +20,10 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,7 +38,7 @@ public class PluginManager {
 	
 	private final File pluginsFolder;
 	private Map<String, PluginDescriptor> plugins = new HashMap<>();
-	private URLClassLoader pluginClassloader;
+	private ClassLoader pluginClassloader;
 	
 	@Inject
 	public PluginManager(PlatformHelper platform, ProfileManager profileManager, TaskExecutor worker) {
@@ -47,9 +46,13 @@ public class PluginManager {
 		this.profileManager = profileManager;
 
 		pluginsFolder = new File(new File(platform.getDataFolder(), "plugins"), Version.VERSION);
-
 		installProvidedPluginsFromResources(pluginsFolder);
 		plugins.putAll(findInstalledPlugins(pluginsFolder));
+
+		// load bootstrapped plugins
+		final File bootStrapPluginsFolder = Path.of("", "plugins").toAbsolutePath().toFile();
+		installProvidedPluginsFromResources(bootStrapPluginsFolder);
+		plugins.putAll(findInstalledPlugins(bootStrapPluginsFolder));
 
 		ServiceLoader<Module> serviceLoader = ServiceLoader.load(Module.class);
 		serviceLoader.stream()
@@ -169,7 +172,7 @@ public class PluginManager {
 						Profile profile = profileManager.readDescriptor(stream, pluginZip);
 						if(profile != null) {
 							logger.fine(String.format("Found profile: %s in file %s", profile.getName(), pluginFile.getName()));
-							profileManager.putProfileIfNotExist(profile);
+							profileManager.putProfileIfNotExist(profile, true);
 						}
 					}
 				}
@@ -224,7 +227,8 @@ public class PluginManager {
 		throw new PluginManagerException("Plugin " + classname + " does not exist!");
 	}
 
-	public List<com.google.inject.Module> loadPluginModules(Collection<? extends PluginDescriptor> plugins, List<URL> classpath) throws PluginManagerException {
+	public List<Module> loadPluginModules(Collection<? extends PluginDescriptor> plugins, List<URL> classpath) throws PluginManagerException {
+
 		if(pluginClassloader != null) {
 			// Unload the existing plugins so we can try again
 			pluginClassloader = null;
@@ -245,31 +249,34 @@ public class PluginManager {
 			urls.addAll(classpath);
 
 			// Create the classloader for the plugins, using the "current" classloader as a parent.
-			URLClassLoader classLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]), getClass().getClassLoader());
-			logger.finest("Created classloader: " + Arrays.toString(classLoader.getURLs()) + " with parent " + classLoader.getParent());
+
+			final ModuleLayer moduleLayer = PluginModuleHelper.createPluginModuleLayer(urls, getClass());
+
+			final String firstLoadedModule = moduleLayer.modules().stream().findFirst().get().getName();
+			final ClassLoader classLoader = moduleLayer.findLoader(firstLoadedModule);
 
 			// Set the ClassLoader on the worker and the current thread to make sure any class loading
 			// magic done by the plugins or any dependent classes (such as trying to use the context
 			// class loader directly) will hopefully work.
+			// TODO: not sure all this is still needed with Java 9 modules
 			worker.setContextClassLoader(classLoader);
 			Thread.currentThread().setContextClassLoader(classLoader);
 
-			List<com.google.inject.Module> result = new ArrayList<>();
-			for(PluginDescriptor plugin: plugins) {
-				@SuppressWarnings("unchecked")
-				Class<com.google.inject.Module> moduleClass =
-						(Class<com.google.inject.Module>) classLoader.loadClass(plugin.getModuleClassName());
-				com.google.inject.Module module = moduleClass.getDeclaredConstructor().newInstance();
-				result.add(module);
+			final List<com.google.inject.Module> result = new ArrayList<>();
+
+			// Load the jars for the plugins using service loader using our Module Layer
+			ServiceLoader<Module> slPlugins = ServiceLoader.load(moduleLayer, Module.class);
+			for(Module ext : slPlugins) {
+				result.add(ext);// add each found plugin module
 			}
-			
+
 			pluginClassloader = classLoader;
 			return result;
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
+		}
+		catch (Exception e) {
 			throw new PluginManagerException("Unable to load plugin modules", e);
 		}
 	}
-
 	private PluginDescriptor toPlugin(ServiceLoader.Provider<Module> provider) {
 		PluginDescriptor desc = new PluginDescriptor();
 		desc.setName("Auto " + provider.type().getSimpleName());

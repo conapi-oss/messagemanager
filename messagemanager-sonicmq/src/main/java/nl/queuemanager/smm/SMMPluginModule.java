@@ -21,7 +21,7 @@ public class SMMPluginModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		bind(ConnectivityProviderPlugin.class).to(SonicMQConnectivityProvider.class);
-		
+
 		// The JMSDomain implementation for SonicMQ
 		bind(JMSDomain.class).to(Domain.class).in(Scopes.SINGLETON);
 		
@@ -36,6 +36,13 @@ public class SMMPluginModule extends AbstractModule {
 		 * The connection dialog cannot be bound directly because we aren't able to add the @Inject
 		 * annotation to it, we don't have the source code. Therefore we use this provider instead.
 		 */
+		Class clazz;
+        try {
+			clazz = Thread.currentThread().getContextClassLoader().loadClass("com.sonicsw.ma.gui.domain.JDomainConnectionDialog");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
 		bind(JDomainConnectionDialog.class).toProvider(ConnectionDialogProvider.class).in(Scopes.SINGLETON);
 	}
 
@@ -49,7 +56,21 @@ public class SMMPluginModule extends AbstractModule {
 		@Override
 		public JDomainConnectionDialog get() {
 			return new JDomainConnectionDialog(null);
+
+		/*	try {
+				// Load JDomainConnectionDialog using the customClassLoader
+				Class<?> clazzClass = Thread.currentThread().getContextClassLoader().loadClass(JDomainConnectionDialog.class.getName());
+
+				// Create an instance of clazz using the loaded class
+				return (JDomainConnectionDialog) clazzClass.newInstance();
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+				throw new RuntimeException("Error creating instance of " + JDomainConnectionDialog.class.getName(), e);
+			}
+
+		 */
 		}
+
+
 	}
 	
 }

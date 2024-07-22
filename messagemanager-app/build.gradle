@@ -6,37 +6,42 @@ plugins {
     id 'application'
 }
 
-application {
-    mainClass = 'nl.queuemanager.app.Main'
+application{
+    mainClassName = 'nl.queuemanager.app.Main'
 }
 
+// task to copy dependencies into the build directory
+tasks.register('copyAllDependencies',  Copy) {
+    from configurations.runtimeClasspath
+    into "${buildDir}/update4j/messagemanager"
+
+    from "build/libs/${project.name}-${project.version}.jar"
+    into "${buildDir}/update4j/messagemanager"
+
+    dependsOn(jar)
+}
+
+build.dependsOn('copyAllDependencies')
+
 description = 'messagemanager-app'
+
 
 dependencies {
     implementation project(':messagemanager-ui')
     implementation project(':messagemanager-plugin-api')
 
-//    implementation project(':messagemanager-fakemq')
+    // DO NOT ADD THESE DEPENDENCIES OTHERWISE THE JAVA9+ MODULE PATH WILL NOT WORK
+    //implementation project(':messagemanager-fakemq')
+    //implementation project(':messagemanager-activemq')
+    //implementation project(':messagemanager-sonicmq')
 
-//    implementation project(':messagemanager-activemq')
-    implementation project(':messagemanager-solace')
-//    implementation project(':messagemanager-sonicmq')
+    implementation 'com.formdev:flatlaf:3.4.1'
+    implementation 'com.github.Dansoftowner:jSystemThemeDetector:3.9.1'
 
-    implementation 'com.formdev:flatlaf:2.3'
+    compileOnly 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
 
-    compileOnly 'org.projectlombok:lombok:1.18.24'
-    annotationProcessor 'org.projectlombok:lombok:1.18.24'
 }
 
-task fatJar(type: Jar) {
-    manifest {
-        attributes 'Main-Class': application.mainClassName
-    }
-    baseName = 'messagemanager'
-    from {
-        exclude '**/module-info.class'
-        exclude 'META-INF/**'
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-    with jar
-}
+
+

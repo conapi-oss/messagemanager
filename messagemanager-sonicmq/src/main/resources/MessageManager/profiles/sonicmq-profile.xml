@@ -1,29 +1,42 @@
 <profile>
-	<id>51c40d3c-79d6-11e5-8c47-7831c1c10182</id>
-	<name>SonicMQ</name>
-	<icon>MessageManager/profiles/sonicmq-logo.jpg</icon>
-	<description>Use this profile to connect to Sonic MQ. You will need to add the Sonic MQ jar files (sonic_Client.jar) from your installation to the classpath list below before this profile will work.</description>
+	<id>51c40d3c-79d6-11e5-8c47-7831c1c10190</id>
+	<name>Aurea Messenger / SonicMQ - TEMPLATE</name>
+	<icon>MessageManager/profiles/sonicmq-logo.png</icon>
+	<description>Use this profile to connect to Aurea Messenger (SonicMQ). You will need to add the Aurea Messenger(SonicMQ) jar files (i.e. sonic_Client.jar) from your installation to the classpath list below before this profile will work.</description>
 	<plugins>
 		<plugin>nl.queuemanager.smm.SMMPluginModule</plugin>
 	</plugins>
 	<jars>
-		<jar>MFdirectory.jar</jar>
-		<jar>activation.jar</jar>
-		<jar>ant-contrib.jar</jar>
-		<jar>javax.jms.jar</jar>
+		<jar>xercesImpl.jar</jar>
+		<jar>sonic_ASPI.jar</jar>
+		<jar>sonic_XMessage.jar</jar>
+		<jar>sonic_Client_ext.jar</jar>
+		<jar>smc.jar</jar>
+		<jar>sonic_Crypto.jar</jar>
 		<jar>mail.jar</jar>
-		<jar>mgmt_agent.jar</jar>
+		<jar>sonic_Client.jar</jar>
 		<jar>mgmt_client.jar</jar>
 		<jar>mgmt_config.jar</jar>
-		<jar>smc.jar</jar>
-		<jar>sonic_Client.jar</jar>
-		<jar>sonic_Crypto.jar</jar>
-		<jar>sonic_XMessage.jar</jar>
+		<jar>sonic_Selector.jar</jar>
 		<jar>sonic_mgmt_client.jar</jar>
-		<jar>xercesImpl.jar</jar>
+		<jar>sonic_SSL.jar</jar>
 	</jars>
 	<requirements>
 		<jar></jar>
 		<class></class>
 	</requirements>
+	<classpath>
+		<entry>file:/C:/sonic/MQ10.0/lib/xercesImpl.jar</entry>
+		<entry>file:/C:/sonic/MQ10.0/lib/sonic_XMessage.jar</entry>
+		<entry>file:/C:/sonic/MQ10.0/lib/sonic_Client_ext.jar</entry>
+		<entry>file:/C:/sonic/MQ10.0/lib/smc.jar</entry>
+		<entry>file:/C:/sonic/MQ10.0/lib/sonic_Crypto.jar</entry>
+		<entry>file:/C:/sonic/MQ10.0/lib/mail.jar</entry>
+		<entry>file:/C:/sonic/MQ10.0/lib/sonic_Client.jar</entry>
+		<entry>file:/C:/sonic/MQ10.0/lib/mgmt_client.jar</entry>
+		<entry>file:/C:/sonic/MQ10.0/lib/mgmt_config.jar</entry>
+		<entry>file:/C:/sonic/MQ10.0/lib/sonic_Selector.jar</entry>
+		<entry>file:/C:/sonic/MQ10.0/lib/sonic_mgmt_client.jar</entry>
+		<entry>file:/C:/sonic/MQ10.0/lib/sonic_SSL.jar</entry>
+	</classpath>
 </profile>

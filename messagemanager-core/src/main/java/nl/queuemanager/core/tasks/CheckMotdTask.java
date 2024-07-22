@@ -8,7 +8,7 @@ import nl.queuemanager.core.task.BackgroundTask;
 import nl.queuemanager.core.util.DNSUtil;
 import nl.queuemanager.core.util.ReleasePropertiesEvent;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.Calendar;
 import java.util.logging.Logger;
 
@@ -54,8 +54,9 @@ public class CheckMotdTask extends BackgroundTask {
 		
 		// Get the latest MOTD number from the server
 		int latestMotdNumber = getLatestMotdNumber();
-		
-		if(latestMotdNumber > lastMotdNumber) {
+
+		// only show MOTDs 10 and higher, the lower ones are used to inform v2.x and v3.x customers about the migration
+		if(latestMotdNumber > 10 && latestMotdNumber > lastMotdNumber) {
 			String motd = DNSUtil.getFirstTxtRecord(latestMotdNumber + ".motd." + hostname);
 			log.info(String.format("There is a new MOTD (%d > %d), showing MOTD: %s", latestMotdNumber, lastMotdNumber, motd));
 			eventBus.post(new ReleasePropertiesEvent(ReleasePropertiesEvent.EVENT.MOTD_FOUND, this, motd));

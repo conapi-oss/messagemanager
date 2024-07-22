@@ -18,6 +18,7 @@ package nl.queuemanager.ui.message;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import nl.queuemanager.core.Pair;
+import nl.queuemanager.core.jms.JMSFeature;
 import nl.queuemanager.jms.JMSMultipartMessage;
 import nl.queuemanager.jms.JMSPart;
 import nl.queuemanager.ui.MessageListTransferable;
@@ -97,28 +98,32 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 		DefaultTreeModel model = (DefaultTreeModel) structureTree.getModel();
 		
 		root.removeAllChildren();
-		JMSHeadersTable messagePropertiesTable = new JMSHeadersTable();
-		messagePropertiesTable.setHighlightsModel(HighlightsModel.with(
-				(ListTableModel<? extends Pair<?, ?>>) messagePropertiesTable.getModel(), highlighter));
-		messagePropertiesTable.setMessage(this.message);
-		root.add(
-			new DefaultMutableTreeNode(
-				new TreeNodeInfo(
-					"JMS Headers", 
-					new JScrollPane(messagePropertiesTable))));
-		
-		MessagePropertiesTable messageHeadersTable = new MessagePropertiesTable();
-		messageHeadersTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		messageHeadersTable.setHighlightsModel(HighlightsModel.with(
-				(ListTableModel<? extends Pair<?, ?>>) messageHeadersTable.getModel(), highlighter));
-		messageHeadersTable.setMessage(this.message);
-		root.add(
-			new DefaultMutableTreeNode(
-				new TreeNodeInfo(
-					"Properties", 
-					new JScrollPane(messageHeadersTable))));
-		
+
 		if(message != null) try {
+
+			if(message.getJMSDestination() != null) {
+				JMSHeadersTable messageHeadersTable = new JMSHeadersTable();
+				messageHeadersTable.setHighlightsModel(HighlightsModel.with(
+						(ListTableModel<? extends Pair<?, ?>>) messageHeadersTable.getModel(), highlighter));
+				messageHeadersTable.setMessage(this.message);
+				root.add(
+						new DefaultMutableTreeNode(
+								new TreeNodeInfo(
+										"JMS Headers",
+										new JScrollPane(messageHeadersTable))));
+			}
+
+			MessagePropertiesTable messagePropertiesTable = new MessagePropertiesTable();
+			messagePropertiesTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			messagePropertiesTable.setHighlightsModel(HighlightsModel.with(
+					(ListTableModel<? extends Pair<?, ?>>) messagePropertiesTable.getModel(), highlighter));
+			messagePropertiesTable.setMessage(this.message);
+			root.add(
+					new DefaultMutableTreeNode(
+							new TreeNodeInfo(
+									"Properties",
+									new JScrollPane(messagePropertiesTable))));
+
 			if(message instanceof JMSMultipartMessage) {
 				JMSMultipartMessage mp = (JMSMultipartMessage)message;
 				

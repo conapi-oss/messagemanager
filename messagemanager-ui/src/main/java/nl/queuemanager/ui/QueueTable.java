@@ -25,7 +25,7 @@ import nl.queuemanager.ui.util.ListTableModel;
 import nl.queuemanager.ui.util.MessageCountComparator;
 import nl.queuemanager.ui.util.MiscUtils;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -112,7 +112,8 @@ class QueueTable extends JTable implements Clearable {
 	public void updateData(List<JMSQueue> queues) {
 		if(realModel.getData() == null) {
 			setData(queues);
-		} else {
+		}
+		else {
 			for(JMSQueue q: queues) {
 				int row = realModel.getItemRow(q);
 				if(row != -1) {

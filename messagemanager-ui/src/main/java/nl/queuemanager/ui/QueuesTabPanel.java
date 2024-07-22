@@ -32,7 +32,7 @@ import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
-import nl.queuemanager.ui.JMSDestinationTransferHandler.JMSDestinationHolder;
+import nl.queuemanager.core.tasks.FireRefreshRequiredTask.JMSDestinationHolder;
 import nl.queuemanager.ui.MessagesTable.MessageTableModel;
 import nl.queuemanager.ui.message.MessageViewerPanel;
 import nl.queuemanager.ui.util.HighlightsModel;
@@ -230,17 +230,21 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 		queuesActionPanel.add(refreshQueuesButton);
 		
 		// Clear messages button
-		final JButton clearMessagesButton = createButton("Clear messages", new ActionListener() {
+		final JButton clearMessagesButton = createButton("Clear Messages", new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				int[] selectedRows = queueTable.getSelectedRows();
-				List<JMSQueue> queueList = CollectionFactory.newArrayList();
-				
-				for(int row: selectedRows) {
-					queueList.add(queueTable.getRowItem(row));
+
+				// show a confirmation dialog
+				int option = JOptionPane.showConfirmDialog(QueuesTabPanel.this, "Are you sure you want to clear all messages in the selected queues?", "Clear Messages", JOptionPane.YES_NO_OPTION);
+				if(option == JOptionPane.YES_OPTION) {
+					int[] selectedRows = queueTable.getSelectedRows();
+					List<JMSQueue> queueList = CollectionFactory.newArrayList();
+
+					for (int row : selectedRows) {
+						queueList.add(queueTable.getRowItem(row));
+					}
+					deleteQueueMessages(queueList);
+					messageTable.clear();
 				}
-				
-				deleteQueueMessages(queueList);
-				messageTable.clear();
 			}
 		});
 		CommonUITasks.makeSegmented(refreshQueuesButton, Segmented.FIRST);
@@ -316,7 +320,7 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 			public void valueChanged(ListSelectionEvent e) {
 				if (e.getValueIsAdjusting())
 					return;
-				
+				// at least one message selected
 				displaySelectedMessage();
 			}
 		});
@@ -513,8 +517,9 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 			
 		case QUEUES_ENUMERATED:
 			final List<JMSQueue> queueList = (List<JMSQueue>)event.getInfo();
-			if(queueList.size() > 0 && queueList.get(0).getBroker().equals(brokerCombo.getSelectedItem()))
+			if(queueList.size() > 0 && queueList.get(0).getBroker().equals(brokerCombo.getSelectedItem())) {
 				populateQueueTable(queueList);
+			}
 			break;
 			
 		case BROKER_DISCONNECT:
@@ -529,7 +534,7 @@ public class QueuesTabPanel extends JSplitPane implements UITab {
 	}
 	
 	public String getUITabName() {
-		return "Queue browser";
+		return "Queue Browser";
 	}
 
 	public JComponent getUITabComponent() {

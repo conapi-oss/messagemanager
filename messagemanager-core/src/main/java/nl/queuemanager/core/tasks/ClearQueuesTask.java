@@ -6,7 +6,7 @@ import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.jms.JMSQueue;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.List;
 
 public class ClearQueuesTask extends Task {

@@ -70,11 +70,15 @@ public class TaskErrorListener {
 				return;
 			}
 				
-			if(!((Task)event.getSource()).isBackground()) {
+			if(!((Task)event.getSource()).isBackground() || DEBUG) {
 				String message = translateExceptionMessage((Throwable)event.getInfo());
 				showMessage(parent, "Error in task " + event.getSource().toString(), message, true);
 			}
-			
+			else{
+				// even if the task was a background task, we still want to show the error on the console
+				log.info(translateExceptionMessage((Throwable)event.getInfo()));
+			}
+
 			break;
 		}
 	}
@@ -84,11 +88,16 @@ public class TaskErrorListener {
 			return "Unknown error! (Exception in TaskEvent was null)";
 		
 		if(DEBUG) return captureStackTrace(e);
-		
+
 		// Handle known Exceptions first. If the Exception is unknown, dig deeper
 		if(e instanceof java.net.UnknownHostException)
 			return "The host was not found";
-		
+
+		if( e instanceof java.lang.module.ResolutionException ||
+			e instanceof java.lang.module.FindException){
+			return "Please check the TEMPLATE profile for recommended JARs and adjust the classpath: " + e.getMessage();
+		}
+
 		if(MANAGE_PERMISSION_DENIED.equals(e.getClass().getName())
 		|| CONFIGURE_PERMISSION_DENIED.equals(e.getClass().getName()))
 			return "You do not have permission to perform this action";
@@ -118,12 +127,26 @@ public class TaskErrorListener {
 	}
 
 	private void showMessage(final Component parent, final String title, final String message, final boolean error) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				JOptionPane.showMessageDialog(parent, 
-						message, title, 
-						error ? JOptionPane.ERROR_MESSAGE : JOptionPane.INFORMATION_MESSAGE);
-			}
-		});
+
+
+		if(!DEBUG){
+			// add ac contact us link
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					JOptionPane.showMessageDialog(parent,
+							new EditorPaneWithHyperlinks(message + "<br><br><a href='mailto:support@conapi.at'>Contact Support</a>"), title,
+							error ? JOptionPane.ERROR_MESSAGE : JOptionPane.INFORMATION_MESSAGE);
+				}
+			});
+		}
+		else{
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					JOptionPane.showMessageDialog(parent,
+							message, title,
+							error ? JOptionPane.ERROR_MESSAGE : JOptionPane.INFORMATION_MESSAGE);
+				}
+			});
+		}
 	}
 }

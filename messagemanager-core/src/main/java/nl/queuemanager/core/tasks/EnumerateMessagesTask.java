@@ -24,7 +24,7 @@ import nl.queuemanager.core.task.CancelableTask;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.jms.JMSQueue;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.jms.Message;
 import java.util.Enumeration;
 import java.util.EventObject;

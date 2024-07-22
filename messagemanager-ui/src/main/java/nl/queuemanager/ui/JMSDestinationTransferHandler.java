@@ -21,8 +21,9 @@ import com.google.inject.assistedinject.Assisted;
 import nl.queuemanager.core.Pair;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.jms.JMSFeature;
-import nl.queuemanager.core.task.BackgroundTask;
 import nl.queuemanager.core.task.TaskExecutor;
+import nl.queuemanager.core.tasks.FireRefreshRequiredTask;
+import nl.queuemanager.core.tasks.FireRefreshRequiredTask.JMSDestinationHolder;
 import nl.queuemanager.core.tasks.TaskFactory;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSQueue;
@@ -167,54 +168,46 @@ class JMSDestinationTransferHandler extends TransferHandler {
 	
 	/**
 	 * Import a list of message ids into the component
-	 * 
-	 * @param component
-	 * @param messageList
-	 * @return
 	 */
-	protected boolean importMessageIDList(JMSDestinationHolder destinationHolder, final List<Pair<JMSQueue, String>> messageList) {
+	protected boolean importMessageIDList(FireRefreshRequiredTask.JMSDestinationHolder destinationHolder, final List<Pair<JMSQueue, String>> messageList) {
 		final JMSQueue toQueue = (JMSQueue)destinationHolder.getJMSDestination();
 		
 		worker.executeInOrder(
 			taskFactory.moveMessages(toQueue, messageList),
 			taskFactory.enumerateQueues(toQueue.getBroker(), null),
-			new FireRefreshRequiredTask(null, eventBus, destinationHolder, toQueue));
+			taskFactory.fireRefreshRequired(destinationHolder,toQueue));
+			//new FireRefreshRequiredTask(null, eventBus, destinationHolder, toQueue));
 		
 		return true;
 	}
 
 	/**
-	 * Import a list of {@link Message} objects into the component.
-	 * 
-	 * @param component
-	 * @param messageList
-	 * @return
+	 * Import a list of {@link Message} objects into the component.	 *
 	 */
-	protected boolean importMessageList(JMSDestinationHolder destinationHolder, List<Message> messageList) {
+	protected boolean importMessageList(FireRefreshRequiredTask.JMSDestinationHolder destinationHolder, List<Message> messageList) {
 		final JMSDestination destination = destinationHolder.getJMSDestination();
 		
 		worker.executeInOrder(
 			taskFactory.sendMessages(destination, messageList),
 			taskFactory.enumerateQueues(destination.getBroker(), null),
-			new FireRefreshRequiredTask(null, eventBus, destinationHolder, destination));
+			taskFactory.fireRefreshRequired(destinationHolder,destination));
+			//new FireRefreshRequiredTask(null, eventBus, destinationHolder, destination));
 		
 		return true;
 	}
 
 	/**
 	 * Import a list of files into the component.
-	 * 
-	 * @param component
-	 * @param fileList
-	 * @return
 	 */
-	protected boolean importFileList(JMSDestinationHolder destinationHolder, List<File> fileList) {
+	protected boolean importFileList(FireRefreshRequiredTask.JMSDestinationHolder destinationHolder, List<File> fileList) {
 		final JMSDestination destination = destinationHolder.getJMSDestination();
 		
 		worker.executeInOrder(
 			taskFactory.sendFiles(destination, fileList, null),
 			taskFactory.enumerateQueues(destination.getBroker(), null),
-			new FireRefreshRequiredTask(null, eventBus, destinationHolder, destination));
+			taskFactory.fireRefreshRequired(destinationHolder, destination));
+		// with this the task did never receive events
+			//new FireRefreshRequiredTask(null, eventBus, destinationHolder, destination));
 		
 		return true;
 	}
@@ -233,26 +226,5 @@ class JMSDestinationTransferHandler extends TransferHandler {
 	public int getSourceActions(JComponent c) {
 		return sourceActions;
 	}
-			
-	public interface JMSDestinationHolder {
-		public JMSDestination getJMSDestination();
-		public List<JMSDestination> getJMSDestinationList();
-		public void refreshRequired(JMSDestination destination);
-	}
-	
-	static class FireRefreshRequiredTask extends BackgroundTask {
-		private final JMSDestinationHolder target;
-		private final JMSDestination destination;
-		
-		protected FireRefreshRequiredTask(Object resource, EventBus eventBus, JMSDestinationHolder target, JMSDestination destination) {
-			super(resource, eventBus);
-			this.target = target;
-			this.destination = destination;
-		}
 
-		@Override
-		public void execute() throws Exception {
-			target.refreshRequired(destination);
-		}
-	}
 }

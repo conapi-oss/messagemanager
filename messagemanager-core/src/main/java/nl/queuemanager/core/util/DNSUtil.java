@@ -16,6 +16,7 @@ public class DNSUtil {
 	    java.util.Hashtable<String, String> env = new java.util.Hashtable<String, String>();	
 	    env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory");
 
+
 	    log.fine(String.format("Trying to resolve %s", hostname));
 	    
 	    try {

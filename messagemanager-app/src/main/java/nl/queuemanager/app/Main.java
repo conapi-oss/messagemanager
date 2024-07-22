@@ -15,10 +15,17 @@
  */
 package nl.queuemanager.app;
 
+import com.formdev.flatlaf.FlatDarculaLaf;
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLaf;
+import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.themes.FlatMacDarkLaf;
+import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
+import com.jthemedetecor.OsThemeDetector;
 import nl.queuemanager.core.DebugProperty;
 import nl.queuemanager.core.PreconnectCoreModule;
 import nl.queuemanager.core.configuration.CoreConfiguration;
@@ -29,13 +36,18 @@ import nl.queuemanager.core.task.MultiQueueTaskExecutorModule;
 import nl.queuemanager.debug.DebugEventListener;
 import nl.queuemanager.debug.TracingEventQueue;
 import nl.queuemanager.ui.PreconnectUIModule;
+import nl.queuemanager.ui.about.AboutModule;
 import nl.queuemanager.ui.settings.SettingsModule;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -49,46 +61,48 @@ public class Main {
 	public static void main(String[] args) {
 		enableDebugLogging(DebugProperty.developer.isEnabled());
 
-		// Create boot injector so we can set LAF before creating any UI
-		final Injector bootInjector = Guice.createInjector(Stage.PRODUCTION, new BootModule());
-		
-		// Set the LAF
-		setConfiguredLAF(bootInjector.getInstance(CoreConfiguration.class));
-		
-		if(DebugProperty.enableSwingDebug.isEnabled()) {
-			enableSwingDebug();
-		}
-		
-		// Now create the real injector as a child with the default modules
-		List<com.google.inject.Module> modules = new ArrayList<>();
-		modules.add(new SettingsModule());
-        modules.add(new MultiQueueTaskExecutorModule());
-		modules.add(new PreconnectCoreModule());
-		modules.add(new PreconnectUIModule());
-		modules.add(new AppModule());
-		
-		// Now that the module list is complete, create the injector
-		final Injector injector = bootInjector.createChildInjector(modules);
-				
-		// Enable the event debugger
-		if(DebugProperty.developer.isEnabled()) {
-			injector.getInstance(EventBusDebugger.class);
-		}
-		
-		// FIXME Find all installed plugins and load their default profiles
-		injector.getInstance(PluginManager.class);
-		
-		final EventBus eventBus = injector.getInstance(EventBus.class);
-		
 		// Invoke initializing the GUI on the EDT
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
+				// Create boot injector so we can set LAF before creating any UI
+				final Injector bootInjector = Guice.createInjector(Stage.PRODUCTION, new BootModule());
+
+				// Set the LAF
+				setConfiguredLAF(bootInjector.getInstance(CoreConfiguration.class));
+
+				if(DebugProperty.enableSwingDebug.isEnabled()) {
+					enableSwingDebug();
+				}
+
+				// Now create the real injector as a child with the default modules
+				List<com.google.inject.Module> modules = new ArrayList<>();
+				modules.add(new SettingsModule());
+				modules.add(new AboutModule());
+				modules.add(new MultiQueueTaskExecutorModule());
+				modules.add(new PreconnectCoreModule());
+				modules.add(new PreconnectUIModule());
+				modules.add(new AppModule());
+
+				// Now that the module list is complete, create the injector
+				final Injector injector = bootInjector.createChildInjector(modules);
+
+				// Enable the event debugger
+				if(DebugProperty.developer.isEnabled()) {
+					injector.getInstance(EventBusDebugger.class);
+				}
+
+				// FIXME Find all installed plugins and load their default profiles
+				injector.getInstance(PluginManager.class);
+
+				final EventBus eventBus = injector.getInstance(EventBus.class);
+
 				// Set some platform properties before the UI really loads
 				PlatformHelper helper = injector.getInstance(PlatformHelper.class);
 				helper.setApplicationName("Message Manager");
 				
 				// Create the main application frame
 				final JFrame frame = injector.getInstance(MMFrame.class);
+				setIconImage(frame);
 
 				// When this frame closes, quit the application by posting a QuitEvent
 				frame.addWindowListener(new WindowAdapter() {
@@ -104,6 +118,21 @@ public class Main {
 				// Send the ApplicationInitializedEvent
 				eventBus.post(new ApplicationInitializedEvent());
 			}
+
+			private void setIconImage(final JFrame frame) {
+
+                try {
+					String imagePath = "/images/messagemanager-icon-medium.png";
+					InputStream imgStream = this.getClass().getResourceAsStream(imagePath);
+                    BufferedImage img = ImageIO.read(imgStream);
+					// ImageIcon icon = new ImageIcon(myImg);
+					// use icon here
+					frame.setIconImage(img);
+				} catch (IOException e) {
+					// not critical
+                    e.printStackTrace();
+                }
+			}
 		});
 	}
 	
@@ -112,11 +141,46 @@ public class Main {
 		ourLogger.setLevel(Level.ALL);
 	}
 
-	private static void setConfiguredLAF(CoreConfiguration config) { 
+	private static void setConfiguredLAF(CoreConfiguration config) {
+
+		final OsThemeDetector detector = OsThemeDetector.getDetector();
+		final boolean isDarkThemeUsed = detector.isDark();
+
+		String defaultLaF;
+		FlatLaf laf;
+		if(System.getProperty("os.name").toLowerCase().contains("mac")) {
+			// MAC OS X
+			FlatMacDarkLaf.installLafInfo();
+			FlatMacLightLaf.installLafInfo();
+
+			if(isDarkThemeUsed) {
+				laf = new FlatMacLightLaf();
+			}
+			else {
+				laf = new FlatMacDarkLaf();
+			}
+		}
+		else{
+			// Register the LAFs for Windows/Linux
+			FlatLightLaf.installLafInfo();
+			FlatDarculaLaf.installLafInfo();
+			FlatDarkLaf.installLafInfo();
+
+			if(isDarkThemeUsed) {
+				laf = new FlatDarculaLaf();
+			}
+			else {
+				laf = new FlatLightLaf();
+			}
+		}
+
+		defaultLaF = laf.getClass().getName();
+
 		String configuredClassName = config.getUserPref(
 				CoreConfiguration.PREF_LOOK_AND_FEEL,
-				UIManager.getSystemLookAndFeelClassName());
-				
+				defaultLaF); // default to FlatLightLaf
+				//UIManager.getSystemLookAndFeelClassName());
+
 		try {
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 		        if (info.getClassName().equals(configuredClassName)) {
@@ -124,6 +188,7 @@ public class Main {
 		            break;
 		        }
 		    }
+
 			if(Boolean.TRUE.equals(Toolkit.getDefaultToolkit().getDesktopProperty("awt.dynamicLayoutSupported")))
 				Toolkit.getDefaultToolkit().setDynamicLayout(true);
 		} catch (Exception e) {

@@ -24,6 +24,8 @@ import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.events.EventListener;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.JMSDomain;
+import nl.queuemanager.core.jms.JMSFeature;
+import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.tasks.TaskFactory;
 import nl.queuemanager.core.util.CollectionFactory;
@@ -44,6 +46,8 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static nl.queuemanager.core.jms.DomainEvent.EVENT.TOPICS_ENUMERATED;
 
 /**
  * This class implements the topic subscriber panel. It has a table of configured topics,
@@ -101,15 +105,20 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		topicTableScrollPane.setPreferredSize(new Dimension(350, 100));
 		topicTableScrollPane.setViewportView(subscriberTable);
-		
-		JPanel topicActionPanel = createTopicActionPanel();
+
+		JPanel topicActionPanel=null;
+		if(domain.isFeatureSupported(JMSFeature.TOPIC_SUBSCRIBER_CREATION)) {
+			topicActionPanel = createTopicActionPanel();
+		}
 		
 		JPanel topicTablePanel = new JPanel();
 		topicTablePanel.setLayout(new BoxLayout(topicTablePanel, BoxLayout.Y_AXIS));
-		topicTablePanel.setBorder(BorderFactory.createTitledBorder("Topic subscribers"));
+		topicTablePanel.setBorder(BorderFactory.createTitledBorder("Topic Subscribers"));
 		topicTablePanel.add(brokerCombo);
 		topicTablePanel.add(topicTableScrollPane);
-		topicTablePanel.add(topicActionPanel);
+
+		if(topicActionPanel!=null)
+			topicTablePanel.add(topicActionPanel);
 		
 		JScrollPane messageTableScrollPane = new JScrollPane(messageTable,
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
@@ -122,6 +131,7 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 		messagesTablePanel.setBorder(BorderFactory.createTitledBorder("Messages"));
 		messagesTablePanel.add(messageTableScrollPane);
 		messagesTablePanel.add(createMessagesActionPanel());
+
 		
 		JSplitPane horizontalSplitPane = new JSplitPane();
 		horizontalSplitPane.setDividerLocation(350);
@@ -164,7 +174,7 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 		messagesActionPanel.setBorder(BorderFactory.createEmptyBorder(3, 0, 0, 0));
 		
 		// Delete all messages button
-		JButton clearBufferButton = CommonUITasks.createButton("Clear buffer", new ActionListener() {
+		JButton clearBufferButton = CommonUITasks.createButton("Clear Buffer", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				clearCurrentBuffer();
 			}
@@ -282,17 +292,8 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 	private void enumerateTopics(final JMSBroker selectedBroker) {
 		populateTopicTable(getConfiguredTopics(selectedBroker));
 
-//		worker.execute(new Task() {
-//			@Override
-//			public void execute() throws Exception {
-//				sonic.getDurableTopicList(selectedBroker, "");
-//			}
-//			
-//			@Override
-//			public String toString() {
-//				return "Enumerating topics";
-//			}
-//		});
+		// optionally, enumerate topics
+		worker.execute(taskFactory.enumerateTopics(selectedBroker, null));
 	}
 
 	/**
@@ -403,6 +404,10 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 		MessagesTable table = new MessagesTable();
 		MessageTableModel tableModel = (MessageTableModel) table.getModel();
 		table.setHighlightsModel(new HighlightsModel<>(tableModel, messageHighlighter));
+		// do not show the correlation id column if the feature is not supported
+		if(!domain.isFeatureSupported(JMSFeature.JMS_HEADERS)) {
+			table.removeColumn(table.getColumnModel().getColumn(2));
+		}
 
 		ListSelectionModel selectionModel = table.getSelectionModel();
 		selectionModel.addListSelectionListener(new ListSelectionListener() {
@@ -453,20 +458,22 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 	
 	private void displayMessage(final Message message) {
 		JMSSubscriber subscriber = subscriberTable.getSelectedItem();
-		subscriber.unlockMessages();
-		
-		if(message != null) {
-			subscriber.lockMessage(message);
-		}
-		
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				messageViewer.setMessage(message);
+		if(subscriber!=null) {
+			subscriber.unlockMessages();
+
+			if (message != null) {
+				subscriber.lockMessage(message);
 			}
-		});
+
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					messageViewer.setMessage(message);
+				}
+			});
+		}
 	}
 	
-	private JPanel createTopicActionPanel() {	
+	protected JPanel createTopicActionPanel() {
 		// Textfield for topic name
 		final JTextField topicNameField = new JTextField();
 		topicNameField.setMaximumSize(new Dimension(
@@ -482,7 +489,7 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 		CommonUITasks.makeSegmented(removeTopicButton, Segmented.ONLY);
 				
 		// Add button 
-		final JButton addTopicButton = CommonUITasks.createButton("Add subscriber", new ActionListener() {
+		final JButton addTopicButton = CommonUITasks.createButton("Add Subscriber", new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				final String topicName = topicNameField.getText();
 				
@@ -545,11 +552,15 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab {
 				CommonUITasks.clear(messageTable);
 			}
 			break;
-		}			
+
+		case TOPICS_ENUMERATED:
+			populateTopicTable((List<JMSTopic>)event.getInfo());
+			break;
+		}
 	}
 	
 	public String getUITabName() {
-		return "Topic subscriber";
+		return "Topic Subscriber";
 	}
 
 	public JComponent getUITabComponent() {

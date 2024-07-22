@@ -9,13 +9,14 @@ plugins {
 dependencies {
     api project(':jmsmessages')
 
-    api 'com.google.inject:guice:5.1.0'
-    api 'com.google.inject.extensions:guice-assistedinject:5.1.0'
+    api 'com.google.inject:guice:7.0.0'
+    api 'com.google.inject.extensions:guice-assistedinject:7.0.0'
     api 'com.google.guava:guava:31.1-jre'
-    api 'javax.inject:javax.inject:1'
+    api 'jakarta.inject:jakarta.inject-api:2.0.1'
 
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     implementation 'aopalliance:aopalliance:1.0'
 }
 
 description = 'Message Manager Core'
+

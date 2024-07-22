@@ -121,6 +121,8 @@ public final class MessageHighlighter extends HighlighterSupport<Message> {
 		// Check part contents
 		switch(part.getContentType()) {
 		case JMSPart.CONTENT_TEXT:
+        case JMSPart.CONTENT_APPLICATION_XML:
+		case JMSPart.CONTENT_APPLICATION_JSON:
 		case JMSPart.CONTENT_XML:
 			return shouldHighlight((String)part.getContent());
 			

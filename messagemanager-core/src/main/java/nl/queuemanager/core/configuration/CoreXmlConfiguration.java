@@ -18,6 +18,7 @@ package nl.queuemanager.core.configuration;
 import com.google.common.base.Strings;
 import lombok.extern.java.Log;
 import nl.queuemanager.core.MapNamespaceContext;
+import nl.queuemanager.core.Version;
 import nl.queuemanager.core.util.BasicCredentials;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.core.util.Credentials;
@@ -59,6 +60,15 @@ class CoreXmlConfiguration extends XmlFileConfiguration implements CoreConfigura
 		MapNamespaceContext nsContext = new MapNamespaceContext();
 		nsContext.add("c", namespaceUri);
 		xp.setNamespaceContext(nsContext);
+
+		// reset some preferences on first run
+		String previousVersion = getUserPref(PREF_LAST_VERSION, null);
+		if(Strings.isNullOrEmpty(previousVersion) || !previousVersion.equals(Version.VERSION) ) {
+			// First run with this version, reset some preferences so that the user sees the changes
+			this.setUserPref(PREF_LAST_VERSION, Version.VERSION);
+			this.setUserPref(PREF_AUTOLOAD_PROFILE, null);
+			this.setUserPref(PREF_LOOK_AND_FEEL, null);
+		}
 	}
 	
 	public synchronized String getUniqueId() {

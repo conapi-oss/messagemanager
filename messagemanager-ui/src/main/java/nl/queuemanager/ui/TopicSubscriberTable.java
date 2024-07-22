@@ -19,7 +19,7 @@ import com.google.inject.Inject;
 import nl.queuemanager.core.util.Clearable;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.jms.JMSDestination;
-import nl.queuemanager.ui.JMSDestinationTransferHandler.JMSDestinationHolder;
+import nl.queuemanager.core.tasks.FireRefreshRequiredTask.JMSDestinationHolder;
 import nl.queuemanager.ui.util.FilteredTableModel;
 import nl.queuemanager.ui.util.ObservingListTableModel;
 
@@ -77,7 +77,7 @@ public class TopicSubscriberTable extends JTable implements Clearable, JMSDestin
 	
 	private void setModel(TopicTableModel model) {
 		realModel = model;
-		filteredModel = new FilteredTableModel<JMSSubscriber>(model, 0); 
+		filteredModel = new FilteredTableModel<JMSSubscriber>(model, 1);
 		super.setModel(filteredModel);
 	}
 	
@@ -259,7 +259,7 @@ public class TopicSubscriberTable extends JTable implements Clearable, JMSDestin
 	 */
 	private static class TopicTableModel extends ObservingListTableModel<JMSSubscriber> {
 		public TopicTableModel() {
-			setColumnNames(new String[] {"", "Topic name", "Messages"});
+			setColumnNames(new String[] {"", "Topic Name", "Messages"});
 			setColumnTypes(new Class[] {Boolean.class, String.class, Integer.class});
 		}
 		
@@ -270,7 +270,7 @@ public class TopicSubscriberTable extends JTable implements Clearable, JMSDestin
 				return entry.isActive();
 				
 			case 1:
-				return entry.getDestination().getName();
+				return entry.getDestination().toString(); // getName() sometimes holds a URI
 				
 			case 2:
 				int messageCount = entry.getMessageCount();

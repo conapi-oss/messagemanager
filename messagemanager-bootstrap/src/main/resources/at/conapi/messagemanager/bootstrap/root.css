@@ -1,0 +1,21 @@
+
+.root {
+	primary-color: #ef767b;
+	primary-light-color: #f5a4a7;
+	primary-dark-color: #e51b23;
+	
+	
+	secondary-color: #808080;
+	secondary-light-color: #afafaf;
+	secondary-dark-color: #545454;
+	
+	cream-white: rgb(245.0,245.0,245.0);
+	-fx-background-color: cream-white;
+}
+
+.label, .button, .check-box, Text {
+	-fx-font-family: Roboto;
+	-fx-font-size: 13;
+	-fx-text-fill: #757575;
+}
+
