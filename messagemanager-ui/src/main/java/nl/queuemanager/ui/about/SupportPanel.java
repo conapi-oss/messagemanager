@@ -38,7 +38,7 @@ class SupportPanel extends JPanel implements AboutPanel {
 
 	private String getHTML() {
 		return "<div>\n" +
-				"  <p>If you have an active license (including Evaluation licenses), you can contact the CONAPI Support team with questions, feature requests, or bug reports.</p>\n" +
+				"  <p>If you have an active license (including Evaluation licenses), <br/>you can contact the CONAPI Support team with questions, feature requests, or bug reports.</p>\n" +
 				"  \n" +
 				"  <p>Please use the following contact information:</p>\n" +
 				"  \n" +

@@ -41,13 +41,15 @@ class VersionPanel extends JPanel implements AboutPanel {
 		return "<div>\n" +
 				"  <h2>Message Manager</h2>\n" +
 				"  <p>Version: "+ Version.VERSION+"</p>\n" +
+				"  <p>Product ID: "+ config.getUniqueId()+"</p>\n" +
+				"  <p></p>\n" +
 				"\n" +
 				"  <h3>Licensing Information:</h3>\n" +
 				"  <ul>\n" +
 				"    <li>Open Source Core/Plugins/Features: \n"+
 				"     <ul><li>Apache License 2.0</li></ul></li>\n" +
 				"    <li>Licensed Plugins/Features:\n"+
-				"      <ul><li>Copyright (c) 2024 conapi GmbH.</li><li>All rights reserved.</li><li>Licensed under conapi GmbH terms of use.</li></ul></li>\n" +
+				"      <ul><li>Copyright (c) 2024 conapi GmbH. All rights reserved.</li><li>Licensed under conapi GmbH terms of use.</li></ul></li>\n" +
 				"  </ul>\n" +
 				"  <p>Website: <a href=\"https://www.conapi.at/message-manager\">https://www.conapi.at/message-manager</a></p>\n" +
 				"</div>";
@@ -61,3 +63,4 @@ class VersionPanel extends JPanel implements AboutPanel {
 	}
 	
 }
+
