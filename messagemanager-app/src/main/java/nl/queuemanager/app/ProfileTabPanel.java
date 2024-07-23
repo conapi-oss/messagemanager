@@ -232,10 +232,11 @@ public class ProfileTabPanel extends JPanel implements UITab {
 				Component comp = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 				
 				if(value instanceof URL) {
+					String jarUrl="";
 					try {
 						//replace any @MM_HOME@ placeholder with the actual value of the MM_HOME environment variable
-						String jarUrl = ((URL)value).toString().replace("@MM_HOME@", System.getenv("MM_HOME"));
-						jarUrl = jarUrl.replace("\\", "/");
+						jarUrl = ((URL)value).toString();
+						PluginModuleHelper.fixJarUrl(jarUrl);
 
 						final File file = new File(URI.create(jarUrl));
 						if(file != null) {
@@ -248,7 +249,7 @@ public class ProfileTabPanel extends JPanel implements UITab {
 						}
 					} catch (IllegalArgumentException e) {
 						// Ok then, no icon for you!
-						logger.log(Level.WARNING, String.format("Unable to resolve icon for %s", value), e);
+						logger.log(Level.WARNING, String.format("Unable to resolve icon for %s using jar URL: %s", value, jarUrl), e);
 					}
 				}
 				

@@ -142,14 +142,34 @@ public class PluginModuleHelper {
         final List<Path> jarPaths = new ArrayList<>();
         for(URL url: urls) {
             //replace any @MM_HOME@ placeholder with the actual value of the MM_HOME environment variable
-            String jarUrl = url.toString().replace("@MM_HOME@", System.getenv("MM_HOME"));
-            jarUrl = jarUrl.replace("\\", "/");
+            String jarUrl = url.toString();
+            jarUrl = fixJarUrl(jarUrl);
+
             final Path path = Paths.get(URI.create(jarUrl));
             //final Path newJarPath = Files.copy(path, Paths.get(tempFolder,deriveModuleName(path.getFileName().toString())), StandardCopyOption.REPLACE_EXISTING);
             final Path newJarPath = Files.copy(path, Paths.get(tempFolder,path.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING);
             jarPaths.add(newJarPath);
         }
         return jarPaths;
+    }
+
+    /**
+     * Ensures that the Jar file URLs are in proper format.
+      * @param jarUrl
+     * @return
+     */
+    public static String fixJarUrl(String jarUrl) {
+        if(System.getProperty("os.name").toLowerCase().contains("win")) {
+            jarUrl = jarUrl.replace("file:/@MM_HOME@", "file:///@MM_HOME@");
+            jarUrl = jarUrl.replace("@MM_HOME@", System.getenv("MM_HOME"));
+            jarUrl = jarUrl.replace("\\", "/");
+        }
+        else{
+            // MacOs and Linux only // as the MM_HOME will have / from root
+            jarUrl = jarUrl.replace("file:/@MM_HOME@", "file://@MM_HOME@");
+            jarUrl = jarUrl.replace("@MM_HOME@", System.getenv("MM_HOME"));
+        }
+        return jarUrl;
     }
 
     /**
