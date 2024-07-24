@@ -95,7 +95,7 @@ public class TaskErrorListener {
 
 		if( e instanceof java.lang.module.ResolutionException ||
 			e instanceof java.lang.module.FindException){
-			return "Please check the Example/Template profile for recommended JARs on the classpath<br>and adjust the classpath: <br>" + e.getMessage() + "<br><br>Detailed Instructions can be found: <a href='https://conapi-oss.github.io/messagemanager/docs/troubleshooting/howto-classloadingissue'>How To Fix Class Loading Issues</a>";
+			return "Please check the Example/Template profile for recommended JARs on the classpath<br>and adjust the classpath: <br><br>" + e.getMessage() + "<br><br>More Information: <a href='https://conapi-oss.github.io/messagemanager/docs/troubleshooting/howto-classloadingissue'>How To Fix Class Loading Issues</a>";
 		}
 
 		if(MANAGE_PERMISSION_DENIED.equals(e.getClass().getName())

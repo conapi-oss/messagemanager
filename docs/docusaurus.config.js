@@ -14,7 +14,7 @@ const config = {
 
     // ... https://conapi-oss.github.io/messagemanager/
   url: 'https://conapi-oss.github.io/', // Your website URL
-  baseUrl: '/messagemanager/',
+  baseUrl: '/',
   projectName: 'messagemanager',
   organizationName: 'conapi-oss',
   trailingSlash: false,
