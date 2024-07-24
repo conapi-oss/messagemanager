@@ -118,3 +118,13 @@ const config = {
 };
 
 export default config;
+
+export default {
+  // ... https://conapi-oss.github.io/messagemanager/
+  url: 'https://conapi-oss.github.io', // Your website URL
+  baseUrl: '/',
+  projectName: 'messagemanager',
+  organizationName: 'conapi-oss',
+  trailingSlash: false,
+  // ...
+};
