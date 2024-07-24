@@ -13,8 +13,8 @@ const config = {
   favicon: 'img/logo.png',
 
     // ... https://conapi-oss.github.io/messagemanager/
-  url: 'https://conapi-oss.github.io', // Your website URL
-  baseUrl: '/',
+  url: 'https://conapi-oss.github.io/', // Your website URL
+  baseUrl: '/messagemanager/',
   projectName: 'messagemanager',
   organizationName: 'conapi-oss',
   trailingSlash: false,
