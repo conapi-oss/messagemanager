@@ -12,16 +12,24 @@ const config = {
   tagline: 'Message Manager Documentation',
   favicon: 'img/logo.png',
 
+    // ... https://conapi-oss.github.io/messagemanager/
+  url: 'https://conapi-oss.github.io', // Your website URL
+  baseUrl: '/',
+  projectName: 'messagemanager',
+  organizationName: 'conapi-oss',
+  trailingSlash: false,
+  // ...
+
   // Set the production url of your site here
-  url: 'https://www.conapi.at',
+  //url: 'https://www.conapi.at',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/',
+  //baseUrl: '/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'conapi GmbH', // Usually your GitHub org/user name.
-  projectName: 'messagemanager', // Usually your repo name.
+  //organizationName: 'conapi GmbH', // Usually your GitHub org/user name.
+  //projectName: 'messagemanager', // Usually your repo name.
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -118,13 +126,3 @@ const config = {
 };
 
 export default config;
-
-export default {
-  // ... https://conapi-oss.github.io/messagemanager/
-  url: 'https://conapi-oss.github.io', // Your website URL
-  baseUrl: '/',
-  projectName: 'messagemanager',
-  organizationName: 'conapi-oss',
-  trailingSlash: false,
-  // ...
-};
