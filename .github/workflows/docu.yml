@@ -3,7 +3,7 @@ name: Message Manager Documentation
 on:
   push:
     branches:
-      - main  # Set this to your default branch
+      - master
 
 jobs:
   deploy:
