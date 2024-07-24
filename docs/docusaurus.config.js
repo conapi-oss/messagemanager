@@ -10,11 +10,11 @@ import {themes as prismThemes} from 'prism-react-renderer';
 const config = {
   title: 'Message Manager',
   tagline: 'Message Manager Documentation',
-  favicon: 'img/logo.png',
+  favicon: '/img/logo.png',
 
     // ... https://conapi-oss.github.io/messagemanager/
   url: 'https://conapi-oss.github.io/', // Your website URL
-  baseUrl: '/',
+  baseUrl: '/messagemanager/',
   projectName: 'messagemanager',
   organizationName: 'conapi-oss',
   trailingSlash: false,
