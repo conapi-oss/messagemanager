@@ -236,7 +236,7 @@ public class ProfileTabPanel extends JPanel implements UITab {
 					try {
 						//replace any @MM_HOME@ placeholder with the actual value of the MM_HOME environment variable
 						jarUrl = ((URL)value).toString();
-						PluginModuleHelper.fixJarUrl(jarUrl);
+						jarUrl = PluginModuleHelper.fixJarUrl(jarUrl);
 
 						final File file = new File(URI.create(jarUrl));
 						if(file != null) {

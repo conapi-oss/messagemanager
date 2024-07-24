@@ -95,7 +95,7 @@ public class TaskErrorListener {
 
 		if( e instanceof java.lang.module.ResolutionException ||
 			e instanceof java.lang.module.FindException){
-			return "Please check the TEMPLATE profile for recommended JARs and adjust the classpath: " + e.getMessage();
+			return "Please check the Example/Template profile for recommended JARs on the classpath<br>and adjust the classpath: <br>" + e.getMessage() + "<br><br>Detailed Instructions can be found: <a href='https://www.conapi.at/message-manager'>How To Fix Class Loading Issues</a>";
 		}
 
 		if(MANAGE_PERMISSION_DENIED.equals(e.getClass().getName())
@@ -130,7 +130,7 @@ public class TaskErrorListener {
 
 
 		if(!DEBUG){
-			// add ac contact us link
+			// add a contact us link
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 					JOptionPane.showMessageDialog(parent,

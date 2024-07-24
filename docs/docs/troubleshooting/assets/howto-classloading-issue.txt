@@ -1,0 +1,48 @@
+How to fix classloading issues!
+
+pause 0.2sec 
+
+
+
+Message Manager uses Java Modules for classloading. This may cause issues with some providers that do not fully support this yet.
+
+pause 0.2sec
+
+You need to ensure the classpath of the profile only contains the required jars.
+
+After the installation of Message Manager, Example/Template profiles are created.
+
+These profiles usually list the required jars in the classpath.
+
+
+
+For example, for SonicMQ you select the "Aurea Messenger / SonicMQ - TEMPLATE" profile and take a look at the classpath field.
+
+ 
+
+You may select all these jars from the template, copy the references to the clipboard, then remove the path to only have one  filename per line.
+
+I have this already in my clipboard.
+
+
+
+Then navigate back to your profile.
+
+Select all jars and press the "Remove Jar" button.
+
+Then click "Add jar".
+
+Navigate to the folder where the jars are located.
+
+Now either select them one by one or paste the jar list from your clipboard.
+
+Press OK
+
+
+
+Once you have added the required jars, you have to double check that the classpath field contains only the required jars.
+
+Sometimes additional jars are added because they are referenced in the JAR manifest file.
+
+Remove any wrong or duplicate entries.
+

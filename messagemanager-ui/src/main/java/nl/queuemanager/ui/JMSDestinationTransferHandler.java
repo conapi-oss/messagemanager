@@ -96,9 +96,11 @@ class JMSDestinationTransferHandler extends TransferHandler {
 		for(DataFlavor flavor: dataflavors) {
 			if(flavor.equals(MessageListTransferable.messageIDListDataFlavor))
 				return domain.isFeatureSupported(JMSFeature.FORWARD_MESSAGE);
-			
+
 			if(flavor.equals(MessageListTransferable.messageListDataFlavor))
-				return domain.isFeatureSupported(JMSFeature.FORWARD_MESSAGE);
+				return true;
+				// uses sendMessage internally
+				// 	return domain.isFeatureSupported(JMSFeature.FORWARD_MESSAGE);
 			
 			if(flavor.equals(DataFlavor.javaFileListFlavor))
 				return true;
