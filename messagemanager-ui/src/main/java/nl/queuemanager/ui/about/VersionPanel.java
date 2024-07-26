@@ -51,7 +51,9 @@ class VersionPanel extends JPanel implements AboutPanel {
 				"    <li>Licensed Plugins/Features:\n"+
 				"      <ul><li>Copyright (c) 2024 conapi GmbH. All rights reserved.</li><li>Licensed under conapi GmbH terms of use.</li></ul></li>\n" +
 				"  </ul>\n" +
+				"  <p>Documentation: <a href=\"https://conapi-oss.github.io/messagemanager\">https://conapi-oss.github.io/messagemanager</a></p>\n" +
 				"  <p>Website: <a href=\"https://www.conapi.at/message-manager\">https://www.conapi.at/message-manager</a></p>\n" +
+
 				"</div>";
 
 				//TODO"Documentation: <a href='https://www.conapi.at/message-manager/documentation'>https://www.conapi.at/message-manager/documentation</a><br/>"+

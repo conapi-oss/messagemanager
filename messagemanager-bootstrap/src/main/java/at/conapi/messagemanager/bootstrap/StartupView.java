@@ -163,7 +163,7 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 
 					alert.setHeaderText("Update required");
 					alert.setContentText("Application is not up-to-date, update now?");
-
+//TODO: would be nice to show a changelog here
 					alert.getButtonTypes().setAll(updateAndLaunch, skipAndLaunch, alwaysAndLaunch);
 					result = alert.showAndWait();
 					if(result.get() == alwaysAndLaunch){

@@ -44,7 +44,7 @@ class SupportPanel extends JPanel implements AboutPanel {
 				"  \n" +
 				"  <ul>\n" +
 				"    <li>Email: <a href=\"mailto:support@conapi.at\">support@conapi.at</a></li>\n" +
-				"    <li>Web Form: <a href=\"https://www.conapi.at/support/\">https://www.conapi.at/support/</a></li>\n" +
+				"    <li>Web: <a href=\"https://www.conapi.at/support/\">https://www.conapi.at/support/</a></li>\n" +
 				"  </ul>\n" +
 				"</div>";
 	}
