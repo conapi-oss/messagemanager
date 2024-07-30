@@ -19,6 +19,7 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import nl.queuemanager.core.DebugProperty;
+import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.task.Task;
 import nl.queuemanager.core.task.TaskEvent;
 import nl.queuemanager.core.util.CoreException;
@@ -38,7 +39,7 @@ import java.util.logging.Logger;
  *
  */
 @Singleton
-public class TaskErrorListener {
+public class ErrorListener {
 	private static final String MANAGE_PERMISSION_DENIED = 
 		"com.sonicsw.mf.common.security.ManagePermissionDeniedException";
 
@@ -53,36 +54,47 @@ public class TaskErrorListener {
 	private Component parent;
 	
 	@Inject
-	public TaskErrorListener(JFrame parent) {
+	public ErrorListener(JFrame parent) {
 		this.parent = parent;
 	}
-	
+
+	@Subscribe
+	public void handleDomainEvent(DomainEvent event) {
+		log.fine(Thread.currentThread() + " -> " + event);
+		switch(event.getId()) {
+			case ASYNC_ERROR:
+				String message = translateExceptionMessage((Throwable)event.getInfo());
+				showMessage(parent, "Error: " + event.getSource().toString(), message, true);
+				break;
+		}
+	}
+
+
 	@Subscribe
 	public void handleTaskEvent(TaskEvent event) {
 		log.fine(Thread.currentThread() + " -> " + event);
 		
 		switch(event.getId()) {
+			case TASK_ERROR:
+				if(event.getInfo() instanceof UserCanceledException) {
+					// If the user canceled something, we don't want to bother
+					// them with another message dialog.
+					return;
+				}
 
-		case TASK_ERROR:
-			if(event.getInfo() instanceof UserCanceledException) {
-				// If the user canceled something, we don't want to bother
-				// them with another message dialog.
-				return;
-			}
-				
-			if(!((Task)event.getSource()).isBackground() || DEBUG) {
-				String message = translateExceptionMessage((Throwable)event.getInfo());
-				showMessage(parent, "Error in task " + event.getSource().toString(), message, true);
-			}
-			else{
-				// even if the task was a background task, we still want to show the error on the console
-				log.info(translateExceptionMessage((Throwable)event.getInfo()));
-			}
+				if(!((Task)event.getSource()).isBackground() || DEBUG) {
+					String message = translateExceptionMessage((Throwable)event.getInfo());
+					showMessage(parent, "Error in task " + event.getSource().toString(), message, true);
+				}
+				else{
+					// even if the task was a background task, we still want to show the error on the console
+					log.info(translateExceptionMessage((Throwable)event.getInfo()));
+				}
 
-			break;
-		}
+				break;
+			}
 	}
-	
+
 	private String translateExceptionMessage(Throwable e) {
 		if(e == null)
 			return "Unknown error! (Exception in TaskEvent was null)";

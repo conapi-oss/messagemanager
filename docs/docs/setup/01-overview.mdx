@@ -1,3 +1,105 @@
 # Overview
 
-Documentation coming soon... ask us meanwhile: [support@conapi.at](mailto:support@conapi.at)
+Message Manager is available as a standalone application for Windows, Linux and MacOS.
+
+
+## Download
+
+You can download the latest version of Message Manager from the [official website](https://www.conapi.com/message-manager).
+
+There are two versions of Message Manager available: the open-source version and the commercial version. The open-source version is free to use and does not require a license. The commercial version, on the other hand, requires a license to use.
+The download links for both versions are identical. 
+
+:::tip
+
+The Free version comes with a 30-day trial period for the commercial version. 
+
+:::
+
+
+## Installation
+
+Depending on your operating system, you can download the installer or one of the zip/tar.gz packages.
+
+
+# Installer (Windows)
+
+:::note
+
+This version does not require a Java Runtime Environment (version 17) to be installed on your system as it comes with a bundled JRE.
+
+:::
+
+To install Message Manager, follow these steps:
+
+1. Download the latest version of Message Manager MSI from the [official website](https://www.conapi.com/message-manager).
+2. Run the installer and follow the on-screen instructions.
+3. Once the installation is complete, you can launch Message Manager by double-clicking on the icon in the start menu.
+
+
+# Generic Installation (Windows, Linux, MacOS)
+
+:::note
+
+You need to first install a Java Runtime Environment (version 17) on your system.
+
+:::
+
+To install Message Manager, follow these steps:
+
+1. Download the latest version of Message Manager zip/tar.gz from the [official website](https://www.conapi.com/message-manager).
+2. Extract the downloaded file to a folder of your choice.
+3. If you have Java 17 on the PATH then simply navigate to the bin folder and run the launch script (launch.cmd on Windows, launch.sh on Linux/MacOS)
+4. If you do not have Java 17 on the PATH, you can either install add the Java Runtime 17 to your PATH or customize the environment script.
+
+:::note
+
+There is also a Launcher-Only version available. This download only contains the launcher and will download all required dependencies on first start.
+(Except for the Java Runtime 17, which has to be installed separately)
+
+:::
+
+
+# Custom Environment Script
+
+In the bin folder of the installation package, there is a file named "setenv.sh.template" (Linux/MacOS) and "setenv.cmd.template" (Windows) in this folder.
+
+Rename the file for your operating system by removing the ".template" extension. Then open the file (setenv.sh or setenv.cmd) in a text editor.
+
+Windows Example:
+```cmd title="setenv.cmd"
+rem OPTIONAL - if you want to override the default JVM options
+rem set JVM_OPTS=-Djavax.net.ssl.trustStore=NUL -Djavax.net.ssl.trustStoreType=Windows-ROOT -Djava.net.useSystemProxies=true -Djavafx.embed.singleThread=true -Dswing.systemlaf=com.sun.java.swing.plaf.windows.WindowsLookAndFeel -DSolace_JMS_Browser_Timeout_In_MS=1000
+
+rem Use LAUNCHER_JAVA to specify the Java executable to use
+set LAUNCHER_JAVA=%JAVA_HOME%\bin\java.exe
+```
+
+Linux/MacOS Example:
+```bash title="setenv.sh"
+#!/bin/bash
+
+# OPTIONAL - if you want to override the default JVM options
+# export JVM_OPTS="-Djava.net.useSystemProxies=true -Djavafx.embed.singleThread=true -DSolace_JMS_Browser_Timeout_In_MS=1000"
+
+# Use LAUNCHER_JAVA to specify the Java executable to use
+export LAUNCHER_JAVA=$JAVA_HOME/bin/java
+```
+
+Ensure that the LAUNCHER_JAVA variable is set to the correct path of the Java executable (Java 17) on your system.
+Optionally and for advanced users, you can also customize the JVM options by setting the JVM_OPTS variable.
+
+The launch script will run this before launching the application.
+
+## Automatic Update
+On each start, Message Manager will check if a newer version is available. If a newer version is available, it will download the new version and replace the old one.
+We recommend to use the "Always" option to ensure that you always have the latest version without any further prompts.
+
+![auto-update-confirmation.png](assets%2Fauto-update-confirmation.png)
+
+
+:::tip
+
+To get the prompt again you can set autoupdate=false in the launcher.properties file. The file is located in the installation folder.
+
+:::
