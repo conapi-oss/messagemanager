@@ -27,9 +27,9 @@ public class GlobalDomainEventListener {
 	@Subscribe
 	public void processEvent(DomainEvent event) {
 		switch(event.getId()) {
-		case JMX_CONNECT:
-			enumerateBrokers();
-			break;
+			case JMX_CONNECT:
+				enumerateBrokers();
+				break;
 		}
 	}
 

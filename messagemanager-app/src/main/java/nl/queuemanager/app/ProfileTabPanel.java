@@ -81,7 +81,7 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		setLayout(gridBagLayout);
 		
-		JLabel lblHeader = new JLabel("Select a profile");
+		JLabel lblHeader = new JLabel("Select a Profile");
 		lblHeader.setFont(lblHeader.getFont().deriveFont(32));
 		GridBagConstraints gbc_lblHeader = new GridBagConstraints();
 		gbc_lblHeader.fill = GridBagConstraints.HORIZONTAL;
@@ -144,7 +144,7 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		scrollPane.setViewportView(profilesList);
 		lblHeader.setLabelFor(profilesList);
 				
-		JLabel lblProfileName = new JLabel("Profile name");
+		JLabel lblProfileName = new JLabel("Profile Name");
 		GridBagConstraints gbc_lblProfileName = new GridBagConstraints();
 		gbc_lblProfileName.anchor = GridBagConstraints.LINE_START;
 		gbc_lblProfileName.insets = new Insets(0, 0, 5, 0);

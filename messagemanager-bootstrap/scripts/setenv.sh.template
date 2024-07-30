@@ -1,6 +1,9 @@
 #!/bin/bash
 
 # If you use a proxy then it might be needed to add the proxy SSL root certificate to the cacerts/truststore of the JVM
-export JVM_OPTS="-Djava.net.useSystemProxies=true -Djavafx.embed.singleThread=true -DSolace_JMS_Browser_Timeout_In_MS=1000"
-# -Djavax.net.ssl.trustStore=/conapi/messagemanager/SSL/truststore.jks -Djavax.net.ssl.trustStorePassword=secret
+
+# OPTIONAL - if you want to override the default JVM options
+# export JVM_OPTS="-Djava.net.useSystemProxies=true -Djavafx.embed.singleThread=true -DSolace_JMS_Browser_Timeout_In_MS=1000"
+
+# Use LAUNCHER_JAVA to specify the Java executable to use
 export LAUNCHER_JAVA=$JAVA_HOME/bin/java

@@ -30,6 +30,8 @@ public class DomainEvent extends EventObject {
 		
 		QUEUES_ENUMERATED,
 		TOPICS_ENUMERATED,
+
+		ASYNC_ERROR, // used by async consumers to report errors
 	}
 	
 	private final EVENT id;

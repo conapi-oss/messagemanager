@@ -225,21 +225,34 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 				final UpdateResult updateResult = config.update(UpdateOptions.archive(zip).updateHandler(StartupView.this));
 
 				if(updateResult.getException() == null) {
-					Archive.read(zip).install();
-					// only now the content is downloaded and loaded
-					//TODO: on linux this the file permissions are not properly set after extracting a shell script
-					// +x is missing. Ideally the Archive.install would take care but we cannot override it here
-					// below workaround can be removed if we fork our own update4j
-					// ensure all scripts in bin are executeable
-					try (DirectoryStream<Path> stream = java.nio.file.Files.newDirectoryStream(Path.of("", "bin"), "*.sh")) {
-						stream.forEach(script -> {
-							System.out.println("Setting execute permission for: "+ script );
-                            try {
-								script.toFile().setExecutable(true);
-                                Files.setPosixFilePermissions(script, PosixFilePermissions.fromString("rwxr-xr-x"));
-                            } catch (Exception ignore) {
-                            }
-                        });
+					try{
+						Archive.read(zip).install();
+
+						// only now the content is downloaded and loaded
+						//TODO: on linux this the file permissions are not properly set after extracting a shell script
+						// +x is missing. Ideally the Archive.install would take care but we cannot override it here
+						// below workaround can be removed if we fork our own update4j
+						// ensure all scripts in bin are executeable
+						try (DirectoryStream<Path> stream = java.nio.file.Files.newDirectoryStream(Path.of("", "bin"), "*.sh")) {
+							stream.forEach(script -> {
+								System.out.println("Setting execute permission for: "+ script );
+								try {
+									script.toFile().setExecutable(true);
+									Files.setPosixFilePermissions(script, PosixFilePermissions.fromString("rwxr-xr-x"));
+								} catch (Exception ignore) {
+								}
+							});
+						}
+					}
+					catch(Exception e){
+						Platform.runLater(new Runnable() {
+							@Override
+							public void run() {
+								showAlert("Update Failed", "Unable to finish the update: " + e.getMessage());
+								// exit the app
+								Platform.exit();
+							}
+						});
 					}
 				}
 				// always launch

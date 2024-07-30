@@ -16,6 +16,7 @@
 package nl.queuemanager.core.events;
 
 import com.google.common.eventbus.EventBus;
+import nl.queuemanager.core.task.TaskEvent;
 import nl.queuemanager.core.util.CollectionFactory;
 
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ public abstract class AbstractEventSource<T> implements EventSource<T> {
 			listeners.remove(listener);
 		}
 	}
-	
+
 	protected void dispatchEvent(T event) {
 		// For the moment, until everything is converted to eventBus, we have to dispatch to EventBus and
 		// the listeners that have been added. No getting around that for the moment.

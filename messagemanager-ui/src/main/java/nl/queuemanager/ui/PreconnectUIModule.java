@@ -10,7 +10,7 @@ public class PreconnectUIModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		// To display errors to the user, we need a global error listener for the task executor
-		bind(TaskErrorListener.class).in(Scopes.SINGLETON);
+		bind(ErrorListener.class).in(Scopes.SINGLETON);
 				
 		bind(DesktopHelper.class).to(DesktopHelperJRE6.class).in(Scopes.SINGLETON);
 	}

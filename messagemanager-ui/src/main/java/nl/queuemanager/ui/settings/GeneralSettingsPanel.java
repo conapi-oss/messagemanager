@@ -35,7 +35,7 @@ class GeneralSettingsPanel extends JPanel implements SettingsPanel {
 		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
 		setLayout(gridBagLayout);
 		
-		JLabel autoRefreshIntervalLabel = new JLabel("Message count refresh interval (ms)");
+		JLabel autoRefreshIntervalLabel = new JLabel("Message Count Refresh Interval (ms):");
 		autoRefreshIntervalLabel.setToolTipText("How often to refresh the number of messages on queues");
 		GridBagConstraints gbc_autoRefreshIntervalLabel = new GridBagConstraints();
 		gbc_autoRefreshIntervalLabel.anchor = GridBagConstraints.EAST;
@@ -54,7 +54,7 @@ class GeneralSettingsPanel extends JPanel implements SettingsPanel {
 		add(autoRefreshIntervalField, gbc_autoRefreshIntervalField);
 		autoRefreshIntervalField.setColumns(10);
 		
-		JLabel maxBufferedMessagesLabel = new JLabel("Topic receiver buffer size");
+		JLabel maxBufferedMessagesLabel = new JLabel("Topic Receiver Buffer Size:");
 		maxBufferedMessagesLabel.setToolTipText("How many messages to buffer for topic receivers");
 		GridBagConstraints gbc_maxBufferedMessagesLabel = new GridBagConstraints();
 		gbc_maxBufferedMessagesLabel.anchor = GridBagConstraints.EAST;
@@ -73,7 +73,7 @@ class GeneralSettingsPanel extends JPanel implements SettingsPanel {
 		add(maxBufferedMessagesField, gbc_maxBufferedMessagesField);
 		maxBufferedMessagesField.setColumns(10);
 		
-		JLabel lblLookAndFeel = new JLabel("Look and feel (needs restart)");
+		JLabel lblLookAndFeel = new JLabel("Look and Feel (needs restart):");
 		GridBagConstraints gbc_lblLookAndFeel = new GridBagConstraints();
 		gbc_lblLookAndFeel.anchor = GridBagConstraints.EAST;
 		gbc_lblLookAndFeel.insets = new Insets(0, 0, 0, 5);
@@ -92,7 +92,7 @@ class GeneralSettingsPanel extends JPanel implements SettingsPanel {
 		add(lafCombo, gbc_lafCombo);
 
 		// Add label for license key and text field
-		JLabel lblLicenseKey = new JLabel("License key (needs restart)");
+		JLabel lblLicenseKey = new JLabel("License Key (needs restart):");
 		GridBagConstraints gbc_lblLicenseKey = new GridBagConstraints();
 		gbc_lblLicenseKey.anchor = GridBagConstraints.EAST;
 		gbc_lblLicenseKey.insets = new Insets(0, 0, 5, 5);

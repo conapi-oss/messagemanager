@@ -27,7 +27,7 @@ public class AutoloadProfileSettingsPanel extends JPanel implements SettingsPane
 		
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
-		JLabel lblAutomaticallyLoadProfile = new JLabel("Automatically load profile:");
+		JLabel lblAutomaticallyLoadProfile = new JLabel("Automatically Load Profile:");
 		add(lblAutomaticallyLoadProfile);
 		
 		autoloadProfileCheckBox = new JCheckBox("");
