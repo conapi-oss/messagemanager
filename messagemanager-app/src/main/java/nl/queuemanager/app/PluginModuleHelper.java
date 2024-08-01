@@ -146,8 +146,8 @@ public class PluginModuleHelper {
             jarUrl = fixJarUrl(jarUrl);
 
             final Path path = Paths.get(URI.create(jarUrl));
-            //final Path newJarPath = Files.copy(path, Paths.get(tempFolder,deriveModuleName(path.getFileName().toString())), StandardCopyOption.REPLACE_EXISTING);
-            final Path newJarPath = Files.copy(path, Paths.get(tempFolder,path.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING);
+            final Path newJarPath = Files.copy(path, Paths.get(tempFolder,deriveModuleName(path.getFileName().toString())), StandardCopyOption.REPLACE_EXISTING);
+            //final Path newJarPath = Files.copy(path, Paths.get(tempFolder,path.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING);
             jarPaths.add(newJarPath);
         }
         return jarPaths;
@@ -178,15 +178,20 @@ public class PluginModuleHelper {
      * @return
      */
     private static String deriveModuleName(String jarFileName) {
-        // Replace non-alphanumeric characters with underscores
-        String sanitized = jarFileName.replaceAll(".jar$", "");
-        sanitized = sanitized.replaceAll("[^A-Za-z0-9]", "");
+        // Remove file extension
+        String name = jarFileName.replaceAll("\\.jar$", "");
 
-        // Ensure the module name starts with a letter
-        if (Character.isDigit(sanitized.charAt(0))) {
-            sanitized = "x" + sanitized;
+        // Remove version numbers
+        name = name.replaceAll("[-.]\\d+(\\.\\d+)*", "");
+
+        // Remove any remaining dots, dashes, and underscores
+        name = name.replaceAll("[\\.-_]", "");
+
+        // Ensure the name starts with a letter
+        if (!Character.isLetter(name.charAt(0))) {
+            name = "m" + name;
         }
 
-        return sanitized + ".jar";
+        return name.toLowerCase() + ".jar";
     }
 }

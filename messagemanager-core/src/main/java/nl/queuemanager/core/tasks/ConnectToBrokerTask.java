@@ -40,6 +40,7 @@ public class ConnectToBrokerTask extends Task {
 				domain.connectToBroker(broker, credentials);
 				break;
 			} catch (JMSException e) {
+				e.printStackTrace();
 				credentials = domain.getCredentials(broker, credentials, e);
 				if(credentials == null)
 					throw new UserCanceledException();

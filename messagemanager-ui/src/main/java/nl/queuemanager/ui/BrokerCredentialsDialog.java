@@ -29,7 +29,7 @@ public class BrokerCredentialsDialog extends JDialog {
 		
 		setModal(true);
 		setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
-		setTitle("Enter broker credentials");
+		setTitle("Enter Broker Credentials");
 		setResizable(false);
 		
 		add(new BrokerCredentialsPanel());

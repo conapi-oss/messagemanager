@@ -44,6 +44,7 @@ public class BasicCredentials implements Credentials {
 		String[] methodNames = {
 				"set" + capitalize(credentialType),
 				"set" + capitalize(credentialType) + "Name",
+				"set" + capitalize(credentialType) + "name",
 				"set" + capitalize(credentialType.replace("name", ""))
 		};
 
