@@ -1,3 +1,64 @@
 # Apache ActiveMQ
 
-Documentation coming soon... ask us meanwhile: [support@conapi.at](mailto:support@conapi.at)
+To work with Message Manager and Apache ActiveMQ, a connection to an ActiveMQ installation using an ActiveMQ Profile is required.
+
+## ActiveMQ Profile
+
+The ActiveMQ Profile is available from the Profile List.
+
+![activemq-select-profile.png](assets/activemq-select-profile.png)
+
+In order for the ActiveMQ Profile to be activated, the required ActiveMQ jars need to be added to the Message Manager classpath.
+If the required ActiveMQ jars are not available in the classpath, they can be added using the 'Add JAR' button on the bottom middle of the window.
+This will open a file selection dialog box where the proper ActiveMQ jar files can be added.
+The required ActiveMQ jars are:
+- activemq-client-x.xx.x.jar
+- hawtbuf-1.11.jar
+- geronimo-j2ee-management-1.0-spec-1.1.jar
+- geronimo-jta-1.1-spec-1.1.1.jar
+
+![activemq-add-jar.png](assets/activemq-add-jar.png)
+
+:::note
+The ActiveMQ jars can be found in the ActiveMQ installation under the lib directory or downloaded separately.<br/>
+Also: make sure to rename the jar files containing UNDERSCORES and replace them with DASHES.
+:::
+
+When the proper ActiveMQ Client jar is added (or when it is already available in the profile), the ActiveMQ Profile can be activated by selecting the "Activate Profile" button on the bottom right of the window.
+
+![activemq-activate-profile.png](assets/activemq-activate-profile.png)
+
+:::tip
+The option "Activate automatically and don't ask again" can be selected to activate the selected ActiveMQ Profile automatically when Message Manager starts.
+:::
+
+## ActiveMQ Connections
+
+After the ActiveMQ Profile is activated, an ActiveMQ Connection can be created or an existing ActiveMQ Connection can be selected.
+
+![activemq-list-connections.png](assets/activemq-list-connections.png)
+
+:::note
+Message Manager uses JMX to connect to an ActiveMQ environment. It will then query the ActiveMQ environment for the available Brokers and Queues.
+The ActiveMQ Connections require the JMX format: `service:jmx:rmi:///jndi/rmi://<host>:<port>/jmxrmi`
+:::
+
+Select the required Connection if it is available and press "Connect" to make the ActiveMQ Connection active.
+If the required ActiveMQ Connection is not available, a new ActiveMQ Connection can be created.
+
+## Create ActiveMQ Connection
+
+To create a new ActiveMQ Connection, select the "Remote Process" Radio Button and fill out the new ActiveMQ Connection Information.<br/>
+- Description
+    - A descriptive name for this Connection.
+- JMX Service URL
+    - The JMX Service URL of the ActiveMQ Installation to connect to.
+    - The JMX Service URL format: `service:jmx:rmi:///jndi/rmi://<host>:<port>/jmxrmi`
+
+![activemq-create-connection.png](assets/activemq-create-connection.png)
+
+When all the required information is entered, press the "Connect" button to activate the ActiveMQ Connection and switch to the Queue Browser tab of Message Manager.
+
+![activemq-queue-browser.png](assets/activemq-queue-browser.png)
+
+Select the Queue you wish to browse and the message in the Queue (if any) to show the Message Details.
