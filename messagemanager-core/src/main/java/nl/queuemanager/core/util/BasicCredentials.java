@@ -36,11 +36,33 @@ public class BasicCredentials implements Credentials {
 	 * Credentials implementation and dialogs to create such objects.
 	 */
 	public void apply(ConnectionFactory cf) throws Exception {
-		Method setUsername = cf.getClass().getMethod("setUsername", new Class[] { String.class} );
-		setUsername.invoke(cf, new Object[] { getUsername() });
-		
-		Method setPassword = cf.getClass().getMethod("setPassword", new Class[] { String.class} );
-		setPassword.invoke(cf, new Object[] { getPassword() });
+		applyCredential(cf, "user", getUsername());
+		applyCredential(cf, "password", getPassword());
+	}
+
+	private void applyCredential(Object target, String credentialType, String credentialValue) throws Exception {
+		String[] methodNames = {
+				"set" + capitalize(credentialType),
+				"set" + capitalize(credentialType) + "Name",
+				"set" + capitalize(credentialType.replace("name", ""))
+		};
+
+		for (String methodName : methodNames) {
+			try {
+				Method method = target.getClass().getMethod(methodName, String.class);
+				method.invoke(target, credentialValue);
+				return; // Successfully invoked the method, so exit the method
+			} catch (NoSuchMethodException e) {
+				// Method not found, continue to the next iteration
+			}
+		}
+
+		// If we reach here, no matching method was found
+		throw new NoSuchMethodException("No suitable method found to set " + credentialType);
+	}
+
+	private String capitalize(String str) {
+		return str.substring(0, 1).toUpperCase() + str.substring(1);
 	}
 
 	@Override

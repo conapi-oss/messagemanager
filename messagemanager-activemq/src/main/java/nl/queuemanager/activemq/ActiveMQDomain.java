@@ -262,13 +262,17 @@ public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements 
 				broker, CoreConfiguration.PREF_BROKER_ALTERNATE_URL, broker.getConnectionURI().toString());
 
 		log.info("Connecting to " + brokerUrl);
+
 		ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerUrl);
+		factory.setConnectResponseTimeout(10000);  // 10 seconds
+		factory.setCloseTimeout(15000);  // 15 seconds
 		
 		Connection connection;
 		if(cred != null) {
 			try {
 				cred.apply(factory);
 			} catch (Exception e) {
+				e.printStackTrace();
 				throw new JMSException("Unable to apply credentials: " + e.toString());
 			}
 		}
@@ -306,7 +310,7 @@ public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements 
 	private static class ActiveMQExceptionListener implements ExceptionListener {
 		public void onException(JMSException ex) {
 			System.out.println("EXCEPTION CAUGHT!");
-			
+			ex.printStackTrace();
 			// TODO: Disconnect the broker and alert the user. DO NOT make the user lose any work,
 			// only notify of the connection being broken.
 			System.out.println(ex);
