@@ -6,3 +6,7 @@ Developed with an open-source core and enhanced with powerful commercial feature
 
 Please check [www.conapi.at](https://conapi.at/message-manager/) for more details.
 
+
+## Documentattion
+
+[http://conapi-oss.github.io/messagemanager/](http://conapi-oss.github.io/messagemanager/)
