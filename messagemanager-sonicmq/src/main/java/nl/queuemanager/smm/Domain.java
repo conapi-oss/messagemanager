@@ -620,6 +620,7 @@ public class Domain implements JMSDomain {
 		BrokerCredentialsDialog dialog = credentialsDialogProvider.get();
 		try {
 			exception.printStackTrace();
+			dialog.enableAlternateUrlOverride(config, ((SonicMQBroker)broker).getBrokerURL());
 			return dialog.getCredentials(broker, def, exception);
 		} finally {
 			if(dialog != null) {

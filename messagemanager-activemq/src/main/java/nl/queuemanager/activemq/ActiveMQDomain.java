@@ -232,6 +232,7 @@ public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements 
 		BrokerCredentialsDialog dialog = null;
 		try {
 			dialog = new BrokerCredentialsDialog(null);
+			dialog.enableAlternateUrlOverride(config, ((ActiveMQBroker)broker).getConnectionURI().toString());
 			return dialog.getCredentials(broker, def, exception);
 		} finally {
 			if(dialog != null) {

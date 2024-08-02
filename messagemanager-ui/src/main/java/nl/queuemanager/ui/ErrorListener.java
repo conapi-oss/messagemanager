@@ -76,7 +76,7 @@ public class ErrorListener {
 		
 		switch(event.getId()) {
 			case TASK_ERROR:
-				if(event.getInfo() instanceof UserCanceledException) {
+				if(event.getInfo() instanceof UserCanceledException || (event.getInfo()!=null && ((Throwable)event.getInfo()).getCause() instanceof UserCanceledException)) {
 					// If the user canceled something, we don't want to bother
 					// them with another message dialog.
 					return;
