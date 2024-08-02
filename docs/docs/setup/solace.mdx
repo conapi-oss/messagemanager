@@ -8,14 +8,14 @@ The Solace Profile is available from the Profile List.
 
 ![solace-select-profile.png](assets/solace-select-profile.png)
 
-In order for the ActiveMQ Profile to be activated, the required ActiveMQ jars need to be added to the Message Manager classpath.
-If the required ActiveMQ jars are not available in the classpath, they can be added using the 'Add JAR' button on the bottom middle of the window.
-This will open a file selection dialog box where the proper ActiveMQ jar files can be added.
-The required ActiveMQ jars are:
-- activemq-client-x.xx.x.jar
-- hawtbuf-1.11.jar
-- geronimo-j2ee-management-1.0-spec-1.1.jar
-- geronimo-jta-1.1-spec-1.1.1.jar
+In order for the Solace Profile to be activated, the required Solace Client jars need to be added to the Message Manager classpath.
+If the required Solace Client jars are not available in the classpath, they can be added using the 'Add JAR' button on the bottom middle of the window.
+This will open a file selection dialog box where the proper Solace Client jar files can be added.
+The required Solace Client jars are:
+- commons-logging-1.2.jar
+- org.apache.servicemix.bundles.jzlib-1.0.7_2.jar
+- org.osgi.annotation-6.0.0.jar
+- sol-jms-10.19.0.jar
 
 ![solace-add-jar.png](assets/solace-add-jar.png)
 
@@ -35,29 +35,38 @@ The option "Activate automatically and don't ask again" can be selected to activ
 
 After the Solace Profile is activated, a Solace Connection can be created or an existing Solace Connection can be selected.
 
-![activemq-list-connections.png](assets/activemq-list-connections.png)
+![solace-list-connections.png](assets/solace-list-connections.png)
 
-:::note
-Message Manager uses JMX to connect to an ActiveMQ environment. It will then query the ActiveMQ environment for the available Brokers and Queues.
-The ActiveMQ Connections require the JMX format: `service:jmx:rmi:///jndi/rmi://<host>:<port>/jmxrmi`
-:::
+Select the required Connection if it is available and press "Connect to Appliance" to make the Solace Connection active.
+If the required Solace Connection is not available, a new Solace Connection can be created.
 
-Select the required Connection if it is available and press "Connect" to make the ActiveMQ Connection active.
-If the required ActiveMQ Connection is not available, a new ActiveMQ Connection can be created.
+## Create Solace Connection
 
-## Create ActiveMQ Connection
+To create a new Solace Connection, select the "New" button on the bottom (the green + button) and enter the new Solace Connection Information.
+    - Description - A descriptive name for this Connection.
+    - URI - This string is created using the information entered in the connection details screen.
 
-To create a new ActiveMQ Connection, select the "Remote Process" Radio Button and fill out the new ActiveMQ Connection Information.<br/>
-- Description
-    - A descriptive name for this Connection.
-- JMX Service URL
-    - The JMX Service URL of the ActiveMQ Installation to connect to.
-    - The JMX Service URL format: `service:jmx:rmi:///jndi/rmi://<host>:<port>/jmxrmi`
+    - Connection Details
+        - Connection Type
+            - SEMP over HTTP(s)
+            - SEMP over Message Bus
+        - Appliance Properties
+            - Appliance Hostname
+            - Appliance Port
+        - Authentication
+            - Username
+            - Password
+        - TLS Properties
+            - Use Secure Session
+        - Messaging Properties
+            - Messaging Host
+            - Messaging Port
 
-![activemq-create-connection.png](assets/activemq-create-connection.png)
 
-When all the required information is entered, press the "Connect" button to activate the ActiveMQ Connection and switch to the Queue Browser tab of Message Manager.
+![solace-create-connection.png](assets/solace-create-connection.png)
 
-![activemq-queue-browser.png](assets/activemq-queue-browser.png)
+When all the required information is entered, press the "Connect to Appliance" button to activate the Solace Connection and switch to the Queue Browser tab of Message Manager.
+
+![solace-queue-browser.png](assets/solace-queue-browser.png)
 
 Select the Queue you wish to browse and the message in the Queue (if any) to show the Message Details.
