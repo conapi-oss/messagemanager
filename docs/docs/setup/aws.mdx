@@ -1,4 +1,38 @@
 # AWS SQS/SNS
 
-Documentation coming soon... ask us meanwhile: [support@conapi.at](mailto:support@conapi.at)
+To work with Message Manager and AWS Simple Queue Services or Simple Notification Services, you first
+need to create a connection to AWS SQS/SNS using an AWS Profile.
 
+Select the AWS Profile and press the "Activate Profile" button on the bottom right of the window.
+You can select the 'Active automatically and dont ask again' option to activate the AWS Profile automatically
+when Message Manager starts.
+
+![aws-select-profile.png](assets/aws-select-profile.png)
+
+After you have activated the AWS Profile, you get an overview of existing AWS Connections.
+
+![aws-list-connections.png](assets/aws-list-connections.png)
+
+Select the AWS Connection you want to use or, when the Connections List is empty, create a new AWS Connection.
+
+## Create Connection
+
+To create a new AWS Connection, select the "New" button on the bottom (the green + button).
+Name the new AWS Connection by double-clicking the 'New Connection' list entry and entering a name.<br/>
+For the new AWS Connection, select the Credential Provider you wish to use and enter the proper Credential Information.
+
+![aws-create-connection.png](assets/aws-create-connection.png)
+
+When all the information is entered, press the 'Connect to AWS' button to activate the connection and switch to the Queue
+Browser tab of Message Manager.
+
+![aws-queue-browser.png](assets/aws-queue-browser.png)
+
+In the AWS Queue Browser window you can select the AWS Region to want to work in.
+
+![aws-queue-browser-region.png](assets/aws-queue-browser-region.png)
+
+After you have selected the AWS Region, you can select the Queues you want to work with.<br/>
+Select the Queue you wish to browse and the message in the Queue (if any) to show the Message Details.
+
+![aws-queue-browser-queues.png](assets/aws-queue-browser-queues.png)
