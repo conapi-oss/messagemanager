@@ -15,20 +15,26 @@
  */
 package nl.queuemanager.ui;
 
+import com.google.common.base.Strings;
+import com.google.common.eventbus.Subscribe;
 import nl.queuemanager.core.util.Clearable;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.jms.JMSTopic;
 import nl.queuemanager.jms.MessageType;
+import nl.queuemanager.ui.util.HighlightsModel;
 import nl.queuemanager.ui.util.ListTableModel;
 import nl.queuemanager.ui.util.MMJTable;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.swing.*;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.text.SimpleDateFormat;
@@ -46,6 +52,8 @@ import java.util.List;
 @SuppressWarnings("serial")
 public class MessagesTable extends MMJTable implements Clearable {
 	private JMSDestination currentDestination;
+	private boolean enableFiltering = false;
+
 	public MessagesTable() {
 		super();
 		
@@ -72,8 +80,54 @@ public class MessagesTable extends MMJTable implements Clearable {
 		// Drag and drop support
 		setTransferHandler(new MessageExportTransferHandler());
 		setDragEnabled(true);
+
+		// Create a new TableRowSorter
+		TableRowSorter<ListTableModel<Message>> sorter = new TableRowSorter<>(model);
+		// Set the sorter for the table
+		setRowSorter(sorter);
+
+		RowFilter<ListTableModel<Message>, Integer> rf = new RowFilter<ListTableModel<Message>, Integer>() {
+
+			@Override
+			public boolean include(Entry<? extends ListTableModel<Message>, ? extends Integer> entry) {
+				if(!enableFiltering)
+					return true;
+
+				// filter out messages that are not highlighted
+				int row = (Integer)entry.getIdentifier();
+				Message msg = ((MessageTableModel)entry.getModel()).getRowItem(row);
+				return isHighlighted(row);
+			}
+		};
+
+		sorter.setRowFilter(rf);
 	}
-	
+
+	public void setEnableFiltering(boolean enableFiltering) {
+		this.enableFiltering = enableFiltering;
+	}
+
+	@Override
+	public void setHighlightsModel(HighlightsModel<?> model) {
+		super.setHighlightsModel(model);
+
+		// ensure that the table is sorted/filtered when the highlights model is updated
+		model.addTableModelListener(e -> {
+			if (e.getType() == TableModelEvent.UPDATE) {
+				TableRowSorter<? extends TableModel> sorter =
+						(TableRowSorter<? extends TableModel>) getRowSorter();
+				if (sorter != null) {
+					sorter.sort(); // Re-apply sorting
+				}
+				repaint(getVisibleRect());
+			}
+		});
+	}
+
+	public void resetHighlights() {
+		highlightsModel.resetHighlights();
+	}
+
 	public void setData(JMSDestination destination, List<Message> data) {
 		this.currentDestination = destination;
 		((MessageTableModel)getModel()).setData(data);
@@ -100,15 +154,19 @@ public class MessagesTable extends MMJTable implements Clearable {
 	}
 
 	public Message getSelectedItem() {
-		if(getSelectedRow() >= 0)
-			return ((MessageTableModel)getModel()).getRowItem(getSelectedRow());
-		else
+		int selectedRow = getSelectedRow();
+		if (selectedRow >= 0) {
+			int modelRow = convertRowIndexToModel(selectedRow);
+			return ((MessageTableModel)getModel()).getRowItem(modelRow);
+		} else {
 			return null;
+		}
 	}
 
 	public Message getRowItem(int row) {
-		if(getModel() instanceof MessageTableModel) {
-			return ((MessageTableModel)getModel()).getRowItem(row);
+		if (getModel() instanceof MessageTableModel) {
+			int modelRow = convertRowIndexToModel(row);
+			return ((MessageTableModel)getModel()).getRowItem(modelRow);
 		} else {
 			return null;
 		}
@@ -179,22 +237,24 @@ public class MessagesTable extends MMJTable implements Clearable {
 
 		@Override
 		protected Transferable createTransferable(JComponent c) {
-			if(!(c instanceof MessagesTable))
+			if (!(c instanceof MessagesTable))
 				return null;
-			
+
 			MessagesTable table = (MessagesTable)c;
 			try {
 				List<Message> messages = CollectionFactory.newArrayList();
 				int[] selectedRows = table.getSelectedRows();
-				for(int i: selectedRows)
-					messages.add(table.getRowItem(i));
-				
-				if(currentDestination instanceof JMSQueue) {
+				for (int viewRow : selectedRows) {
+					int modelRow = table.convertRowIndexToModel(viewRow);
+					messages.add(((MessageTableModel)table.getModel()).getRowItem(modelRow));
+				}
+
+				if (currentDestination instanceof JMSQueue) {
 					return MessageListTransferable.createFromJMSMessageList((JMSQueue)currentDestination, messages);
-				} else if(currentDestination instanceof JMSTopic) {
+				} else if (currentDestination instanceof JMSTopic) {
 					return MessageListTransferable.copyFromJMSMessageList(messages);
 				}
-				
+
 				throw new IllegalStateException("currentDestination is not a JMSQueue and also not a JMSTopic. This is a bug!");
 			} catch (JMSException e) {
 				return null;

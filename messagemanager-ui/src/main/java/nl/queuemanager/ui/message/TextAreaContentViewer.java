@@ -35,7 +35,9 @@ abstract class TextAreaContentViewer<T> implements ContentViewer<T> {
 		context.setRegularExpression(false);
 		context.setSearchForward(true);
 		context.setWholeWord(false);
-		SearchEngine.markAll(textArea, context);
+		if(textArea != null) {
+			SearchEngine.markAll(textArea, context);
+		}
 	}
 	
 }
