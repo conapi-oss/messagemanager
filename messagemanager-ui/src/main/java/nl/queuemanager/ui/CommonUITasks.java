@@ -43,9 +43,31 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CommonUITasks {
+
+	// should be ok to use a single thread executor for this as the user will not type on two different fields at the same time
+	class SchedulerManager {
+		private static ScheduledExecutorService scheduler;
+
+		public static synchronized ScheduledExecutorService getScheduler() {
+			if (scheduler == null || scheduler.isShutdown()) {
+				scheduler = Executors.newSingleThreadScheduledExecutor();
+				Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+					if (scheduler != null && !scheduler.isShutdown()) {
+						scheduler.shutdown();
+					}
+				}));
+			}
+			return scheduler;
+		}
+	}
+	private static ScheduledFuture<?> scheduledFuture;
 
 	/**
 	 * Button segment positions for Mac OS X. These constants are the positions a
@@ -217,7 +239,15 @@ public class CommonUITasks {
 				if(!publishSearch.get()) return;
 				if(searchField.getForeground() == GHOST_COLOR) return; // Don't publish when showing ghost text
 
-				publishSearchText(e.getDocument(), searchField, eventBus);
+				// Cancel the previous scheduled task if it exists
+				if (scheduledFuture != null && !scheduledFuture.isDone()) {
+					scheduledFuture.cancel(false);
+				}
+
+				// Schedule a new task, this will avoid a search on each key stroke
+				scheduledFuture = SchedulerManager.getScheduler().schedule(() -> {
+					publishSearchText(e.getDocument(), searchField, eventBus);
+				}, 1000, TimeUnit.MILLISECONDS); // Adjust the delay as needed
 			}
 		});
 
@@ -259,6 +289,7 @@ public class CommonUITasks {
 		searchPanel.setBorder(BorderFactory.createEmptyBorder());
 
 		searchPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, searchPanel.getPreferredSize().height));
+
 
 		return searchPanel;
 	}

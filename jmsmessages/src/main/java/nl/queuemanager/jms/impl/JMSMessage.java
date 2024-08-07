@@ -15,6 +15,11 @@
  */
 package nl.queuemanager.jms.impl;
 
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import nl.queuemanager.jms.MetaDataProvider;
+
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -27,7 +32,7 @@ import java.util.*;
  * @author gerco
  *
  */
-class JMSMessage implements Message, Serializable {
+class JMSMessage implements Message, Serializable, MetaDataProvider {
 
 	private static final long serialVersionUID = 5662495489350887464L;
 
@@ -47,10 +52,16 @@ class JMSMessage implements Message, Serializable {
 	private String type;
 
 	private long deliveryTime;
+
+	// optional metadata, will not be serialized
+	@Getter
+	@Setter
+	private transient Map<String, Object> metaData;
 	
 	JMSMessage() {
 		this.properties = new HashMap<Object, Object>();
 		this.timestamp = new Date().getTime();
+		metaData = null; // we use null to indicate that the metadata is not supported
 	}
 	
 	public void acknowledge() {
@@ -267,5 +278,6 @@ class JMSMessage implements Message, Serializable {
 	public void setStringProperty(String arg0, String arg1) {
 		setObjectProperty(arg0, arg1);
 	}
-	
+
+
 }

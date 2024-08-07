@@ -5,6 +5,7 @@ import com.google.common.eventbus.Subscribe;
 import nl.queuemanager.jms.JMSMultipartMessage;
 import nl.queuemanager.jms.JMSPart;
 import nl.queuemanager.jms.MessageType;
+import nl.queuemanager.jms.MetaDataProvider;
 import nl.queuemanager.ui.util.HighlighterSupport;
 
 import javax.jms.JMSException;
@@ -13,6 +14,8 @@ import javax.jms.Message;
 import javax.jms.TextMessage;
 import java.text.SimpleDateFormat;
 import java.util.Enumeration;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,18 +38,35 @@ public final class MessageHighlighter extends HighlighterSupport<Message> {
 		try {
 			if(Strings.isNullOrEmpty(searchTerm))
 				return false;
-			
-			if(msg.getJMSMessageID().contains(searchTerm))
-				return true;
-			
+
+			if(msg.getJMSDestination() != null) {
+				// we only show the JMS headers if JMS Destination is non null.
+				// therefore exclude from search if JMS Destination is null to avoid confusion
+				if (msg.getJMSMessageID().contains(searchTerm))
+					return true;
+
+				if(msg.getJMSTimestamp() > 0 && dateFormatter.format(msg.getJMSTimestamp()).contains(searchTerm))
+					return true;
+			}
+
 			if(msg.getJMSCorrelationID() != null && msg.getJMSCorrelationID().contains(searchTerm))
 				return true;
 			
 			if(msg.getJMSDestination() != null && msg.getJMSDestination().toString().contains(searchTerm))
 				return true;
-			
-			if(msg.getJMSTimestamp() > 0 && dateFormatter.format(msg.getJMSTimestamp()).contains(searchTerm))
-				return true;
+
+			if(msg instanceof MetaDataProvider && ((MetaDataProvider)msg).getMetaData() != null) {
+				// iterate over all the meta data entries
+				for (Map.Entry<String, Object> entry : ((MetaDataProvider)msg).getMetaData().entrySet()) {
+					String name = entry.getKey();
+					if(name.contains(searchTerm))
+						return true;
+
+					Object value = entry.getValue();
+					if(shouldHighlightObj(value))
+						return true;
+				}
+			}
 			
 			@SuppressWarnings("unchecked")
 			Enumeration<String> names = msg.getPropertyNames();

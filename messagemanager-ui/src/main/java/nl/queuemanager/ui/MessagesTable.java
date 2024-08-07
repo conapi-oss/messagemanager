@@ -116,7 +116,7 @@ public class MessagesTable extends MMJTable implements Clearable {
 			if (e.getType() == TableModelEvent.UPDATE) {
 				TableRowSorter<? extends TableModel> sorter =
 						(TableRowSorter<? extends TableModel>) getRowSorter();
-				if (sorter != null) {
+				if (sorter != null && sorter.getModelRowCount()>0)  {
 					sorter.sort(); // Re-apply sorting
 				}
 				repaint(getVisibleRect());

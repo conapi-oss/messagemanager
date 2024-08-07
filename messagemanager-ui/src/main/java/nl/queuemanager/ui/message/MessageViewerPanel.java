@@ -18,9 +18,10 @@ package nl.queuemanager.ui.message;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import nl.queuemanager.core.Pair;
-import nl.queuemanager.core.jms.JMSFeature;
+
 import nl.queuemanager.jms.JMSMultipartMessage;
 import nl.queuemanager.jms.JMSPart;
+import nl.queuemanager.jms.MetaDataProvider;
 import nl.queuemanager.ui.MessageListTransferable;
 import nl.queuemanager.ui.util.Highlighter;
 import nl.queuemanager.ui.util.HighlightsModel;
@@ -100,6 +101,21 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 		root.removeAllChildren();
 
 		if(message != null) try {
+
+			// optional metadata
+			if(message instanceof MetaDataProvider && ((MetaDataProvider)message).getMetaData() != null) {
+				MessagePropertiesTable messageMetadataTable = new MessagePropertiesTable();
+				messageMetadataTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+				messageMetadataTable.setHighlightsModel(HighlightsModel.with(
+						(ListTableModel<? extends Pair<?, ?>>) messageMetadataTable.getModel(), highlighter));
+				messageMetadataTable.setProperties(((MetaDataProvider)message).getMetaData());
+				root.add(
+						new DefaultMutableTreeNode(
+								new TreeNodeInfo(
+										"Metadata",
+										new JScrollPane(messageMetadataTable))));
+
+			}
 
 			if(message.getJMSDestination() != null) {
 				JMSHeadersTable messageHeadersTable = new JMSHeadersTable();
