@@ -87,12 +87,10 @@ public class MessagesTable extends MMJTable implements Clearable {
 		setRowSorter(sorter);
 
 		RowFilter<ListTableModel<Message>, Integer> rf = new RowFilter<ListTableModel<Message>, Integer>() {
-
 			@Override
 			public boolean include(Entry<? extends ListTableModel<Message>, ? extends Integer> entry) {
 				if(!enableFiltering)
 					return true;
-
 				// filter out messages that are not highlighted
 				int row = (Integer)entry.getIdentifier();
 				Message msg = ((MessageTableModel)entry.getModel()).getRowItem(row);
@@ -126,6 +124,10 @@ public class MessagesTable extends MMJTable implements Clearable {
 
 	public void resetHighlights() {
 		highlightsModel.resetHighlights();
+	}
+
+	public int getHighlightedRowCount() {
+		return highlightsModel.getHighlightedRowCount();
 	}
 
 	public void setData(JMSDestination destination, List<Message> data) {

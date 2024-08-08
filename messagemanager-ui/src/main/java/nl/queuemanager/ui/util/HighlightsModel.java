@@ -38,7 +38,18 @@ public class HighlightsModel<T> implements TableModelListener, HighlighterListen
 			}
 		}
 	}
-	
+
+	public int getHighlightedRowCount() {
+		// return the number of rows that are highlighted
+		int count = 0;
+		for (int i=0; i<highlights.size(); i++) {
+			if(highlights.get(i)) {
+				count++;
+			}
+		}
+		return count;
+	}
+
 	@Override
 	public void tableChanged(TableModelEvent e) {
 		@SuppressWarnings("unchecked")

@@ -51,23 +51,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CommonUITasks {
 
-	// should be ok to use a single thread executor for this as the user will not type on two different fields at the same time
-	class SchedulerManager {
-		private static ScheduledExecutorService scheduler;
-
-		public static synchronized ScheduledExecutorService getScheduler() {
-			if (scheduler == null || scheduler.isShutdown()) {
-				scheduler = Executors.newSingleThreadScheduledExecutor();
-				Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-					if (scheduler != null && !scheduler.isShutdown()) {
-						scheduler.shutdown();
-					}
-				}));
-			}
-			return scheduler;
-		}
-	}
-	private static ScheduledFuture<?> scheduledFuture;
 
 	/**
 	 * Button segment positions for Mac OS X. These constants are the positions a
@@ -194,114 +177,6 @@ public class CommonUITasks {
 		
 		if(messages.size() > 0) {
 			worker.execute(taskFactory.saveToFile(messages, messageFileExtension));
-		}
-	}
-	
-
-
-	public static JPanel createSearchPanel(final Object eventSource, final EventBus eventBus) {
-		JPanel searchPanel = new JPanel();
-		searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.X_AXIS));
-		final AtomicBoolean publishSearch = new AtomicBoolean(true);
-		final JTextField searchField = new JTextField();
-		searchField.setMaximumSize(new Dimension(Integer.MAX_VALUE, searchField.getPreferredSize().height)); // make it as wide as possible
-		searchField.putClientProperty("JTextField.variant", "search");
-
-		// Add ghost text in title case
-		final String GHOST_TEXT = "Type to Search";
-		final Color GHOST_COLOR = Color.GRAY;
-		final Color ACTIVE_COLOR = UIManager.getColor("TextField.foreground");
-
-		searchField.setForeground(GHOST_COLOR);
-		searchField.setText(GHOST_TEXT);
-
-		searchField.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusGained(FocusEvent e) {
-				if (searchField.getText().equals(GHOST_TEXT)) {
-					searchField.setText("");
-					searchField.setForeground(ACTIVE_COLOR);
-				}
-			}
-
-			@Override
-			public void focusLost(FocusEvent e) {
-				if (searchField.getText().isEmpty()) {
-					searchField.setForeground(GHOST_COLOR);
-					searchField.setText(GHOST_TEXT);
-				}
-			}
-		});
-
-		searchField.getDocument().addDocumentListener(new DocumentAdapter() {
-			@Override
-			public void updated(DocumentEvent e) {
-				if(!publishSearch.get()) return;
-				if(searchField.getForeground() == GHOST_COLOR) return; // Don't publish when showing ghost text
-
-				// Cancel the previous scheduled task if it exists
-				if (scheduledFuture != null && !scheduledFuture.isDone()) {
-					scheduledFuture.cancel(false);
-				}
-
-				// Schedule a new task, this will avoid a search on each key stroke
-				scheduledFuture = SchedulerManager.getScheduler().schedule(() -> {
-					publishSearchText(e.getDocument(), searchField, eventBus);
-				}, 1000, TimeUnit.MILLISECONDS); // Adjust the delay as needed
-			}
-		});
-
-		eventBus.register(new Object() {
-			@Subscribe
-			public void onGlobalHighlightEvent(GlobalHighlightEvent e) {
-				if(e.getSource() != searchField) {
-					try {
-						publishSearch.set(false);
-						String highlightString = e.getHighlightString();
-						if (highlightString.isEmpty()) {
-							searchField.setForeground(GHOST_COLOR);
-							searchField.setText(GHOST_TEXT);
-						} else {
-							searchField.setForeground(ACTIVE_COLOR);
-							searchField.setText(highlightString);
-						}
-					} finally {
-						publishSearch.set(true);
-					}
-				}
-			}
-		});
-
-		// Create the checkbox
-		JCheckBox filterCheckBox = new JCheckBox("Filter");
-		filterCheckBox.addItemListener(e -> {
-			boolean isFilter = e.getStateChange() == ItemEvent.SELECTED;
-			// Publish an event or update the search behavior based on the checkbox state
-			eventBus.post(new SearchModeChangedEvent(eventSource, isFilter));
-		});
-		filterCheckBox.setMaximumSize(filterCheckBox.getPreferredSize()); // keep it as small as possible, let the search field the rest
-
-		// Add components to the panel
-		searchPanel.add(Box.createHorizontalStrut(15)); // Add some space between components
-		searchPanel.add(searchField);
-		searchPanel.add(Box.createHorizontalStrut(5)); // Add some space between components
-		searchPanel.add(filterCheckBox);
-		searchPanel.setBorder(BorderFactory.createEmptyBorder());
-
-		searchPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, searchPanel.getPreferredSize().height));
-
-
-		return searchPanel;
-	}
-
-
-	private static void publishSearchText(Document document, JTextField searchField, EventBus eventBus) {
-		try {
-			int length = document.getLength();
-			String text = document.getText(0, length);
-			eventBus.post(new GlobalHighlightEvent(searchField, text));
-		} catch (BadLocationException ex) {
-			ex.printStackTrace();
 		}
 	}
 

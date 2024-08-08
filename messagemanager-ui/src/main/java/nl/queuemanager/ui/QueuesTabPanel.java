@@ -35,6 +35,7 @@ import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.core.tasks.FireRefreshRequiredTask.JMSDestinationHolder;
 import nl.queuemanager.ui.MessagesTable.MessageTableModel;
 import nl.queuemanager.ui.message.MessageViewerPanel;
+import nl.queuemanager.ui.message.SearchPanel;
 import nl.queuemanager.ui.util.HighlightsModel;
 import nl.queuemanager.ui.util.Holder;
 import nl.queuemanager.ui.util.QueueCountsRefresher;
@@ -203,7 +204,7 @@ public class QueuesTabPanel extends JSplitPane implements UITab, MessageTableAct
 		});
 		CommonUITasks.makeSegmented(saveButton, Segmented.LAST);
 		messagesActionPanel.add(saveButton);
-		messagesActionPanel.add(CommonUITasks.createSearchPanel(messageTable, eventBus));
+		messagesActionPanel.add(new SearchPanel(messageTable, eventBus));
 		return messagesActionPanel;
 	}
 	

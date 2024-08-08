@@ -36,6 +36,7 @@ import nl.queuemanager.jms.JMSTopic;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.ui.MessagesTable.MessageTableModel;
 import nl.queuemanager.ui.message.MessageViewerPanel;
+import nl.queuemanager.ui.message.SearchPanel;
 import nl.queuemanager.ui.util.HighlightsModel;
 
 import javax.jms.Message;
@@ -200,7 +201,7 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab,Message
 		});
 		CommonUITasks.makeSegmented(saveButton, Segmented.LAST);		
 		messagesActionPanel.add(saveButton);
-		messagesActionPanel.add(CommonUITasks.createSearchPanel(messageTable,eventBus));
+		messagesActionPanel.add(new SearchPanel(messageTable,eventBus));
 		return messagesActionPanel;
 	}
 	
