@@ -6,6 +6,7 @@ import nl.queuemanager.ui.GlobalHighlightEvent;
 import nl.queuemanager.ui.MessagesTable;
 import nl.queuemanager.ui.SearchModeChangedEvent;
 import nl.queuemanager.ui.util.DocumentAdapter;
+import nl.queuemanager.ui.util.TriStateCheckBox;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -120,11 +121,31 @@ public class SearchPanel extends JPanel {
         searchResultStatusLabel.setMaximumSize(searchResultStatusLabel.getPreferredSize());
 
         // Create the checkbox
-        JCheckBox filterCheckBox = new JCheckBox("Filter");
-        filterCheckBox.addItemListener(e -> {
-            boolean isFilter = e.getStateChange() == ItemEvent.SELECTED;
+        TriStateCheckBox filterCheckBox = new TriStateCheckBox("Filter");//new JCheckBox("Filter");
+
+        filterCheckBox.addPropertyChangeListener("state", evt -> {
+            TriStateCheckBox.State oldState = (TriStateCheckBox.State) evt.getOldValue();
+            TriStateCheckBox.State state = (TriStateCheckBox.State) evt.getNewValue();
+            // Handle state change
+        //});
+
+        /*filterCheckBox.addActionListener(e -> {
+            final TriStateCheckBox.State state = filterCheckBox.getState();*/
+            SearchModeChangedEvent.SearchMode mode;
+            switch(state) {
+                case CHECKED:
+                    mode = SearchModeChangedEvent.SearchMode.FILTER;
+                    break;
+                case THIRD_STATE:
+                    mode = SearchModeChangedEvent.SearchMode.INVERSE_FILTER;
+                    break;
+                case UNCHECKED:
+                default:
+                    mode = SearchModeChangedEvent.SearchMode.NO_FILTER;
+                    break;
+            }
             // Publish an event or update the search behavior based on the checkbox state
-            eventBus.post(new SearchModeChangedEvent(eventSource, isFilter));
+            eventBus.post(new SearchModeChangedEvent(eventSource, mode));
         });
         filterCheckBox.setMaximumSize(filterCheckBox.getPreferredSize()); // keep it as small as possible, let the search field the rest
 
@@ -178,11 +199,11 @@ public class SearchPanel extends JPanel {
         SwingUtilities.invokeLater(() -> {
             int highlightedRowCount = msgsTable.getHighlightedRowCount();
             if (highlightedRowCount == 0) {
-                searchResultStatusLabel.setText("(No matches)");
+                searchResultStatusLabel.setText("(No hits)");
             } else if (highlightedRowCount == 1) {
-                searchResultStatusLabel.setText("1 match found");
+                searchResultStatusLabel.setText("(1 hit)");
             } else {
-                searchResultStatusLabel.setText(highlightedRowCount + " matches found");
+                searchResultStatusLabel.setText("(" + highlightedRowCount + " hits)");
             }
             searchResultStatusLabel.setMaximumSize(searchResultStatusLabel.getPreferredSize());
         });

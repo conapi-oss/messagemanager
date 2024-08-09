@@ -15,8 +15,6 @@
  */
 package nl.queuemanager.ui;
 
-import com.google.common.base.Strings;
-import com.google.common.eventbus.Subscribe;
 import nl.queuemanager.core.util.Clearable;
 import nl.queuemanager.core.util.CollectionFactory;
 import nl.queuemanager.jms.JMSDestination;
@@ -53,6 +51,7 @@ import java.util.List;
 public class MessagesTable extends MMJTable implements Clearable {
 	private JMSDestination currentDestination;
 	private boolean enableFiltering = false;
+	private boolean inverseFilter;
 
 	public MessagesTable() {
 		super();
@@ -94,15 +93,21 @@ public class MessagesTable extends MMJTable implements Clearable {
 				// filter out messages that are not highlighted
 				int row = (Integer)entry.getIdentifier();
 				Message msg = ((MessageTableModel)entry.getModel()).getRowItem(row);
-				return isHighlighted(row);
+
+				if(inverseFilter) {
+					return !isHighlighted(row);
+				} else {
+					return isHighlighted(row);
+				}
 			}
 		};
 
 		sorter.setRowFilter(rf);
 	}
 
-	public void setEnableFiltering(boolean enableFiltering) {
+	public void setFiltering(boolean enableFiltering, boolean inverseFilter) {
 		this.enableFiltering = enableFiltering;
+		this.inverseFilter = inverseFilter;
 	}
 
 	@Override

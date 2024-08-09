@@ -77,12 +77,23 @@ public class MessageViewerPanel extends JPanel implements TreeSelectionListener 
 		// Guice or Eventbus
 		eventBus.register(highlighter);
 	}
-	
+	private int[] previousTreeSelection = new int[0];
 	public void setMessage(Message message) {
 		this.message = message;
 		
 		int[] selectedRows = structureTree.getSelectionModel().getSelectionRows(); 
-		
+		if(message == null) {
+			// if a message is deleted we want to still remember the previous selection
+			previousTreeSelection = selectedRows;
+		}
+		else{
+			// check if we have a previous selection in case of no selection!
+			if(previousTreeSelection.length > 0 && selectedRows.length == 0) {
+				// if we have a previous selection, try to select the same rows as before
+				selectedRows = previousTreeSelection;
+			}
+		}
+
 		fillTree((DefaultMutableTreeNode)structureTree.getModel().getRoot(), message);
 		
 		// Try to select the same rows as before

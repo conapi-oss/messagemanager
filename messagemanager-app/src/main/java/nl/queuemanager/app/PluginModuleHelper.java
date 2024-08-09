@@ -24,7 +24,9 @@ public class PluginModuleHelper {
 
     // packages which are known to cause issues, we will filter them out
     // TODO: potentially make this configurable
-    private static List<String> packagesToBeFiltered = Arrays.asList("javax.jms","sonic_Client:com.sonicsw.security.ssl") ;
+    // IMPORTANT: due to jar name adjustments (deriveModuleName) the jar name must be regex to match the name before and after the adjustment
+    // sonic_Client --> sonicclient --> sonic.*lient
+    private static List<String> packagesToBeFiltered = Arrays.asList("javax.jms","sonic.*lient:com.sonicsw.security.ssl") ;
     public static ModuleLayer createPluginModuleLayer(final List<URL> urls, final Class parentClass) {
         final List<Path> jarPaths;
         try {
@@ -106,7 +108,7 @@ public class PluginModuleHelper {
             if(badPackage.contains(":")){
                 // check also jar name
                 final String[] badPackageInfo = badPackage.split(":");
-                if(badPackageInfo[0].equals(jarName) && badPackageInfo[1].equals(packageName))
+                if(jarName.matches(badPackageInfo[0]) && badPackageInfo[1].equals(packageName))
                     return true;
             }
             else{
@@ -177,15 +179,19 @@ public class PluginModuleHelper {
      * @param jarFileName
      * @return
      */
-    private static String deriveModuleName(String jarFileName) {
-        // Remove file extension
+    static String deriveModuleName(String jarFileName) {
+
+        // Remove .jar extension
         String name = jarFileName.replaceAll("\\.jar$", "");
 
-        // Remove version numbers
-        name = name.replaceAll("[-.]\\d+(\\.\\d+)*", "");
+        // Remove version-like information
+        name = name.replaceAll("-\\d+([._-]\\d+)*([._-][a-zA-Z0-9]+)?", "");
 
-        // Remove any remaining dots, dashes, and underscores
-        name = name.replaceAll("[\\.-_]", "");
+        // Replace remaining non-alphanumeric characters with dots
+        name = name.replaceAll("[^A-Za-z0-9]", ".");
+
+        // Remove leading/trailing dots and collapse multiple dots
+        name = name.replaceAll("^\\.|\\.$", "").replaceAll("\\.{2,}", ".");
 
         // Ensure the name starts with a letter
         if (!Character.isLetter(name.charAt(0))) {

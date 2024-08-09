@@ -33,10 +33,8 @@ import nl.queuemanager.jms.JMSDestination;
 import nl.queuemanager.jms.JMSQueue;
 import nl.queuemanager.ui.CommonUITasks.Segmented;
 import nl.queuemanager.core.tasks.FireRefreshRequiredTask.JMSDestinationHolder;
-import nl.queuemanager.ui.MessagesTable.MessageTableModel;
 import nl.queuemanager.ui.message.MessageViewerPanel;
 import nl.queuemanager.ui.message.SearchPanel;
-import nl.queuemanager.ui.util.HighlightsModel;
 import nl.queuemanager.ui.util.Holder;
 import nl.queuemanager.ui.util.QueueCountsRefresher;
 
@@ -453,16 +451,32 @@ public class QueuesTabPanel extends JSplitPane implements UITab, MessageTableAct
 		}
 		
 		int[] selectedIndexes = messageTable.getSelectedRows();
-		
+		final int firstSelectedIndex = selectedIndexes[0];
+
 		// Gather the messages to be removed from the queue.
 		for(int i: selectedIndexes) {
-			messages.add(messageTable.getRowItem(i));				
+			messages.add(messageTable.getRowItem(i));
 		}
-		
+
 		// Remove messages from the UI
 		for(Message m: messages) {
 			messageTable.removeItem(m);
 		}
+
+		// Select next message
+		int rowCount = messageTable.getRowCount();
+		SwingUtilities.invokeLater(() -> {
+			// Select next row
+			if (rowCount > 0) {
+				int selectIndex = firstSelectedIndex;
+				if (selectIndex >= rowCount) {
+					selectIndex = rowCount - 1;
+				}
+
+				messageTable.setRowSelectionInterval(selectIndex,selectIndex);
+				messageTable.scrollRectToVisible(messageTable.getCellRect(selectIndex, 0, true));
+			}
+		});
 
 		// Submit the removal task to the worker
 		worker.executeInOrder(

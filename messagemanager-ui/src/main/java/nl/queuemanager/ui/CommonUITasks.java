@@ -27,27 +27,18 @@ import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.tasks.TaskFactory;
 import nl.queuemanager.core.util.Clearable;
 import nl.queuemanager.core.util.CollectionFactory;
-import nl.queuemanager.ui.util.DocumentAdapter;
 import nl.queuemanager.ui.util.HighlightsModel;
 import nl.queuemanager.ui.util.SingleExtensionFileFilter;
 
 import javax.jms.Message;
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CommonUITasks {
 
@@ -202,7 +193,7 @@ public class CommonUITasks {
 			public void onSearchModeChangedEvent(SearchModeChangedEvent e) {
 				if(e.getSource().equals(table)) {
 					// this is coming from the search panel below this message table
-					table.setEnableFiltering(e.isFilterEndabled());
+					table.setFiltering(e.getMode() != SearchModeChangedEvent.SearchMode.NO_FILTER, e.getMode() == SearchModeChangedEvent.SearchMode.INVERSE_FILTER);
 					table.resetHighlights();
 				}
 			}

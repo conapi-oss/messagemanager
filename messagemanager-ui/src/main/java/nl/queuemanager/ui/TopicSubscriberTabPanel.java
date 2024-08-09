@@ -241,7 +241,9 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab,Message
 		}
 		
 		int[] selectedIndexes = messageTable.getSelectedRows();
-		
+		final int firstSelectedIndex = selectedIndexes[0];
+
+		// Gather the messages to be removed from the topic buffer
 		for(int i: selectedIndexes) {
 			Message message = messageTable.getRowItem(i);
 			messages.add(message);
@@ -249,10 +251,26 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab,Message
 		
 		subscriberTable.getItemForDestination(messageTable.getCurrentDestination())
 			.removeMessages(messages);
-		
-		for(int i=selectedIndexes.length-1; i>=0; i--) {
-			messageTable.removeItem(messageTable.getRowItem(i));
+
+		// Remove messages from the UI
+		for(Message m: messages) {
+			messageTable.removeItem(m);
 		}
+
+		// Select next message
+		int rowCount = messageTable.getRowCount();
+		SwingUtilities.invokeLater(() -> {
+			// Select next row
+			if (rowCount > 0) {
+				int selectIndex = firstSelectedIndex;
+				if (selectIndex >= rowCount) {
+					selectIndex = rowCount - 1;
+				}
+
+				messageTable.setRowSelectionInterval(selectIndex,selectIndex);
+				messageTable.scrollRectToVisible(messageTable.getCellRect(selectIndex, 0, true));
+			}
+		});
 	}
 
 	private JComboBox createBrokerCombo() {

@@ -4,16 +4,19 @@ import java.util.EventObject;
 
 @SuppressWarnings("serial")
 public class SearchModeChangedEvent extends EventObject {
-
-	private final boolean filterEndabled;
-
-	public SearchModeChangedEvent(Object source, boolean filterEndabled) {
-		super(source);
-		this.filterEndabled = filterEndabled;
+	public enum SearchMode {
+		FILTER, NO_FILTER, INVERSE_FILTER
 	}
 
-	public boolean isFilterEndabled() {
-		return filterEndabled;
+	private final SearchMode mode;
+
+	public SearchModeChangedEvent(Object source, SearchMode mode) {
+		super(source);
+		this.mode = mode;
+	}
+
+	public SearchMode getMode() {
+		return mode;
 	}
 
 }
