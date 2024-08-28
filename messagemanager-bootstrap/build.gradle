@@ -85,7 +85,7 @@ tasks.register('copyAppJars', Copy) {
 
 
 tasks.register('createUpdate4JConfig', JavaExec) {
-    dependsOn('copyBootstrapJars', 'copyAppJars', 'copyJavaFxJars', 'copyUpdate4jJar', 'copyLaunchScripts')
+    dependsOn('jar','copyBootstrapJars', 'copyAppJars', 'copyJavaFxJars', 'copyUpdate4jJar', 'copyLaunchScripts')
     dependsOn(":messagemanager-bootstrap-config:jar")
     // ensure the plugins are built!
     dependsOn(":messagemanager-sonicmq:jar")
@@ -240,7 +240,10 @@ tasks.register('renameMsi') {
                  tofile: "${dir}/MessageManager.msi"
     }
 }
-msi.dependsOn('jar','copyAllPlatformsJavaFxLibs')
+//msi.dependsOn('jar','copyAllPlatformsJavaFxLibs')
+// the jar dependency causes the has to be invalid as jar is rebuilt before the upload
+msi.dependsOn('copyAllPlatformsJavaFxLibs')
+
 msi.finalizedBy('renameMsi','buildOtherDistributions')
 
 // tasks to create the tar.gz and zip files
