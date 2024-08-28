@@ -63,7 +63,7 @@ public class EnumerateMessagesTask extends Task implements CancelableTask {
 		Enumeration<Message> e = domain.enumerateMessages(getQueue());
 		Message message;
 		try {
-			while((message = e.nextElement()) != null) {
+			while(e.hasMoreElements() && (message = e.nextElement()) != null) {
 				log.finest("eventSource.fireMessageFound(this, message)");
 				eventSource.fireMessageFound(this, message);
 				if(canceled) {
