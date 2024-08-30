@@ -1,0 +1,1 @@
+npx docs-to-pdf docusaurus --initialDocURLs="https://conapi-oss.github.io/messagemanager/docs/intro" --contentSelector="article" --paginationSelector="a.pagination-nav__link.pagination-nav__link--next" --excludeSelectors=".margin-vert--xl a,[class^='tocCollapsible'],.breadcrumbs,.theme-edit-this-page" --coverTitle="Message Manager"
