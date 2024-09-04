@@ -80,10 +80,14 @@ public class MMFrame extends JFrame {
 		// Create the tabbedpane and add all the panels to it
 		tabsPane = new JTabbedPane();
 		tabsPane.setToolTipText("");
-		
+
+		// profile tab to select the profile
 		addTab(new AddUITabEvent(0, profileTab));
 		getRootPane().setDefaultButton(profileTab.getDefaultButton());
-		
+
+		// optional plugins which can be added if avaliable
+
+		// static tabs, for settings and about
 		addTab(new AddUITabEvent(98, settingsTab));
 		addTab(new AddUITabEvent(99, aboutTab));
 		

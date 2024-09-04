@@ -8,6 +8,8 @@ import nl.queuemanager.core.platform.PlatformHelper;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.util.EnumerationIterator;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -17,6 +19,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.*;
@@ -155,7 +158,9 @@ public class PluginManager {
 					String name = entry.getName().replace('\\', '/');
 					
 					// If entry is a plugin descriptor, read it
-					if(name.startsWith("MessageManager/plugins/") && name.endsWith(".xml")) try (
+					// if multiple plugins are loaded into the same module layer then the common resource structure is causing issues.
+					// therefore we in addition to "MessageManager/plugins/" we also allow <package>/plugins/
+					if((name.startsWith("MessageManager/plugins/") || name.contains("/mm/plugins/")) && name.endsWith(".xml")) try (
 						InputStream descriptorStream = ZipUtil.openStreamForZipEntry(pluginZip, entry))
 					{
 						PluginDescriptor descriptor = readDescriptor(pluginFile, descriptorStream);
@@ -206,6 +211,18 @@ public class PluginManager {
 			descriptor.setName(xpath.evaluate("/plugin/name", doc));
 			descriptor.setDescription(xpath.evaluate("/plugin/description", doc));
 			descriptor.setModuleClass(xpath.evaluate("/plugin/moduleClass", doc));
+			// for plugins that have no profile, i.e. UI plugins we need to load the classpath as well
+			NodeList classpathEntries = (NodeList) xpath.evaluate("/plugin/classpath/entry", doc, XPathConstants.NODESET);
+			List<URL> classpathList = new ArrayList<>();
+			for (int i = 0; i < classpathEntries.getLength(); i++) {
+				Node entryNode = classpathEntries.item(i);
+				String entryValue = entryNode.getTextContent().trim();
+				classpathList.add(new URL(entryValue));
+			}
+
+			// Now classpathList contains all the entry values
+			descriptor.setClasspath(classpathList);
+
 			descriptor.setFile(pluginFile);
 			return descriptor;
 		} catch (ParserConfigurationException | SAXException | IOException | XPathExpressionException e) {

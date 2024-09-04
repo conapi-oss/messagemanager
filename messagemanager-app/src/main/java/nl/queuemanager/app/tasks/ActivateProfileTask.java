@@ -3,13 +3,13 @@ package nl.queuemanager.app.tasks;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.eventbus.EventBus;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import com.google.inject.*;
 import com.google.inject.Module;
 import com.google.inject.assistedinject.Assisted;
 import nl.queuemanager.ConnectivityProviderPlugin;
 import nl.queuemanager.Profile;
 import nl.queuemanager.ProfileActivatedEvent;
+import nl.queuemanager.UITabProviderPlugin;
 import nl.queuemanager.app.PluginDescriptor;
 import nl.queuemanager.app.PluginManager;
 import nl.queuemanager.core.CoreModule;
@@ -22,6 +22,7 @@ import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class ActivateProfileTask extends Task {
 	public static final String LAST_ACTIVE_PROFILE = "lastActiveProfile";
@@ -43,10 +44,18 @@ public class ActivateProfileTask extends Task {
 	@Override
 	public void execute() throws Exception {
 		// Transform all plugin class names into plugindescriptors.
-		Collection<PluginDescriptor> pluginDescriptors = Collections2.transform(profile.getPlugins(), new Function<String, PluginDescriptor>() {
+		// first get the profile plugins
+		final List<String> plugins = profile.getPlugins();
+
+		// then add the UI tab providers
+		//TODO: need to add a way to specify global/generic plugins
+		plugins.add("at.conapi.scripting.ScriptingModule");
+
+		Collection<PluginDescriptor> pluginDescriptors = Collections2.transform(plugins, new Function<String, PluginDescriptor>() {
 			@Override
 			public PluginDescriptor apply(String pluginClassName) {
 				PluginDescriptor ret = pluginManager.getPluginByClassName(pluginClassName);
+
 				if(ret == null) {
 					ret = pluginManager.downloadPluginByClassname(pluginClassName);
 				}
@@ -64,6 +73,23 @@ public class ActivateProfileTask extends Task {
 		modules.add(new UIModule());
 		modules.addAll(pluginModules);
 
+		// Add the UI tab provider plugins
+		try {
+			final Injector injector = parentInjector.createChildInjector(modules);
+			Map<Key<?>, Binding<?>> bindings = injector.getBindings();
+			for (Binding<?> binding : bindings.values()) {
+				if (binding.getKey().getTypeLiteral().getRawType().equals(UITabProviderPlugin.class)) {
+					UITabProviderPlugin provider = (UITabProviderPlugin) binding.getProvider().get();
+					provider.initialize();
+				}
+			}
+		} catch (NoClassDefFoundError e) {
+			// Report the missing class to the user
+			this.dispatchTaskError(new CoreException("Unable to initialize UI tab. Class " + e.getMessage() + " could not be found", e));
+			return;
+		}
+
+		// Add the connectivity provider plugin
 		try {
 			final Injector injector = parentInjector.createChildInjector(modules);
 			final ConnectivityProviderPlugin provider = injector.getInstance(ConnectivityProviderPlugin.class);

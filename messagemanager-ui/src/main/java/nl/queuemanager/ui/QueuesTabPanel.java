@@ -352,15 +352,19 @@ public class QueuesTabPanel extends JSplitPane implements UITab, MessageTableAct
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				brokerCombo.removeAllItems();
-				
-				Collections.sort(brokers);
-				
-				for(JMSBroker broker: brokers) {
-					brokerCombo.addItem(broker);
-				}
-				
-				if(brokerCombo.getItemCount()>0) {
-					brokerCombo.setSelectedIndex(0);
+
+				if(!brokers.isEmpty()) {
+					// copy to avoid concurrent modification exception
+					final List<JMSBroker> sortedBrokers = new ArrayList<>(brokers);
+					Collections.sort(sortedBrokers);
+
+					for(JMSBroker broker: sortedBrokers) {
+						brokerCombo.addItem(broker);
+					}
+
+					if(brokerCombo.getItemCount()>0) {
+						brokerCombo.setSelectedIndex(0);
+					}
 				}
 			}
 		});

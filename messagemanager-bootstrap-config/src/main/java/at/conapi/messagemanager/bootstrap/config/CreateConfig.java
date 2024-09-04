@@ -49,6 +49,9 @@ public class CreateConfig {
         String clientsDir = configLoc + "/clients";
         Files.createDirectories(Paths.get(clientsDir));
 
+        String pluginExtraLibsDir = configLoc + "/plugins/libs";
+        Files.createDirectories(Paths.get(pluginExtraLibsDir));
+
         Configuration config = Configuration.builder()
                 .baseUri(baseUrl + "/app")
                 .basePath("${user.dir}/app")
@@ -59,6 +62,7 @@ public class CreateConfig {
                 // plugins
                 .files(FileMetadata.streamDirectory(configLoc + "/plugins")
                         .filter( r -> !r.getSource().toString().endsWith("-common.jar"))
+                        .filter( r -> r.getSource().toString().startsWith("messagemanager-")) // this allows us to exclude the extra plguin jars
                         .peek(f -> f.uri(baseUrl +"/plugins/" + f.getSource().toFile().getName()))
                         .peek( f -> f.path("../plugins/" + f.getSource().toFile().getName())))
                 // clients, not put on modulepath nor classpath, including all subfolders
@@ -71,6 +75,18 @@ public class CreateConfig {
                             pathToJar = pathToJar.replace("\\", "/");
                             f.path("../clients/" + pathToJar);
                             f.uri(baseUrl +"/clients/" + pathToJar);
+                        })
+                )
+                // the extra plugin jars
+                .files(FileMetadata.streamDirectory(configLoc + "/plugins/libs")
+                        .peek(r -> r.modulepath(false))
+                        .peek(r -> r.classpath(false))
+                        .peek( f -> {
+                            String pathToJar = f.getSource().toFile().getPath();
+                            pathToJar = pathToJar.substring(pathToJar.indexOf("plugins") + 8);
+                            pathToJar = pathToJar.replace("\\", "/");
+                            f.path("../plugins/" + pathToJar);
+                            f.uri(baseUrl +"/plugins/" + pathToJar);
                         })
                 )
                 // put common plugin jars on modulepath

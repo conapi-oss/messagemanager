@@ -27,7 +27,8 @@ public class BootModule extends AbstractModule {
                     public void afterInjection(I i) {
                     	// Only register objects in our own package(s) to prevent accidentally
                     	// sending events to places they shouldn't go
-                    	if(i.getClass().getName().startsWith("nl.queuemanager")) {
+                    	if( i.getClass().getName().startsWith("nl.queuemanager") ||
+								i.getClass().getName().startsWith("at.conapi") ) {
 	                        eventBus.register(i);
 //	                        System.out.println("Registered " + i.getClass().getName() + "@" + i.hashCode());
                     	}

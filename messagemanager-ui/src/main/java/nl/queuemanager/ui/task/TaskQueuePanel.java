@@ -24,6 +24,7 @@ import nl.queuemanager.core.task.TaskEvent;
 import nl.queuemanager.ui.util.JStatusBar;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -93,6 +94,13 @@ public class TaskQueuePanel extends JPanel {
 			
 			break;
 		}
+	}
+
+	@Override
+	public Dimension getPreferredSize() {
+		Dimension d = super.getPreferredSize();
+		d.height = Math.max(d.height, 20);
+		return d;
 	}
 }
 

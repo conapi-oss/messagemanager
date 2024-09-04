@@ -66,7 +66,8 @@ public class SaveMessagesToFileTask extends Task implements CancelableTask {
 		}
 	}
 
-	private void saveSingleMessage(javax.jms.Message message, File file) throws IOException, ParserConfigurationException, TransformerFactoryConfigurationError, TransformerException, JMSException {
+
+	private  void saveSingleMessage(javax.jms.Message message, File file) throws IOException, ParserConfigurationException, TransformerFactoryConfigurationError, TransformerException, JMSException {
 		if(msgExtension!=null) {
 			saveAsMessage(message, file,msgExtension);
 		} else {
@@ -74,7 +75,7 @@ public class SaveMessagesToFileTask extends Task implements CancelableTask {
 		}
 	}
 
-	private void saveRegularMessage(javax.jms.Message message, File file)
+	private static void saveRegularMessage(javax.jms.Message message, File file)
 			throws JMSException, IOException {
 		switch(MessageType.fromClass(message.getClass())) {
 		case TEXT_MESSAGE:
@@ -110,7 +111,7 @@ public class SaveMessagesToFileTask extends Task implements CancelableTask {
 		}
 	}
 
-	private void saveSingleFile(javax.jms.Message message, File file) throws JMSException, IOException {
+	private static void saveSingleFile(javax.jms.Message message, File file) throws JMSException, IOException {
 		File realFile = file;
 		
 		// Create a filename when a directory has been selected
@@ -164,7 +165,7 @@ public class SaveMessagesToFileTask extends Task implements CancelableTask {
 		return new File(file.getAbsolutePath() + ".bin");
 	}
 
-	private void saveAsMessage(javax.jms.Message message, File file, String msgExtension) throws ParserConfigurationException, IOException, TransformerFactoryConfigurationError, TransformerException, JMSException {
+	public static void saveAsMessage(javax.jms.Message message, File file, String msgExtension) throws ParserConfigurationException, IOException, TransformerFactoryConfigurationError, TransformerException, JMSException {
 		File realFile = file;
 		
 		// Create a filename when a directory has been selected
@@ -186,7 +187,6 @@ public class SaveMessagesToFileTask extends Task implements CancelableTask {
 		else {
 			throw new RuntimeException("Unknown message extension: " + msgExtension);
 		}
-
 	}
 	
 	@Override

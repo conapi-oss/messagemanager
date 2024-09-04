@@ -144,7 +144,7 @@ public class SendFileListTask extends Task implements CancelableTask {
 		}
 	}
 
-	private Message composeFromEsbMessage(File file) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException, JMSException {
+	public Message composeFromEsbMessage(File file) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException, JMSException {
 		Message esbMessage = new ESBMessage().readFromFile(file);
 		applyTemplate(esbMessage);
 		return esbMessage;
