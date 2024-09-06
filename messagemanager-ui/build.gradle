@@ -8,7 +8,6 @@ plugins {
 
 dependencies {
     api project(':messagemanager-core')
-
     // use api instead of implementation to avoid allow other modules/plugins to use this
     api 'com.fifesoft:rsyntaxtextarea:3.5.1'
 }

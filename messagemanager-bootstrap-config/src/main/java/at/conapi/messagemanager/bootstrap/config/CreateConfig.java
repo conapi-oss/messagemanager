@@ -49,6 +49,9 @@ public class CreateConfig {
         String clientsDir = configLoc + "/clients";
         Files.createDirectories(Paths.get(clientsDir));
 
+        String readonlyDir = configLoc + "/readonly";
+        Files.createDirectories(Paths.get(readonlyDir));
+
         String pluginExtraLibsDir = configLoc + "/plugins/libs";
         Files.createDirectories(Paths.get(pluginExtraLibsDir));
 
@@ -77,7 +80,7 @@ public class CreateConfig {
                             f.uri(baseUrl +"/clients/" + pathToJar);
                         })
                 )
-                // the extra plugin jars
+                // the extra plugin jars, , not put on modulepath nor classpath
                 .files(FileMetadata.streamDirectory(configLoc + "/plugins/libs")
                         .peek(r -> r.modulepath(false))
                         .peek(r -> r.classpath(false))
@@ -87,6 +90,18 @@ public class CreateConfig {
                             pathToJar = pathToJar.replace("\\", "/");
                             f.path("../plugins/" + pathToJar);
                             f.uri(baseUrl +"/plugins/" + pathToJar);
+                        })
+                )
+                // samples etc. , not put on modulepath nor classpath
+                .files(FileMetadata.streamDirectory(configLoc + "/readonly")
+                        .peek(r -> r.modulepath(false))
+                        .peek(r -> r.classpath(false))
+                        .peek( f -> {
+                            String pathToJar = f.getSource().toFile().getPath();
+                            pathToJar = pathToJar.substring(pathToJar.indexOf("readonly") + 9);
+                            pathToJar = pathToJar.replace("\\", "/");
+                            f.path("../readonly/" + pathToJar);
+                            f.uri(baseUrl +"/readonly/" + pathToJar);
                         })
                 )
                 // put common plugin jars on modulepath

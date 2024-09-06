@@ -73,7 +73,7 @@ class GeneralSettingsPanel extends JPanel implements SettingsPanel {
 		add(maxBufferedMessagesField, gbc_maxBufferedMessagesField);
 		maxBufferedMessagesField.setColumns(10);
 		
-		JLabel lblLookAndFeel = new JLabel("Look and Feel (needs restart):");
+		JLabel lblLookAndFeel = new JLabel("Look and Feel (restart required):");
 		GridBagConstraints gbc_lblLookAndFeel = new GridBagConstraints();
 		gbc_lblLookAndFeel.anchor = GridBagConstraints.EAST;
 		gbc_lblLookAndFeel.insets = new Insets(0, 0, 0, 5);
@@ -92,7 +92,7 @@ class GeneralSettingsPanel extends JPanel implements SettingsPanel {
 		add(lafCombo, gbc_lafCombo);
 
 		// Add label for license key and text field
-		JLabel lblLicenseKey = new JLabel("License Key (needs restart):");
+		JLabel lblLicenseKey = new JLabel("License Key (restart required):");
 		GridBagConstraints gbc_lblLicenseKey = new GridBagConstraints();
 		gbc_lblLicenseKey.anchor = GridBagConstraints.EAST;
 		gbc_lblLicenseKey.insets = new Insets(0, 0, 5, 5);

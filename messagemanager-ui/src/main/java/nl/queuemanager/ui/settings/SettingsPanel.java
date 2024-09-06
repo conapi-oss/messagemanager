@@ -9,5 +9,4 @@ public interface SettingsPanel {
 	public void readSettings();
 	
 	public void saveSettings();
-	
 }

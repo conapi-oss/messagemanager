@@ -23,7 +23,8 @@ public class AppModule extends AbstractModule {
 	            public <I> void hear(TypeLiteral<I> typeLiteral, TypeEncounter<I> typeEncounter) {
 	                typeEncounter.register(new InjectionListener<I>() {
 	                    public void afterInjection(I i) {
-	                    	if(i.getClass().getName().startsWith("nl.queuemanager")) {
+							if( i.getClass().getName().startsWith("nl.queuemanager") ||
+									i.getClass().getName().startsWith("at.conapi") ) {
 	                    		log.finest("Guice created " + i.getClass().getSimpleName() + "@" + i.hashCode());
 	                    	}
 	                    }

@@ -1,12 +1,13 @@
 package nl.queuemanager.ui.settings;
 
+import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import nl.queuemanager.ui.UITab;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings("serial")
@@ -15,7 +16,11 @@ public class SettingsTabPanel extends JPanel implements UITab {
 	@Inject
 	public SettingsTabPanel(Map<String, SettingsPanel> settingsPages) {
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		
+
+		addSettings(settingsPages);
+	}
+
+	private void addSettings(Map<String, SettingsPanel> settingsPages) {
 		for(Map.Entry<String, SettingsPanel> entry: settingsPages.entrySet()) {
 			JPanel panel = new JPanel();
 			panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -26,7 +31,13 @@ public class SettingsTabPanel extends JPanel implements UITab {
 			panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, panel.getPreferredSize().height));
 			add(panel);
 		}
-		
+	}
+
+	@Subscribe
+	public void onAddSettingsPanelEvent(SettingsPanelProvider event) {
+		Map<String, SettingsPanel> map = new HashMap<>();
+		map.put(event.getName(), event.getPanel());
+		addSettings(map);
 	}
 	
 	private JPanel createActionPanel(final SettingsPanel settingsPanel) {
