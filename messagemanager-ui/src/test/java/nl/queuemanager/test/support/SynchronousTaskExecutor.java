@@ -55,4 +55,7 @@ public class SynchronousTaskExecutor implements TaskExecutor {
 	
 	public void setContextClassLoader(ClassLoader classLoader) {
 	}
+	public ClassLoader getContextClassLoader() {
+		return null;
+	}
 }

@@ -6,6 +6,7 @@ import nl.queuemanager.jms.JMSQueue;
 
 import javax.jms.JMSException;
 import javax.management.ObjectName;
+import java.util.Objects;
 
 class ActiveMQQueue implements JMSQueue {
 
@@ -37,11 +38,17 @@ class ActiveMQQueue implements JMSQueue {
 
 	@Override
 	public boolean equals(Object o) {
-		return (o instanceof JMSDestination) 
-			&& ((JMSDestination)o).getType().equals(getType())
-			&& ((JMSDestination)o).getName().equals(getName());
+		return (o instanceof JMSDestination)
+				&& ((JMSDestination)o).getType().equals(getType())
+				&& ((JMSDestination)o).getName().equals(getName());
 	}
-	
+
+	@Override
+	public int hashCode() {
+		return getName().hashCode();
+	}
+
+	@Override
 	public int compareTo(JMSDestination o) {
 		return getName().compareTo(o.getName());
 	}

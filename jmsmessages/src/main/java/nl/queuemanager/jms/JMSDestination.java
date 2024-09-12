@@ -16,6 +16,8 @@ package nl.queuemanager.jms;
  */
 
 
+import java.util.Objects;
+
 /**
  * Represents a JMS destination (Queue or Topic) that is associated with a certain
  * JMSBroker.

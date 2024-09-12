@@ -62,12 +62,14 @@ public class CreateConfig {
                 .files(FileMetadata.streamDirectory(dir)
                         .filter( r -> !r.getSource().toString().endsWith("config.xml"))
                         .peek(r -> r.modulepath(r.getSource().toString().endsWith(".jar"))))
+
                 // plugins
                 .files(FileMetadata.streamDirectory(configLoc + "/plugins")
                         .filter( r -> !r.getSource().toString().endsWith("-common.jar"))
-                        .filter( r -> r.getSource().toString().startsWith("messagemanager-")) // this allows us to exclude the extra plguin jars
+                        .filter( r -> r.getSource().getFileName().toString().startsWith("messagemanager-")) // this allows us to exclude the extra plugin jars
                         .peek(f -> f.uri(baseUrl +"/plugins/" + f.getSource().toFile().getName()))
                         .peek( f -> f.path("../plugins/" + f.getSource().toFile().getName())))
+
                 // clients, not put on modulepath nor classpath, including all subfolders
                 .files(FileMetadata.streamDirectory(configLoc + "/clients")
                         .peek(r -> r.modulepath(false))

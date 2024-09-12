@@ -28,6 +28,8 @@ import java.awt.*;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
+import static nl.queuemanager.core.task.TaskEvent.EVENT.TASK_FINISHED;
+
 /**
  * JPanel subclass that displays the currently executing or waiting tasks using a list
  * of JStatusBar instances.
@@ -41,6 +43,7 @@ public class TaskQueuePanel extends JPanel {
 	private final EventBus eventBus;
 	private Map<Task, StatusBarManipulator> statusBarManipulators = new IdentityHashMap<Task, StatusBarManipulator>();
 	private static final boolean DEBUG = Boolean.parseBoolean(System.getProperty("developer"));
+	private static boolean showStatusBars = true;
 	
 	@Inject
 	public TaskQueuePanel(EventBus eventBus) {
@@ -71,7 +74,8 @@ public class TaskQueuePanel extends JPanel {
 		switch(event.getId()) {
 		case TASK_WAITING:
 		case TASK_STARTED:
-			if(!statusBarManipulators.containsKey(t)) {
+			// only add status bars if the panel is visible, added for scripting tab to avoid flickering
+			if(!statusBarManipulators.containsKey(t) && showStatusBars) {
 				final JStatusBar bar = new JStatusBar();
 				final StatusBarManipulator manipulator = new StatusBarManipulator(bar, t);
 				eventBus.register(manipulator);
@@ -90,6 +94,7 @@ public class TaskQueuePanel extends JPanel {
 				eventBus.unregister(manipulator);
 				remove(manipulator.getStatusBar());
 				revalidate();
+				repaint();
 			}
 			
 			break;
@@ -101,6 +106,10 @@ public class TaskQueuePanel extends JPanel {
 		Dimension d = super.getPreferredSize();
 		d.height = Math.max(d.height, 20);
 		return d;
+	}
+
+	public void showStatusBars(boolean show) {
+		showStatusBars = show;
 	}
 }
 
@@ -171,6 +180,14 @@ class StatusBarManipulator {
 				}
 			});
 			
+			break;
+		case TASK_FINISHED:
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					getStatusBar().setText("");
+				//	getStatusBar().setVisible(false);
+				}
+			});
 			break;
 		}
 	}

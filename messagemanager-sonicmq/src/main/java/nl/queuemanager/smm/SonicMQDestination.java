@@ -18,6 +18,8 @@ package nl.queuemanager.smm;
 import nl.queuemanager.jms.JMSBroker;
 import nl.queuemanager.jms.JMSDestination;
 
+import java.util.Objects;
+
 /**
  * Abstract base class for SonicMQ based JMSDestinations
  * 
@@ -46,13 +48,13 @@ abstract class SonicMQDestination implements JMSDestination {
 			&& ((JMSDestination)o).getType().equals(getType())
 			&& ((JMSDestination)o).getName().equals(getName());
 	}
-	
+
+	public int compareTo(JMSDestination o) {
+		return toString().compareToIgnoreCase(o.toString());
+	}
+
 	@Override
 	public int hashCode() {
 		return getName().hashCode();
-	}
-	
-	public int compareTo(JMSDestination o) {
-		return toString().compareToIgnoreCase(o.toString());
 	}
 }

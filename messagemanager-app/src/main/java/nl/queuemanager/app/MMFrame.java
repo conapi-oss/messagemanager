@@ -29,12 +29,15 @@ import nl.queuemanager.core.platform.QuitEvent;
 import nl.queuemanager.core.task.TaskExecutor;
 import nl.queuemanager.core.tasks.PreconnectTaskFactory;
 import nl.queuemanager.ui.MOTDPanel;
+import nl.queuemanager.ui.TabAwarePanel;
 import nl.queuemanager.ui.UITab;
 import nl.queuemanager.ui.about.AboutTabPanel;
 import nl.queuemanager.ui.settings.SettingsTabPanel;
 import nl.queuemanager.ui.task.TaskQueuePanel;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -80,6 +83,24 @@ public class MMFrame extends JFrame {
 		// Create the tabbedpane and add all the panels to it
 		tabsPane = new JTabbedPane();
 		tabsPane.setToolTipText("");
+		tabsPane.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				int selectedIndex = tabsPane.getSelectedIndex();
+				Component selectedComponent = tabsPane.getSelectedComponent();
+
+				for (int i = 0; i < tabsPane.getTabCount(); i++) {
+					Component component = tabsPane.getComponentAt(i);
+					if (component instanceof TabAwarePanel) {
+						if (i == selectedIndex) {
+							((TabAwarePanel) component).onTabSelected();
+						} else {
+							((TabAwarePanel) component).onTabDeselected();
+						}
+					}
+				}
+			}
+		});
 
 		// profile tab to select the profile
 		addTab(new AddUITabEvent(0, profileTab));

@@ -42,6 +42,7 @@ public class PluginManager {
 	private final File pluginsFolder;
 	private Map<String, PluginDescriptor> plugins = new HashMap<>();
 	private ClassLoader pluginClassloader;
+	private ModuleLayer pluginModuleLayer;
 	
 	@Inject
 	public PluginManager(PlatformHelper platform, ProfileManager profileManager, TaskExecutor worker) {
@@ -233,7 +234,7 @@ public class PluginManager {
 	}
 	
 	public PluginDescriptor getPluginByClassName(String classname) {
-		if(plugins.size() == 0) {
+		if(plugins.isEmpty()) {
 			getInstalledPlugins();
 		}
 
@@ -246,14 +247,17 @@ public class PluginManager {
 
 	public List<Module> loadPluginModules(Collection<? extends PluginDescriptor> plugins, List<URL> classpath) throws PluginManagerException {
 
-		if(pluginClassloader != null) {
+		// only reset if classpath is null, we use this to detect non profile plugins
+		if(pluginClassloader != null && classpath != null) {
 			// Unload the existing plugins so we can try again
 			pluginClassloader = null;
+			pluginModuleLayer = null;
 			worker.setContextClassLoader(null);
 			Thread.currentThread().setContextClassLoader(null);
 		}
 		
 		try {
+			// setup the classpath for the plugins (usually only one plugin)
 			List<URL> urls = new ArrayList<URL>();
 			for(PluginDescriptor plugin: plugins) {
 				Optional.of(plugin)
@@ -263,31 +267,60 @@ public class PluginManager {
 						.ifPresent(urls::add);
 				urls.addAll(plugin.getClasspath());
 			}
-			urls.addAll(classpath);
 
-			// Create the classloader for the plugins, using the "current" classloader as a parent.
+			if(classpath != null) {
+				urls.addAll(classpath);
+			}
 
-			final ModuleLayer moduleLayer = PluginModuleHelper.createPluginModuleLayer(urls, getClass());
+			// Create the classloader for the plugins, using the "current" classloader as a parent
+			//final Class parentClass = getClass();
+			final ClassLoader parentClassLoader;
+			final ModuleLayer parentLayer;
+			if(classpath != null) {
+				// profile plugin
+				parentClassLoader = getClass().getClassLoader();
+				parentLayer =getClass().getModule().getLayer();
+			}
+			else{
+				// non profile plugin, use the profile plugin classloader as parent
+				//parentClassLoader = pluginClassloader;
+				//parentLayer = pluginModuleLayer;
+				parentClassLoader = getClass().getClassLoader();
+				parentLayer =getClass().getModule().getLayer();
+			}
 
-			final String firstLoadedModule = moduleLayer.modules().stream().findFirst().get().getName();
-			final ClassLoader classLoader = moduleLayer.findLoader(firstLoadedModule);
+			final ModuleLayer moduleLayer = PluginModuleHelper.createPluginModuleLayer(urls, parentLayer, parentClassLoader);
+			final ClassLoader classLoader = PluginModuleHelper.findFirstModuleClassLoader(moduleLayer);
 
 			// Set the ClassLoader on the worker and the current thread to make sure any class loading
 			// magic done by the plugins or any dependent classes (such as trying to use the context
 			// class loader directly) will hopefully work.
-			// TODO: not sure all this is still needed with Java 9 modules
-			worker.setContextClassLoader(classLoader);
-			Thread.currentThread().setContextClassLoader(classLoader);
+			//TODO: not sure if this is still needed
+			if(classpath != null) {
+				worker.setContextClassLoader(classLoader);
+				Thread.currentThread().setContextClassLoader(classLoader);
+			}
+			else{
+				// this is not a profile plugin
+				Thread.currentThread().setContextClassLoader(classLoader);
+			}
 
 			final List<com.google.inject.Module> result = new ArrayList<>();
-
 			// Load the jars for the plugins using service loader using our Module Layer
 			ServiceLoader<Module> slPlugins = ServiceLoader.load(moduleLayer, Module.class);
 			for(Module ext : slPlugins) {
 				result.add(ext);// add each found plugin module
 			}
 
-			pluginClassloader = classLoader;
+			if(classpath != null){
+				pluginClassloader = classLoader;
+				pluginModuleLayer = moduleLayer;
+			}
+			else{
+				// this is not a profile plugin, reset the context classloader to the profile plugin classloader
+				Thread.currentThread().setContextClassLoader(pluginClassloader);
+			}
+
 			return result;
 		}
 		catch (Exception e) {

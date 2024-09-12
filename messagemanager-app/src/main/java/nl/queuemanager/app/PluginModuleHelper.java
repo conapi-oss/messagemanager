@@ -22,19 +22,25 @@ import java.util.stream.Stream;
  */
 public class PluginModuleHelper {
 
+    public static ClassLoader findFirstModuleClassLoader(final ModuleLayer moduleLayer) {
+        final String firstLoadedModule = moduleLayer.modules().stream().findFirst().get().getName();
+        final ClassLoader classLoader = moduleLayer.findLoader(firstLoadedModule);
+        return classLoader;
+    }
+
     // packages which are known to cause issues, we will filter them out
     // TODO: potentially make this configurable
     // IMPORTANT: due to jar name adjustments (deriveModuleName) the jar name must be regex to match the name before and after the adjustment
     // sonic_Client --> sonicclient --> sonic.*lient
     private static List<String> packagesToBeFiltered = Arrays.asList("javax.jms","sonic.*lient:com.sonicsw.security.ssl") ;
-    public static ModuleLayer createPluginModuleLayer(final List<URL> urls, final Class parentClass) {
-        final List<Path> jarPaths;
+    public static ModuleLayer createPluginModuleLayer(final List<URL> urls, final ModuleLayer parentLayer, final ClassLoader parentClassLoader) {//){
+        final Set<Path> jarPaths;
         try {
             final String tempFolder = Files.createTempDirectory("pluginJars").toString();
             // get a list of all the JARs and copy them to a temp location
             jarPaths = copyJarsToTemporaryLocation(urls, tempFolder);
             // now check all the found modules and see if any bad packages are in an unnamed module
-            final List<Path> badJars = new ArrayList<>();
+            final Set<Path> badJars = new HashSet<>();
             separateBadJars(badJars, jarPaths);
             if (!badJars.isEmpty()){
                 // Jars found with packages to be removed
@@ -53,16 +59,17 @@ public class PluginModuleHelper {
 
         // this does not always work, especially if more than a boot layer exists
         //ModuleLayer parentLayer = ModuleLayer.boot();
-        final ModuleLayer parentLayer = parentClass.getModule().getLayer();
+        //final ModuleLayer parentLayer = parentClass.getModule().getLayer();
+        //ClassLoader parentClassLoader = parentClass.getClassLoader();
 
         //ModuleNames to be loaded
         final Set<String>  moduleNames       = moduleFinder.findAll().stream().map(moduleRef -> moduleRef.descriptor().name()).collect(Collectors.toSet());
         final Configuration configuration = parentLayer.configuration().resolveAndBind(moduleFinder, ModuleFinder.of(),moduleNames);//List.of());
         // Create a ModuleLayer based on the Configuration
-        final ModuleLayer pluginLayer = parentLayer.defineModulesWithOneLoader(configuration, parentClass.getClassLoader() );//ClassLoader.getSystemClassLoader());
+        final ModuleLayer pluginLayer = parentLayer.defineModulesWithOneLoader(configuration, parentClassLoader );//ClassLoader.getSystemClassLoader());
         return pluginLayer;
     }
-    private static void repackageJars(final List<Path> badJars) throws IOException {
+    private static void repackageJars(final Set<Path> badJars) throws IOException {
         for (Path jar : badJars) {
             repackageFilteredJar(jar);
         }
@@ -119,7 +126,7 @@ public class PluginModuleHelper {
         return false;
     }
 
-    private static void separateBadJars(final List<Path> badJars, final List<Path> jarPaths) {
+    private static void separateBadJars(final Set<Path> badJars, final Set<Path> jarPaths) {
         // let the modulefinder process them
         final ModuleFinder tempFinder = ModuleFinder.of(jarPaths.toArray(Path[]::new));
         tempFinder.findAll().forEach(m -> {
@@ -140,8 +147,8 @@ public class PluginModuleHelper {
         });
     }
 
-    private static List<Path> copyJarsToTemporaryLocation(final List<URL> urls, final String tempFolder) throws IOException {
-        final List<Path> jarPaths = new ArrayList<>();
+    private static Set<Path> copyJarsToTemporaryLocation(final List<URL> urls, final String tempFolder) throws IOException {
+        final Set<Path> jarPaths = new HashSet<>();
         for(URL url: urls) {
             //replace any @MM_HOME@ placeholder with the actual value of the MM_HOME environment variable
             String jarUrl = url.toString();

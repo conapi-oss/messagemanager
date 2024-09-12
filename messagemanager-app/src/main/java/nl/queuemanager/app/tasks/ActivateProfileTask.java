@@ -1,6 +1,7 @@
 package nl.queuemanager.app.tasks;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.*;
@@ -19,10 +20,9 @@ import nl.queuemanager.core.util.CoreException;
 import nl.queuemanager.ui.UIModule;
 
 import jakarta.inject.Inject;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+
+import java.net.URL;
+import java.util.*;
 
 public class ActivateProfileTask extends Task {
 	public static final String LAST_ACTIVE_PROFILE = "lastActiveProfile";
@@ -44,13 +44,17 @@ public class ActivateProfileTask extends Task {
 	@Override
 	public void execute() throws Exception {
 		// Transform all plugin class names into plugindescriptors.
-		// first get the profile plugins
-		final List<String> plugins = profile.getPlugins();
+		// first get the profile plugins, use LinkedHashSet to preserve the order
+		final Set<String> plugins = new LinkedHashSet<String>();
 
-		// then add the UI tab providers
+		// add the profile plugins
+		plugins.addAll(profile.getPlugins());
+
 		//TODO: need to add a way to specify global/generic plugins
+		// for now we just have this one:
 		plugins.add("at.conapi.scripting.ScriptingModule");
 
+		// then add the UI tab providers
 		Collection<PluginDescriptor> pluginDescriptors = Collections2.transform(plugins, new Function<String, PluginDescriptor>() {
 			@Override
 			public PluginDescriptor apply(String pluginClassName) {
@@ -62,16 +66,19 @@ public class ActivateProfileTask extends Task {
 				return ret;
 			}
 		});
-		
-		// Load all the modules into the plugin classloader
-		final List<Module> pluginModules = pluginManager.loadPluginModules(pluginDescriptors, profile.getClasspath());
 
 		// Load the configured plugin modules
 		final List<Module> modules = new ArrayList<Module>();
-
 		modules.add(new CoreModule());
 		modules.add(new UIModule());
-		modules.addAll(pluginModules);
+
+		// Load all the modules into the plugin classloader
+		for(PluginDescriptor pluginDescriptor: pluginDescriptors) {
+			// pass null for the non profile plugins to avoid setting the context/worker classloader
+			List<URL> classpath = pluginDescriptor.getModuleClassName().contains("Scripting")?null:profile.getClasspath();
+			final List<Module> pluginModules = pluginManager.loadPluginModules(Collections.singletonList(pluginDescriptor),classpath );
+			modules.addAll(pluginModules);
+		}
 
 		// Add the UI tab provider plugins
 		try {

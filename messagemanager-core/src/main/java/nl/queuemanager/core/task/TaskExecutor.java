@@ -31,4 +31,11 @@ public interface TaskExecutor {
 	 */
 	public void setContextClassLoader(ClassLoader contextClassLoader);
 
+
+	/**
+	 * Get the current context classloader
+	 * @return
+	 */
+	public ClassLoader getContextClassLoader();
+
 }
