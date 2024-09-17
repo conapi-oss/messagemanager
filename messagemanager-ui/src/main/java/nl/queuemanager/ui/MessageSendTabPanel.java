@@ -500,7 +500,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		
 		final ButtonGroup buttonGroup = new ButtonGroup();
 		
-		final JRadioButton sendFileRadioButton = new JRadioButton("Send a file", true); 
+		final JRadioButton sendFileRadioButton = new JRadioButton("Send a File", true);
 		panel.add(sendFileRadioButton);
 	
 		sendFileRadioButton.addActionListener(new ActionListener() {
@@ -511,7 +511,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 			}
 		});
 				
-		final JRadioButton composeRadioButton = new JRadioButton("Compose message", false); 
+		final JRadioButton composeRadioButton = new JRadioButton("Compose Message", false);
 		panel.add(composeRadioButton);
 	
 		composeRadioButton.addActionListener(new ActionListener() {

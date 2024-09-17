@@ -306,7 +306,7 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		gbc_profileButtonsBox.gridy = 8;
 		add(profileButtonsBox, gbc_profileButtonsBox);
 		
-		JButton duplicateProfileButton = new JButton("Duplicate");
+		JButton duplicateProfileButton = new JButton("Duplicate Profile");
 		CommonUITasks.makeSegmented(duplicateProfileButton, Segmented.FIRST);
 		duplicateProfileButton.addActionListener(new ActionListener() {
 			@Override
@@ -325,7 +325,7 @@ public class ProfileTabPanel extends JPanel implements UITab {
 		});
 		profileButtonsBox.add(duplicateProfileButton);
 		
-		JButton removeProfileButton = new JButton("Remove");
+		JButton removeProfileButton = new JButton("Remove Profile");
 		CommonUITasks.makeSegmented(removeProfileButton, Segmented.LAST);
 		removeProfileButton.addActionListener(new ActionListener() {
 			@Override

@@ -74,6 +74,11 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab,Message
 	
 	private final MessageEventListener messageEventListener;
 	private EventBus eventBus;
+
+	// Add ghost text to topic name field
+	final String GHOST_TEXT = "Topic Name/Pattern";
+	final Color GHOST_COLOR = Color.GRAY;
+	final Color ACTIVE_COLOR = UIManager.getColor("TextField.foreground");
 	
 	@Inject
 	public TopicSubscriberTabPanel(
@@ -464,6 +469,28 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab,Message
 		topicNameField.setMaximumSize(new Dimension(
 				Integer.MAX_VALUE,
 				topicNameField.getPreferredSize().height));
+
+		topicNameField.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				SwingUtilities.invokeLater(() -> {
+					if (topicNameField.getText().equals(GHOST_TEXT)) {
+						topicNameField.setText("");
+						topicNameField.setForeground(ACTIVE_COLOR);
+					}
+				});
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				SwingUtilities.invokeLater(() -> {
+					if (topicNameField.getText().isEmpty()) {
+						topicNameField.setForeground(GHOST_COLOR);
+						topicNameField.setText(GHOST_TEXT);
+					}
+				});
+			}
+		});
 		
 		// Remove button
 		final JButton removeTopicButton = CommonUITasks.createButton("Remove", new ActionListener() {

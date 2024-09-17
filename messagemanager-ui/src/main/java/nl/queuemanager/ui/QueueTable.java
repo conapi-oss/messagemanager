@@ -187,7 +187,7 @@ class QueueTable extends JTable implements Clearable {
 			// filter value
 			filterColumnListener = new FilterColumnListener(0);
 			getTableHeader().addMouseListener(filterColumnListener);
-			getTableHeader().setToolTipText("Click 'Queue name' to filter table; Click 'Messages' to sort by message count.");
+			getTableHeader().setToolTipText("Click 'Queue Name' to filter table; Click 'Messages' to sort by message count.");
 			setFilterValue(null);
 		} else {
 			// Remove the table column listener if there is one
@@ -212,10 +212,10 @@ class QueueTable extends JTable implements Clearable {
 	private static class QueueTableModel extends ListTableModel<JMSQueue> {
 		public QueueTableModel(boolean includeSizeColumn) {
 			if(includeSizeColumn) {
-				setColumnNames(new String[] {"Queue name", "Messages", "Size"});
+				setColumnNames(new String[] {"Queue Name", "Messages", "Size"});
 				setColumnTypes(new Class[] {String.class, Integer.class, Long.class});
 			} else {
-				setColumnNames(new String[] {"Queue name", "Messages"});
+				setColumnNames(new String[] {"Queue Name", "Messages"});
 				setColumnTypes(new Class[] {String.class, Integer.class});
 			}
 		}

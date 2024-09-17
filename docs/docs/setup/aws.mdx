@@ -9,6 +9,13 @@ when Message Manager starts.
 
 ![aws-select-profile.png](assets/aws-select-profile.png)
 
+:::note
+AWS SQS does not support queue browsing. Similar ot the AWS console, Message Manager therefore receives the messages with a short visibility timeout (0).
+This ensures that other consumers will still get the messages but the receive-count might have changed.
+
+For AWS SNS, only sending is supported as there is (currently) no direct support for receiving messages.
+:::
+
 After you have activated the AWS Profile, you get an overview of existing AWS Connections.
 
 ![aws-list-connections.png](assets/aws-list-connections.png)

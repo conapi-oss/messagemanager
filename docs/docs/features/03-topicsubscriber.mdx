@@ -1,3 +1,50 @@
 # Topic Subscriber
 
-Documentation coming soon... ask us meanwhile: [support@conapi.at](mailto:support@conapi.at)
+The Topic Subscriber allows you to subscribe to and monitor messages published to specific topics.
+
+![topicsubscriber.png](assets%2Ftopicsubscriber.png)
+
+## Broker Selection
+Select the broker from the dropdown menu at the top of the Tpic Subscriber panel.
+Depending on the messaging system this may be a single broker or a cluster of brokers.
+For some systems (i.e. AWS SQS) this list shows the regions as there is no "broker" concept.
+
+## Topic List and Filter
+- The left panel displays a list of available topics/subscriptions for the selected broker.
+- Click on the "Topic Name" column to get to the filter box above the queue list to quickly find specific queues.
+
+## Subscribing to a Topic & Consuming Messages
+- Select a topic from the list and click the checkbox to subscribe to it.
+- To unsubscribe from a topic, click the checkbox again.
+- Messages are consumed in real-time and displayed in the Messages panel.
+
+# Manual Subscriber Creation/Removal
+Not all brokers support listing of existing topics. You may need to manually create a subscription to consume messages.
+
+To manually create a subscription, use the following steps:
+- Select the broker from the dropdown menu.
+- Enter the topic name or pattern in the "Topic Name/Pattern" field.
+- Click the "Add Subscriber" button to start receiving messages.
+- Messages are consumed in real-time and displayed in the Messages panel.
+- To remove a subscription, select it and click the "Remove" button.
+
+## Message View
+- Select a topic/subscription to view its messages in the Messages panel.
+- Use the Refresh button to update the message list.
+- To delete a message, select it and click the Delete button.
+- To save or export messages, select the desired messages and use the Save button.
+
+## Drag and Drop
+If supported by the broker, you can drag and drop messages between topics/subscriptions for easy message movement.
+
+## Search and Filter
+Use the search field below the message list to find specific messages based on content, headers, or properties.
+Next to the search field is a filter checkbox that allows you to filter the message list matching the search term.
+It also allows you to inverse the search result by clicking the filter checkbox again.
+
+## Message Details
+Select a message to view its details in the bottom panel:
+- Metadata: If available, displays message metadata such as receipt count, timestamps,etc.
+- Headers: Displays message headers such as JMSMessageID, JMSTimestamp, etc.
+- Properties: Shows custom properties set on the message.
+- Content: Displays the message body, with formatting options for different content types (e.g., XML, JSON, Text).

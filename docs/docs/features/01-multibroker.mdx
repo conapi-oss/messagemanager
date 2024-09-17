@@ -4,9 +4,38 @@ sidebar_label: 'Multi-Broker Support'
 
 # Multi-Broker Connectivity
 
-Documentation coming soon... ask us meanwhile: [support@conapi.at](mailto:support@conapi.at)
+Message Manager supports connecting to multiple message brokers/systems, allowing you to manage different messaging systems from a single interface.
 
-- profile selection
-- profile creation/duplication
-- profile deletion/reset
-- classpath (automatic for commercial)
+![profile.png](assets%2Fprofile.png)
+
+## What is a Profile?
+A profile is a configuration that defines the type of messaging system and the libraries used to work with a specific message broker or messaging system.
+i.e. You can have a Kafka profile, a Solace profile, and so on. Each profile represents a different messaging system.
+You can create multiple profiles of the same type, allowing you to use different client libraries and versions for each profile.
+
+## Profile Selection
+To connect to a specific broker, select the appropriate profile from the list the main interface.
+
+## Profile Creation and Duplication
+To create a new or to duplicate an existing profile:
+
+1. Select the profile you want to duplicate.
+2. Click on the "Duplicate Profile" button.
+3. Enter a new name for the duplicated profile.
+4. Verify the library versions you want to use.
+
+## Profile Deletion and Reset
+To delete a profile:
+1. Select the profile you want to delete.
+2. Click on the "Remove Profile" button and confirm the action.
+
+To reset a profile to its default settings:
+1. Select the profile you want to reset.
+2. Click on the "Remove Profile" button.
+3. After the next restart the default/template profile will be loaded.
+
+## Classpath Configuration
+For the open-source version, you may need to manually configure the classpath to include the necessary broker-specific libraries.
+
+For the commercial version, the classpath is automatically configured based on the selected profile, ensuring all required libraries are loaded.
+You can also manually configure the classpath if necessary.

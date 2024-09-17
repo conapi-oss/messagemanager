@@ -1,12 +1,37 @@
 # Queue Browser
 
-Documentation coming soon... ask us meanwhile: [support@conapi.at](mailto:support@conapi.at)
+The Queue Browser allows you to view and manage messages in your message queues across different brokers.
 
- - broker selection
- - queue list and filter 
- - message view (refresh, delete, save/export)
- - drag and drop (if supported by the broker)
- - search
- - message details, including: headers, properties, content
-see also:
-- [Message Viewer](./message.mdx)
+![queuebrowser-jsonbody.png](assets%2Fqueuebrowser-jsonbody.png)
+
+## Broker Selection
+Select the broker you want to browse from the dropdown menu at the top of the Queue Browser panel.
+Depending on the messaging system this may be a single broker or a cluster of brokers.
+For some systems (i.e. AWS SQS) this list shows the regions as there is no "broker" concept.
+
+## Queue List and Filter
+- The left panel displays a list of available queues for the selected broker.
+- Click on the "Queue Name" column to get to the filter box above the queue list to quickly find specific queues.
+
+## Message View
+- Select a queue to view its messages in the main panel.
+- Use the Refresh button to update the message list.
+- To delete a message, select it and click the Delete button.
+- To save or export messages, select the desired messages and use the Save button.
+
+## Drag and Drop
+If supported by the broker, you can drag and drop messages between queues for easy message movement.
+
+## Search and Filter
+Use the search field below the message list to find specific messages based on content, headers, or properties.
+Next to the search field is a filter checkbox that allows you to filter the message list matching the search term.
+It also allows you to inverse the search result by clicking the filter checkbox again.
+
+![filter-invers.png](assets%2Ffilter-invers.png)
+
+## Message Details
+Select a message to view its details in the bottom panel:
+- Metadata: If available, displays message metadata such as receipt count, timestamps,etc.
+- Headers: Displays message headers such as JMSMessageID, JMSTimestamp, etc.
+- Properties: Shows custom properties set on the message.
+- Content: Displays the message body, with formatting options for different content types (e.g., XML, JSON, Text).

@@ -1,3 +1,32 @@
 # Message Sender
 
-Documentation coming soon... ask us meanwhile: [support@conapi.at](mailto:support@conapi.at)
+The Message Sender allows you to create and send messages to queues or topics on your connected brokers.
+
+![messagesender-xml.png](assets%2Fmessagesender-xml.png)
+
+## Selecting Destination
+1. Choose the broker from the dropdown menu.
+2. Select whether you're sending to a Queue or Topic.
+3. Enter the queue name or topic in the "Destination" field.
+4. Alternatively, select the destination from the list below the broker dropdown.
+
+## Composing Messages
+- Ensure "Compose Message" is selected right next to the "Message Content" label.
+- Message Content: Enter the message content in the main text area.
+- Properties: Set custom properties using "Custom Message Properties". 
+- Click the Edit button next to the "Custom Message Properties" field to open the properties editor.
+
+![message-properties-editor.png](assets%2Fmessage-properties-editor.png)
+
+## Sending from a File
+- Messsages previously saved via the Queue Browser, Topic Subscriber or Scripting tab can be sent from a file.
+- Ensure "Send a File" is selected right next to the "Message Content" label.
+- Use the "Browse..." button to select the file to send.
+- Alternatively, enter the file path in the "File" field.
+- Click the "Send Message" button at the bottom to send messages.
+
+:::tip
+
+You can also select a folder and all files within that folder will be sent.
+
+:::

@@ -1,5 +1,38 @@
 # Message Viewer
 
-Documentation coming soon... ask us meanwhile: [support@conapi.at](mailto:support@conapi.at)
+The Message Viewer allows you to view details about a message.
+It has various sections for displaying the message content, headers, properties, and metadata.
+The sections are described in the following sections.
 
-Common for queue browser and topic subscriber
+:::note
+
+The sections may vary depending on the message and/or the messaging system.
+
+:::
+
+## (JMS) Headers
+Shows the message headers, including the JMSCorrelationID, JMSPriority, JMSTimestamp, etc.
+These are headers that are set by the sender of the message or the broker.
+You can verify the header names and values.
+
+![jmsheaders.png](assets%2Fjmsheaders.png)
+
+## Message Metadata
+On some messaging systems, the message metadata is available (i.e. AWS SQS).
+This includes information such as receipt count, timestamps, etc.
+
+![metadata.png](assets%2Fmetadata.png)
+
+## Properties
+Shows the custom properties set on the message.
+These are properties that are set by the sender of the message or the broker.
+Message property name, value, and type are displayed.
+
+## Message Content (Body)
+Most messaging systems support the message body as a Text. 
+The content is displayed in the main panel and formatted as a Text/XML/JSON/etc.
+
+If the message consists of multiple parts, the content is displayed as a multipart message.
+In this case, the content is displayed as a list of parts, each with a header and content.
+
+![queuebrowser-jsonbody.png](assets%2Fqueuebrowser-jsonbody.png)
