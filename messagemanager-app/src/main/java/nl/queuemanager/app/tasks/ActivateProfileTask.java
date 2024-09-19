@@ -50,9 +50,8 @@ public class ActivateProfileTask extends Task {
 		// add the profile plugins
 		plugins.addAll(profile.getPlugins());
 
-		//TODO: need to add a way to specify global/generic plugins
-		// for now we just have this one:
-		plugins.add("at.conapi.scripting.ScriptingModule");
+		// add the UI plugins
+		plugins.addAll(pluginManager.getPluginClassNamesByType("UI"));
 
 		// then add the UI tab providers
 		Collection<PluginDescriptor> pluginDescriptors = Collections2.transform(plugins, new Function<String, PluginDescriptor>() {
@@ -75,30 +74,31 @@ public class ActivateProfileTask extends Task {
 		// Load all the modules into the plugin classloader
 		for(PluginDescriptor pluginDescriptor: pluginDescriptors) {
 			// pass null for the non profile plugins to avoid setting the context/worker classloader
-			List<URL> classpath = pluginDescriptor.getModuleClassName().contains("Scripting")?null:profile.getClasspath();
+			List<URL> classpath = pluginDescriptor.isConnectivityProvider()?profile.getClasspath():null;
 			final List<Module> pluginModules = pluginManager.loadPluginModules(Collections.singletonList(pluginDescriptor),classpath );
 			modules.addAll(pluginModules);
 		}
 
-		// Add the UI tab provider plugins
 		try {
 			final Injector injector = parentInjector.createChildInjector(modules);
-			Map<Key<?>, Binding<?>> bindings = injector.getBindings();
-			for (Binding<?> binding : bindings.values()) {
-				if (binding.getKey().getTypeLiteral().getRawType().equals(UITabProviderPlugin.class)) {
-					UITabProviderPlugin provider = (UITabProviderPlugin) binding.getProvider().get();
-					provider.initialize();
-				}
-			}
-		} catch (NoClassDefFoundError e) {
-			// Report the missing class to the user
-			this.dispatchTaskError(new CoreException("Unable to initialize UI tab. Class " + e.getMessage() + " could not be found", e));
-			return;
-		}
 
-		// Add the connectivity provider plugin
-		try {
-			final Injector injector = parentInjector.createChildInjector(modules);
+			try {
+				// Add the UI tab provider plugins
+				Map<Key<?>, Binding<?>> bindings = injector.getBindings();
+				for (Binding<?> binding : bindings.values()) {
+					Key<?> key = binding.getKey();
+					if (key.getTypeLiteral().getRawType().equals(UITabProviderPlugin.class)) {
+						UITabProviderPlugin provider = (UITabProviderPlugin) binding.getProvider().get();
+						provider.initialize();
+					}
+				}
+			} catch (NoClassDefFoundError e) {
+				// Report the missing class to the user
+				this.dispatchTaskError(new CoreException("Unable to initialize UI tab. Class " + e.getMessage() + " could not be found", e));
+				return;
+			}
+
+			// Add the connectivity provider plugin
 			final ConnectivityProviderPlugin provider = injector.getInstance(ConnectivityProviderPlugin.class);
 			provider.initialize();
 		} catch (NoClassDefFoundError e) {

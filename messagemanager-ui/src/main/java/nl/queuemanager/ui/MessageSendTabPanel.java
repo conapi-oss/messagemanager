@@ -194,6 +194,9 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 					if(sonic.isFeatureSupported(JMSFeature.DESTINATION_TYPE_QUEUE)) {
 						enumerateQueues(selectedBroker);
 					}
+
+					config.setUserPref(CoreConfiguration.PREF_LAST_SELECTED_BROKER, selectedBroker.toString());
+
 				} break;
 				}
 			}
@@ -813,12 +816,26 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 					final List<JMSBroker> sortedBrokers = new ArrayList<>(brokers);
 					Collections.sort(sortedBrokers);
 
+					// get previously selected broker before adding new brokers which will trigger a selection event
+					String previouslySelectedBroker = config.getUserPref(CoreConfiguration.PREF_LAST_SELECTED_BROKER, null);
+
 					for(JMSBroker broker: sortedBrokers) {
 						brokerCombo.addItem(broker);
 					}
 
+					// Set the previously selected broker
 					if(brokerCombo.getItemCount()>0) {
-						brokerCombo.setSelectedIndex(0);
+
+						if(previouslySelectedBroker != null) {
+							for(JMSBroker broker: sortedBrokers) {
+								if(broker.toString().equals(previouslySelectedBroker)) {
+									brokerCombo.setSelectedItem(broker);
+									break;
+								}
+							}
+						} else {
+							brokerCombo.setSelectedIndex(0);
+						}
 					}
 				}
 			}

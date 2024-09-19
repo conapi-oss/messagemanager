@@ -13,6 +13,7 @@ public class PluginDescriptor {
 	private String moduleClass;
 	private File file;
 	private List<URL> classpath = new ArrayList<URL>();
+	private String pluginType; // UI, ConnectivityProvider, etc. for the future we will have more types and then use Enum
 	
 	public String getName() {
 		return name;
@@ -45,5 +46,17 @@ public class PluginDescriptor {
 		ArrayList<URL> cp = new ArrayList<URL>();
 		cp.addAll(classpath);
 		this.classpath = Collections.unmodifiableList(cp);
-	}	
+	}
+
+	public boolean isConnectivityProvider() {
+		return "ConnectivityProvider".equals(pluginType);
+	}
+
+	public void setPluginType(String pluginType) {
+		this.pluginType = pluginType;
+	}
+
+	public String getPluginType() {
+		return pluginType;
+	}
 }

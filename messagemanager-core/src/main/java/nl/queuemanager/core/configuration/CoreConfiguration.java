@@ -38,6 +38,7 @@ public interface CoreConfiguration {
 
 	public static final String PREF_LAST_VERSION = "lastVersion";
 	public static final String PREF_AUTOLOAD_PROFILE = "autoloadProfile";
+	public static final String PREF_LAST_SELECTED_BROKER = "lastSelectedBroker";
 
     /**
 	 * Return a unique identifier for this configuration
@@ -147,5 +148,5 @@ public interface CoreConfiguration {
 	 * @param topic
 	 */
 	public void removeTopicSubscriber(JMSTopic topic);
-	
+
 }

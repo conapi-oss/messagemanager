@@ -212,6 +212,8 @@ public class PluginManager {
 			descriptor.setName(xpath.evaluate("/plugin/name", doc));
 			descriptor.setDescription(xpath.evaluate("/plugin/description", doc));
 			descriptor.setModuleClass(xpath.evaluate("/plugin/moduleClass", doc));
+			String pluginType = (String) xpath.evaluate("/plugin/pluginType", doc, XPathConstants.STRING);
+			descriptor.setPluginType(pluginType.isEmpty()?"ConnectivityProvider":pluginType);
 			// for plugins that have no profile, i.e. UI plugins we need to load the classpath as well
 			NodeList classpathEntries = (NodeList) xpath.evaluate("/plugin/classpath/entry", doc, XPathConstants.NODESET);
 			List<URL> classpathList = new ArrayList<>();
@@ -239,6 +241,20 @@ public class PluginManager {
 		}
 
 		return plugins.get(classname);
+	}
+
+	public Set<String> getPluginClassNamesByType(String type) {
+		if(plugins.isEmpty()) {
+			getInstalledPlugins();
+		}
+
+		Set<String> classnames = new HashSet<>();
+		for(PluginDescriptor plugin: plugins.values()) {
+			if(plugin.getPluginType().equals(type)) {
+				classnames.add(plugin.getModuleClassName());
+			}
+		}
+		return classnames;
 	}
 	
 	public PluginDescriptor downloadPluginByClassname(String classname) throws PluginManagerException {
