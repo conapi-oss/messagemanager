@@ -39,6 +39,9 @@ public class NullDomain implements JMSDomain {
 	public void enumerateQueues(JMSBroker broker, String filter) {
 	}
 
+	public void enumerateTopics(JMSBroker broker, String filter) throws Exception{
+	}
+
 	public List<JMSQueue> getQueueList(JMSBroker broker, String filter) {
 		return CollectionFactory.newArrayList();
 	}

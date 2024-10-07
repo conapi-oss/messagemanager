@@ -20,6 +20,7 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import nl.queuemanager.core.MessageBuffer;
 import nl.queuemanager.core.configuration.CoreConfiguration;
+import nl.queuemanager.core.jms.BrokerDestinations;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.jms.JMSFeature;
@@ -976,7 +977,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 
 		case TOPICS_ENUMERATED:
 		case QUEUES_ENUMERATED:
-			List<JMSDestination> destinationList = (List<JMSDestination>)event.getInfo();
+			List<JMSDestination> destinationList =((BrokerDestinations) event.getInfo()).getDestinations();
 			if(destinationList.size() > 0 && destinationList.get(0).getBroker().equals(brokerCombo.getSelectedItem())) {
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {

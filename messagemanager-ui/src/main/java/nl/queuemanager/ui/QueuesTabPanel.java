@@ -20,6 +20,7 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.events.EventListener;
+import nl.queuemanager.core.jms.BrokerDestinations;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.jms.JMSFeature;
@@ -45,10 +46,9 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.dnd.*;
 import java.awt.event.*;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
-import java.util.TooManyListenersException;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("serial")
 public class QueuesTabPanel extends JSplitPane implements UITab, MessageTableActions {
@@ -227,13 +227,16 @@ public class QueuesTabPanel extends JSplitPane implements UITab, MessageTableAct
 		// Clear messages button
 		final JButton clearMessagesButton = createButton("Clear Messages", new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				int[] selectedRows = queueTable.getSelectedRows();
+				List<JMSQueue> queueList = CollectionFactory.newArrayList();
+
+				String queueNames = Arrays.stream(selectedRows)
+						.mapToObj(row -> queueTable.getRowItem(row).toString())
+						.collect(Collectors.joining(", "));
 
 				// show a confirmation dialog
-				int option = JOptionPane.showConfirmDialog(QueuesTabPanel.this, "Are you sure you want to clear all messages in the selected queues?", "Clear Messages", JOptionPane.YES_NO_OPTION);
+				int option = JOptionPane.showConfirmDialog(QueuesTabPanel.this, "Are you sure you want to clear all messages in the selected queues? \nQueues: " + queueNames, "Clear Messages", JOptionPane.YES_NO_OPTION);
 				if(option == JOptionPane.YES_OPTION) {
-					int[] selectedRows = queueTable.getSelectedRows();
-					List<JMSQueue> queueList = CollectionFactory.newArrayList();
-
 					for (int row : selectedRows) {
 						queueList.add(queueTable.getRowItem(row));
 					}
@@ -515,7 +518,7 @@ public class QueuesTabPanel extends JSplitPane implements UITab, MessageTableAct
 			break;
 			
 		case QUEUES_ENUMERATED:
-			final List<JMSQueue> queueList = (List<JMSQueue>)event.getInfo();
+			final List<JMSQueue> queueList = ((BrokerDestinations) event.getInfo()).getDestinations();
 			if(queueList.size() > 0 && queueList.get(0).getBroker().equals(brokerCombo.getSelectedItem())) {
 				populateQueueTable(queueList);
 			}

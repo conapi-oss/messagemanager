@@ -3,6 +3,7 @@ package nl.queuemanager.activemq;
 import com.google.common.eventbus.EventBus;
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.events.AbstractEventSource;
+import nl.queuemanager.core.jms.BrokerDestinations;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.DomainEvent.EVENT;
 import nl.queuemanager.core.jms.JMSDomain;
@@ -128,7 +129,12 @@ public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements 
 	
 	public void enumerateQueues(JMSBroker broker, String filter) throws Exception {
 		List<JMSQueue> queueList = getQueueList(broker, filter);
-		dispatchEvent(new DomainEvent(EVENT.QUEUES_ENUMERATED, queueList, this));
+		dispatchEvent(new DomainEvent(EVENT.QUEUES_ENUMERATED, new BrokerDestinations(broker,queueList), this));
+	}
+
+	public void enumerateTopics(JMSBroker broker, String filter) throws Exception{
+		List<JMSTopic> topics = new ArrayList<JMSTopic>();
+		dispatchEvent(new DomainEvent(EVENT.TOPICS_ENUMERATED,  new BrokerDestinations(broker,topics), this));
 	}
 
 	public List<JMSQueue> getQueueList(JMSBroker broker, String filter) throws Exception {

@@ -35,6 +35,7 @@ import com.sonicsw.mq.mgmtapi.config.IAcceptorsBean.IDefaultAcceptorsType;
 import com.sonicsw.mq.mgmtapi.config.constants.IBackupBrokerConstants;
 import com.sonicsw.mq.mgmtapi.config.constants.IBrokerConstants;
 import nl.queuemanager.core.configuration.CoreConfiguration;
+import nl.queuemanager.core.jms.BrokerDestinations;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.DomainEvent.EVENT;
 import nl.queuemanager.core.jms.JMSDomain;
@@ -369,7 +370,12 @@ public class Domain implements JMSDomain {
 	 */
 	public void enumerateQueues(JMSBroker broker, String filter) {
 		List<JMSQueue> queues = getQueueList(broker, filter);
-		dispatchEvent(new DomainEvent(EVENT.QUEUES_ENUMERATED, queues, this));
+		dispatchEvent(new DomainEvent(EVENT.QUEUES_ENUMERATED,  new BrokerDestinations(broker,queues), this));
+	}
+
+	public void enumerateTopics(JMSBroker broker, String filter) throws Exception{
+		List<JMSTopic> topics = new ArrayList<JMSTopic>(); // empty list
+		dispatchEvent(new DomainEvent(EVENT.TOPICS_ENUMERATED,  new BrokerDestinations(broker,topics), this));
 	}
 	
 	/* (non-Javadoc)

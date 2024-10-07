@@ -49,7 +49,12 @@ public class FakeMQDomain extends AbstractEventSource<DomainEvent> implements JM
 
 	public void enumerateQueues(JMSBroker broker, String filter) {
 		List<JMSQueue> queues = getQueueList(broker, filter);
-		dispatchEvent(new DomainEvent(EVENT.QUEUES_ENUMERATED, queues, this));
+		dispatchEvent(new DomainEvent(EVENT.QUEUES_ENUMERATED,  new BrokerDestinations(broker,queues), this));
+	}
+
+	public void enumerateTopics(JMSBroker broker, String filter) throws Exception{
+		List<JMSTopic> topics = new ArrayList<JMSTopic>();
+		dispatchEvent(new DomainEvent(EVENT.TOPICS_ENUMERATED,  new BrokerDestinations(broker,topics), this));
 	}
 
 	public List<JMSQueue> getQueueList(JMSBroker broker, String filter) {

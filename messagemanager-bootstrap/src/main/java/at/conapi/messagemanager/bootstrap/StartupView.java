@@ -126,12 +126,22 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 	private void launchConfig() {
 			// we can now start
 			fadeOut();
-
-			final AppLauncher launcher = new AppLauncher();
-			config.launch(launcher);
-
-			if (launcher.isLaunchFailed()) {
-				final Exception e = launcher.getLaunchError();
+			try {
+				final AppLauncher launcher = new AppLauncher();
+				config.launch(launcher);
+				if (launcher.isLaunchFailed()) {
+					final Exception e = launcher.getLaunchError();
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							showAlert("Launch Failed", "Launcher Error. Unable to launch the application: " + e.getMessage());
+							// exit the app
+							Platform.exit();
+						}
+					});
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
 				Platform.runLater(new Runnable() {
 					@Override
 					public void run() {
@@ -302,13 +312,19 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 			protected Boolean call() throws Exception {
 				if(workOffline) {
 					// auto update is not possible
-					Platform.runLater(() -> {
-						showAlert("Automatic Update Check Failed", "Unable to connect to the automatic update site. Please check proxy settings (see setenv script in '" + Path.of("").toAbsolutePath().normalize() + "')");
-					});
+					if( AppProperties.getFailedUpdates() > 3 && // update failed 3 times in a row
+							( AppProperties.getLastSuccessfulUpdateCheck()==0 ||  // no successful update check yet
+							  System.currentTimeMillis() - AppProperties.getLastSuccessfulUpdateCheck() > java.time.Duration.ofDays(3).toMillis() // and it was more than 3 days since the last successful update check
+							)) {
+						// show alert only now to not annoy the user with the same message over and over again
+						Platform.runLater(() -> {
+							showAlert("Automatic Update Check Failed", "Unable to connect to the automatic update site. Please check proxy settings (see setenv script in '" + Path.of("").toAbsolutePath().normalize() + "')");
+						});
+					}
+
 					return false;
 				}
 				else {
-					//TODO: only check for updates once every x days, if online connection possible
 					return config.requiresUpdate();
 				}
 			}

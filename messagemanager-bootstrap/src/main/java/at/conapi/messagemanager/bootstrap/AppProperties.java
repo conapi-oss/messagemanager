@@ -12,6 +12,9 @@ public class AppProperties {
     private final static String PROP_UPDATE_URL = "updateurl";
     private final static String PROP_CONNECT_TIMEOUT = "connecttimeout";
     private final static String PROP_READ_TIMEOUT = "readtimeout";
+    private final static String PROP_UPDATE_FREQUENCY = "updatefrequency"; //in in days
+    private final static String PROP_FAILED_UPDATES = "failedupdates";
+    private final static String PROP_LAST_SUCCESSFUL_UPDATE_CHECK = "lastsuccessfulupdatecheck";
 
     private static Path propertiesLocation;
     private static Properties appProperties = new Properties();
@@ -19,6 +22,9 @@ public class AppProperties {
     private static Boolean autoUpdate;
     private static Integer connectTimeout;
     private static Integer readTimeout;
+    private static Integer updateFrequency;
+    private static Integer failedUpdates;
+    private static Long lastSuccessfulUpdateCheck;
 
     static{
         propertiesLocation = Path.of("", "launcher.properties");
@@ -44,9 +50,17 @@ public class AppProperties {
         }
         connectTimeout = Integer.valueOf(appProperties.getProperty(PROP_CONNECT_TIMEOUT, "5000"));
         readTimeout = Integer.valueOf(appProperties.getProperty(PROP_READ_TIMEOUT, "5000"));
+        updateFrequency = Integer.valueOf(appProperties.getProperty(PROP_UPDATE_FREQUENCY, "7"));
+        failedUpdates = Integer.valueOf(appProperties.getProperty(PROP_FAILED_UPDATES, "0"));
+        lastSuccessfulUpdateCheck = Long.valueOf(appProperties.getProperty(PROP_LAST_SUCCESSFUL_UPDATE_CHECK, "0"));
 
         saveProperties(); // to ensure we have a file next time, even if it has just defaults
     }
+
+    public static boolean isStableRelease(){
+        return updateUrl.contains("/stable/");
+    }
+
     private static void loadProperties(){
         try {
             appProperties.load(new FileInputStream(propertiesLocation.toFile()));
@@ -65,6 +79,9 @@ public class AppProperties {
         try {
             //appProperties.setProperty(PROP_UPDATE_URL, updateUrl); better not to save this to allow new app new version
             appProperties.setProperty(PROP_AUTO_UPDATE, autoUpdate.toString());
+            appProperties.setProperty(PROP_UPDATE_FREQUENCY, updateFrequency.toString());
+            appProperties.setProperty(PROP_FAILED_UPDATES, failedUpdates.toString());
+            appProperties.setProperty(PROP_LAST_SUCCESSFUL_UPDATE_CHECK, lastSuccessfulUpdateCheck.toString());
 
             appProperties.store(new FileWriter(propertiesLocation.toFile()), new Date().toString());
         } catch (IOException e) {
@@ -92,5 +109,31 @@ public class AppProperties {
         return connectTimeout;
     }
 
+    public static int getUpdateFrequency(){
+        return updateFrequency;
+    }
+
+    public static int getFailedUpdates(){
+        return failedUpdates;
+    }
+
+    public static long getLastSuccessfulUpdateCheck(){
+        return lastSuccessfulUpdateCheck;
+    }
+
+    public static void setLastSuccessfulUpdateCheck(long lastSuccessfulUpdateCheck){
+        AppProperties.lastSuccessfulUpdateCheck = lastSuccessfulUpdateCheck;
+        saveProperties();
+    }
+
+    public static void incrementFailedUpdates(){
+        failedUpdates++;
+        saveProperties();
+    }
+
+    public static void resetFailedUpdates(){
+        failedUpdates = 0;
+        saveProperties();
+    }
 }
 

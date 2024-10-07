@@ -23,6 +23,7 @@ import nl.queuemanager.core.MessageBuffer;
 import nl.queuemanager.core.MessageEvent;
 import nl.queuemanager.core.configuration.CoreConfiguration;
 import nl.queuemanager.core.events.EventListener;
+import nl.queuemanager.core.jms.BrokerDestinations;
 import nl.queuemanager.core.jms.DomainEvent;
 import nl.queuemanager.core.jms.JMSDomain;
 import nl.queuemanager.core.jms.JMSFeature;
@@ -413,8 +414,10 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab,Message
 
 	private void populateTopicTable(final List<JMSTopic> topics) {
 		final List<JMSSubscriber> entries = CollectionFactory.newArrayList();
-		for(JMSTopic t: topics) {
-			entries.add(jmsSubscriberFactory.newSubscriber(t, new MessageBuffer()));
+		if(topics != null) {
+			for (JMSTopic t : topics) {
+				entries.add(jmsSubscriberFactory.newSubscriber(t, new MessageBuffer()));
+			}
 		}
 		
 		SwingUtilities.invokeLater(new Runnable() {
@@ -560,13 +563,18 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab,Message
 		
 		case BROKER_DISCONNECT:
 			if(brokerCombo.getSelectedItem().equals(event.getInfo())) {
-				populateTopicTable(new ArrayList<JMSTopic>());
+				populateTopicTable(null);
 				CommonUITasks.clear(messageTable);
 			}
 			break;
 
 		case TOPICS_ENUMERATED:
-			populateTopicTable((List<JMSTopic>)event.getInfo());
+			// ensure we do not lose the configured topics
+			BrokerDestinations brokerDestinations = ((BrokerDestinations) event.getInfo());
+			JMSBroker selectedBroker = brokerDestinations.getBroker();
+			List<JMSTopic> topicList = getConfiguredTopics(selectedBroker);
+			topicList.addAll(brokerDestinations.getDestinations());
+			populateTopicTable(topicList);
 			break;
 		}
 	}

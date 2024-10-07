@@ -122,7 +122,7 @@ public class Main {
 			private void setIconImage(final JFrame frame) {
 
                 try {
-					String imagePath = "/images/messagemanager-icon-medium.png";
+					String imagePath = "/images/messagemanager-icon.png";
 					InputStream imgStream = this.getClass().getResourceAsStream(imagePath);
                     BufferedImage img = ImageIO.read(imgStream);
 					// ImageIcon icon = new ImageIcon(myImg);

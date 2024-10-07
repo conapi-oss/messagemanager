@@ -62,9 +62,7 @@ public interface JMSDomain {
 	 * @return
 	 * @throws Exception
 	 */
-	default public void enumerateTopics(JMSBroker broker, String filter) throws Exception {
-		// default does nothing, this allows this to be optionally implemented
-	}
+	public abstract void enumerateTopics(JMSBroker broker, String filter) throws Exception;
 
 	/**
 	 * Enumerates the queues on a JMSBroker without raising a QUEUES_ENUMERATED event.
@@ -89,7 +87,7 @@ public interface JMSDomain {
 	 * Create a JMSQueue object for use with this Domain
 	 * 
 	 * @param broker Must be a broker created by this Domain.
-	 * @param topicName
+	 * @param queueName
 	 * @return
 	 */
 	public abstract JMSQueue createQueue(JMSBroker broker, String queueName);

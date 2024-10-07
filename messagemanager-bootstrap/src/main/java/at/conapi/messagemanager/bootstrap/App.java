@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyStore;
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -103,26 +104,36 @@ public class App extends Application {
 		mainStage.setMinWidth(600);
 		mainStage.setMinHeight(300);
 
-
-		final URL configUrl = new URL(AppProperties.getUpdateUrl());
-		Configuration config = null;
-		System.out.println("Loading: " + configUrl);
 		boolean workOffline = false;
-		final URLConnection con = configUrl.openConnection();
-		System.out.println("Connection opened: " + configUrl);
-		// maybe make these configurable
-		con.setConnectTimeout(AppProperties.getConnectTimeout());
-		con.setReadTimeout(AppProperties.getReadTimeout());
-		// Some downloads may fail with HTTP/403, this may solve it
-		con.addRequestProperty("User-Agent", "Mozilla/5.0");
+		Configuration config = null;
 
-		try (Reader in = new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8)) {
-			config = Configuration.read(in);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.err.println("Could not load remote update config, falling back to local config.");
+		if(shouldCheckForUpdates()) {
+			// check for updates
+			final URL configUrl = new URL(AppProperties.getUpdateUrl());
+			System.out.println("Loading: " + configUrl);
+			final URLConnection con = configUrl.openConnection();
+			System.out.println("Connection opened: " + configUrl);
+			con.setConnectTimeout(AppProperties.getConnectTimeout());
+			con.setReadTimeout(AppProperties.getReadTimeout());
+			// Some downloads may fail with HTTP/403, this may solve it
+			con.addRequestProperty("User-Agent", "Mozilla/5.0");
+			try (Reader in = new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8)) {
+				config = Configuration.read(in);
+				// keep track of successful update checks
+				AppProperties.setLastSuccessfulUpdateCheck(System.currentTimeMillis());
+				AppProperties.resetFailedUpdates();
+			} catch (IOException e) {
+				// keep track of failed updates
+				AppProperties.incrementFailedUpdates();
 
-			workOffline = true;
+				e.printStackTrace();
+				System.err.println("Could not load remote update config, falling back to local config.");
+				workOffline = true;
+			}
+		}
+
+		if(workOffline) {
+			// fall back to local config
 			try (Reader in = Files.newBufferedReader(Paths.get("app/config.xml"))) {
 				config = Configuration.read(in);
 			}
@@ -144,6 +155,17 @@ public class App extends Application {
 		mainStage.show();
 	}
 
+	private boolean shouldCheckForUpdates() {
+		if(!AppProperties.isStableRelease()){
+			// always check for updates for a non-stable release
+			return true;
+		}
+
+		// only check for updates once every x days until the check was successful
+		long lastSuccessfulUpdateCheck = AppProperties.getLastSuccessfulUpdateCheck();
+		int updateFrequency = AppProperties.getUpdateFrequency();
+        return lastSuccessfulUpdateCheck == 0 || System.currentTimeMillis() - lastSuccessfulUpdateCheck > Duration.ofDays(updateFrequency).toMillis();
+	}
 
 	private void showMacQuitMenu(final Stage primaryStage) {
 		/*final MenuBar menuBar = new MenuBar();
