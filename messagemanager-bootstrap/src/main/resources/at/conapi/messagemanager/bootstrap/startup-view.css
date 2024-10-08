@@ -1,10 +1,14 @@
 
 #primary {
-	-fx-background-color: rgba(0, 113, 172, 0.5);
+	-fx-background-color: #e1df27;
 	-fx-max-height: 5;
 }
 
 #secondary {
-	-fx-background-color: rgba(164, 214, 0, 0.5);
+	-fx-background-color: #b675ff;
 	-fx-max-height: 5;
+}
+
+#status {
+    -fx-text-fill: #e1df27ff;
 }

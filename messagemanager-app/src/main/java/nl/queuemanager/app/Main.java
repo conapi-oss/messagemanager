@@ -52,6 +52,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -121,17 +122,19 @@ public class Main {
 
 			private void setIconImage(final JFrame frame) {
 
-                try {
-					String imagePath = "/images/messagemanager-icon.png";
+					/*String imagePath = "/images/messagemanager-icon.png";
 					InputStream imgStream = this.getClass().getResourceAsStream(imagePath);
                     BufferedImage img = ImageIO.read(imgStream);
-					// ImageIcon icon = new ImageIcon(myImg);
-					// use icon here
 					frame.setIconImage(img);
-				} catch (IOException e) {
-					// not critical
-                    e.printStackTrace();
-                }
+					 */
+					// load all the icons
+				List<String> sizes = List.of("16", "32", "48","64","96", "128", "256");
+				List<Image> images = sizes.stream()
+						.map(s -> ("/images/conapi_" + s + "x" + s + ".png"))
+						.map(s -> getClass().getResource(s))
+						.map(url -> new ImageIcon(url).getImage())
+						.collect(Collectors.toList());
+				frame.setIconImages(images);
 			}
 		});
 	}

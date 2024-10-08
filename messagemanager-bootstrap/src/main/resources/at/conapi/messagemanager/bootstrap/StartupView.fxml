@@ -4,33 +4,27 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-
 <fx:root maxHeight="300" maxWidth="300" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="600.0" type="StackPane" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <HBox alignment="CENTER" GridPane.halignment="CENTER">
-         <children>
-            <ImageView fx:id="image" fitHeight="300.0" fitWidth="600.0" preserveRatio="true"/>
-         </children>
-      </HBox>
+      <ImageView fx:id="image" fitHeight="300.0" fitWidth="600.0" preserveRatio="true"/>
 
-      <GridPane>
-         <children>
-            <GridPane fx:id="updateContainer" GridPane.rowIndex="2" GridPane.valignment="BOTTOM" alignment="CENTER_LEFT" GridPane.halignment="CENTER"  style="-fx-background-color: white;" prefWidth="600">
-               <children>
-                  <Label id="status" fx:id="status" text="Label" GridPane.rowIndex="1" prefWidth="600">
-                     <GridPane.margin>
-                        <Insets left="20.0" />
-                     </GridPane.margin>
-                  </Label>
-                  <StackPane fx:id="progressContainer" GridPane.rowIndex="2" prefWidth="600">
-                     <children>
-                        <Pane id="secondary" fx:id="secondary" maxHeight="-Infinity" prefHeight="5.0" StackPane.alignment="CENTER_LEFT" prefWidth="600"/>
-                        <Pane id="primary" fx:id="primary" maxHeight="-Infinity" prefHeight="5.0" StackPane.alignment="CENTER_LEFT" prefWidth="600"/>
-                     </children>
-                  </StackPane>
-               </children>
-            </GridPane>
-         </children>
-      </GridPane>
+      <VBox alignment="BOTTOM_CENTER">
+         <GridPane fx:id="updateContainer" alignment="CENTER_LEFT" prefWidth="600">
+                   <!--style="-fx-background-color: white;" prefWidth="600"> -->
+            <children>
+               <Label id="status" fx:id="status" text="Label" GridPane.rowIndex="0" prefWidth="600">
+                  <GridPane.margin>
+                     <Insets left="20.0" />
+                  </GridPane.margin>
+               </Label>
+               <StackPane fx:id="progressContainer" GridPane.rowIndex="1" prefWidth="600">
+                  <children>
+                     <Pane id="secondary" fx:id="secondary" maxHeight="-Infinity" prefHeight="5.0" StackPane.alignment="CENTER_LEFT" prefWidth="600"/>
+                     <Pane id="primary" fx:id="primary" maxHeight="-Infinity" prefHeight="5.0" StackPane.alignment="CENTER_LEFT" prefWidth="600"/>
+                  </children>
+               </StackPane>
+            </children>
+         </GridPane>
+      </VBox>
    </children>
 </fx:root>

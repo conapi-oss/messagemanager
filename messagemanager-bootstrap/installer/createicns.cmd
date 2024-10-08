@@ -9,13 +9,17 @@ icnsutil img  ../src/main/resources/icons/conapi_16x16.argb ../src/main/resource
 icnsutil img  ../src/main/resources/icons/conapi_32x32.argb ../src/main/resources/icons/conapi_32x32.png
 icnsutil img  ../src/main/resources/icons/conapi_48x48.argb ../src/main/resources/icons/conapi_48x48.png
 icnsutil img  ../src/main/resources/icons/conapi_64x64.argb ../src/main/resources/icons/conapi_64x64.png
+icnsutil img  ../src/main/resources/icons/conapi_96x96.argb ../src/main/resources/icons/conapi_96x96.png
 icnsutil img  ../src/main/resources/icons/conapi_128x128.argb ../src/main/resources/icons/conapi_128x128.png
+icnsutil img  ../src/main/resources/icons/conapi_256x256.argb ../src/main/resources/icons/conapi_256x256.png
 
 icnsutil img  ../src/main/resources/icons/conapi_16x16.rgb ../src/main/resources/icons/conapi_16x16.png
 icnsutil img  ../src/main/resources/icons/conapi_32x32.rgb ../src/main/resources/icons/conapi_32x32.png
 icnsutil img  ../src/main/resources/icons/conapi_48x48.rgb ../src/main/resources/icons/conapi_48x48.png
 icnsutil img  ../src/main/resources/icons/conapi_64x64.rgb ../src/main/resources/icons/conapi_64x64.png
+icnsutil img  ../src/main/resources/icons/conapi_96x96.rgb ../src/main/resources/icons/conapi_96x96.png
 icnsutil img  ../src/main/resources/icons/conapi_128x128.rgb ../src/main/resources/icons/conapi_128x128.png
+icnsutil img  ../src/main/resources/icons/conapi_256x256.rgb ../src/main/resources/icons/conapi_256x256.png
 
 rem icnsutil c -f ../src/main/resources/icons/conapi.icns ../src/main/resources/icons/conapi_16x16.argb ../src/main/resources/icons/conapi_32x32.argb ../src/main/resources/icons/conapi_16x16.rgb ../src/main/resources/icons/conapi_32x32.rgb ../src/main/resources/icons/conapi_48x48.rgb ../src/main/resources/icons/conapi_64x64.rgb ../src/main/resources/icons/conapi_128x128.rgb ../src/main/resources/icons/conapi_16x16.rgb.mask ../src/main/resources/icons/conapi_32x32.rgb.mask ../src/main/resources/icons/conapi_48x48.rgb.mask ../src/main/resources/icons/conapi_64x64.rgb.mask ../src/main/resources/icons/conapi_128x128.rgb.mask
 
@@ -30,6 +34,7 @@ icnsutil i ../src/main/resources/icons/conapi.icns
 
 
 pause
+rem not used anymore:
 cd ../src/main/resources/icons/
 copy /Y conapi_128x128.png  messagemanager-icon-large.png
 copy /Y conapi_64x64.png  messagemanager-icon-medium.png

@@ -48,6 +48,14 @@ You can hide the samples scripts by unchecking the "Show Sample Scripts" option 
 Scripts can be written in Apache JEXL or Python.
 The product ships with various sample scripts written in JEXL and Python.
 
+
+:::note
+
+JEXL is the default scripting language and up to 10x faster than Python.
+
+:::
+
+
 ### Python Setup
 
 To use Python scripts, you need to have Python installed and on PATH.
@@ -169,3 +177,10 @@ You can use these messages as a source to test the script.
 
 This sample script demonstrates how to print details about a message to the console.
 It prints the message's metadata, body, and properties.
+
+### generate
+
+This sample script demonstrates how to generate messages. 
+It is used in combination with Source Type set to "Generate".
+"Generate" is a special source type that passes empty text messages to the script.
+The script is then used to populate the message with data.

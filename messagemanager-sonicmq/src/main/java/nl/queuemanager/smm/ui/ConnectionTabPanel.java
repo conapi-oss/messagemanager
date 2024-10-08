@@ -171,7 +171,7 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		brandingPanel.setLayout(new BoxLayout(brandingPanel, BoxLayout.X_AXIS));
 		brandingPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		brandingPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));		
-		brandingPanel.setBackground(Color.white);
+		brandingPanel.setBackground(Color.decode("#f0ece8"));
 
 		// create space between the be used to align the two logo pictures!
 		Dimension minSize = new Dimension(5, 80);
@@ -190,20 +190,7 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 		} catch (URISyntaxException e) {
 		}
 		brandingPanel.add(labelConapi);
-		
-		// space between the pictures
-		brandingPanel.add(new Box.Filler(minSize, prefSize, maxSize));		
-		
-		// Get Progress Sonic logo
-		JLabel jLabelSonic = new JLabel();
-		URL url2 = getClass().getResource("aurea_messenger.png");
-		jLabelSonic.setIcon(new ImageIcon(url2));
-		try {
-			desktop.addLink(jLabelSonic, new URI("http://www.aurea.com"));
-		} catch (URISyntaxException e) {
-		}
-		brandingPanel.add(jLabelSonic);
-				
+
 		// space on right of the second picture
 		brandingPanel.add(new Box.Filler(minSize, prefSize, maxSize));
 		return brandingPanel;
