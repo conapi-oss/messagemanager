@@ -40,8 +40,8 @@ class VersionPanel extends JPanel implements AboutPanel {
 	private String getHTML() {
 		return "<div>\n" +
 				"  <h2>Message Manager</h2>\n" +
-				"  <p>Version: "+ Version.VERSION+"</p>\n" +
-				"  <p>Product ID: "+ config.getUniqueId()+"</p>\n" +
+				"  <br>Version: "+ Version.VERSION+"\n" +
+				"  <br>Product ID: "+ config.getUniqueId()+"\n" +
 				"  <p></p>\n" +
 				"\n" +
 				"  <h3>Licensing Information:</h3>\n" +
@@ -51,8 +51,8 @@ class VersionPanel extends JPanel implements AboutPanel {
 				"    <li>Licensed Plugins/Features:\n"+
 				"      <ul><li>Copyright (c) 2024 conapi GmbH. All rights reserved.</li><li>Licensed under conapi GmbH terms of use.</li></ul></li>\n" +
 				"  </ul>\n" +
-				"  <p>Documentation: <a href=\"https://conapi-oss.github.io/messagemanager\">https://conapi-oss.github.io/messagemanager</a></p>\n" +
-				"  <p>Website: <a href=\"https://www.conapi.at/message-manager\">https://www.conapi.at/message-manager</a></p>\n" +
+				"  <br>Documentation: <a href=\"https://conapi-oss.github.io/messagemanager\">https://conapi-oss.github.io/messagemanager</a>\n" +
+				"  <br>Website: <a href=\"https://www.conapi.at/message-manager\">https://www.conapi.at/message-manager</a>\n" +
 
 				"</div>";
 

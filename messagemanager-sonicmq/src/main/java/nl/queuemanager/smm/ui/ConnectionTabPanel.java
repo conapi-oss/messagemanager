@@ -167,32 +167,52 @@ public class ConnectionTabPanel extends JPanel implements UITab {
 
 	private JPanel createBrandingPanel(DesktopHelper desktop) {
 		// Create the branding area
-		JPanel brandingPanel = new JPanel();
-		brandingPanel.setLayout(new BoxLayout(brandingPanel, BoxLayout.X_AXIS));
-		brandingPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-		brandingPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));		
-		brandingPanel.setBackground(Color.decode("#f0ece8"));
+		JPanel brandingPanel = new JPanel() {
+			private final Image image = new ImageIcon(getClass().getResource("conapi_text_1920x132px.png")).getImage();
 
-		// create space between the be used to align the two logo pictures!
-		Dimension minSize = new Dimension(5, 80);
-		Dimension prefSize = new Dimension(5, 80);
-		Dimension maxSize = new Dimension(Integer.MAX_VALUE, 80);
+			@Override
+			protected void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				int panelWidth = getWidth();
+				int imageWidth = image.getWidth(this);
+				int imageHeight = image.getHeight(this);
 
-		// space on left of the first picture
-		brandingPanel.add(new Box.Filler(minSize, prefSize, maxSize));		
-		
-		// Get conapi logo
-		JLabel labelConapi = new JLabel();
-		URL url = getClass().getResource("conapi_text_320x132px.png");
-		labelConapi.setIcon(new ImageIcon(url));
+				// Fill the entire panel with the background color
+				g.setColor(getBackground());
+				g.fillRect(0, 0, panelWidth, getHeight());
+
+				// Calculate the source rectangle to draw from the right side of the image
+				int drawWidth = Math.min(panelWidth, imageWidth);
+				int sx1 = imageWidth - drawWidth;
+				int sy1 = 0;
+				int sx2 = imageWidth;
+				int sy2 = imageHeight;
+
+				// Draw the right portion of the image
+				g.drawImage(image, panelWidth - drawWidth, 0, panelWidth, imageHeight, sx1, sy1, sx2, sy2, this);
+			}
+
+			@Override
+			public Dimension getPreferredSize() {
+				return new Dimension(super.getPreferredSize().width, 132);
+			}
+
+			@Override
+			public Dimension getMinimumSize() {
+				return new Dimension(0, 132);
+			}
+
+			@Override
+			public Dimension getMaximumSize() {
+				return new Dimension(Integer.MAX_VALUE, 132);
+			}
+		};
+		brandingPanel.setBackground(Color.decode("#d5b983"));
+
 		try {
-			desktop.addLink(labelConapi, new URI("https://www.conapi.at"));
+			desktop.addLink(brandingPanel, new URI("https://www.conapi.at"));
 		} catch (URISyntaxException e) {
 		}
-		brandingPanel.add(labelConapi);
-
-		// space on right of the second picture
-		brandingPanel.add(new Box.Filler(minSize, prefSize, maxSize));
 		return brandingPanel;
 	}
 
