@@ -131,6 +131,9 @@ public class App extends Application {
 				workOffline = true;
 			}
 		}
+		else{
+			workOffline = true;
+		}
 
 		if(workOffline) {
 			// fall back to local config
