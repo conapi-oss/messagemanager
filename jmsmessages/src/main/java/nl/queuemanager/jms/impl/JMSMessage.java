@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.Setter;
 import nl.queuemanager.jms.MetaDataProvider;
 
+import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -62,6 +63,7 @@ class JMSMessage implements Message, Serializable, MetaDataProvider {
 		this.properties = new HashMap<Object, Object>();
 		this.timestamp = new Date().getTime();
 		metaData = null; // we use null to indicate that the metadata is not supported
+		deliveryMode = DeliveryMode.PERSISTENT;
 	}
 	
 	public void acknowledge() {
