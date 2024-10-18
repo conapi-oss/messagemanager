@@ -11,16 +11,16 @@ install-app:
 
 install-fake:
 	mvn -o install -pl messagemanager-fakemq -am
-	cp messagemanager-fakemq/target/*.jar ~/Library/Application\ Support/MessageManager/plugins/3.2-SNAPSHOT/
+	cp messagemanager-fakemq/target/*.jar ~/Library/Application\ Support/MessageManager/plugins/3.3-SNAPSHOT/
 
 run-app:
-	java    -ea \
+	JAVA_TOOL_OPTIONS= java    -ea \
 		-Dmm.forceMotdMessage=true \
 		-Dmm.developer=true \
 		-Djava.util.logging.config.file=logging.properties \
 		-DSolace_JMS_Browser_Timeout_In_MS=1000 \
 		-Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=4000,suspend=n \
-		-jar messagemanager-app/target/messagemanager-app-3.2-SNAPSHOT-jar-with-dependencies.jar
+		-jar messagemanager-app/target/messagemanager-app-3.3-SNAPSHOT-jar-with-dependencies.jar
 		#-Dmm.forceInstallPlugins=true \
 		#-Ddeveloper \
 		#-Dmm.enableSwingDebug=true \
@@ -28,7 +28,7 @@ run-app:
 run-app-prod:
 	java    -ea \
 		-Dmm.forceInstallPlugins=true \
-		-jar messagemanager-app/target/messagemanager-app-3.1-SNAPSHOT-jar-with-dependencies.jar
+		-jar messagemanager-app/target/messagemanager-app-3.3-SNAPSHOT-jar-with-dependencies.jar
 
 build-ws-app:
 	mvn -Pcodesign -Dsubdir=v3/nightly/ -Dsuffix=NIGHTLY clean package -pl ws-app -am

@@ -20,12 +20,12 @@ import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import javax.swing.JFrame;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
@@ -80,7 +80,9 @@ public class MMFrame extends JFrame {
 		
 		// Create the MOTDPanel and put it in the right place
 		contentPane.add(motdPanel, BorderLayout.NORTH);
-		
+		addNagMessage(motdPanel);
+		showNagDialog();
+
 		// Create the tabbedpane and add all the panels to it
 		tabsPane = new JTabbedPane();
 		tabsPane.setToolTipText("");
@@ -103,7 +105,26 @@ public class MMFrame extends JFrame {
 		restoreWindowPositionAndSize();
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	}
-	
+
+	private void addNagMessage(MOTDPanel motdPanel) {
+		motdPanel.addMessage("<html><a>This version of Message Manager is deprecated and will go offline soon<a></html>",
+				new MouseAdapter() {
+					@Override
+					public void mouseClicked(MouseEvent e) {
+						showNagDialog();
+					}
+				});
+	}
+
+	private void showNagDialog() {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				new NagscreenDialog(MMFrame.this).setVisible(true);
+			}
+		});
+	}
+
 	@Subscribe
 	public void addTab(final AddUITabEvent e) {
 		if(!SwingUtilities.isEventDispatchThread()) {

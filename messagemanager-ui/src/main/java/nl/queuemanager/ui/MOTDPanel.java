@@ -4,12 +4,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import javax.inject.Inject;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JLabel;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -43,7 +41,14 @@ public class MOTDPanel extends MarqueePanel {
 	}
 
 	public void addMessage(String message) {
+		addMessage(message, null);
+	}
+
+	public void addMessage(String message, MouseListener mouseListener) {
 		JLabel label = new JLabel(message);
+		if(mouseListener != null) {
+			label.addMouseListener(mouseListener);
+		}
 		add(label);
 		add(Box.createHorizontalStrut(25));
 		setVisible(true);

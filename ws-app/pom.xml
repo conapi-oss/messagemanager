@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>nl.queuemanager</groupId>
 		<artifactId>messagemanager</artifactId>
-		<version>3.2</version>
+		<version>3.3-SNAPSHOT</version>
 	</parent>
 	
 	<description>Message Manager ${suffix}</description>
