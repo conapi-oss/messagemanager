@@ -1,18 +1,15 @@
 package nl.queuemanager.app;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import java.awt.*;
-import java.awt.image.BufferedImage;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class NagscreenDialog extends JDialog {
 
@@ -21,9 +18,17 @@ public class NagscreenDialog extends JDialog {
     private final int desiredWidth = 450;
     private final int desiredHeight = 450;
 
+    private final Timer timer;
+
+    private int secondsRemaining = 11;
+
+    private final String baseTitle = "Download Message Manager 4";
+
     public NagscreenDialog(JFrame parent) {
-        setTitle("Download Message Manager 4");
+        setTitle(baseTitle);
         setModal(true);
+        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        setResizable(false);
 
         Point centerPoint = new Point(
                 parent.getX() + parent.getWidth() / 2,
@@ -46,7 +51,24 @@ public class NagscreenDialog extends JDialog {
         } catch (IOException e) {
             logger.severe(e.toString());
         }
+
+        timer = new Timer(1000, tick);
+        timer.start();
     }
+
+    private ActionListener tick = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            secondsRemaining--;
+            if(secondsRemaining == 0) {
+                timer.stop();
+                setTitle(baseTitle);
+                setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+            } else {
+                setTitle(String.format("(%d) %s", secondsRemaining, baseTitle));
+            }
+        }
+    };
 
     private HyperlinkListener openHyperLink = new HyperlinkListener() {
         @Override
@@ -54,7 +76,9 @@ public class NagscreenDialog extends JDialog {
             if (e.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
                 try {
                     if(e.getDescription().equals("#close")) {
-                        NagscreenDialog.this.setVisible(false);
+                        if(secondsRemaining == 0) {
+                            NagscreenDialog.this.setVisible(false);
+                        }
                     } else {
                         Desktop.getDesktop().browse(e.getURL().toURI());
                     }
