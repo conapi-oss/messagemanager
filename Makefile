@@ -31,9 +31,12 @@ run-app-prod:
 		-jar messagemanager-app/target/messagemanager-app-3.3-SNAPSHOT-jar-with-dependencies.jar
 
 build-ws-app:
+	mvn -Pcodesign clean package -pl ws-app -am -X
+
+build-ws-app-nightly:
 	mvn -Pcodesign -Dsubdir=v3/nightly/ -Dsuffix=NIGHTLY clean package -pl ws-app -am
 	 
-run-ws-app:
+run-ws-app-nightly:
 	 javaws -J-Ddeveloper=true \
 		-J-Dmm.forceInstallPlugins=true \
 		-J-Djava.util.logging.config.file=messagemanager-app/logging.properties \

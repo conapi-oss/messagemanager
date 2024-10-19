@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>nl.queuemanager</groupId>
 		<artifactId>messagemanager</artifactId>
-		<version>3.3-SNAPSHOT</version>
+		<version>3.3</version>
 	</parent>
 	
 	<description>Message Manager ${suffix}</description>
@@ -26,7 +26,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>webstart-maven-plugin</artifactId>
-				<version>1.0-beta-7</version>
+				<version>1.1-SNAPSHOT</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -62,12 +62,12 @@
 					</jnlp>
 					<signJnlp>true</signJnlp>
 					<sign>
-						<keystore>${env.codesign_keystore}</keystore>
-						<keypass>${env.codesign_password}</keypass>
-						<storepass>${env.codesign_password}</storepass>
-						<storetype>${env.codesign_storetype}</storetype>
-						<alias>${env.codesign_keyalias}</alias>
-						<tsaLocation>${env.codesign_tsaurl}</tsaLocation>
+						<keystore>${codesign_keystore}</keystore>
+						<keypass>${codesign_password}</keypass>
+						<storepass>${codesign_password}</storepass>
+						<storetype>${codesign_storetype}</storetype>
+						<alias>${codesign_keyalias}</alias>
+						<!--tsaLocation>${codesign_tsaurl}</tsaLocation-->
 
 						<!-- verify that the signing operation succeeded -->
 						<verify>true</verify>
