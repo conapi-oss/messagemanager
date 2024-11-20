@@ -155,7 +155,10 @@ public class PluginModuleHelper {
             jarUrl = fixJarUrl(jarUrl);
 
             final Path path = Paths.get(URI.create(jarUrl));
-            final Path newJarPath = Files.copy(path, Paths.get(tempFolder,deriveModuleName(path.getFileName().toString())), StandardCopyOption.REPLACE_EXISTING);
+            final Path tempFolderPath = Paths.get(tempFolder);
+            final String derivedModuleName = deriveModuleName(path.getFileName().toString());
+            final Path newJarPath = Files.copy(path, tempFolderPath.resolve(derivedModuleName), StandardCopyOption.REPLACE_EXISTING);
+
             //final Path newJarPath = Files.copy(path, Paths.get(tempFolder,path.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING);
             jarPaths.add(newJarPath);
         }
@@ -177,7 +180,12 @@ public class PluginModuleHelper {
             // MacOs and Linux only // as the MM_HOME will have / from root
             jarUrl = jarUrl.replace("file:/@MM_HOME@", "file://@MM_HOME@");
             jarUrl = jarUrl.replace("@MM_HOME@", System.getenv("MM_HOME"));
+            // remove escape characters
+            jarUrl = jarUrl.replace("\\", "");
         }
+        // whitespace in path
+        jarUrl = jarUrl.replace(" ", "%20");
+
         return jarUrl;
     }
 

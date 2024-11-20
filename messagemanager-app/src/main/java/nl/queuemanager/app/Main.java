@@ -135,6 +135,20 @@ public class Main {
 						.map(url -> new ImageIcon(url).getImage())
 						.collect(Collectors.toList());
 				frame.setIconImages(images);
+
+				// MAC
+				//this is new since JDK 9
+				final Taskbar taskbar = Taskbar.getTaskbar();
+
+				try {
+					//set icon for mac os (and other systems which do support this method)
+					Image img = images.get(images.size()-1);
+					taskbar.setIconImage(img);
+				} catch (final UnsupportedOperationException e) {
+					System.out.println("The os does not support: 'taskbar.setIconImage'");
+				} catch (final SecurityException e) {
+					System.out.println("There was a security exception for: 'taskbar.setIconImage'");
+				}
 			}
 		});
 	}

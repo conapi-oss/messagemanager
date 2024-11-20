@@ -27,17 +27,19 @@ module messagemanager.sonicmq {
     requires java.activation;
 
     // below are automatic module names as Sonic JARs have no module-info
-    requires static smc;
     //requires static sonic.SSL;
-    requires static sonic.Client;
-    requires static sonic.mgmt.client;
     //requires static sonic.Selector;
-    requires static sonic.Crypto;
-   // requires static mail;
-    requires static mgmt.client;
-    requires static sonic.XMessage;
+    // requires static mail;
     //requires static sonic.Client.ext;
     //requires static sonic.ASPI;
+    requires static smc;
+
+    requires static sonic.Crypto;
+    requires static mgmt.client;
+    requires static sonic.XMessage;
     requires static mgmt.config;
+    requires static sonic.Client;
+    requires static sonic.mgmt.client;
+
     requires static xercesImpl;
 }

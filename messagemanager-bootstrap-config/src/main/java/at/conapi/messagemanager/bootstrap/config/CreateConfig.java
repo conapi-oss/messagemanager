@@ -158,17 +158,16 @@ public class CreateConfig {
 
                  */
 
-                // special handling for updat4j
+                // special handling for update4j
                 .files(FileMetadata.streamDirectory(dir)
                         .filter( fm -> fm.getSource().getFileName().toFile().toString().startsWith("update4j"))
-                        //.peek(f -> f.modulepath(f.getSource().toString().endsWith(".jar")))
-                        .peek(f -> f.modulepath()) // anyway only update4j-<version>.jar
+                      //  .peek(f -> f.modulepath()) // anyway only update4j-<version>.jar
                         .peek(f -> f.uri(baseUrl +"/bootstrap/" + f.getSource().toFile().getName()))
                         .peek(f -> f.ignoreBootConflict())
-                        .peek( f -> f.path("update4j.jar"))
+                        .peek( f -> f.path("update4j.jar.new"))
                 )
 
-                // any other jar (for now just the bootsrap jar)
+                // any other jar (for now just the bootstrap jar)
                 .files(FileMetadata.streamDirectory(dir)
                         .filter( fm -> !fm.getSource().getFileName().toFile().toString().startsWith("update4j"))
                         .peek(f -> f.modulepath(f.getSource().toString().endsWith(".jar")))
@@ -181,12 +180,32 @@ public class CreateConfig {
                         .peek(f -> f.uri(baseUrl +"/bin/" + f.getSource().toFile().getName()))
                         .peek( f -> f.path("../bin/" + f.getSource().toFile().getName())))
 
+                // javafx files
                 .files(FileMetadata.streamDirectory(cacheLoc)
                         .filter(fm -> fm.getSource().getFileName().toString().startsWith("javafx"))
                         .peek(f -> f.modulepath())
                         .peek(f -> f.ignoreBootConflict()) // if run with JDK 9/10
                         .peek(f -> f.osFromFilename())
-                        .peek(f -> f.uri(extractJavafxURL(f.getSource(), f.getOs()))))
+                        .peek(f ->f.uri(extractJavafxURL(f.getSource(), f.getOs())))
+                        .peek( f ->
+                                        {      // for Mac we need to support two architectures
+                                                String pathToJar = f.getSource().toString();
+                                                if(pathToJar.contains("-mac")) {
+                                                    if (pathToJar.contains("aarch64")) {
+                                                        //String arch = System.getProperty("os.arch");
+                                                        // add ARM Mac Jar entries properly, for all other we use default arch
+                                                        f.arch("aarch64");
+                                                    }
+                                                    else{
+                                                        System.out.println("Setting MAC Intel Architecture");
+                                                        f.arch("x86_64");
+                                                    }
+                                                }
+                                        }
+                                )
+                       // .peek( f -> f.path(getNonOsSpecificJavafxName(f.getSource())))
+                )
+
                 .property("default.launcher.main.class", "at.conapi.messagemanager.bootstrap.Delegate")
                 .property("maven.central", MAVEN_BASE)
                 .property("maven.central.javafx", "${maven.central}/org/openjfx/")
@@ -196,6 +215,35 @@ public class CreateConfig {
             setup.write(out);
         }
 
+    }
+
+    private static String getNonOsSpecificJavafxName(Path source) {
+        /**
+         * Translates
+         * javafx-base-17-linux.jar
+         * javafx-base-17-mac.jar
+         * javafx-base-17-mac-aarch64.jar
+         * javafx-base-17-win.jar
+         *
+         * to:
+         * javafx-base-17.jar
+         */
+        String fileName = source.getFileName().toString();
+        String[] parts = fileName.split("-");
+
+        if (parts.length >= 3) {
+            StringBuilder newFileName = new StringBuilder();
+            for (int i = 0; i < 3; i++) {
+                newFileName.append(parts[i]);
+                if (i < 2) {
+                    newFileName.append("-");
+                }
+            }
+            newFileName.append(".jar");
+            return newFileName.toString();
+        }
+
+        return source.getFileName().toString();
     }
 
     private static final String MAVEN_BASE = "https://repo1.maven.org/maven2";
@@ -209,7 +257,10 @@ public class CreateConfig {
         builder.append(artifactId.replace('.', '-') + "-" + version);
 
         if (os != null) {
-            builder.append('-' + os.getShortName());
+            //TODO: not sure how to handel intel/arm for Mac, just support arm for now
+            String osShortName = OS.OTHER.equals(os)?"mac-aarch64":os.getShortName();
+            //String osShortName = OS.OTHER.equals(os)||OS.MAC.equals(os)?"mac-aarch64":os.getShortName();
+            builder.append('-' + osShortName);
         }
 
         builder.append(".jar");
@@ -217,12 +268,12 @@ public class CreateConfig {
         return builder.toString();
     }
 
-    private static String mavenUrl(String groupId, String artifactId, String version) {
+/*    private static String mavenUrl(String groupId, String artifactId, String version) {
         return mavenUrl(groupId, artifactId, version, null);
     }
-
+*/
     private static String extractJavafxURL(Path path, OS os) {
-        Pattern regex = Pattern.compile("javafx-([a-z]+)-([0-9.]+)(?:-(win|mac|linux))?\\.jar");
+        Pattern regex = Pattern.compile("javafx-([a-z]+)-([0-9.]+)(?:-(win|mac|linux|mac-aarch64))?\\.jar");
         Matcher match = regex.matcher(path.getFileName().toString());
 
         if (!match.find())
@@ -230,15 +281,24 @@ public class CreateConfig {
 
         String module = match.group(1);
         String version = match.group(2);
-        if (os == null && match.groupCount() > 2) {
-            os = OS.fromShortName(match.group(3));
+        version = "17.0.13";
+        String osArch = match.group(3);
+        if ((os == null || os.equals(OS.MAC)) && osArch != null) {
+            if(osArch.equals("mac-aarch64")){
+                os = OS.OTHER;
+            }
+            else {
+                os = OS.fromShortName(osArch);
+            }
         }
 
-        return mavenUrl("org.openjfx", "javafx." + module, version, os);
+        final String mavenUrl = mavenUrl("org.openjfx", "javafx." + module, version, os);
+        return mavenUrl;
     }
 
     private static String injectOs(String file, OS os) {
-        return file.replaceAll("(.+)\\.jar", "$1-" + os.getShortName() + ".jar");
+        String osName = OS.OTHER.equals(os)?"mac-aarch64":os.getShortName();
+        return file.replaceAll("(.+)\\.jar", "$1-" + osName + ".jar");
     }
 
     private static void cacheJavafx(String baseDir, String target) throws IOException {
@@ -252,7 +312,8 @@ public class CreateConfig {
                     if (!Files.isDirectory(cacheDir))
                         Files.createDirectory(cacheDir);
 
-                    for (OS os : EnumSet.of(OS.WINDOWS, OS.MAC, OS.LINUX)) {
+                    // use OTHER for MAC AARM
+                    for (OS os : EnumSet.of(OS.WINDOWS, OS.MAC, OS.LINUX, OS.OTHER)) {
                         Path file = cacheDir.resolve(injectOs(f.getFileName().toString(), os));
 
                         if (Files.notExists(file)) {

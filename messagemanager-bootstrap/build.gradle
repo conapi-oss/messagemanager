@@ -20,14 +20,14 @@ application {
 }
 
 javafx {
-    version = '17'
+    version = '17.0.13'
+    //version = '17'
     modules = [ 'javafx.controls', 'javafx.fxml' , 'javafx.graphics']
-    platform = 'win' // change or remove if building on non Windows platform, added as we need to be able to override it during build
+    //platform = 'win' // change or remove if building on non Windows platform, added as we need to be able to override it during build
 }
 
 ext {
-    javaFxVersion = '17'
-
+    //javaFxVersion = '17.0.13'
     appName = "Message Manager Bootstrap"
     appLauncher = "Message Manager"
     appPackaging = "messagemanager-bootstrap"
@@ -40,7 +40,7 @@ ext {
 }
 
 dependencies {
-    implementation 'org.update4j:update4j:1.5.9'
+    implementation 'org.update4j:update4j:1.5.10'
     implementation project(':messagemanager-app')
     implementation project(':messagemanager-bootstrap-config')
 }
@@ -114,6 +114,9 @@ build.dependsOn('createUpdate4JConfig')
 
 
 def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
+
+def isMac = System.properties['os.name'].toLowerCase().contains('mac')
+
 // setup builder
 setupBuilder {
     vendor = 'conapi gmbh'
@@ -153,10 +156,127 @@ setupBuilder {
             // optional, an icon file. Defaults to setupBuilder.icons
 //            icons          = "service.icns"
         }
+        //TODO: need to find a better way to do this
+        bundleJre = "c:/java/jdk17"
+        //bundleJre = 17
     }
 
-    //TODO: need to find a better way to do this
-    bundleJre = "c:/java/jdk17"
+   // bundleJre = 17
+
+    if(isMac) {
+        bundleJre = "/Library/Java/JavaVirtualMachines/amazon-corretto-17.jdk/Contents/Home"
+
+        desktopStarter {
+            displayName   = "Message Manager"
+            //description   = "This is an Application service"
+            location = com.inet.gradle.setup.abstracts.DesktopStarter.Location.ApplicationMenu
+            //ApplicationProgramsFolder
+
+            //executable = "launch.sh"
+            //workDir = "bin"
+
+            // optional, additional arguments to start the service with
+            //startArguments = "--open"
+            // optional, an icon file. Defaults to setupBuilder.icons
+//            icons          = "service.icns"
+
+            mainClass = 'at.conapi.messagemanager.bootstrap.ScriptLauncher'
+            mainJar = '../bootstrap/messagemanager-bootstrap.jar'
+            workDir = "bin"
+
+            //startArguments = '-Djavafx.embed.singleThread=true -DSolace_JMS_Browser_Timeout_In_MS=1000 -Djava.net.useSystemProxies=true'
+
+         //   architecture = "arm64"
+        }
+    }
+
+
+}
+
+dmg {
+    // The user the services will be executed with, defaults to root
+    daemonUser = "root"
+
+    architecture = ["arm64"]
+
+    // https://github.com/i-net-software/SetupBuilder/issues/124
+    jreIncludes = [ '**' ]
+    jreExcludes = [ '**/legal/**' ]
+
+    // optional, sets an application identifier for the DMG builder.
+    // It is being used as ID in the Info.plist
+    applicationIdentifier = "at.conapi.MessageManager"
+
+    // a background image used for the `.dmg` file
+    //backgroundImage = layout.projectDirectory.file("installer/setup_background.png").asFile
+
+    // the background image used in the `.pkg` installer file
+    //setupBackgroundImage = layout.projectDirectory.file("installer/setup_background.png").asFile
+
+    // the background image used in the `.pkg` installer file for dark mode
+    //setupDarkBackgroundImage = layout.projectDirectory.file("installer/setup_background.png").asFile
+
+    // optional, the icon of the `.pkg` installer file
+    setupIcon = "src/main/resources/icons/conapi.icns"
+
+    // a Java java.awt.Color Object - used as background color in the `.dmg` image
+    backgroundColor = new java.awt.Color( 240, 236, 232);
+
+    // optional, sets the `.dmg` window width
+    windowWidth = 400
+
+    // optional, sets the `.dmg` window height
+    windowHeight = 300
+
+    // optional, width correction of the `.dmg` window
+    // this may be needed if there is a background-image
+    // set which does not take the borders of the window into account
+    windowWidthCorrection = 0
+
+    // optional, height correction of the `.dmg` window
+    // this may be needed if there is a background-image
+    // set which does not take the borders of the window into account
+    windowHeightCorrection = 22
+
+    // optional, the size of the icons in the `.dmg`. Defaults to 128
+    iconSize = 128
+
+    // optional, the fontSize of the `.dmg` file names displayed below the application items
+    fontSize = 14
+
+    // definition of the first page displayed in a package installer
+    // can be defined multiple times
+    //welcomePage { ... }
+
+    // definition of the last page displayed in a package installer
+    // can be defined multiple times
+    //conclusionPage { ... }
+
+    // Code Signing information
+    /*codeSign {
+        // the "Common Name" part of the certificate
+        identity = "conapi GmbH"
+        //pkcs11-tool --module /opt/homebrew/lib/opensc-pkcs11.so --list-objects --type cert
+        //identity = "pkcs11:model=PKCS%2315%20emulated;manufacturer=piv_II;serial=eb93e153acc8f0d4;token=conapi%20GmbH;id=%01;object=Certificate%20for%20PIV%20Authentication;type=cert"
+
+        //  Specific Identifier to embed in code (option -i)
+        //identifier = "conapi GmbH"
+        identifier = "7F5EB3F7CCFC83EC01F30C56FA396572DD928512"
+
+        // The keychain used for signing. It has to be unlocked
+        keychain = "System"
+        //keychain = "PKCS11:/opt/homebrew/lib/opensc-pkcs11.so"
+
+
+        // password to unlock the keychain
+        //keychainPassword = "123456"
+
+        // if true, will ignore errors during code sign operations
+        ignoreError = false
+
+        // if true, will perform a deepsign for 3rd party packages as well
+        deepsign = false
+    }*/
 }
 
 // see https://github.com/i-net-software/SetupBuilder/wiki/DSL-of-Windows-Builder

@@ -25,6 +25,9 @@ if exist "%MM_HOME%\jre\" (
 rem  assuming this is run from bin
 cd ..
 
+rem cleanup
+if exist ".\bin\cleanup.cmd" call ".\bin\cleanup.cmd"
+
 rem allow user to set additional JVM options i.e. truststore
 if exist ".\bin\setenv.cmd" call ".\bin\setenv.cmd"
 

@@ -33,9 +33,11 @@ def sonicLibsToExtractV12 = [
 
 tasks.register('deleteTempSonicSubfolder', Delete){
     doLast {
+
         fileTree(dir: "$projectDir/.sonic-libs/compileOnly").exclude("*.jar").visit { FileVisitDetails details ->
            delete details.file
         }
+
         println "Deleted temporary folders in: $projectDir/.sonic-libs/compileOnly"
     }
     dependsOn processSonicJars
@@ -52,12 +54,12 @@ tasks.register('processSonicJars', Task) {
         println 'Creating Sonic libs directory: ' + libsDir
         // Check if the folder for MQ10.0 exists
         def sonicHome = "${System.getenv('SONIC_HOME')}"
-        def sonicLibsFolder = "${sonicHome}\\MQ10.0"
+        def sonicLibsFolder = "${sonicHome}/MQ10.0"
         def chosenSonicLibs = new File(sonicLibsFolder).exists() ? sonicLibsToExtractV10 : sonicLibsToExtractV12
 
         chosenSonicLibs.each { jarFileName ->
             def jarFile = new File(jarFileName)
-            def extractedJar = new File(project.projectDir, ".sonic-libs/compileOnly/" + jarFile.name.replace(".jar", ""))
+            def extractedJar = new File(project.projectDir, ".sonic-libs/compileOnly/" + jarFile.getName().replace(".jar", ""))
             // Extract JARs and remove unwanted classes ( javax should not be bundled)
             copy {
                 from project.zipTree(jarFile)
@@ -67,8 +69,21 @@ tasks.register('processSonicJars', Task) {
 
             println "Extracted JAR: $jarFileName" // Print progress
 
+            def fileName = new File(jarFile.toString()).getName().split('\\\\')[-1]
+            println fileName
+
+            // on Mac the automatic module name is using _ and on windows it uses .
+            // therefore we set it to make sure intellij does not complain
+
+            def manifestFile = new File(extractedJar, "META-INF/MANIFEST.MF")
+            ant.manifest(file: manifestFile, mode: "update") {
+                attribute(name: 'Automatic-Module-Name', value: fileName.replace('.jar', '').replace('_', '.'))
+            }
+
+            println "Updated manifest with Automatic-Module-Name: ${fileName.replace('.jar', '').replace('-', '.')}"
+
             // Repackage extracted files into JAR using ANT as all other approaches failed with Gradle 8+
-            def repackagedJar = new File(project.projectDir, ".sonic-libs/compileOnly/" + jarFile.name)
+            def repackagedJar = new File(project.projectDir, ".sonic-libs/compileOnly/" + fileName)
             println "Recreating JAR: " + extractedJar
             ant.zip(destfile: repackagedJar) {
                 FileSet(dir: extractedJar)
@@ -112,7 +127,24 @@ dependencies {
     //compileOnly 'javax.activation:activation:1.1.1' // if this is set then remove the activation lines form modules-info
     implementation 'com.sun.activation:javax.activation:1.2.0'
 
-    compileOnly fileTree(dir: '.sonic-libs/compileOnly', includes: ['*.jar'])
+    //compileOnly fileTree(dir: '.sonic-libs/compileOnly/', includes: ['*.jar'])
+    compileOnly fileTree(dir: "${projectDir}/.sonic-libs/compileOnly/", includes: ['*.jar'])
+
+}
+
+task printModuleInfo {
+    doLast {
+        def jarDir = file('.sonic-libs/compileOnly/')
+        jarDir.eachFile { File file ->
+            if (file.name.endsWith('.jar')) {
+                println "Analyzing ${file.name}:"
+                def process = "jar --describe-module --file ${file}".execute()
+                def output = process.in.text
+                println output
+                println "-------------------"
+            }
+        }
+    }
 }
 
 compileJava.dependsOn deleteTempSonicSubfolder
