@@ -6,4 +6,8 @@
 # export JVM_OPTS="-Djava.net.useSystemProxies=true -Djavafx.embed.singleThread=true -DSolace_JMS_Browser_Timeout_In_MS=1000"
 
 # Use LAUNCHER_JAVA to specify the Java executable to use
-export LAUNCHER_JAVA=$JAVA_HOME/bin/java
+
+# MACOS DMG: note that if you set LAUNCHER_JAVA, then you can no longer use the launchpad to start the application
+# you will need to use the terminal to start the application and run launch.sh in bin folder
+
+#export LAUNCHER_JAVA=$JAVA_HOME/bin/java

@@ -34,6 +34,11 @@ ext {
     appModuleName = "messagemanager.bootstrap"
     appMainClass = "at.conapi.messagemanager.bootstrap.App"
 
+    bundleJreArm64 = "/Library/Java/JavaVirtualMachines/amazon-corretto-17.jdk/Contents/Home"
+    //use a proper x86_64 version
+    bundleJreX86_64 = "/Users/stefan/Projects/conapi-oss/build-jdk/x64/amazon-corretto-17.jdk/Contents/Home"
+    bundleJreWindows= "c:/java/jdk17"
+
     bootstrapRoot = "${project.layout.buildDirectory.asFile.get()}/root" as GStringImpl
     bootstrapTarget = "${bootstrapRoot}/target" as GStringImpl
     bootstrapConfigLocation= "${bootstrapTarget}/config" as GStringImpl
@@ -116,6 +121,8 @@ build.dependsOn('createUpdate4JConfig')
 def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
 
 def isMac = System.properties['os.name'].toLowerCase().contains('mac')
+def currentDmgTask = project.gradle.startParameter.taskNames.find { it.startsWith('dmg_') }
+def currentMsiTask = project.gradle.startParameter.taskNames.find { it.startsWith('msi') }
 
 // setup builder
 setupBuilder {
@@ -141,8 +148,9 @@ setupBuilder {
     //mainClass = 'com.inet.testapplication.TestLauncher'
     //mainJar = 'testBuilds.jar'
 
-    if(isWindows) {
-        // https://github.com/i-net-software/SetupBuilder/wiki/DSL-of-desktopStarter
+    //if(isWindows) {
+    if( currentMsiTask?.startsWith('msi') ) {
+            // https://github.com/i-net-software/SetupBuilder/wiki/DSL-of-desktopStarter
         desktopStarter {
             displayName   = "Message Manager"
             //description   = "This is an Application service"
@@ -154,18 +162,23 @@ setupBuilder {
             //startArguments = "--open"
 
             // optional, an icon file. Defaults to setupBuilder.icons
-//            icons          = "service.icns"
+            //  icons          = "service.icns"
         }
-        //TODO: need to find a better way to do this
-        bundleJre = "c:/java/jdk17"
-        //bundleJre = 17
+        bundleJre = project.ext.bundleJreWindows
     }
 
-   // bundleJre = 17
 
-    if(isMac) {
-        bundleJre = "/Library/Java/JavaVirtualMachines/amazon-corretto-17.jdk/Contents/Home"
 
+    if(currentDmgTask?.startsWith('dmg')){ //isMac) {
+       // bundleJre = "/Library/Java/JavaVirtualMachines/amazon-corretto-17.jdk/Contents/Home"
+
+        if (currentDmgTask == 'dmg_arm64') {
+            bundleJre = project.ext.bundleJreArm64
+        } else if (currentDmgTask == 'dmg_x86_64') {
+            bundleJre = project.ext.bundleJreX86_64
+        } else {
+          //default
+        }
         desktopStarter {
             displayName   = "Message Manager"
             //description   = "This is an Application service"
@@ -191,92 +204,6 @@ setupBuilder {
     }
 
 
-}
-
-dmg {
-    // The user the services will be executed with, defaults to root
-    daemonUser = "root"
-
-    architecture = ["arm64"]
-
-    // https://github.com/i-net-software/SetupBuilder/issues/124
-    jreIncludes = [ '**' ]
-    jreExcludes = [ '**/legal/**' ]
-
-    // optional, sets an application identifier for the DMG builder.
-    // It is being used as ID in the Info.plist
-    applicationIdentifier = "at.conapi.MessageManager"
-
-    // a background image used for the `.dmg` file
-    //backgroundImage = layout.projectDirectory.file("installer/setup_background.png").asFile
-
-    // the background image used in the `.pkg` installer file
-    //setupBackgroundImage = layout.projectDirectory.file("installer/setup_background.png").asFile
-
-    // the background image used in the `.pkg` installer file for dark mode
-    //setupDarkBackgroundImage = layout.projectDirectory.file("installer/setup_background.png").asFile
-
-    // optional, the icon of the `.pkg` installer file
-    setupIcon = "src/main/resources/icons/conapi.icns"
-
-    // a Java java.awt.Color Object - used as background color in the `.dmg` image
-    backgroundColor = new java.awt.Color( 240, 236, 232);
-
-    // optional, sets the `.dmg` window width
-    windowWidth = 400
-
-    // optional, sets the `.dmg` window height
-    windowHeight = 300
-
-    // optional, width correction of the `.dmg` window
-    // this may be needed if there is a background-image
-    // set which does not take the borders of the window into account
-    windowWidthCorrection = 0
-
-    // optional, height correction of the `.dmg` window
-    // this may be needed if there is a background-image
-    // set which does not take the borders of the window into account
-    windowHeightCorrection = 22
-
-    // optional, the size of the icons in the `.dmg`. Defaults to 128
-    iconSize = 128
-
-    // optional, the fontSize of the `.dmg` file names displayed below the application items
-    fontSize = 14
-
-    // definition of the first page displayed in a package installer
-    // can be defined multiple times
-    //welcomePage { ... }
-
-    // definition of the last page displayed in a package installer
-    // can be defined multiple times
-    //conclusionPage { ... }
-
-    // Code Signing information
-    /*codeSign {
-        // the "Common Name" part of the certificate
-        identity = "conapi GmbH"
-        //pkcs11-tool --module /opt/homebrew/lib/opensc-pkcs11.so --list-objects --type cert
-        //identity = "pkcs11:model=PKCS%2315%20emulated;manufacturer=piv_II;serial=eb93e153acc8f0d4;token=conapi%20GmbH;id=%01;object=Certificate%20for%20PIV%20Authentication;type=cert"
-
-        //  Specific Identifier to embed in code (option -i)
-        //identifier = "conapi GmbH"
-        identifier = "7F5EB3F7CCFC83EC01F30C56FA396572DD928512"
-
-        // The keychain used for signing. It has to be unlocked
-        keychain = "System"
-        //keychain = "PKCS11:/opt/homebrew/lib/opensc-pkcs11.so"
-
-
-        // password to unlock the keychain
-        //keychainPassword = "123456"
-
-        // if true, will ignore errors during code sign operations
-        ignoreError = false
-
-        // if true, will perform a deepsign for 3rd party packages as well
-        deepsign = false
-    }*/
 }
 
 // see https://github.com/i-net-software/SetupBuilder/wiki/DSL-of-Windows-Builder
@@ -340,6 +267,144 @@ msi {
     runAfterIsOptional = true
 }
 
+
+
+// Define a new task for ARM64 DMG
+tasks.register('dmg_arm64', com.inet.gradle.setup.dmg.Dmg) {
+
+    group = 'distribution'
+    description = 'Builds a DMG for ARM64 architecture'
+
+    architecture = ["arm64"]
+
+}
+
+// Define a new task for x86_64 DMG
+tasks.register('dmg_x86_64', com.inet.gradle.setup.dmg.Dmg) {
+    group = 'distribution'
+    description = 'Builds a DMG for x86_64 architecture'
+    architecture = ["x86_64"]
+
+}
+
+// Add rename tasks for each DMG
+tasks.register('renameDmgArm64') {
+    doLast {
+        def dir = "${project.layout.buildDirectory.asFile.get()}/distributions"
+        def version = project.version.toString().replaceAll('-SNAPSHOT','')
+        ant.move(
+                file: "${dir}/MessageManager-${version}.dmg",
+                tofile: "${dir}/MessageManager-arm64.dmg"
+        )
+    }
+}
+
+tasks.register('renameDmgX86_64') {
+    doLast {
+        def dir = "${project.layout.buildDirectory.asFile.get()}/distributions"
+        def version = project.version.toString().replaceAll('-SNAPSHOT','')
+        ant.move(
+                file: "${dir}/MessageManager-${version}.dmg",
+                tofile: "${dir}/MessageManager-x64.dmg"
+        )
+    }
+}
+
+// Update the DMG tasks to use the rename tasks
+dmg_arm64.finalizedBy('renameDmgArm64')
+dmg_x86_64.finalizedBy('renameDmgX86_64')
+
+
+// Copy the rest of the DMG configuration to both tasks
+[dmg_arm64, dmg_x86_64].each { task ->
+    task.configure {
+        // Copy all properties from the main dmg configuration
+
+        // The user the services will be executed with, defaults to root
+        daemonUser = "root"
+
+        // https://github.com/i-net-software/SetupBuilder/issues/124
+        jreIncludes = [ '**' ]
+        jreExcludes = [ '**/legal/**' ]
+
+        // optional, sets an application identifier for the DMG builder.
+        // It is being used as ID in the Info.plist
+        applicationIdentifier = "at.conapi.MessageManager"
+
+        // a background image used for the `.dmg` file
+        //backgroundImage = layout.projectDirectory.file("installer/setup_background.png").asFile
+
+        // the background image used in the `.pkg` installer file
+        //setupBackgroundImage = layout.projectDirectory.file("installer/setup_background.png").asFile
+
+        // the background image used in the `.pkg` installer file for dark mode
+        //setupDarkBackgroundImage = layout.projectDirectory.file("installer/setup_background.png").asFile
+
+        // optional, the icon of the `.pkg` installer file
+        setupIcon = "src/main/resources/icons/conapi.icns"
+
+        // a Java java.awt.Color Object - used as background color in the `.dmg` image
+        backgroundColor = new java.awt.Color( 240, 236, 232);
+
+        // optional, sets the `.dmg` window width
+        windowWidth = 400
+
+        // optional, sets the `.dmg` window height
+        windowHeight = 300
+
+        // optional, width correction of the `.dmg` window
+        // this may be needed if there is a background-image
+        // set which does not take the borders of the window into account
+        windowWidthCorrection = 0
+
+        // optional, height correction of the `.dmg` window
+        // this may be needed if there is a background-image
+        // set which does not take the borders of the window into account
+        windowHeightCorrection = 22
+
+        // optional, the size of the icons in the `.dmg`. Defaults to 128
+        iconSize = 128
+
+        // optional, the fontSize of the `.dmg` file names displayed below the application items
+        fontSize = 14
+
+        // definition of the first page displayed in a package installer
+        // can be defined multiple times
+        //welcomePage { ... }
+
+        // definition of the last page displayed in a package installer
+        // can be defined multiple times
+        //conclusionPage { ... }
+
+        // Code Signing information
+        /*codeSign {
+            // the "Common Name" part of the certificate
+            identity = "conapi GmbH"
+            //pkcs11-tool --module /opt/homebrew/lib/opensc-pkcs11.so --list-objects --type cert
+            //identity = "pkcs11:model=PKCS%2315%20emulated;manufacturer=piv_II;serial=eb93e153acc8f0d4;token=conapi%20GmbH;id=%01;object=Certificate%20for%20PIV%20Authentication;type=cert"
+
+            //  Specific Identifier to embed in code (option -i)
+            //identifier = "conapi GmbH"
+            identifier = "7F5EB3F7CCFC83EC01F30C56FA396572DD928512"
+
+            // The keychain used for signing. It has to be unlocked
+            keychain = "System"
+            //keychain = "PKCS11:/opt/homebrew/lib/opensc-pkcs11.so"
+
+
+            // password to unlock the keychain
+            //keychainPassword = "123456"
+
+            // if true, will ignore errors during code sign operations
+            ignoreError = false
+
+            // if true, will perform a deepsign for 3rd party packages as well
+            deepsign = false
+        }*/
+    }
+}
+
+
 // usually we do NOT want to ship/upload these as the update4j pulls them from Maven repository
 // but in some companies the automatic update fails and therefore we are forced to do this
 //tasks.register('copyJavaFxJarsForMsi', Copy) {
@@ -363,14 +428,25 @@ tasks.register('renameMsi') {
 //msi.dependsOn('jar','copyAllPlatformsJavaFxLibs')
 // the jar dependency causes the has to be invalid as jar is rebuilt before the upload
 msi.dependsOn('copyAllPlatformsJavaFxLibs')
-
 msi.finalizedBy('renameMsi','buildOtherDistributions')
+
+// only would make sense if arch specific libs are used for mac
+//dmg_arm64.dependsOn('copyAllPlatformsJavaFxLibs')
+//dmg_x86_64.dependsOn('copyAllPlatformsJavaFxLibs')
 
 // tasks to create the tar.gz and zip files
 // also create a minimal bootstrap version
 // needs to be run after msi
 tasks.register('buildOtherDistributions') {
-    dependsOn('msi')
+/*    if(isWindows) {
+       dependsOn('msi')
+    }
+
+    if(isMac) {
+        dependsOn('dmg_arm64')
+        dependsOn('dmg_x86_64')
+    }
+*/
     dependsOn('buildTarGz')
     dependsOn('buildZip')
     dependsOn('buildMiniTarGz')
@@ -379,9 +455,9 @@ tasks.register('buildOtherDistributions') {
 }
 
 tasks.register('deleteTempDistributionFiles', Delete){
-    doLast {
-        fileTree(dir: project.layout.buildDirectory.dir("distributions")).exclude("MessageManager*.*").visit { FileVisitDetails details ->
-            delete details.file
+    delete {
+        fileTree(dir: project.layout.buildDirectory.dir("distributions")).matching {
+            exclude "MessageManager*.*"
         }
     }
 }
