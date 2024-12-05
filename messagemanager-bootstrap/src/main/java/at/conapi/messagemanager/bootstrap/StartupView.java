@@ -201,11 +201,11 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 		run(checkUpdates);
 	}
 
-	private void fadeOut(){
+	private void fadeOut() {
 		//to have a smooth transition
 		mainStage.getScene().setFill(Color.TRANSPARENT);
 
-        // show for at least some time, without the outer transition the behavior was not consistent
+		// show for at least some time, without the outer transition the behavior was not consistent
 		FadeTransition fakeFadeShowSplash = new FadeTransition(Duration.seconds(2), mainStage.getScene().getRoot());
 		fakeFadeShowSplash.setFromValue(1);
 		fakeFadeShowSplash.setToValue(1);
@@ -215,6 +215,13 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 			fadeOut.setFromValue(1);
 			fadeOut.setToValue(0);
 			fadeOut.setCycleCount(1);
+			fadeOut.setOnFinished((event) -> {
+				// Hide the main stage after the fade-out is complete
+				Platform.runLater(() -> {
+					mainStage.hide();
+					mainStage.setOpacity(0);
+				});
+			});
 			fadeOut.play();
 		});
 		fakeFadeShowSplash.play();

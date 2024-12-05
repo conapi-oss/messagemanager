@@ -43,8 +43,8 @@ public class MessageCountTableCellRenderer extends DefaultTableCellRenderer {
 		if (!isSelected) {
 			int amount = (value instanceof Integer) ? (Integer) value : 0;
 			if (amount > 0) {
-				cell.setForeground(Color.WHITE);
-				cell.setBackground(Color.RED);
+				cell.setForeground(Color.BLACK);
+				cell.setBackground(Color.decode("#e0de2a"));
 			} else {
 				cell.setForeground((Color) UIManager.get("Table.foreground"));
 				cell.setBackground((Color) UIManager.get("Table.background"));

@@ -30,8 +30,7 @@ import java.util.Collections;
 import java.util.Observer;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 public class TestJMSSubscriber {
@@ -65,7 +64,7 @@ public class TestJMSSubscriber {
 	public void testReceiveMessage() {
 		buffer.onMessage(MessageFactory.createMessage());
 
-		verify(observer).update(eq(subscriber), anyObject());
+		verify(observer).update(eq(subscriber), any());
 		
 		assertEquals(1, subscriber.getMessageCount());
 	}
@@ -73,7 +72,7 @@ public class TestJMSSubscriber {
 	@Test
 	public void testProcessEvent() {
 		subscriber.processEvent(null);
-		verify(observer).update(eq(subscriber), anyObject());
+		verify(observer).update(eq(subscriber), any());
 	}
 
 	@Test
@@ -81,7 +80,7 @@ public class TestJMSSubscriber {
 		Message message = MessageFactory.createMessage();
 		
 		buffer.onMessage(message);
-		verify(observer).update(eq(subscriber), anyObject());
+		verify(observer).update(eq(subscriber), any());
 		
 		assertEquals(1, subscriber.getMessageCount());
 		
@@ -95,7 +94,7 @@ public class TestJMSSubscriber {
 		buffer.onMessage(MessageFactory.createMessage());
 		buffer.onMessage(MessageFactory.createMessage());
 		
-		verify(observer, times(2)).update(eq(subscriber), anyObject());
+		verify(observer, times(2)).update(eq(subscriber), any());
 		
 		assertEquals(2, subscriber.getMessageCount());
 	}
@@ -120,7 +119,7 @@ public class TestJMSSubscriber {
 		assertEquals(3, buffer.getMessageCount());
 		assertTrue(buffer.getMessages().contains(message));
 		
-		verify(observer, times(9)).update(eq(subscriber), anyObject());
+		verify(observer, times(9)).update(eq(subscriber), any());
 	}
 	
 	@Test
@@ -145,7 +144,7 @@ public class TestJMSSubscriber {
 
 		assertFalse(buffer.getMessages().contains(message));
 		
-		verify(observer, times(7)).update(eq(subscriber), anyObject());
+		verify(observer, times(7)).update(eq(subscriber), any());
 	}
 	
 	@Test
@@ -162,12 +161,12 @@ public class TestJMSSubscriber {
 		buffer.lockMessage(m2);
 		buffer.onMessage(m3);
 		buffer.lockMessage(m3);
-		verify(observer, times(3)).update(eq(subscriber), anyObject());
+		verify(observer, times(3)).update(eq(subscriber), any());
 		
 		assertEquals(3, buffer.getMessageCount());
 		
 		buffer.onMessage(m4);
-		verify(observer, times(4)).update(eq(subscriber), anyObject());
+		verify(observer, times(4)).update(eq(subscriber), any());
 		
 		assertEquals(4, buffer.getMessageCount());		
 	}
@@ -186,19 +185,19 @@ public class TestJMSSubscriber {
 		buffer.lockMessage(m2);
 		buffer.onMessage(m3);
 		buffer.lockMessage(m3);
-		verify(observer, times(3)).update(eq(subscriber), anyObject());
+		verify(observer, times(3)).update(eq(subscriber), any());
 		
 		assertEquals(3, buffer.getMessageCount());
 		
 		buffer.onMessage(m4);
-		verify(observer, times(4)).update(eq(subscriber), anyObject());
+		verify(observer, times(4)).update(eq(subscriber), any());
 		
 		assertEquals(4, buffer.getMessageCount());		
 
 		buffer.unlockAll();
 		
 		buffer.onMessage(MessageFactory.createMessage());
-		verify(observer, times(7)).update(eq(subscriber), anyObject());
+		verify(observer, times(7)).update(eq(subscriber), any());
 
 		assertEquals(3, buffer.getMessageCount());
 	}

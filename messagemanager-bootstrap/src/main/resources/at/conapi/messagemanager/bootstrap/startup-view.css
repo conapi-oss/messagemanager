@@ -1,6 +1,6 @@
 
 #primary {
-	-fx-background-color: #e1df27;
+	-fx-background-color: #e0de2a;
 	-fx-max-height: 5;
 }
 
@@ -10,5 +10,5 @@
 }
 
 #status {
-    -fx-text-fill: #e1df27ff;
+    -fx-text-fill: #e0de2aff;
 }

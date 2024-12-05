@@ -8,7 +8,7 @@ import java.awt.*;
 public class MMJTable extends JTable {
 
 	protected HighlightsModel<?> highlightsModel;
-	private Color highlightColor = Color.decode("#e1df27");
+	private Color highlightColor = Color.decode("#e0de2a");
 
 
 	@Override
