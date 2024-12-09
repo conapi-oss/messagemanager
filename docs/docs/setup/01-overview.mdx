@@ -1,6 +1,6 @@
 # Overview
 
-Message Manager is available as a standalone application for Windows, Linux and MacOS.
+Message Manager is available as a standalone application for Windows, Linux and macOS.
 
 
 ## Download
@@ -22,6 +22,22 @@ The Free version comes with a 30-day trial period for the Commercial version.
 Depending on your operating system, you can download the installer or one of the zip/tar.gz packages.
 
 
+# DMG (macOS)
+
+:::note
+
+This option is recommended for macOS users and comes with a bundled JRE 17.
+
+:::
+
+To install Message Manager, follow these steps:
+
+1. Download the latest version of Message Manager DMG from the [official website](https://www.conapi.at/message-manager).
+2. Open the DMG and follow the on-screen instructions.
+3. Once the installation is complete, you can launch Message Manager by double-clicking on the icon in the start menu.
+4. The runtime configuration and updated JARs will be downloaded to: "~/Library/Application Support/conapi/Message Manager"
+
+
 # Installer (Windows)
 
 :::note
@@ -37,7 +53,7 @@ To install Message Manager, follow these steps:
 3. Once the installation is complete, you can launch Message Manager by double-clicking on the icon in the start menu.
 
 
-# Generic Installation (Windows, Linux, MacOS)
+# Generic Installation (Windows, Linux, macOS)
 
 :::note
 
@@ -62,7 +78,15 @@ There is also a Launcher-Only version available. This download only contains the
 
 # Custom Environment Script
 
-In the bin folder of the installation package, there is a file named "setenv.sh.template" (Linux/MacOS) and "setenv.cmd.template" (Windows) in this folder.
+In the bin folder of the installation package, there is a file named "setenv.sh.template" (Linux/acOS) and "setenv.cmd.template" (Windows) in this folder.
+
+
+:::note
+
+For macOS you find this file in "~/Library/Application Support/conapi/Message Manager/bin"
+
+:::
+
 
 Rename the file for your operating system by removing the ".template" extension. Then open the file (setenv.sh or setenv.cmd) in a text editor.
 
@@ -75,7 +99,7 @@ rem Use LAUNCHER_JAVA to specify the Java executable to use
 set LAUNCHER_JAVA=%JAVA_HOME%\bin\java.exe
 ```
 
-Linux/MacOS Example:
+Linux/macOS Example:
 ```bash title="setenv.sh"
 #!/bin/bash
 

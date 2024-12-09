@@ -10,8 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ScriptLauncher {
+
     public static void main(String[] args) {
-        //String scriptPath = System.getProperty("user.dir") + File.separator + "launch.sh";
+        Path workingDir = getWorkingDirectory();
         String scriptPath = "./launch.sh";
 
         List<String> command = new ArrayList<>();
@@ -19,9 +20,11 @@ public class ScriptLauncher {
         command.add(scriptPath);
 
         // fix permission
-        makeScriptExecutable();
+        makeScriptExecutable(workingDir);
 
+        System.out.println("Launching from working directory: " + workingDir);
         ProcessBuilder processBuilder = new ProcessBuilder(command);
+        processBuilder.directory(workingDir.toFile());
         processBuilder.inheritIO();
 
         try {
@@ -38,8 +41,26 @@ public class ScriptLauncher {
         }
     }
 
-    private static void makeScriptExecutable() {
-        System.out.println("Processing " + Path.of("").toAbsolutePath() );
+    private static Path getWorkingDirectory() {
+        if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+            Path appSupportDir = Path.of(System.getProperty("user.home"))
+                    .resolve("Library")
+                    .resolve("Application Support")
+                    .resolve("conapi")
+                    .resolve("Message Manager");
+
+            // If directory exists and contains launch.sh, use it
+            if (Files.exists(appSupportDir.resolve("bin").resolve("launch.sh"))) {
+                return appSupportDir.resolve("bin");
+            }
+        }
+
+        // Default: return current directory (bin)
+        return Path.of("").toAbsolutePath();
+    }
+
+    private static void makeScriptExecutable(Path workingDir) {
+        System.out.println("Processing " + workingDir.toAbsolutePath() );
         try (DirectoryStream<Path> stream = java.nio.file.Files.newDirectoryStream(Path.of(""), "*.sh")) {
             stream.forEach(script -> {
                 System.out.println("Setting execute permission for: "+ script );

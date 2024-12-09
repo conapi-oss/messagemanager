@@ -34,10 +34,10 @@ ext {
     appModuleName = "messagemanager.bootstrap"
     appMainClass = "at.conapi.messagemanager.bootstrap.App"
 
-    bundleJreArm64 = "/Library/Java/JavaVirtualMachines/amazon-corretto-17.jdk/Contents/Home"
+    bundleJreArm64 = "/Users/stefan/Projects/conapi-oss/build-jdk/aarch64/jdk-17.0.13+11-jre/Contents/Home"
     //use a proper x86_64 version
-    bundleJreX86_64 = "/Users/stefan/Projects/conapi-oss/build-jdk/x64/amazon-corretto-17.jdk/Contents/Home"
-    bundleJreWindows= "c:/java/jdk17"
+    bundleJreX86_64 = "/Users/stefan/Projects/conapi-oss/build-jdk/x64/jdk-17.0.13+11-jre/Contents/Home"
+    bundleJreWindows= "c:/java/jdk-17.0.13+11-jre"
 
     bootstrapRoot = "${project.layout.buildDirectory.asFile.get()}/root" as GStringImpl
     bootstrapTarget = "${bootstrapRoot}/target" as GStringImpl
@@ -141,16 +141,21 @@ setupBuilder {
     icons = "src/main/resources/icons/conapi.icns"
 
     // all files for all platforms
-    from( bootstrapConfigLocation ) {
-        include '**/*'
-    }
+   // from( bootstrapConfigLocation ) {
+   //     include '**/*'
+   // }
 
     //mainClass = 'com.inet.testapplication.TestLauncher'
     //mainJar = 'testBuilds.jar'
 
     //if(isWindows) {
     if( currentMsiTask?.startsWith('msi') ) {
-            // https://github.com/i-net-software/SetupBuilder/wiki/DSL-of-desktopStarter
+
+        from( bootstrapConfigLocation ) {
+            include '**/*'
+        }
+
+        // https://github.com/i-net-software/SetupBuilder/wiki/DSL-of-desktopStarter
         desktopStarter {
             displayName   = "Message Manager"
             //description   = "This is an Application service"
@@ -172,6 +177,14 @@ setupBuilder {
     if(currentDmgTask?.startsWith('dmg')){ //isMac) {
        // bundleJre = "/Library/Java/JavaVirtualMachines/amazon-corretto-17.jdk/Contents/Home"
 
+        // cannot do a full dmg as the notarization process will fail due to unsnigned native libs i.e. in flatlaf
+        from( bootstrapConfigLocation ) {
+            include '**/*.txt'
+            include '**/setup.xml'
+            include 'bootstrap/*'
+            include 'bin/launch.sh'
+        }
+
         if (currentDmgTask == 'dmg_arm64') {
             bundleJre = project.ext.bundleJreArm64
         } else if (currentDmgTask == 'dmg_x86_64') {
@@ -181,11 +194,12 @@ setupBuilder {
         }
         desktopStarter {
             displayName   = "Message Manager"
+
             //description   = "This is an Application service"
             location = com.inet.gradle.setup.abstracts.DesktopStarter.Location.ApplicationMenu
             //ApplicationProgramsFolder
 
-            //executable = "launch.sh"
+            //executable = "messagemanager"
             //workDir = "bin"
 
             // optional, additional arguments to start the service with
@@ -271,12 +285,9 @@ msi {
 
 // Define a new task for ARM64 DMG
 tasks.register('dmg_arm64', com.inet.gradle.setup.dmg.Dmg) {
-
     group = 'distribution'
     description = 'Builds a DMG for ARM64 architecture'
-
     architecture = ["arm64"]
-
 }
 
 // Define a new task for x86_64 DMG
@@ -284,7 +295,6 @@ tasks.register('dmg_x86_64', com.inet.gradle.setup.dmg.Dmg) {
     group = 'distribution'
     description = 'Builds a DMG for x86_64 architecture'
     architecture = ["x86_64"]
-
 }
 
 // Add rename tasks for each DMG
@@ -377,20 +387,14 @@ dmg_x86_64.finalizedBy('renameDmgX86_64')
         //conclusionPage { ... }
 
         // Code Signing information
-        /*codeSign {
+        codeSign {
             // the "Common Name" part of the certificate
-            identity = "conapi GmbH"
-            //pkcs11-tool --module /opt/homebrew/lib/opensc-pkcs11.so --list-objects --type cert
-            //identity = "pkcs11:model=PKCS%2315%20emulated;manufacturer=piv_II;serial=eb93e153acc8f0d4;token=conapi%20GmbH;id=%01;object=Certificate%20for%20PIV%20Authentication;type=cert"
-
+            identity = "CONAPI GmbH"
             //  Specific Identifier to embed in code (option -i)
-            //identifier = "conapi GmbH"
-            identifier = "7F5EB3F7CCFC83EC01F30C56FA396572DD928512"
+            identifier = "conapi GmbH"
 
             // The keychain used for signing. It has to be unlocked
             keychain = "System"
-            //keychain = "PKCS11:/opt/homebrew/lib/opensc-pkcs11.so"
-
 
             // password to unlock the keychain
             //keychainPassword = "123456"
@@ -399,8 +403,26 @@ dmg_x86_64.finalizedBy('renameDmgX86_64')
             ignoreError = false
 
             // if true, will perform a deepsign for 3rd party packages as well
-            deepsign = false
-        }*/
+            deepsign = true
+
+            entitlements = '''<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>com.apple.security.cs.allow-jit</key>
+    <true/>
+    <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+    <true/>
+    <key>com.apple.security.cs.disable-library-validation</key>
+    <true/>
+    <key>com.apple.security.cs.disable-executable-page-protection</key>
+    <true/>
+    <key>com.apple.security.cs.allow-dyld-environment-variables</key>
+    <true/>
+</dict>
+</plist>'''
+
+        }
     }
 }
 

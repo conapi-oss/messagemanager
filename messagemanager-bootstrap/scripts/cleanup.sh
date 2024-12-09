@@ -4,15 +4,15 @@
 echo "Checking for $MM_HOME/bootstrap/update4j.jar.new"
 if [ -f "$MM_HOME/bootstrap/update4j.jar.new" ]; then
     echo "Upgrading Update4J jar"
-    rm -f $MM_HOME/bootstrap/update4j.jar.old
-    mv $MM_HOME/bootstrap/update4j.jar $MM_HOME/bootstrap/update4j.jar.old
+    rm -f "$MM_HOME/bootstrap/update4j.jar.old"
+    mv "$MM_HOME/bootstrap/update4j.jar" "$MM_HOME/bootstrap/update4j.jar.old"
     # copy as update will anyway download it again on next start
-    cp $MM_HOME/bootstrap/update4j.jar.new $MM_HOME/bootstrap/update4j.jar
+    cp "$MM_HOME/bootstrap/update4j.jar.new" "$MM_HOME/bootstrap/update4j.jar"
 fi
 
 # remove previously failed update
 if [ -f "$MM_HOME/update.zip" ]; then
-    rm -f $MM_HOME/update.zip
+    rm -f "$MM_HOME/update.zip"
 fi
 
 # remove previously used javafx files that had the os name in it, mainly a mac issue
