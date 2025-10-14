@@ -67,9 +67,9 @@ fi
 echo Launching: $LAUNCHER_JAVA
 
 if [ "$1" = "debug" ]; then
-    "$LAUNCHER_JAVA" "$JVM_OPTS" -Ddeveloper=true -p bootstrap/update4j.jar --add-modules jdk.unsupported,java.scripting -m org.update4j/org.update4j.Bootstrap --remote $UPDATE_URL --syncLocal --local setup.xml --launchFirst
+    "$LAUNCHER_JAVA" "$JVM_OPTS" -Ddeveloper=true -p bootstrap/update4j.jar --add-modules jdk.attach,jdk.unsupported,java.scripting,java.net.http -m org.update4j/org.update4j.Bootstrap --remote $UPDATE_URL --syncLocal --local setup.xml --launchFirst
 elif [ "$1" = "rdebug" ]; then
-    "$LAUNCHER_JAVA" "$JVM_OPTS" -Ddeveloper=true -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -p bootstrap/update4j.jar --add-modules jdk.unsupported,java.scripting -m org.update4j/org.update4j.Bootstrap --remote $UPDATE_URL --syncLocal --local setup.xml --launchFirst
+    "$LAUNCHER_JAVA" "$JVM_OPTS" -Ddeveloper=true -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -p bootstrap/update4j.jar --add-modules jdk.attach,jdk.unsupported,java.scripting,java.net.http -m org.update4j/org.update4j.Bootstrap --remote $UPDATE_URL --syncLocal --local setup.xml --launchFirst
 else
-    "$LAUNCHER_JAVA" "$JVM_OPTS" -p bootstrap/update4j.jar --add-modules jdk.unsupported,java.scripting -m org.update4j/org.update4j.Bootstrap --remote $UPDATE_URL --syncLocal --local setup.xml --launchFirst
+    "$LAUNCHER_JAVA" "$JVM_OPTS" -p bootstrap/update4j.jar --add-modules jdk.attach,jdk.unsupported,java.scripting,java.net.http -m org.update4j/org.update4j.Bootstrap --remote $UPDATE_URL --syncLocal --local setup.xml --launchFirst
 fi

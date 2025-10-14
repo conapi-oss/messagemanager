@@ -32,9 +32,9 @@ rem allow user to set additional JVM options i.e. truststore
 if exist ".\bin\setenv.cmd" call ".\bin\setenv.cmd"
 
 if "%~1"=="debug" (
-    call %LAUNCHER_JAVA_DEBUG% %JVM_OPTS% -Ddeveloper=true -p bootstrap\update4j.jar --add-modules jdk.attach,jdk.unsupported,java.scripting -m org.update4j/org.update4j.Bootstrap --remote %UPDATE_URL% --syncLocal --local setup.xml --launchFirst
+    call %LAUNCHER_JAVA_DEBUG% %JVM_OPTS% -Ddeveloper=true -p bootstrap\update4j.jar --add-modules jdk.attach,jdk.unsupported,java.scripting,java.net.http -m org.update4j/org.update4j.Bootstrap --remote %UPDATE_URL% --syncLocal --local setup.xml --launchFirst
 ) else if "%~1"=="rdebug" (
-    call %LAUNCHER_JAVA_DEBUG% %JVM_OPTS% -Ddeveloper=true -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -p bootstrap\update4j.jar --add-modules jdk.attach,jdk.unsupported,java.scripting -m org.update4j/org.update4j.Bootstrap --remote %UPDATE_URL% --syncLocal --local setup.xml --launchFirst
+    call %LAUNCHER_JAVA_DEBUG% %JVM_OPTS% -Ddeveloper=true -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -p bootstrap\update4j.jar --add-modules jdk.attach,jdk.unsupported,java.scripting,java.net.http -m org.update4j/org.update4j.Bootstrap --remote %UPDATE_URL% --syncLocal --local setup.xml --launchFirst
 ) else (
-    start %LAUNCHER_JAVA% %JVM_OPTS% -p bootstrap\update4j.jar --add-modules jdk.attach,jdk.unsupported,java.scripting -m org.update4j/org.update4j.Bootstrap --remote %UPDATE_URL% --syncLocal --local setup.xml --launchFirst
+    start %LAUNCHER_JAVA% %JVM_OPTS% -p bootstrap\update4j.jar --add-modules jdk.attach,jdk.unsupported,java.scripting,java.net.http -m org.update4j/org.update4j.Bootstrap --remote %UPDATE_URL% --syncLocal --local setup.xml --launchFirst
 )
