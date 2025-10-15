@@ -10,7 +10,7 @@ module messagemanager.fakemq {
     requires messagemanager.plugin.api;
     requires messagemanager.ui;
 
-    requires jakarta.jms.api;
+    requires javax.jms.api;
     requires com.google.common;
     requires com.google.guice;
 

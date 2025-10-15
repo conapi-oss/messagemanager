@@ -11,7 +11,7 @@ module messagemanager.app {
     requires messagemanager.jmsmessages;
 
     requires com.formdev.flatlaf;
-    requires jakarta.jms.api;
+    requires javax.jms.api;
     requires com.google.common;
     requires com.google.guice;
     requires com.google.guice.extensions.assistedinject;

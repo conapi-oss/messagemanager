@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    api 'jakarta.jms:jakarta.jms-api:2.0.3'
+    api 'javax.jms:javax.jms-api:2.0.1' // jakarta.jms-api 2 still has javax package and then an automatic module name conflict
 
     implementation 'com.sun.activation:javax.activation:1.2.0'
 

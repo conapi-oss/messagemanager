@@ -15,6 +15,7 @@ dependencies {
 
     implementation('org.apache.activemq:activemq-client:5.18.4'){
         exclude group: 'org.apache.geronimo.specs', module: 'geronimo-jms_1.1_spec'
+        exclude group: 'jakarta.jms', module: 'jakarta.jms-api'
     }
 }
 

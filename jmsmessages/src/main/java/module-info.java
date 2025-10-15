@@ -5,6 +5,6 @@ module messagemanager.jmsmessages {
    requires java.activation;
    requires java.datatransfer;
    requires java.xml;
-   requires jakarta.jms.api;
+   requires javax.jms.api;
    requires static lombok;
 }

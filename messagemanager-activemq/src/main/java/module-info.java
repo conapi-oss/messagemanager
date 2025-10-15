@@ -25,7 +25,7 @@ module messagemanager.activemq {
     requires java.logging;
     requires static jdk.attach; //static as only a JDK will have it
 
-    requires jakarta.jms.api;
+    requires javax.jms.api;
     requires static activemq.client;
 
     //requires java.activation;

@@ -23,7 +23,7 @@ module messagemanager.sonicmq {
     requires jakarta.inject;
     requires java.logging;
 
-    requires jakarta.jms.api;
+    requires javax.jms.api;
     requires java.activation;
 
     // below are automatic module names as Sonic JARs have no module-info

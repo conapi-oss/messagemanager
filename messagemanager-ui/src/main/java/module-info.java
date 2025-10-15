@@ -10,7 +10,7 @@ open module messagemanager.ui {
     requires messagemanager.jmsmessages;
     requires messagemanager.core;
 
-    requires jakarta.jms.api;
+    requires javax.jms.api;
     requires com.google.common;
     requires com.google.guice;
     requires com.google.guice.extensions.assistedinject;
