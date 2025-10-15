@@ -37,6 +37,7 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class SaveMessagesToFileTask extends Task implements CancelableTask {
@@ -128,7 +129,8 @@ public class SaveMessagesToFileTask extends Task implements CancelableTask {
 		switch(MessageType.fromClass(message.getClass())) {
 		case TEXT_MESSAGE:
 		case XML_MESSAGE:
-			fos.write(((TextMessage)message).getText().getBytes());
+			// Use explicit UTF-8 encoding to prevent corruption of special characters
+			fos.write(((TextMessage)message).getText().getBytes(StandardCharsets.UTF_8));
 			break;
 			
 		case BYTES_MESSAGE:

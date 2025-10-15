@@ -58,9 +58,11 @@ import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.List;
 import java.util.Map.Entry;
@@ -1105,7 +1107,9 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 		}
 
 		private char[] readFileContents(File file) throws IOException {
-			FileReader reader = new FileReader(file);
+			// Use explicit UTF-8 encoding to prevent corruption of special characters
+			InputStreamReader reader = new InputStreamReader(
+				new FileInputStream(file), StandardCharsets.UTF_8);
 			char[] buffer = new char[(int)file.length()];
 			reader.read(buffer);
 			reader.close();
