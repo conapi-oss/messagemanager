@@ -91,11 +91,12 @@ public class Domain implements JMSDomain {
 			case TOPIC_SUBSCRIBER_CREATION:
 			case FORWARD_MESSAGE:
 			case QUEUE_CLEAR_MESSAGES:
+			case QUEUE_DELETE_MESSAGES:
 			case MESSAGE_SET_PRIORITY:
 			case DESTINATION_TYPE_QUEUE:
 			case DESTINATION_TYPE_TOPIC:
 				return true;
-		
+
 			case QUEUE_MESSAGES_SIZE:
 				return com.sonicsw.mf.common.Version.getMajorVersion() >= 7;
 

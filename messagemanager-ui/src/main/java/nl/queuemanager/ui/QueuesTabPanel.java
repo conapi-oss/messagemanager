@@ -186,13 +186,23 @@ public class QueuesTabPanel extends JSplitPane implements UITab, MessageTableAct
 		messagesActionPanel.add(refreshButton);
 		
 		// Delete button
-		JButton deleteButton = createButton("Delete", new ActionListener() {
+		final JButton deleteButton = createButton("Delete", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				deleteSelectedMessages();
 			}
 		});
 		CommonUITasks.makeSegmented(deleteButton, Segmented.MIDDLE);
 		messagesActionPanel.add(deleteButton);
+
+		// Enable/disable the delete messages button when connecting to broker
+		eventBus.register(new Object() {
+			@Subscribe
+			public void handleDomainEvent(DomainEvent event) {
+				if(event.getId() == DomainEvent.EVENT.BROKER_CONNECT) {
+					deleteButton.setEnabled(domain.isFeatureSupported(JMSFeature.QUEUE_DELETE_MESSAGES));
+				}
+			}
+		});
 
 		// Save button
 		JButton saveButton = createButton("Save", new ActionListener() {
@@ -345,12 +355,12 @@ public class QueuesTabPanel extends JSplitPane implements UITab, MessageTableAct
 	}
 
 	private JButton createButton(String caption, ActionListener actionListener) {
-		JButton deleteButton = new JButton();
-		deleteButton.setText(caption);
-		deleteButton.setMinimumSize(new Dimension(80, 30));
-		deleteButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-		deleteButton.addActionListener(actionListener);
-		return deleteButton;
+		JButton jButton = new JButton();
+		jButton.setText(caption);
+		jButton.setMinimumSize(new Dimension(80, 30));
+		jButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+		jButton.addActionListener(actionListener);
+		return jButton;
 	}
 			
 	private void populateBrokerCombo(final List<JMSBroker> brokers) {
@@ -464,6 +474,11 @@ public class QueuesTabPanel extends JSplitPane implements UITab, MessageTableAct
 	}
 	
 	public void deleteSelectedMessages() {
+		// Only allow deletion if the broker supports selective message deletion
+		if(!domain.isFeatureSupported(JMSFeature.QUEUE_DELETE_MESSAGES)) {
+			return;
+		}
+
 		final JMSQueue queue = queueTable.getSelectedItem();
 		final List<Message> messages = CollectionFactory.newArrayList();
 		ListSelectionModel lsm = messageTable.getSelectionModel();

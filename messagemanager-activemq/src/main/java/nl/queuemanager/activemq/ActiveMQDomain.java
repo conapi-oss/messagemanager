@@ -329,6 +329,7 @@ public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements 
 		switch(feature) {
 		case FORWARD_MESSAGE:
 		case QUEUE_CLEAR_MESSAGES:
+		case QUEUE_DELETE_MESSAGES:
 		case JMS_HEADERS:
 		case TOPIC_SUBSCRIBER_CREATION:
 		case DESTINATION_TYPE_QUEUE:

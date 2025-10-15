@@ -31,8 +31,20 @@ To manually create a subscription, use the following steps:
 ## Message View
 - Select a topic/subscription to view its messages in the Messages panel.
 - Use the Refresh button to update the message list.
-- To delete a message, select it and click the Delete button.
 - To save or export messages, select the desired messages and use the Save button.
+
+### Message Deletion (Local Buffer Only)
+- Select one or more messages and click the **Delete** button to remove them from your local view.
+- **Important**: This operation only removes messages from your local UI buffer.
+- Messages are **NOT deleted from the broker/topic**.
+- This only affects your current subscription view - other subscribers are not affected.
+- New subscribers will still receive these messages.
+
+:::warning Kafka Users
+For Kafka topics, the Delete button only clears your local message view. Kafka uses a log-based
+architecture where messages cannot be selectively deleted from topics. Messages remain in Kafka
+based on retention policies configured on the broker.
+:::
 
 ## Drag and Drop
 If supported by the broker, you can drag and drop messages between topics/subscriptions for easy message movement.

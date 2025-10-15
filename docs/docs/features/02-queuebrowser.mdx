@@ -16,8 +16,13 @@ For some systems (i.e. AWS SQS) this list shows the regions as there is no "brok
 ## Message View
 - Select a queue to view its messages in the main panel.
 - Use the Refresh button to update the message list.
-- To delete a message, select it and click the Delete button.
 - To save or export messages, select the desired messages and use the Save button.
+
+### Message Deletion (Server-Side)
+- Select one or more messages and click the **Delete** button to permanently remove them from the queue.
+- **Important**: This operation permanently deletes messages from the broker/server.
+- Deleted messages cannot be recovered.
+- Platform support required - available for: ActiveMQ, SonicMQ, Solace, RabbitMQ (with JMS plugin), AWS SQS.
 
 ## Drag and Drop
 If supported by the broker, you can drag and drop messages between queues for easy message movement.

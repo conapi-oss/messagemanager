@@ -1,8 +1,8 @@
 <profile>
 	<id>42239f78-79d6-11e5-a560-7831c1c10182</id>
-	<name>ActiveMQ</name>
+	<name>ActiveMQ Classic</name>
 	<icon>MessageManager/profiles/activemq-logo.png</icon>
-	<description>Use this profile to connect to Active MQ. Add your activemq-all.jar to the classpath below to use this profile.</description>
+	<description>Use this profile to connect to Active MQ Classic. Add your activemq-all.jar to the classpath below to use this profile.</description>
 	<plugins>
 		<plugin>nl.queuemanager.activemq.ActiveMQModule</plugin>
 	</plugins>
