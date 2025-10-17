@@ -13,10 +13,27 @@ dependencies {
     implementation project(':messagemanager-ui')
     implementation project(':messagemanager-plugin-api')
 
-    implementation('org.apache.activemq:activemq-client:5.18.4'){
+    implementation("org.apache.activemq:activemq-client:${activemqClientVersion}"){
         exclude group: 'org.apache.geronimo.specs', module: 'geronimo-jms_1.1_spec'
         exclude group: 'jakarta.jms', module: 'jakarta.jms-api'
     }
+
+    // JTA API required for XA transaction support
+    implementation 'javax.transaction:jta:1.1'
 }
 
 description = 'Message Manager ActiveMQ connector'
+
+ext.set("pluginClientShortname", 'activemq')
+ext.set("pluginClientVersion", activemqClientVersion)
+
+tasks.register("copyClientLibsToParentBuild", Copy) {
+    into "${projectDir}/../build/clients/${pluginClientShortname}/${pluginClientVersion}"
+    from configurations.runtimeClasspath  {
+        exclude group: "nl.queuemanager"
+        exclude group: "com.google.inject"
+        exclude group: "org.slf4j"
+        transitive true
+    }
+}
+compileJava.dependsOn('copyClientLibsToParentBuild')

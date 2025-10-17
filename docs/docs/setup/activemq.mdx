@@ -11,16 +11,25 @@ The ActiveMQ Profile is available from the Profile List.
 In order for the ActiveMQ Profile to be activated, the required ActiveMQ jars need to be added to the Message Manager classpath.
 If the required ActiveMQ jars are not available in the classpath, they can be added using the 'Add JAR' button on the bottom middle of the window.
 This will open a file selection dialog box where the proper ActiveMQ jar files can be added.
-The required ActiveMQ jars are:
-- activemq-client-x.xx.x.jar
+
+:::important
+**ActiveMQ Classic 5.x Client Required**
+
+This profile requires ActiveMQ Classic 5.x client libraries (javax.jms namespace).
+The 5.x client is compatible with both ActiveMQ Classic 5.x and 6.x servers via the OpenWire protocol.
+:::
+
+The required ActiveMQ jars are (version 5.19.1 recommended):
+- activemq-client-5.19.1.jar
 - hawtbuf-1.11.jar
-- geronimo-j2ee-management-1.0-spec-1.1.jar
-- geronimo-jta-1.1-spec-1.1.1.jar
+- jta-1.1.jar (required by ActiveMQ client)
+
+Note: slf4j-api is not required as Message Manager already provides it.
 
 ![activemq-add-jar.png](assets/activemq-add-jar.png)
 
 :::note
-The ActiveMQ jars can be found in the ActiveMQ installation under the lib directory or downloaded separately.<br/>
+The ActiveMQ jars can be found in the ActiveMQ Classic 5.x installation under the lib directory or downloaded from Maven Central.<br/>
 Also: make sure to rename the jar files containing UNDERSCORES and replace them with DASHES.
 :::
 

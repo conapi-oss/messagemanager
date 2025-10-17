@@ -121,10 +121,67 @@ public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements 
 	 */
 	private int getConnectorPriority(URI uri) {
 		// TODO Dynamically determine support for connector types (via classpath?)
-		List<String> schemes = Arrays.asList("vm", "ws", "mqtt", "stomp", "amqp", "nio", "tcp"); 
+		List<String> schemes = Arrays.asList("vm", "ws", "mqtt", "stomp", "amqp", "nio", "tcp");
 		int prio = schemes.indexOf(uri.getScheme());
-		
+
 		return prio;
+	}
+
+	/**
+	 * Check if a hostname looks like a Docker container hostname.
+	 * Docker container hostnames are typically 12-character hexadecimal strings.
+	 *
+	 * @param hostname The hostname to check
+	 * @return true if hostname matches Docker container pattern
+	 */
+	private boolean looksLikeDockerHostname(String hostname) {
+		return hostname != null && hostname.matches("^[a-f0-9]{12}$");
+	}
+
+	/**
+	 * Check if a JMSException is caused by an UnknownHostException.
+	 * Walks the exception cause chain to find UnknownHostException.
+	 *
+	 * @param e The exception to check
+	 * @return true if caused by UnknownHostException
+	 */
+	private boolean isUnknownHostException(JMSException e) {
+		Throwable cause = e;
+		while (cause != null) {
+			if (cause instanceof java.net.UnknownHostException) {
+				return true;
+			}
+			cause = cause.getCause();
+		}
+		return false;
+	}
+
+	/**
+	 * Try to fix a broker URL that contains a Docker container hostname.
+	 * Replaces Docker container hostname with host.docker.internal.
+	 *
+	 * @param url The broker URL to fix
+	 * @return Fixed URL with host.docker.internal, or null if not fixable
+	 */
+	private String tryFixDockerHostname(String url) {
+		try {
+			URI uri = new URI(url);
+			String hostname = uri.getHost();
+			if (looksLikeDockerHostname(hostname)) {
+				return new URI(
+					uri.getScheme(),
+					uri.getUserInfo(),
+					"host.docker.internal",
+					uri.getPort(),
+					uri.getPath(),
+					uri.getQuery(),
+					uri.getFragment()
+				).toString();
+			}
+		} catch (URISyntaxException e) {
+			log.log(Level.WARNING, "Could not parse URL for Docker hostname fix: " + url, e);
+		}
+		return null;
 	}
 	
 	public void enumerateQueues(JMSBroker broker, String filter) throws Exception {
@@ -260,20 +317,46 @@ public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements 
 	private void connectJMS(ActiveMQBroker broker, Credentials cred) throws JMSException {
 		if(brokerConnections.get(broker) != null)
 			return;
-		
+
 		if(broker == null)
 			throw new IllegalArgumentException("Broker must be supplied");
-		
+
 		// Try the configuration to get an alternate URL if one is configured.
 		String brokerUrl = config.getBrokerPref(
 				broker, CoreConfiguration.PREF_BROKER_ALTERNATE_URL, broker.getConnectionURI().toString());
 
 		log.info("Connecting to " + brokerUrl);
 
+		try {
+			attemptConnection(broker, brokerUrl, cred);
+		} catch (JMSException e) {
+			// Check if this is an UnknownHostException caused by a Docker container hostname
+			if (isUnknownHostException(e)) {
+				String fixedUrl = tryFixDockerHostname(brokerUrl);
+				if (fixedUrl != null) {
+					log.info("Detected Docker container hostname, retrying with: " + fixedUrl);
+					attemptConnection(broker, fixedUrl, cred);
+					return;
+				}
+			}
+			throw e;
+		}
+	}
+
+	/**
+	 * Attempt to connect to ActiveMQ using the specified broker URL.
+	 * Creates JMS connection, sessions, and stores in brokerConnections map.
+	 *
+	 * @param broker The broker to connect to
+	 * @param brokerUrl The connection URL to use
+	 * @param cred Optional credentials
+	 * @throws JMSException if connection fails
+	 */
+	private void attemptConnection(ActiveMQBroker broker, String brokerUrl, Credentials cred) throws JMSException {
 		ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerUrl);
 		factory.setConnectResponseTimeout(10000);  // 10 seconds
 		factory.setCloseTimeout(15000);  // 15 seconds
-		
+
 		Connection connection;
 		if(cred != null) {
 			try {
@@ -285,10 +368,10 @@ public class ActiveMQDomain extends AbstractEventSource<DomainEvent> implements 
 		}
 		connection = factory.createConnection();
 		connection.setExceptionListener(new ActiveMQExceptionListener());
-		
+
 		Session syncSession = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 		Session asyncSession = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-		
+
 		brokerConnections.put(broker, new ActiveMQConnection(broker, connection, syncSession, asyncSession));
 		connection.start();
 	}
