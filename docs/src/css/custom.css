@@ -6,17 +6,24 @@
 
 /* You can override the default Infima variables here. */
 :root {
-    --ifm-color-primary: #0071ac;
-    --ifm-color-primary-dark: #00669b;
-    --ifm-color-primary-darker: #006092;
-    --ifm-color-primary-darkest: #004f78;
-    --ifm-color-primary-light: #007cbd;
-    --ifm-color-primary-lighter: #0082c6;
-    --ifm-color-primary-lightest: #0093e0;
+    /* Conapi brand colors - Aubergine primary */
+    --ifm-color-primary: #31163a;
+    --ifm-color-primary-dark: #2c1334;
+    --ifm-color-primary-darker: #291131;
+    --ifm-color-primary-darkest: #220e28;
+    --ifm-color-primary-light: #361940;
+    --ifm-color-primary-lighter: #391b43;
+    --ifm-color-primary-lightest: #422049;
+
+    /* Conapi accent color - Lime Green */
+    --ifm-color-accent: #e0de2a;
+
+    /* Conapi interactive color - Purple */
+    --ifm-color-interactive: #b675ff;
 
     --ifm-background-color: #ffffff;
     --ifm-footer-background-color: #ffffff;
-    --ifm-navbar-background-color: #ffffff;
+    --ifm-navbar-background-color: #f0ece8;
 
     /*--ifm-footer-link-color: black;*/
     /*var(--ifm-navbar-link-color);*/
@@ -31,22 +38,26 @@ html[data-theme='light'] footer {
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme='dark'] {
-  --ifm-color-primary: #a4d600;
-    --ifm-color-primary: #a4d600;
-    --ifm-color-primary-dark: #94c100;
-    --ifm-color-primary-darker: #8bb600;
-    --ifm-color-primary-darkest: #739600;
-    --ifm-color-primary-light: #b4eb00;
-    --ifm-color-primary-lighter: #bdf600;
-    --ifm-color-primary-lightest: #c9ff17;
+    /* Conapi dark mode - Purple/Lime scheme */
+    --ifm-color-primary: #f0ece8; /*b675ff;*/
+    --ifm-color-primary-dark: #a55eff;
+    --ifm-color-primary-darker: #9a4fff;
+    --ifm-color-primary-darkest: #7d29ff;
+    --ifm-color-primary-light: #c78cff;
+    --ifm-color-primary-lighter: #d29bff;
+    --ifm-color-primary-lightest: #e9c1ff;
 
-    --ifm-background-color: #222c3c;
-    --ifm-footer-background-color: #222c3c;
-    --ifm-navbar-background-color: #222c3c;
+    /* Conapi accent color - Lime Green (brighter for dark mode) */
+    --ifm-color-accent: #e0de2a;
 
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+    /* Dark mode background - using aubergine */
+    --ifm-background-color: #31163a;
+    --ifm-footer-background-color: #31163a;
+    --ifm-navbar-background-color: #31163a;
+
+  --docusaurus-highlighted-code-line-bg: rgba(255, 255, 255, 0.1);
 }
 
 html[data-theme='dark'] footer {
-  background-color: #222c3c;
+  background-color: #31163a;
 }

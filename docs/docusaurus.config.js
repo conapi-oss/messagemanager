@@ -8,8 +8,8 @@ import {themes as prismThemes} from 'prism-react-renderer';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'Message Manager',
-  tagline: 'Message Manager Documentation',
+  title: 'Message Manager.',
+  tagline: 'Your universal messaging client.',
   favicon: '/img/logo.png',
 
     // ... https://conapi-oss.github.io/messagemanager/
