@@ -1,5 +1,5 @@
 <profile>
-	<id>42239f78-79d6-11e5-a560-7831c1c10182</id>
+	<id>42239f78-79d6-11e5-a560-7831c1c10192</id>
 	<name>ActiveMQ Classic</name>
 	<icon>MessageManager/profiles/activemq-logo.png</icon>
 	<description>Use this profile to connect to Apache ActiveMQ Classic.

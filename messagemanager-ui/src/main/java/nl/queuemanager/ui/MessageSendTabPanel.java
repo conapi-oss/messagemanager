@@ -360,7 +360,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 					jmsCorrelationIDField.getPreferredSize().height));
 			jmsCorrelationIDField.setToolTipText("CorrelationID, use %i for sequence number");
 			jmsCorrelationIDField.setText("Message %i");
-			formPanel.add(createLabelFor(jmsCorrelationIDField, "JMS Correlation ID:"));
+			formPanel.add(createLabelFor(jmsCorrelationIDField, "Correlation ID:"));
 			formPanel.add(jmsCorrelationIDField);
 			numRows++;
 
@@ -372,14 +372,14 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 						jmsPriorityField.getPreferredSize().height));
 				jmsPriorityField.setMaxValue(9);
 				jmsPriorityField.setToolTipText("The JMS Priority to use when sending the message (0-9");
-				formPanel.add(createLabelFor(jmsPriorityField, "JMS Priority:"));
+				formPanel.add(createLabelFor(jmsPriorityField, "Priority:"));
 				formPanel.add(jmsPriorityField);
 				numRows++;
 			}
 
 			jmsReplyToField = new JMSDestinationField();
 			jmsReplyToField.setToolTipText("Type a name or drag a destination from the table on the left");
-			formPanel.add(createLabelFor(jmsReplyToField, "JMS Reply to:"));
+			formPanel.add(createLabelFor(jmsReplyToField, "Reply to:"));
 			formPanel.add(jmsReplyToField);
 			numRows++;
 
@@ -400,7 +400,7 @@ public class MessageSendTabPanel extends JPanel implements UITab {
 					deliveryModeCombo.getPreferredSize().height));
 			deliveryModeCombo.setToolTipText("The delivery mode, persistent or non-persistent");
 			deliveryModeCombo.putClientProperty("JComboBox.isPopDown", Boolean.TRUE);
-			formPanel.add(createLabelFor(deliveryModeCombo, "JMS Delivery Mode:"));
+			formPanel.add(createLabelFor(deliveryModeCombo, "Delivery Mode:"));
 			formPanel.add(deliveryModeCombo);
 			numRows++;
 

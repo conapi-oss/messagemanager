@@ -54,6 +54,10 @@ public class AppProperties {
         failedUpdates = Integer.valueOf(appProperties.getProperty(PROP_FAILED_UPDATES, "0"));
         lastSuccessfulUpdateCheck = Long.valueOf(appProperties.getProperty(PROP_LAST_SUCCESSFUL_UPDATE_CHECK, "0"));
 
+        // force update
+        //lastSuccessfulUpdateCheck=0L;
+        //autoUpdate= Boolean.TRUE;
+
         saveProperties(); // to ensure we have a file next time, even if it has just defaults
     }
 
