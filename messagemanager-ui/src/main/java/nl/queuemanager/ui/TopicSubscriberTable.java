@@ -259,7 +259,7 @@ public class TopicSubscriberTable extends JTable implements Clearable, JMSDestin
 	 */
 	private static class TopicTableModel extends ObservingListTableModel<JMSSubscriber> {
 		public TopicTableModel() {
-			setColumnNames(new String[] {"", "Topic Name", "Messages"});
+			setColumnNames(new String[] {"", "Name / Pattern", "Messages"});
 			setColumnTypes(new Class[] {Boolean.class, String.class, Integer.class});
 		}
 		

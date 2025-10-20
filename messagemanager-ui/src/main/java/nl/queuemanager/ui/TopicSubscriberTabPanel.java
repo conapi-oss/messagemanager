@@ -77,7 +77,7 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab,Message
 	private EventBus eventBus;
 
 	// Add ghost text to topic name field
-	final String GHOST_TEXT = "Topic Name/Pattern";
+	protected String GHOST_TEXT = "Topic Name/Pattern";
 	final Color GHOST_COLOR = Color.GRAY;
 	final Color ACTIVE_COLOR = UIManager.getColor("TextField.foreground");
 	
@@ -472,6 +472,10 @@ public class TopicSubscriberTabPanel extends JSplitPane implements UITab,Message
 		topicNameField.setMaximumSize(new Dimension(
 				Integer.MAX_VALUE,
 				topicNameField.getPreferredSize().height));
+
+		// Initialize with ghost text so it shows immediately
+		topicNameField.setForeground(GHOST_COLOR);
+		topicNameField.setText(GHOST_TEXT);
 
 		topicNameField.addFocusListener(new FocusAdapter() {
 			@Override
