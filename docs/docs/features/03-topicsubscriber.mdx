@@ -28,6 +28,18 @@ To manually create a subscription, use the following steps:
 - Messages are consumed in real-time and displayed in the Messages panel.
 - To remove a subscription, select it and click the "Remove" button.
 
+### RabbitMQ Topic Format
+RabbitMQ uses exchanges and routing keys instead of JMS-style topics:
+- Enter topics in format: `exchange:pattern` (e.g., `amq.topic:#`)
+- Topics without colon default to `amq.topic` exchange
+- Use `#` to match zero or more words (e.g., `#` matches all messages)
+- Use `*` to match exactly one word (e.g., `orders.*.processed`)
+- Examples:
+  - `amq.topic:#` - all messages on amq.topic exchange
+  - `orders.eu.processed` - defaults to `amq.topic:orders.eu.processed`
+  - `custom-events:notifications.*` - explicit exchange with single-word wildcard
+  - `logs:#` - all messages on logs exchange
+
 ## Message View
 - Select a topic/subscription to view its messages in the Messages panel.
 - Use the Refresh button to update the message list.

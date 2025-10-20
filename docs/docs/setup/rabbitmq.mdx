@@ -6,6 +6,8 @@ To work with Message Manager and RabbitMQ, a connection to a RabbitMQ installati
 
 The RabbitMQ Profile is available from the Profile List.
 
+![rabbitmq-activate-profile.png](assets/rabbitmq-activate-profile.png)
+
 In order for the RabbitMQ Profile to be activated, the required RabbitMQ client jars need to be added to the Message Manager classpath.
 If the required RabbitMQ jars are not available in the classpath, they can be added using the 'Add JAR' button on the bottom middle of the window.
 This will open a file selection dialog box where the proper RabbitMQ jar files can be added.
@@ -38,18 +40,63 @@ If the required RabbitMQ Connection is not available, a new RabbitMQ Connection 
 ## Create RabbitMQ Connection
 
 To create a new RabbitMQ Connection, select the "New" button on the bottom (the green + button) and enter the new RabbitMQ Connection Information.
-- Description
-    - A descriptive name for this Connection.
-- Connection Details
+
+### TCP Connection (Non-SSL)
+
+For a standard TCP connection to RabbitMQ:
+
+![rabbitmq-create-connection-tcp.png](assets/rabbitmq-create-connection-tcp.png)
+
+- **Description**
+    - A descriptive name for this Connection
+- **Connection Details**
     - Host - The hostname or IP address of the RabbitMQ server
-    - Port - The AMQP port (default: 5672 for non-SSL, 5671 for SSL/TLS)
+    - Port - The AMQP port (default: 5672 for non-SSL)
     - Virtual Host - The RabbitMQ virtual host (default: /)
     - Username - The RabbitMQ username for authentication
     - Password - The RabbitMQ password for authentication
-- SSL/TLS
-    - Use SSL/TLS - Enable encrypted connections (port 5671)
-- Management API
-    - Management API URL - URL for RabbitMQ Management API (for queue enumeration and bulk operations)
+- **Management API**
+    - Management API URL - URL for RabbitMQ Management API (optional, for queue enumeration and bulk operations)
+    - Example: `http://localhost:15672/api`
+
+### SSL/TLS Connection
+
+For a secure SSL/TLS connection to RabbitMQ:
+
+![rabbitmq-create-connection-ssl.png](assets/rabbitmq-create-connection-ssl.png)
+
+- **Description**
+    - A descriptive name for this Connection
+- **Connection Details**
+    - Host - The hostname or IP address of the RabbitMQ server
+    - Port - The AMQPS port (default: 5671 for SSL/TLS)
+    - Virtual Host - The RabbitMQ virtual host (default: /)
+    - Username - The RabbitMQ username for authentication
+    - Password - The RabbitMQ password for authentication
+- **SSL/TLS**
+    - Use SSL/TLS - Check this box to enable encrypted connections
+    - Trust Store - Path to the Java truststore containing the RabbitMQ server's CA certificate
+    - Trust Store Password - Password for the truststore file
+- **Management API**
+    - Management API URL - URL for RabbitMQ Management API (optional, should use HTTPS)
+    - Example: `https://localhost:15671/api`
+
+:::important
+**SSL/TLS Truststore Configuration**
+
+When connecting via SSL/TLS, you must configure a truststore containing the Certificate Authority (CA) certificate that signed your RabbitMQ server's certificate:
+
+1. Obtain the CA certificate from your RabbitMQ server administrator
+2. Import the CA certificate into a Java truststore using `keytool`:
+   ```bash
+   keytool -import -alias rabbitmq-ca -file ca-cert.pem -keystore truststore.jks -storepass changeit
+   ```
+3. Specify the truststore path and password in the SSL/TLS section
+
+If you're using self-signed certificates, import the self-signed certificate itself into the truststore.
+:::
+
+### Connecting
 
 When all the required information is entered, press the "Connect" button to activate the RabbitMQ Connection and switch to the Queue Browser tab of Message Manager.
 
@@ -58,12 +105,23 @@ Select the Queue you wish to browse and the message in the Queue (if any) to sho
 ## Supported Features
 
 The RabbitMQ profile supports:
-- Basic username/password authentication
-- SSL/TLS encrypted connections (port 5671)
-- Virtual host configuration
-- Browse queue contents (unlimited messages)
-- Send messages to queues
-- Purge entire queue (Management API required)
+- **Queue Operations**
+  - Browse queue contents (consumer-based browsing with configurable limits)
+  - Send messages to queues
+  - Purge entire queue (Management API required)
+  - Queue enumeration via Management API
+- **Topic Subscriber**
+  - Subscribe to topic exchanges using routing patterns
+  - Format: `exchange:pattern` (e.g., `amq.topic:#`)
+  - Topics without colon default to `amq.topic` exchange
+  - Wildcard patterns: `#` (zero or more words), `*` (exactly one word)
+  - Multiple subscribers receive message copies (pub/sub semantics)
+  - Automatic exchange discovery via Management API
+  - Publish messages to topic exchanges
+- **Security**
+  - Basic username/password authentication
+  - SSL/TLS encrypted connections (port 5671)
+  - Virtual host configuration
 
 ## Limitations
 
@@ -71,4 +129,3 @@ Due to the RabbitMQ AMQP protocol implementation:
 - No drag-and-drop between queues (UI disabled)
 - No selective message deletion
 - Scripts: Only COPY action available (MOVE hidden)
-- Topic support disabled - RabbitMQ topic model differs from JMS semantics
