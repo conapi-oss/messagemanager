@@ -32,7 +32,9 @@ public class PluginModuleHelper {
     // TODO: potentially make this configurable
     // IMPORTANT: due to jar name adjustments (deriveModuleName) the jar name must be regex to match the name before and after the adjustment
     // sonic_Client --> sonicclient --> sonic.*lient
-    private static List<String> packagesToBeFiltered = Arrays.asList("javax.jms","sonic.*lient:com.sonicsw.security.ssl") ;
+    // Package names ending with .* are treated as prefix matches (e.g., org.slf4j.* matches org.slf4j, org.slf4j.event, org.slf4j.spi, etc.)
+    // General filters (no jar name) apply to all automatic modules
+    private static List<String> packagesToBeFiltered = Arrays.asList("javax.jms","sonic.*lient:com.sonicsw.security.ssl","org.slf4j.*") ;
     public static ModuleLayer createPluginModuleLayer(final List<URL> urls, final ModuleLayer parentLayer, final ClassLoader parentClassLoader) {//){
         final Set<Path> jarPaths;
         try {
@@ -115,12 +117,27 @@ public class PluginModuleHelper {
             if(badPackage.contains(":")){
                 // check also jar name
                 final String[] badPackageInfo = badPackage.split(":");
-                if(jarName.matches(badPackageInfo[0]) && badPackageInfo[1].equals(packageName))
-                    return true;
+                if(jarName.matches(badPackageInfo[0])) {
+                    // Check if package pattern ends with .* for prefix matching
+                    if(badPackageInfo[1].endsWith(".*")) {
+                        String prefix = badPackageInfo[1].substring(0, badPackageInfo[1].length() - 2);
+                        if(packageName.equals(prefix) || packageName.startsWith(prefix + "."))
+                            return true;
+                    } else if(badPackageInfo[1].equals(packageName)) {
+                        return true;
+                    }
+                }
             }
             else{
-                if(badPackage.equals(packageName))
+                // General filtering (no jar name) - applies to all automatic modules
+                // Check if package pattern ends with .* for prefix matching
+                if(badPackage.endsWith(".*")) {
+                    String prefix = badPackage.substring(0, badPackage.length() - 2);
+                    if(packageName.equals(prefix) || packageName.startsWith(prefix + "."))
+                        return true;
+                } else if(badPackage.equals(packageName)) {
                     return true;
+                }
             }
         }
         return false;
