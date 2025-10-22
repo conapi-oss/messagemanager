@@ -50,8 +50,7 @@ fi
 
 export JVM_OPTS="-Djavafx.embed.singleThread=true -DSolace_JMS_Browser_Timeout_In_MS=1000 -Djava.net.useSystemProxies=true"
 
-# cleanup and upgrade
-# allow setting custom jvm options
+# Cleanup and upgrade
 if [ -f "./bin/cleanup.sh" ]
 then
      echo "Found cleanup script"

@@ -178,7 +178,13 @@ public class CreateConfig {
                 .files(FileMetadata.streamDirectory(configLoc + "/bin")
                         .filter( fm -> !fm.getSource().getFileName().toFile().toString().startsWith("update4j"))
                         .peek(f -> f.uri(baseUrl +"/bin/" + f.getSource().toFile().getName()))
-                        .peek( f -> f.path("../bin/" + f.getSource().toFile().getName())))
+                        .peek( f -> f.path("../bin/" + f.getSource().toFile().getName()))
+                        .peek( f -> {
+                            // Mark shell scripts as executable
+                            if (f.getSource().toString().endsWith(".sh")) {
+                                f.executable(true);
+                            }
+                        }))
 
                 // javafx files
                 .files(FileMetadata.streamDirectory(cacheLoc)

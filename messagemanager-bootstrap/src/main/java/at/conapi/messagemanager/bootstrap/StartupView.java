@@ -41,11 +41,8 @@ import org.update4j.inject.InjectSource;
 import org.update4j.inject.Injectable;
 import org.update4j.service.UpdateHandler;
 
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Optional;
 
 public class StartupView extends FXMLView implements UpdateHandler, Injectable {
@@ -245,21 +242,6 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 					try{
 						Archive.read(zip).install();
 
-						// only now the content is downloaded and loaded
-						//TODO: on linux this the file permissions are not properly set after extracting a shell script
-						// +x is missing. Ideally the Archive.install would take care but we cannot override it here
-						// below workaround can be removed if we fork our own update4j
-						// ensure all scripts in bin are executeable
-						try (DirectoryStream<Path> stream = java.nio.file.Files.newDirectoryStream(Path.of("", "bin"), "*.sh")) {
-							stream.forEach(script -> {
-								System.out.println("Setting execute permission for: "+ script );
-								try {
-									script.toFile().setExecutable(true);
-									Files.setPosixFilePermissions(script, PosixFilePermissions.fromString("rwxr-xr-x"));
-								} catch (Exception ignore) {
-								}
-							});
-						}
 					}
 					catch(Exception e){
 						Platform.runLater(new Runnable() {
