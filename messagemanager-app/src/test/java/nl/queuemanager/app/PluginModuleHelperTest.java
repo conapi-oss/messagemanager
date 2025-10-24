@@ -17,7 +17,7 @@ public class PluginModuleHelperTest {
         assertEquals("test.file.jar", deriveModuleName("test_file-1.2.3-SNAPSHOT.jar"));
         assertEquals("my.library.jar", deriveModuleName("my-library-2.0-RC1.jar"));
         assertEquals("commons.lang3.jar", deriveModuleName("commons-lang3-3.12.0.jar"));
-        assertEquals("guava.jar", deriveModuleName("guava-31.1-jre.jar"));
+        assertEquals("guava.jar", deriveModuleName("guava-33.5.0-jre.jar"));
         assertEquals("lz4.java.jar", deriveModuleName("lz4-java-1.8.0.jar"));
         
         // Test case for name starting with a number

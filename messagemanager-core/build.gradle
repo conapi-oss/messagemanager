@@ -11,7 +11,7 @@ dependencies {
 
     api 'com.google.inject:guice:7.0.0'
     api 'com.google.inject.extensions:guice-assistedinject:7.0.0'
-    api 'com.google.guava:guava:31.1-jre'
+    api 'com.google.guava:guava:33.5.0-jre'
     api 'jakarta.inject:jakarta.inject-api:2.0.1'
 
     implementation 'com.google.code.findbugs:jsr305:3.0.2'

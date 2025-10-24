@@ -340,6 +340,7 @@ public class PluginManager {
 			return result;
 		}
 		catch (Exception e) {
+            e.printStackTrace();
 			throw new PluginManagerException("Unable to load plugin modules", e);
 		}
 	}

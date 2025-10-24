@@ -50,14 +50,14 @@ fi
 
 export JVM_OPTS="-Djavafx.embed.singleThread=true -DSolace_JMS_Browser_Timeout_In_MS=1000 -Djava.net.useSystemProxies=true"
 
-# Cleanup and upgrade
+# Cleanup and upgrade script
 if [ -f "./bin/cleanup.sh" ]
 then
      echo "Found cleanup script"
       . ./bin/cleanup.sh
 fi
 
-# allow setting custom jvm options
+# allow setting custom JVM options
 if [ -f "./bin/setenv.sh" ]
 then
       . ./bin/setenv.sh
@@ -66,9 +66,9 @@ fi
 echo Launching: $LAUNCHER_JAVA
 
 if [ "$1" = "debug" ]; then
-    "$LAUNCHER_JAVA" "$JVM_OPTS" -Ddeveloper=true -p bootstrap/update4j.jar --add-modules jdk.unsupported,java.scripting,java.net.http,java.sql,java.naming -m org.update4j/org.update4j.Bootstrap --remote $UPDATE_URL --syncLocal --local setup.xml --launchFirst
+    "$LAUNCHER_JAVA" "$JVM_OPTS" -Ddeveloper=true -p bootstrap/update4j.jar --add-modules jdk.unsupported,java.scripting,java.net.http,java.sql,java.naming,java.compiler -m org.update4j/org.update4j.Bootstrap --remote $UPDATE_URL --syncLocal --local setup.xml --launchFirst
 elif [ "$1" = "rdebug" ]; then
-    "$LAUNCHER_JAVA" "$JVM_OPTS" -Ddeveloper=true -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -p bootstrap/update4j.jar --add-modules jdk.unsupported,java.scripting,java.net.http,java.sql,java.naming -m org.update4j/org.update4j.Bootstrap --remote $UPDATE_URL --syncLocal --local setup.xml --launchFirst
+    "$LAUNCHER_JAVA" "$JVM_OPTS" -Ddeveloper=true -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -p bootstrap/update4j.jar --add-modules jdk.unsupported,java.scripting,java.net.http,java.sql,java.naming,java.compiler -m org.update4j/org.update4j.Bootstrap --remote $UPDATE_URL --syncLocal --local setup.xml --launchFirst
 else
-    "$LAUNCHER_JAVA" "$JVM_OPTS" -p bootstrap/update4j.jar --add-modules jdk.unsupported,java.scripting,java.net.http,java.sql,java.naming -m org.update4j/org.update4j.Bootstrap --remote $UPDATE_URL --syncLocal --local setup.xml --launchFirst
+    "$LAUNCHER_JAVA" "$JVM_OPTS" -p bootstrap/update4j.jar --add-modules jdk.unsupported,java.scripting,java.net.http,java.sql,java.naming,java.compiler -m org.update4j/org.update4j.Bootstrap --remote $UPDATE_URL --syncLocal --local setup.xml --launchFirst
 fi
