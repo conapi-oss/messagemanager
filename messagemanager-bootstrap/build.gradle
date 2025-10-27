@@ -45,7 +45,7 @@ ext {
 }
 
 dependencies {
-    implementation 'org.update4j:update4j:1.5.11'
+    implementation 'org.update4j:update4j:1.5.12'
     implementation project(':messagemanager-app')
     implementation project(':messagemanager-bootstrap-config')
 }
