@@ -9,22 +9,14 @@ hide_table_of_contents: true
 
 Below are the changelogs for the latest releases of the Message Manager:
 
-4.1.4 - 2025-10-?
+4.2.0 - 2025-10-28
+- **ActiveMQ Artemis support (commercial only)**
+- **Azure Service Bus support (commercial only)**
+- **Google Cloud PubSub support (commercial only)**
 - **RabbitMQ support (commercial only)**
-  - Topic subscriber with exchange:pattern format (e.g., `amq.topic:#`)
-  - Wildcard patterns support (`#` for zero or more words, `*` for exactly one word)
-  - Automatic exchange discovery via Management API
-  - SSL/TLS encrypted connections (port 5671)
-  - Basic username/password authentication
-  - Virtual host configuration
-  - Message sending to queues and topic exchanges
-- Topic subscriber UI improvements: ghost text now visible on initial load
-- Documentation improvements
 
 4.1.3 - 2025-10-17
-- **RabbitMQ support (commercial only)**
-  - Queue browsing with consumer-based browsing and configurable limits
-  - Queue purge via Management
+- **RabbitMQ support (preview)**
 - ActiveMQ Classic 5.19.1 client library support (compatible with both 5.x and 6.x servers via OpenWire protocol)
 - ActiveMQ: Automatic Docker container hostname detection and connection retry
 

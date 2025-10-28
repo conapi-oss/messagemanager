@@ -6,8 +6,8 @@ public class Version {
 		return VERSION;
 	}
 
-	public static final String VERSION = "4.1.3";
+	public static final String VERSION = "4.2.0";
 	//public static final String SUFFIX = "${suffix}";
-	public static final String BUILD_TIMESTAMP = "Fri Oct 17 13:06:16 CEST 2025";
-	public static final String BUILD_ID = "4.1.3";
+	public static final String BUILD_TIMESTAMP = "Tue Oct 28 15:40:19 CET 2025";
+	public static final String BUILD_ID = "4.2.0";
 }
