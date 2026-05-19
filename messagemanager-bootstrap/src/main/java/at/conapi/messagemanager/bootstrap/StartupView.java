@@ -41,6 +41,8 @@ import org.update4j.inject.InjectSource;
 import org.update4j.inject.Injectable;
 import org.update4j.service.UpdateHandler;
 
+import java.io.InputStream;
+import java.net.URLConnection;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -368,5 +370,24 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 	@Override
 	public void doneDownloadFile(FileMetadata file, Path path) throws Throwable {
 		System.out.println("DownloadFile: "+ path );
+	}
+
+	/**
+	 * Override Update4J's default {@link UpdateHandler#openDownloadStream(FileMetadata)},
+	 * which hard-codes a 10-second read timeout (UpdateHandler.java:253-255). That is too
+	 * short on corporate networks where AV / DPI inline-scans larger jars: bulk transfer
+	 * stalls near the end of the file while inspection completes, then resumes — but with
+	 * only a 10s tolerance the JVM aborts with SocketTimeoutException and the whole update
+	 * fails. PowerShell / browser downloads succeed because they wait patiently.
+	 *
+	 * We raise the timeouts to values that survive realistic inspection pauses.
+	 */
+	@Override
+	public InputStream openDownloadStream(FileMetadata file) throws Throwable {
+		URLConnection connection = file.getUri().toURL().openConnection();
+		connection.addRequestProperty("User-Agent", "Mozilla/5.0");
+		connection.setConnectTimeout(30 * 1000);       // 30s
+		connection.setReadTimeout(10 * 60 * 1000);     // 10 min
+		return connection.getInputStream();
 	}
 }

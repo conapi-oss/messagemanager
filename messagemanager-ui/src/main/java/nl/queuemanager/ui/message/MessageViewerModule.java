@@ -18,6 +18,7 @@ public class MessageViewerModule extends AbstractModule {
 		// Register all message content viewers
 		mcv.addBinding(10).to(TextMessageContentViewer.class);
 		mcv.addBinding(20).to(MapMessageContentViewer.class);
+		mcv.addBinding(30).to(ObjectMessageContentViewer.class);
 		mcv.addBinding(Integer.MAX_VALUE).to(BytesMessageViewer.class);
 		
 		// Register all message part content viewers

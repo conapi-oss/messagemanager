@@ -102,20 +102,37 @@ subprojects {
         into getUserDataFolder().toString() + "/MessageManager/plugins/${project.version}"
     }*/
 
-    tasks.register('copyJarToBootstrap',Copy) {
-        println 'Running copyJarToBootstrap'
+    // Copies this subproject's plugin JAR into the bootstrap plugins/ directory.
+    //
+    // IMPORTANT: implemented as a plain Task with a doLast { copy {} } block — NOT as
+    // a `Copy`-typed task — because `Copy` auto-declares its `into` directory as the
+    // task's output. Gradle then runs a "stale output cleanup" pass on every build that
+    // wipes any file in that directory which wasn't produced by a tracked task. The
+    // commercial build (scripts/build-jars.sh in the commercial repo) shell-cp's its
+    // plugin JARs into the same plugins/ directory; those would be deleted by the
+    // cleanup pass before createUpdate4JConfig reads the directory, producing an
+    // Update4J config with only this (OSS) plugin and breaking installed clients on
+    // auto-update with "Module messagemanager.common not found" etc.
+    //
+    // Using a plain Task avoids the directory-output declaration. The script-copied
+    // commercial JARs now survive any subsequent OSS Gradle invocation.
+    tasks.register('copyJarToBootstrap') {
+        dependsOn jar
         onlyIf {
-            // only copy jar for plugins to the user data folder
             file("${projectDir}/src/main/resources/MessageManager/plugins").exists()
         }
+        doLast {
+            def pluginsDir = "${projectDir}/../messagemanager-bootstrap/build/root/target/config/plugins"
+            def clientsDir = "${projectDir}/../messagemanager-bootstrap/build/root/target/config/clients"
+            ant.mkdir(dir: pluginsDir)
+            ant.mkdir(dir: clientsDir) // client jars will be copied to this folder
 
-        ant.mkdir(dir: "${projectDir}/../messagemanager-bootstrap/build/root/target/config/plugins")
-        // client jars will copied to this folder
-        ant.mkdir(dir: "${projectDir}/../messagemanager-bootstrap/build/root/target/config/clients")
-
-        from "build/libs/${project.name}-${project.version}.jar" // Source path (replace with your JAR name)
-        rename '([a-z]*-[a-z]*).*.jar', '$1.jar' // remove version from jar
-        into "${projectDir}/../messagemanager-bootstrap/build/root/target/config/plugins"
+            copy {
+                from "build/libs/${project.name}-${project.version}.jar"
+                rename '([a-z]*-[a-z]*).*.jar', '$1.jar' // remove version from jar
+                into pluginsDir
+            }
+        }
     }
 
     // Ensure copying happens after JAR is built
