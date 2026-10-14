@@ -1,23 +1,61 @@
 package nl.queuemanager.core.tasks;
 
+import com.google.common.eventbus.EventBus;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
+import nl.queuemanager.core.Pair;
 import nl.queuemanager.jms.JMSMultipartMessage;
 import nl.queuemanager.jms.impl.MessageFactory;
 import org.junit.Test;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.TextMessage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
 
 public class SaveMessagesToFileTaskTest {
+
+    public interface SaveTaskFactory {
+        SaveMessagesToFileTask saveToFile(List<Pair<Message, File>> messages, String messageFileExtension);
+    }
+
+    @Test
+    public void testSavePlainContentThroughAssistedFactory() throws Exception {
+        // Saving plain content passes a null extension through Guice, which rejects it unless @Nullable
+        SaveTaskFactory factory = Guice.createInjector(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(EventBus.class).toInstance(new EventBus());
+                install(new FactoryModuleBuilder().build(SaveTaskFactory.class));
+            }
+        }).getInstance(SaveTaskFactory.class);
+
+        Path tempDir = Files.createTempDirectory("test");
+        try {
+            TextMessage message = MessageFactory.createTextMessage();
+            message.setText("<order/>");
+            File file = tempDir.resolve("order.xml").toFile();
+
+            factory.saveToFile(Collections.singletonList(Pair.create(message, file)), null).execute();
+
+            assertArrayEquals("<order/>".getBytes(StandardCharsets.UTF_8), Files.readAllBytes(file.toPath()));
+        } finally {
+            recursiveDelete(tempDir);
+        }
+    }
 
     @Test
     public void testSaveMultipleFiles() throws IOException, JMSException {

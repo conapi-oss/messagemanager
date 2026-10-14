@@ -8,6 +8,6 @@ public class Version {
 
 	public static final String VERSION = "4.2.2";
 	//public static final String SUFFIX = "${suffix}";
-	public static final String BUILD_TIMESTAMP = "Fri Aug 14 12:57:20 CEST 2026";
+	public static final String BUILD_TIMESTAMP = "Wed Oct 14 10:48:36 CEST 2026";
 	public static final String BUILD_ID = "4.2.2";
 }

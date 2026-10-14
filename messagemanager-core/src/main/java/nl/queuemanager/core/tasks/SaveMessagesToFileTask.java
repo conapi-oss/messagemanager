@@ -31,6 +31,7 @@ import nl.queuemanager.jms.MessageType;
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
+import javax.annotation.Nullable;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
@@ -48,7 +49,7 @@ public class SaveMessagesToFileTask extends Task implements CancelableTask {
 	@Inject
 	public SaveMessagesToFileTask(
 			@Assisted List<Pair<javax.jms.Message, File>> messages, 
-			@Assisted String msgExtension,
+			@Nullable @Assisted String msgExtension,
 			EventBus eventBus) {
 		super(null, eventBus);
 		

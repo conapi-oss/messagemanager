@@ -35,6 +35,7 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -151,77 +152,99 @@ public class CommonUITasks {
 	 * @param messagesToSave The messages to save
 	 */
 	public static void saveMessages(Component parent, List<Message> messagesToSave, TaskExecutor worker, TaskFactory taskFactory, CoreConfiguration config) {
+		final FileFilter contentFileFilter = new FileNameExtensionFilter("Message Content Only (*.xml, *.txt, *.json, *.bin)", "xml", "txt", "json", "bin");
 		final FileFilter mmmsgFileFilter = new SingleExtensionFileFilter(MessageManagerMessage.getFileExtension(), "Message Manager - Message File");
 		final FileFilter esbmsgFileFilter = new SingleExtensionFileFilter(ESBMessage.getFileExtension(), "ESB Message File");
 		String messageFileExtension = null;
 
-		
+
 		int numMessages = messagesToSave.size();
 		if(numMessages == 0)
 			return;
-		
+
 		List<Pair<Message, File>> messages = CollectionFactory.newArrayList();
-		
+
 		// Initialize the JFileChooser
 		JFileChooser chooser = new JFileChooser();
 		chooser.setCurrentDirectory(new File(
 				config.getUserPref(CoreConfiguration.PREF_SAVE_DIRECTORY, ".")));
 		chooser.setMultiSelectionEnabled(false);
+		chooser.addChoosableFileFilter(contentFileFilter);
 		chooser.addChoosableFileFilter(mmmsgFileFilter);
 		chooser.addChoosableFileFilter(esbmsgFileFilter);
 		chooser.setAcceptAllFileFilterUsed(true);
+		// setAcceptAllFileFilterUsed() silently selects the first added filter, so choose the default explicitly
+		chooser.setFileFilter(contentFileFilter);
 
 		if(numMessages == 1) {
 			// Display a single file chooser
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-			chooser.showSaveDialog(parent);			
-			
+			if(chooser.showSaveDialog(parent) != JFileChooser.APPROVE_OPTION)
+				return;
+
 			// Now put the File and the selected Message into a Pair
 			File selectedFile = chooser.getSelectedFile();
 			Message selectedMessage = messagesToSave.get(0);
-			
+
 			if(selectedMessage != null && selectedFile != null) {
 				config.setUserPref(
-						CoreConfiguration.PREF_SAVE_DIRECTORY, 
+						CoreConfiguration.PREF_SAVE_DIRECTORY,
 						chooser.getCurrentDirectory().getAbsolutePath());
 				messages.add(Pair.create(selectedMessage, selectedFile));
-				if(selectedFile.getName().toLowerCase().endsWith(ESBMessage.getFileExtension()) ||
-					chooser.getFileFilter() == esbmsgFileFilter){
-					messageFileExtension = ESBMessage.getFileExtension();
-				}
-				else if(selectedFile.getName().toLowerCase().endsWith(MessageManagerMessage.getFileExtension()) ||
-						chooser.getFileFilter() == mmmsgFileFilter){
-					messageFileExtension = MessageManagerMessage.getFileExtension();
-				}
+				messageFileExtension = messageFileExtensionFor(
+						selectedFile.getName(), chooser.getFileFilter(), mmmsgFileFilter, esbmsgFileFilter);
 			}
 		} else if(numMessages >= 2) {
 			// Display a directory chooser
 			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-			chooser.showSaveDialog(parent);			
-			
+			if(chooser.showSaveDialog(parent) != JFileChooser.APPROVE_OPTION)
+				return;
+
 			File selectedDir = chooser.getSelectedFile();
 			if(selectedDir == null)
 				return;
-			
+
 			config.setUserPref(
-					CoreConfiguration.PREF_SAVE_DIRECTORY, 
+					CoreConfiguration.PREF_SAVE_DIRECTORY,
 					selectedDir.getAbsolutePath());
 
 			for(Message m: messagesToSave) {
 				messages.add(Pair.create(m, selectedDir));
 			}
 
-			if(chooser.getFileFilter() == esbmsgFileFilter){
-				messageFileExtension = ESBMessage.getFileExtension();
-			}
-			else if(chooser.getFileFilter() == mmmsgFileFilter){
-				messageFileExtension = MessageManagerMessage.getFileExtension();
-			}
+			// Directory names say nothing about the format, only the filter counts
+			messageFileExtension = messageFileExtensionFor(
+					null, chooser.getFileFilter(), mmmsgFileFilter, esbmsgFileFilter);
 		}
-		
+
 		if(messages.size() > 0) {
 			worker.execute(taskFactory.saveToFile(messages, messageFileExtension));
 		}
+	}
+
+	/**
+	 * Decide the file format for saving. An extension typed by the user wins over the
+	 * selected filter, so "order.xml" is always saved as the plain message content.
+	 *
+	 * @param fileName The file name entered by the user, or null when saving to a directory
+	 * @return The message file extension to save as, or null to save the plain message content
+	 */
+	static String messageFileExtensionFor(String fileName, FileFilter selectedFilter, FileFilter mmmsgFileFilter, FileFilter esbmsgFileFilter) {
+		if(fileName != null) {
+			String name = fileName.toLowerCase();
+			if(name.endsWith(ESBMessage.getFileExtension()))
+				return ESBMessage.getFileExtension();
+			if(name.endsWith(MessageManagerMessage.getFileExtension()))
+				return MessageManagerMessage.getFileExtension();
+			if(name.indexOf('.') != -1)
+				return null;
+		}
+
+		if(selectedFilter == esbmsgFileFilter)
+			return ESBMessage.getFileExtension();
+		if(selectedFilter == mmmsgFileFilter)
+			return MessageManagerMessage.getFileExtension();
+		return null;
 	}
 
 
