@@ -40,6 +40,8 @@ public class ProfileManager {
 	private final File profilesFolder;
 	private final Predicate<URL> jarExists;
 	private Set<Profile> profiles = new HashSet<>();
+	// the client folder each plugin ships (clients/<platform>/<version>), by its module class, from its own profile
+	private final Map<String, String> clientFolders = new HashMap<>();
 	
 	@Inject
 	public ProfileManager(PlatformHelper platform) {
@@ -78,6 +80,10 @@ public class ProfileManager {
 	}
 	public void putProfileIfNotExist(Profile profile, boolean refreshMetadata) {
 		if(refreshMetadata){
+			List<String> shipped = generatedJars(profile);
+			if(shipped != null && profile.getPlugins() != null && !profile.getPlugins().isEmpty()) {
+				clientFolders.put(profile.getPlugins().get(0), folderOf(shipped.get(0)));
+			}
 			final Set<Profile> toBeRemoved = new HashSet<>();
 			final Set<Profile> toBeAdded = new HashSet<>();
 
@@ -98,10 +104,11 @@ public class ProfileManager {
 					// The stored copy of the plugin's own profile follows a release that changed the plugin's client
 					// libraries - another client version, a library raised under the same one, or a rollback - so the
 					// change reaches installations that used the profile before (old jars stay on disk and would
-					// otherwise go on being loaded).
-					if(p.getId().equals(profile.getId()) && movesToNewClient(p, profile)) {
+					// otherwise go on being loaded). Jars the user added from elsewhere stay.
+					List<URL> moved = p.getId().equals(profile.getId()) ? movedClasspath(p, profile) : null;
+					if(moved != null) {
 						p.setJars(profile.getJars());
-						p.setClasspath(profile.getClasspath());
+						p.setClasspath(moved);
 					}
 
 					toBeRemoved.add(p);
@@ -122,17 +129,75 @@ public class ProfileManager {
 	}
 	
 	/**
-	 * Whether the stored copy of a plugin's own profile moves to the client libraries the plugin now names: both
-	 * classpaths are generated ones, the stored one names a jar the plugin no longer names (a release changed the
-	 * client libraries), and every one of the plugin's jars is there. A classpath the user changed stays as it is - jars
-	 * added from elsewhere, or jars removed (a subset of the plugin's) - and so does one whose new jars are missing: an
-	 * update that did not finish, or an installation whose {@code @MM_HOME@} the updates do not reach.
+	 * The classpath the stored copy of a plugin's own profile moves to when a release changed the plugin's client
+	 * libraries, or null when it stays as it is. The plugin's classpath must be a generated one (every entry in one
+	 * {@code @MM_HOME@/clients/<platform>/<version>/} folder); the stored entries in a version folder of that
+	 * {@code clients/<platform>/} are the stored copy's generated part, the others are the user's own. It moves when the
+	 * generated part, all in one folder, names a jar the plugin no longer names and every one of the plugin's jars is
+	 * there: to the plugin's jars, then the user's own entries in their order. Jars the user removed (a subset of the
+	 * plugin's), a generated part across two folders, and new jars that are missing - an update that did not finish -
+	 * keep the stored classpath.
 	 */
-	private boolean movesToNewClient(Profile stored, Profile fromPlugin) {
-		List<String> storedJars = generatedJars(stored);
+	private List<URL> movedClasspath(Profile stored, Profile fromPlugin) {
 		List<String> pluginJars = generatedJars(fromPlugin);
-		return storedJars != null && pluginJars != null && !pluginJars.containsAll(storedJars)
-				&& fromPlugin.getClasspath().stream().allMatch(jarExists);
+		if(pluginJars == null || stored.getClasspath() == null) {
+			return null;
+		}
+		String platform = platformOf(folderOf(pluginJars.get(0)));
+		List<String> generated = new ArrayList<>();
+		List<URL> own = new ArrayList<>();
+		String folder = null;
+		for(URL entry: stored.getClasspath()) {
+			Matcher m = GENERATED_CLASSPATH_ENTRY.matcher(entry.toString());
+			if(m.matches() && m.group(1).startsWith(platform)) {
+				if(folder != null && !folder.equals(m.group(1))) {
+					return null;
+				}
+				folder = m.group(1);
+				generated.add(folder + "/" + m.group(2));
+			} else {
+				own.add(entry);
+			}
+		}
+		if(generated.isEmpty() || pluginJars.containsAll(generated)
+				|| !fromPlugin.getClasspath().stream().allMatch(jarExists)) {
+			return null;
+		}
+		List<URL> moved = new ArrayList<>(fromPlugin.getClasspath());
+		moved.addAll(own);
+		return moved;
+	}
+
+	/**
+	 * Whether a profile names another version of its plugin's client folder than the plugin ships - a profile the user
+	 * pinned, or one an update could not move. False while the plugin's own profile has not been seen.
+	 */
+	public boolean namesAnotherClientVersion(Profile profile) {
+		if(profile == null || profile.getPlugins() == null || profile.getPlugins().isEmpty() || profile.getClasspath() == null) {
+			return false;
+		}
+		String shipped = clientFolders.get(profile.getPlugins().get(0));
+		if(shipped == null) {
+			return false;
+		}
+		String platform = platformOf(shipped);
+		for(URL entry: profile.getClasspath()) {
+			Matcher m = GENERATED_CLASSPATH_ENTRY.matcher(entry.toString());
+			if(m.matches() && m.group(1).startsWith(platform) && !m.group(1).equals(shipped)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/** {@code clients/<platform>/<version>} of a {@code clients/<platform>/<version>/<jar>}. */
+	private static String folderOf(String jar) {
+		return jar.substring(0, jar.lastIndexOf('/'));
+	}
+
+	/** {@code clients/<platform>/} of a {@code clients/<platform>/<version>}. */
+	private static String platformOf(String folder) {
+		return folder.substring(0, folder.lastIndexOf('/') + 1);
 	}
 
 	/**

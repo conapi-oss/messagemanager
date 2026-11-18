@@ -192,11 +192,21 @@ public class PluginModuleHelper {
     }
 
     /**
-     * The folder {@code @MM_HOME@} in a profile's classpath stands for: the {@code MM_HOME} variable the launch scripts
-     * set, or null when it is not set.
+     * The folder {@code @MM_HOME@} in a profile's classpath stands for, for this run of the app.
      */
     static String mmHome() {
-        return System.getenv("MM_HOME");
+        return mmHome(System.getProperty("user.dir"), System.getenv("MM_HOME"));
+    }
+
+    /**
+     * The folder {@code @MM_HOME@} stands for: the folder the app runs from, where updates install the client
+     * libraries, when it holds {@code clients/}; otherwise the {@code MM_HOME} variable the launch scripts set, or null.
+     */
+    static String mmHome(String userDir, String mmHomeVariable) {
+        if(userDir != null && new File(userDir, "clients").isDirectory()) {
+            return userDir;
+        }
+        return mmHomeVariable;
     }
 
     /**

@@ -49,18 +49,85 @@ public class ProfileManagerTest {
 	}
 
 	@Test
-	public void aBuiltInProfileTheUserEditedKeepsItsClientLibraries() throws Exception {
+	public void aBuiltInProfileWithAnOutsideJarTakesTheNewClientAndKeepsTheOutsideJar() throws Exception {
 		ProfileManager manager = new ProfileManager(folder.newFolder("profiles"), EVERY_JAR_THERE);
-		Profile edited = profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
+		manager.putProfileIfNotExist(profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
 				"file:/@MM_HOME@/clients/kafka/3.7.0/kafka-clients-3.7.0.jar",
-				"file:/Users/someone/libs/extra-serializer.jar");
-		List<String> before = urls(edited);
-		manager.putProfileIfNotExist(edited);
+				"file:/Users/someone/libs/extra-serializer.jar"));
+
+		manager.putProfileIfNotExist(profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
+				"file:///@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar"), true);
+
+		assertEquals(List.of("file:/@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar",
+				"file:/Users/someone/libs/extra-serializer.jar"), urls(manager.getProfileById(KAFKA_PROFILE)));
+	}
+
+	@Test
+	public void outsideJarsKeepTheirOrderAfterTheNewClientJars() throws Exception {
+		ProfileManager manager = new ProfileManager(folder.newFolder("profiles"), EVERY_JAR_THERE);
+		manager.putProfileIfNotExist(profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
+				"file:/Users/someone/libs/first.jar",
+				"file:/@MM_HOME@/clients/kafka/3.7.0/kafka-clients-3.7.0.jar",
+				"file:/Users/someone/libs/second.jar"));
+
+		manager.putProfileIfNotExist(profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
+				"file:///@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar",
+				"file:///@MM_HOME@/clients/kafka/3.9.2/lz4-java-1.11.4.jar"), true);
+
+		assertEquals(List.of("file:/@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar",
+				"file:/@MM_HOME@/clients/kafka/3.9.2/lz4-java-1.11.4.jar",
+				"file:/Users/someone/libs/first.jar",
+				"file:/Users/someone/libs/second.jar"), urls(manager.getProfileById(KAFKA_PROFILE)));
+	}
+
+	@Test
+	public void aProfileWithAnOutsideJarIsUntouchedWhileTheClientIsUnchanged() throws Exception {
+		ProfileManager manager = new ProfileManager(folder.newFolder("profiles"), EVERY_JAR_THERE);
+		Profile current = profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
+				"file:/Users/someone/libs/extra-serializer.jar",
+				"file:/@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar");
+		List<String> before = urls(current);
+		manager.putProfileIfNotExist(current);
 
 		manager.putProfileIfNotExist(profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
 				"file:///@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar"), true);
 
 		assertEquals(before, urls(manager.getProfileById(KAFKA_PROFILE)));
+	}
+
+	@Test
+	public void aProfileOnAnotherClientVersionThanThePluginShipsIsMarked() throws Exception {
+		ProfileManager manager = new ProfileManager(folder.newFolder("profiles"), EVERY_JAR_THERE);
+		Profile pinned = profile("users-kafka-3.7-profile", List.of("kafka-clients-*.jar"),
+				"file:/@MM_HOME@/clients/kafka/3.7.0/kafka-clients-3.7.0.jar");
+		manager.putProfileIfNotExist(pinned);
+		manager.putProfileIfNotExist(profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
+				"file:///@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar"), true);
+
+		assertTrue(manager.namesAnotherClientVersion(manager.getProfileById("users-kafka-3.7-profile")));
+		assertFalse(manager.namesAnotherClientVersion(manager.getProfileById(KAFKA_PROFILE)));
+	}
+
+	@Test
+	public void aProfileWithoutThePluginsClientJarsIsNotMarked() throws Exception {
+		ProfileManager manager = new ProfileManager(folder.newFolder("profiles"), EVERY_JAR_THERE);
+		Profile own = profile("users-kafka-own-jars", List.of("kafka-clients-*.jar"),
+				"file:/Users/someone/kafka/kafka-clients-3.7.0.jar");
+		manager.putProfileIfNotExist(own);
+		manager.putProfileIfNotExist(profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
+				"file:///@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar"), true);
+
+		assertFalse(manager.namesAnotherClientVersion(manager.getProfileById("users-kafka-own-jars")));
+	}
+
+	@Test
+	public void nothingIsMarkedBeforeThePluginsProfileIsSeen() throws Exception {
+		ProfileManager manager = new ProfileManager(folder.newFolder("profiles"), EVERY_JAR_THERE);
+		Profile pinned = profile("users-kafka-3.7-profile", List.of("kafka-clients-*.jar"),
+				"file:/@MM_HOME@/clients/kafka/3.7.0/kafka-clients-3.7.0.jar");
+		manager.putProfileIfNotExist(pinned);
+
+		assertFalse(manager.namesAnotherClientVersion(pinned));
 	}
 
 	@Test

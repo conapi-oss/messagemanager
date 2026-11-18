@@ -141,8 +141,10 @@ public class ProfileTabPanel extends JPanel implements UITab {
 				if(value instanceof Profile) {
 					final Profile profile = (Profile)value;
 					setIcon(profile.getIcon());
-					setToolTipText(profile.getName());
-					setText(profile.getName());
+					// a profile on another client version than its plugin ships: pinned by the user, or not moved
+					final boolean older = profileManager.namesAnotherClientVersion(profile);
+					setToolTipText(profile.getName() + (older ? " - uses another client version than its plugin ships" : ""));
+					setText(profile.getName() + (older ? " (older client)" : ""));
 				}
 				return comp;
 			}
