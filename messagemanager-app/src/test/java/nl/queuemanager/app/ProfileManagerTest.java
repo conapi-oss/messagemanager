@@ -5,28 +5,35 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
- * When the app finds a plugin, the profile stored from an earlier version of that plugin must pick up the plugin's
- * current client libraries - unless the user changed them on purpose.
+ * When an update brings a plugin with a newer client library, the profile stored from the earlier version of that
+ * plugin must move to the new client folder - unless the user changed it on purpose, or the new jars are not where
+ * the app would load them from.
  */
 public class ProfileManagerTest {
 	private static final String KAFKA_PROFILE = "52239f78-79d6-11e5-a560-6831c1x20182";
 	private static final String KAFKA_MODULE = "at.conapi.kafka.KafkaModule";
+	private static final Predicate<URL> EVERY_JAR_THERE = url -> true;
+	private static final Predicate<URL> NO_JAR_THERE = url -> false;
 
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();
 
 	@Test
 	public void anUnchangedBuiltInProfileTakesThePluginsNewClientLibraries() throws Exception {
-		ProfileManager manager = new ProfileManager(folder.newFolder("profiles"));
+		ProfileManager manager = new ProfileManager(folder.newFolder("profiles"), EVERY_JAR_THERE);
 		manager.putProfileIfNotExist(profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
 				"file:/@MM_HOME@/clients/kafka/3.7.0/kafka-clients-3.7.0.jar",
 				"file:/@MM_HOME@/clients/kafka/3.7.0/lz4-java-1.8.0.jar"));
@@ -43,7 +50,7 @@ public class ProfileManagerTest {
 
 	@Test
 	public void aBuiltInProfileTheUserEditedKeepsItsClientLibraries() throws Exception {
-		ProfileManager manager = new ProfileManager(folder.newFolder("profiles"));
+		ProfileManager manager = new ProfileManager(folder.newFolder("profiles"), EVERY_JAR_THERE);
 		Profile edited = profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
 				"file:/@MM_HOME@/clients/kafka/3.7.0/kafka-clients-3.7.0.jar",
 				"file:/Users/someone/libs/extra-serializer.jar");
@@ -58,7 +65,7 @@ public class ProfileManagerTest {
 
 	@Test
 	public void aProfileTheUserMadeOnThePluginKeepsItsPinnedClientLibraries() throws Exception {
-		ProfileManager manager = new ProfileManager(folder.newFolder("profiles"));
+		ProfileManager manager = new ProfileManager(folder.newFolder("profiles"), EVERY_JAR_THERE);
 		// a copy of the built-in profile, pinned to the old client on purpose - the generated shape, its own id
 		Profile pinned = profile("users-kafka-3.7-profile", List.of("kafka-clients-*.jar"),
 				"file:/@MM_HOME@/clients/kafka/3.7.0/kafka-clients-3.7.0.jar");
@@ -73,7 +80,7 @@ public class ProfileManagerTest {
 
 	@Test
 	public void aBuiltInProfileSpanningTwoClientFoldersKeepsItsClientLibraries() throws Exception {
-		ProfileManager manager = new ProfileManager(folder.newFolder("profiles"));
+		ProfileManager manager = new ProfileManager(folder.newFolder("profiles"), EVERY_JAR_THERE);
 		Profile mixed = profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
 				"file:/@MM_HOME@/clients/kafka/3.7.0/kafka-clients-3.7.0.jar",
 				"file:/@MM_HOME@/clients/kafka/3.6.0/lz4-java-1.8.0.jar");
@@ -84,6 +91,95 @@ public class ProfileManagerTest {
 				"file:///@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar"), true);
 
 		assertEquals(before, urls(manager.getProfileById(KAFKA_PROFILE)));
+	}
+
+	@Test
+	public void aJarTheUserRemovedStaysRemovedWhileTheClientIsUnchanged() throws Exception {
+		ProfileManager manager = new ProfileManager(folder.newFolder("profiles"), EVERY_JAR_THERE);
+		// the app finds the same plugin at every start: no update, so nothing to move
+		Profile trimmed = profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
+				"file:/@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar");
+		List<String> before = urls(trimmed);
+		manager.putProfileIfNotExist(trimmed);
+
+		manager.putProfileIfNotExist(profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
+				"file:///@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar",
+				"file:///@MM_HOME@/clients/kafka/3.9.2/lz4-java-1.11.4.jar"), true);
+
+		assertEquals(before, urls(manager.getProfileById(KAFKA_PROFILE)));
+	}
+
+	@Test
+	public void aLibraryRaisedInsideTheSameClientFolderReachesTheStoredProfile() throws Exception {
+		// a release raises a vulnerable library under an unchanged client: the folder keeps its name
+		ProfileManager manager = new ProfileManager(folder.newFolder("profiles"), EVERY_JAR_THERE);
+		manager.putProfileIfNotExist(profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
+				"file:/@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar",
+				"file:/@MM_HOME@/clients/kafka/3.9.2/snappy-java-1.1.10.12.jar"));
+
+		Profile fromPlugin = profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
+				"file:///@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar",
+				"file:///@MM_HOME@/clients/kafka/3.9.2/snappy-java-1.1.10.13.jar");
+		manager.putProfileIfNotExist(fromPlugin, true);
+
+		assertEquals(urls(fromPlugin), urls(manager.getProfileById(KAFKA_PROFILE)));
+	}
+
+	@Test
+	public void aBuiltInProfileStaysOnItsClientWhileOnlySomeNewJarsArePresent() throws Exception {
+		ProfileManager manager = new ProfileManager(folder.newFolder("profiles"),
+				url -> url.toString().contains("kafka-clients"));
+		Profile working = profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
+				"file:/@MM_HOME@/clients/kafka/3.7.0/kafka-clients-3.7.0.jar");
+		List<String> before = urls(working);
+		manager.putProfileIfNotExist(working);
+
+		manager.putProfileIfNotExist(profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
+				"file:///@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar",
+				"file:///@MM_HOME@/clients/kafka/3.9.2/lz4-java-1.11.4.jar"), true);
+
+		assertEquals(before, urls(manager.getProfileById(KAFKA_PROFILE)));
+	}
+
+	@Test
+	public void aPluginProfileWithoutClasspathLeavesTheStoredOneAlone() throws Exception {
+		ProfileManager manager = new ProfileManager(folder.newFolder("profiles"), EVERY_JAR_THERE);
+		Profile working = profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
+				"file:/@MM_HOME@/clients/kafka/3.7.0/kafka-clients-3.7.0.jar");
+		List<String> before = urls(working);
+		manager.putProfileIfNotExist(working);
+
+		manager.putProfileIfNotExist(profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar")), true);
+
+		assertEquals(before, urls(manager.getProfileById(KAFKA_PROFILE)));
+	}
+
+	@Test
+	public void aBuiltInProfileStaysOnItsClientWhileTheNewJarsAreMissing() throws Exception {
+		// e.g. an update that did not finish, or an installation whose @MM_HOME@ the updates do not reach
+		ProfileManager manager = new ProfileManager(folder.newFolder("profiles"), NO_JAR_THERE);
+		Profile working = profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
+				"file:/@MM_HOME@/clients/kafka/3.7.0/kafka-clients-3.7.0.jar");
+		List<String> before = urls(working);
+		manager.putProfileIfNotExist(working);
+
+		manager.putProfileIfNotExist(profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
+				"file:///@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar"), true);
+
+		assertEquals(before, urls(manager.getProfileById(KAFKA_PROFILE)));
+	}
+
+	@Test
+	public void isOnDiskResolvesMmHomeAsThePluginLoaderDoes() throws Exception {
+		File mmHome = folder.newFolder("mm home");
+		File jar = new File(mmHome, "clients/kafka/3.9.2/kafka-clients-3.9.2.jar");
+		assertTrue(jar.getParentFile().mkdirs() && jar.createNewFile());
+
+		String home = mmHome.getAbsolutePath();
+		assertTrue(ProfileManager.isOnDisk(new URL("file:///@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar"), home));
+		assertTrue(ProfileManager.isOnDisk(new URL("file:/@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar"), home));
+		assertFalse(ProfileManager.isOnDisk(new URL("file:///@MM_HOME@/clients/kafka/3.9.2/lz4-java-1.11.4.jar"), home));
+		assertFalse(ProfileManager.isOnDisk(new URL("file:///@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar"), null));
 	}
 
 	private static Profile profile(String id, List<String> jars, String... classpath) throws MalformedURLException {

@@ -22,8 +22,10 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.*;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -36,15 +38,20 @@ public class ProfileManager {
 	private Logger logger = Logger.getLogger(getClass().getName());
 	
 	private final File profilesFolder;
+	private final Predicate<URL> jarExists;
 	private Set<Profile> profiles = new HashSet<>();
 	
 	@Inject
 	public ProfileManager(PlatformHelper platform) {
-		this(new File(platform.getDataFolder(), "profiles"));
+		this(new File(platform.getDataFolder(), "profiles"), entry -> isOnDisk(entry, PluginModuleHelper.mmHome()));
 	}
 
-	ProfileManager(File profilesFolder) {
+	/**
+	 * @param jarExists whether a classpath entry names a jar that is there, where the app will load it from
+	 */
+	ProfileManager(File profilesFolder, Predicate<URL> jarExists) {
 		this.profilesFolder = profilesFolder;
+		this.jarExists = jarExists;
 		load(profilesFolder);
 	}
 	
@@ -88,10 +95,11 @@ public class ProfileManager {
 					// important if we change plugins, this loop depends on the plugin classes therefore will only work to add additional classes
 					p.setPlugins(profile.getPlugins());
 
-					// The stored copy of the plugin's own profile follows the plugin's client libraries, so an update that
-					// moves to a newer client version reaches installations that used the profile before (the old client
-					// folder stays on disk and would otherwise go on being loaded). A classpath the user changed is kept.
-					if(p.getId().equals(profile.getId()) && hasGeneratedClasspath(p)) {
+					// The stored copy of the plugin's own profile follows a release that changed the plugin's client
+					// libraries - another client version, a library raised under the same one, or a rollback - so the
+					// change reaches installations that used the profile before (old jars stay on disk and would
+					// otherwise go on being loaded).
+					if(p.getId().equals(profile.getId()) && movesToNewClient(p, profile)) {
 						p.setJars(profile.getJars());
 						p.setClasspath(profile.getClasspath());
 					}
@@ -114,27 +122,57 @@ public class ProfileManager {
 	}
 	
 	/**
-	 * Whether a profile's classpath is the one a plugin generates: every entry in one
-	 * {@code @MM_HOME@/clients/<platform>/<version>/} folder. Anything else was changed by the user.
+	 * Whether the stored copy of a plugin's own profile moves to the client libraries the plugin now names: both
+	 * classpaths are generated ones, the stored one names a jar the plugin no longer names (a release changed the
+	 * client libraries), and every one of the plugin's jars is there. A classpath the user changed stays as it is - jars
+	 * added from elsewhere, or jars removed (a subset of the plugin's) - and so does one whose new jars are missing: an
+	 * update that did not finish, or an installation whose {@code @MM_HOME@} the updates do not reach.
 	 */
-	static boolean hasGeneratedClasspath(Profile profile) {
+	private boolean movesToNewClient(Profile stored, Profile fromPlugin) {
+		List<String> storedJars = generatedJars(stored);
+		List<String> pluginJars = generatedJars(fromPlugin);
+		return storedJars != null && pluginJars != null && !pluginJars.containsAll(storedJars)
+				&& fromPlugin.getClasspath().stream().allMatch(jarExists);
+	}
+
+	/**
+	 * The jars of a classpath a plugin generates - every entry in one {@code @MM_HOME@/clients/<platform>/<version>/}
+	 * folder - as {@code clients/<platform>/<version>/<jar>}, or null for any other classpath.
+	 */
+	static List<String> generatedJars(Profile profile) {
 		List<URL> classpath = profile.getClasspath();
 		if(classpath == null || classpath.isEmpty()) {
-			return false;
+			return null;
 		}
+		List<String> jars = new ArrayList<>();
 		String folder = null;
 		for(URL entry: classpath) {
 			Matcher m = GENERATED_CLASSPATH_ENTRY.matcher(entry.toString());
 			if(!m.matches() || (folder != null && !folder.equals(m.group(1)))) {
-				return false;
+				return null;
 			}
 			folder = m.group(1);
+			jars.add(folder + "/" + m.group(2));
 		}
-		return true;
+		return jars;
+	}
+
+	/**
+	 * Whether a classpath entry names a jar that exists where the plugin loader will look for it.
+	 */
+	static boolean isOnDisk(URL entry, String mmHome) {
+		if(mmHome == null) {
+			return false;
+		}
+		try {
+			return new File(URI.create(PluginModuleHelper.fixJarUrl(entry.toString(), mmHome))).isFile();
+		} catch (IllegalArgumentException e) {
+			return false;
+		}
 	}
 
 	private static final Pattern GENERATED_CLASSPATH_ENTRY =
-			Pattern.compile("file:/+@MM_HOME@/(clients/[^/]+/[^/]+)/[^/]+\\.jar");
+			Pattern.compile("file:/+@MM_HOME@/(clients/[^/]+/[^/]+)/([^/]+\\.jar)");
 
 	public void removeProfile(Profile profile) {
 		profiles.remove(profile);

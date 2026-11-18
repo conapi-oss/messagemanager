@@ -188,15 +188,30 @@ public class PluginModuleHelper {
      * @return
      */
     public static String fixJarUrl(String jarUrl) {
+        return fixJarUrl(jarUrl, mmHome());
+    }
+
+    /**
+     * The folder {@code @MM_HOME@} in a profile's classpath stands for: the {@code MM_HOME} variable the launch scripts
+     * set, or null when it is not set.
+     */
+    static String mmHome() {
+        return System.getenv("MM_HOME");
+    }
+
+    /**
+     * As {@link #fixJarUrl(String)}, with the folder {@code @MM_HOME@} stands for.
+     */
+    static String fixJarUrl(String jarUrl, String mmHome) {
         if(System.getProperty("os.name").toLowerCase().contains("win")) {
             jarUrl = jarUrl.replace("file:/@MM_HOME@", "file:///@MM_HOME@");
-            jarUrl = jarUrl.replace("@MM_HOME@", System.getenv("MM_HOME"));
+            jarUrl = jarUrl.replace("@MM_HOME@", mmHome);
             jarUrl = jarUrl.replace("\\", "/");
         }
         else{
             // MacOs and Linux only // as the MM_HOME will have / from root
             jarUrl = jarUrl.replace("file:/@MM_HOME@", "file://@MM_HOME@");
-            jarUrl = jarUrl.replace("@MM_HOME@", System.getenv("MM_HOME"));
+            jarUrl = jarUrl.replace("@MM_HOME@", mmHome);
             // remove escape characters
             jarUrl = jarUrl.replace("\\", "");
         }
