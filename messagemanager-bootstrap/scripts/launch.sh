@@ -35,6 +35,9 @@ if [ "$IS_MACOS" = true ]; then
     fi
     # Change to the new directory for the rest of the execution
     cd "$APP_SUPPORT_DIR"
+    # Updates install here: the app, cleanup.sh and @MM_HOME@ in the plugin profiles all use this folder
+    MM_HOME="$PWD"
+    export MM_HOME
 fi
 
 if [ -f "$DMG_JAVA/bin/java" ]; then
