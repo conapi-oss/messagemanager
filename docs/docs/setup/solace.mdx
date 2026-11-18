@@ -11,11 +11,13 @@ The Solace Profile is available from the Profile List.
 In order for the Solace Profile to be activated, the required Solace Client jars need to be added to the Message Manager classpath.
 If the required Solace Client jars are not available in the classpath, they can be added using the 'Add JAR' button on the bottom middle of the window.
 This will open a file selection dialog box where the proper Solace Client jar files can be added.
-The required Solace Client jars are:
+The required Solace Client jars are (version 10.30.2):
+- sol-jms-10.30.2.jar
+- solace-serdes-1.0.0.jar
 - commons-logging-1.2.jar
-- org.apache.servicemix.bundles.jzlib-1.0.7_2.jar
+- org.apache.servicemix.bundles.jzlib-1.1.3_2.jar
 - org.osgi.annotation-6.0.0.jar
-- sol-jms-10.19.0.jar
+- the Netty 4.2.17 jars sol-jms brings: netty-buffer, netty-codec-base, netty-codec-compression, netty-codec-http, netty-codec-socks, netty-common, netty-handler, netty-handler-proxy, netty-resolver, netty-transport, netty-transport-classes-epoll, netty-transport-native-epoll (linux-x86_64), netty-transport-native-unix-common
 
 ![solace-add-jar.png](assets/solace-add-jar.png)
 
