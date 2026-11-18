@@ -26,6 +26,8 @@ import java.net.URL;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -38,7 +40,11 @@ public class ProfileManager {
 	
 	@Inject
 	public ProfileManager(PlatformHelper platform) {
-		this.profilesFolder = new File(platform.getDataFolder(), "profiles");
+		this(new File(platform.getDataFolder(), "profiles"));
+	}
+
+	ProfileManager(File profilesFolder) {
+		this.profilesFolder = profilesFolder;
 		load(profilesFolder);
 	}
 	
@@ -82,6 +88,14 @@ public class ProfileManager {
 					// important if we change plugins, this loop depends on the plugin classes therefore will only work to add additional classes
 					p.setPlugins(profile.getPlugins());
 
+					// The stored copy of the plugin's own profile follows the plugin's client libraries, so an update that
+					// moves to a newer client version reaches installations that used the profile before (the old client
+					// folder stays on disk and would otherwise go on being loaded). A classpath the user changed is kept.
+					if(p.getId().equals(profile.getId()) && hasGeneratedClasspath(p)) {
+						p.setJars(profile.getJars());
+						p.setClasspath(profile.getClasspath());
+					}
+
 					toBeRemoved.add(p);
 					toBeAdded.add(p);
 				}
@@ -99,6 +113,29 @@ public class ProfileManager {
 		}
 	}
 	
+	/**
+	 * Whether a profile's classpath is the one a plugin generates: every entry in one
+	 * {@code @MM_HOME@/clients/<platform>/<version>/} folder. Anything else was changed by the user.
+	 */
+	static boolean hasGeneratedClasspath(Profile profile) {
+		List<URL> classpath = profile.getClasspath();
+		if(classpath == null || classpath.isEmpty()) {
+			return false;
+		}
+		String folder = null;
+		for(URL entry: classpath) {
+			Matcher m = GENERATED_CLASSPATH_ENTRY.matcher(entry.toString());
+			if(!m.matches() || (folder != null && !folder.equals(m.group(1)))) {
+				return false;
+			}
+			folder = m.group(1);
+		}
+		return true;
+	}
+
+	private static final Pattern GENERATED_CLASSPATH_ENTRY =
+			Pattern.compile("file:/+@MM_HOME@/(clients/[^/]+/[^/]+)/[^/]+\\.jar");
+
 	public void removeProfile(Profile profile) {
 		profiles.remove(profile);
 		File file = fileForProfile(profile);
