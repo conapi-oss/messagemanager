@@ -151,7 +151,8 @@ class XmlFileConfiguration extends XmlConfigurationSection {
 			channel.truncate(0);
 			channel.write(ByteBuffer.wrap(buffer.toByteArray()));
 			
-			log.info("Written configuration:\n" + new String(buffer.toByteArray()));
+			// the location only, never the contents
+			log.fine("Configuration written to " + configFile);
 		} catch (TransformerException e) {
 			log.log(Level.SEVERE, "Error while saving prefs!", e);
 		}

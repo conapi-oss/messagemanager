@@ -11,7 +11,12 @@ import org.junit.Test;
 import javax.jms.ConnectionFactory;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
 
@@ -28,6 +33,33 @@ public class XmlConfigurationTest {
 		config = new CoreXmlConfiguration(configFile, NAMESPACE_URI, "TestConfiguration");
 	}
 	
+	@Test
+	public void savingTheConfigurationLogsOnlyWhereItWasWritten() {
+		// what a save writes must not appear in any log, at any level
+		final String VALUE = "a-value-only-the-file-holds";
+		final List<String> logged = new ArrayList<>();
+		Logger logger = Logger.getLogger(XmlFileConfiguration.class.getName());
+		Level before = logger.getLevel();
+		Handler handler = new Handler() {
+			@Override public void publish(LogRecord record) { logged.add(String.valueOf(record.getMessage())); }
+			@Override public void flush() {}
+			@Override public void close() {}
+		};
+		handler.setLevel(Level.ALL);
+		logger.setLevel(Level.ALL);
+		logger.addHandler(handler);
+		try {
+			config.setUserPref("someKey", VALUE);
+		} finally {
+			logger.removeHandler(handler);
+			logger.setLevel(before);
+		}
+		assertEquals(VALUE, config.getUserPref("someKey", null));
+		for (String message : logged) {
+			assertFalse("logged: " + message, message.contains(VALUE));
+		}
+	}
+
 	@Test
 	public void testGetUniqueId() {
 		String uuid = config.getUniqueId();
