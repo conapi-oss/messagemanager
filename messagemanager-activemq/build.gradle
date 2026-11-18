@@ -37,3 +37,12 @@ tasks.register("copyClientLibsToParentBuild", Copy) {
     }
 }
 compileJava.dependsOn('copyClientLibsToParentBuild')
+
+// The profile names the client jars by version: the build writes it in, so the profile always matches the
+// clients/activemq/<version>/ folder copied above.
+processResources {
+    inputs.property('activemqClientVersion', activemqClientVersion)
+    filesMatching('MessageManager/profiles/activemq-profile.xml') {
+        filter { line -> line.replace('@ACTIVEMQ_CLIENT_VERSION@', activemqClientVersion) }
+    }
+}
