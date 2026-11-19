@@ -1,4 +1,8 @@
 #!/bin/bash
+# Sourced by launch.sh from the folder the app runs from, where updates install (Application Support on macOS):
+# MM_HOME names it here, also on installations whose own launch.sh set it to the folder they were extracted to.
+MM_HOME="$PWD"
+export MM_HOME
 
 # check if there is an update update4j
 echo "Checking for $MM_HOME/bootstrap/update4j.jar.new"
