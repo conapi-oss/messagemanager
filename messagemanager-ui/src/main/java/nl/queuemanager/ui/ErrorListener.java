@@ -95,7 +95,7 @@ public class ErrorListener {
 			}
 	}
 
-	private String translateExceptionMessage(Throwable e) {
+	static String translateExceptionMessage(Throwable e) {
 		if(e == null)
 			return "Unknown error! (Exception in TaskEvent was null)";
 		
@@ -107,7 +107,7 @@ public class ErrorListener {
 
 		if( e instanceof java.lang.module.ResolutionException ||
 			e instanceof java.lang.module.FindException){
-			return "Please check the Example/Template profile for recommended JARs on the classpath<br>and adjust the classpath: <br><br>" + e.getMessage() + "<br><br>More Information: <a href='https://conapi-oss.github.io/messagemanager/docs/troubleshooting/howto-classloadingissue'>How To Fix Class Loading Issues</a>";
+			return "Please check the Example/Template profile for recommended JARs on the classpath<br>and adjust the classpath: <br><br>" + html(e.getMessage()) + "<br><br>More Information: <a href='https://conapi-oss.github.io/messagemanager/docs/troubleshooting/howto-classloadingissue'>How To Fix Class Loading Issues</a>";
 		}
 
 		if(MANAGE_PERMISSION_DENIED.equals(e.getClass().getName())
@@ -115,10 +115,10 @@ public class ErrorListener {
 			return "You do not have permission to perform this action";
 
 		if(e instanceof JMSSecurityException)
-			return "Access denied: " + e.getMessage();
+			return "Access denied: " + html(e.getMessage());
 		
 		if(e instanceof CoreException)
-			return e.getMessage();
+			return html(e.getMessage());
 		
 		// The Exception was not a known one. Dig deeper.
 		if(e.getCause() != null && e.getCause() != e)
@@ -126,10 +126,21 @@ public class ErrorListener {
 				translateExceptionMessage(e.getCause());
 
 		// Reached the end of the exception stack
-		return e.getMessage();
+		return html(e.getMessage());
 	}
 
-	private String captureStackTrace(Throwable e) {
+	/**
+	 * An exception's message as text in the dialog, which renders HTML: the message can hold what a broker or a server
+	 * sent. Null stays null.
+	 */
+	private static String html(String text) {
+		if(text == null)
+			return null;
+		return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+				.replace("\"", "&quot;").replace("'", "&#39;");
+	}
+
+	private static String captureStackTrace(Throwable e) {
 		// Capture the stacktrace for in the error message
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);
