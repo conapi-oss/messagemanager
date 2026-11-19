@@ -109,15 +109,37 @@ public class ProfileManagerTest {
 	}
 
 	@Test
-	public void aProfileWithoutThePluginsClientJarsIsNotMarked() throws Exception {
-		ProfileManager manager = new ProfileManager(folder.newFolder("profiles"), EVERY_JAR_THERE);
-		Profile own = profile("users-kafka-own-jars", List.of("kafka-clients-*.jar"),
-				"file:/Users/someone/kafka/kafka-clients-3.7.0.jar");
-		manager.putProfileIfNotExist(own);
-		manager.putProfileIfNotExist(profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
-				"file:///@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar"), true);
+	public void aProfileWithItsOwnCopyOfAnOlderClientJarIsMarked() throws Exception {
+		// e.g. a profile made before the clients shipped with the plugins, naming the user's own client jars
+		assertTrue(markedAfterThePluginIsSeen("file:/Users/someone/kafka/kafka-clients-3.7.0.jar"));
+	}
 
-		assertFalse(manager.namesAnotherClientVersion(manager.getProfileById("users-kafka-own-jars")));
+	@Test
+	public void aProfileWithItsOwnCopyOfTheShippedVersionIsNotMarked() throws Exception {
+		assertFalse(markedAfterThePluginIsSeen("file:/opt/kafka/kafka-clients-3.9.2.jar"));
+	}
+
+	@Test
+	public void aProfileWithUnrelatedOwnJarsIsNotMarked() throws Exception {
+		assertFalse(markedAfterThePluginIsSeen("file:/Users/someone/libs/extra-serializer.jar"));
+	}
+
+	@Test
+	public void anOwnCopyOfAShippedJarIsDroppedWhenTheProfileMoves() throws Exception {
+		// it would replace the plugin's jar of the same module name in the plugin's module layer
+		ProfileManager manager = new ProfileManager(folder.newFolder("profiles"), EVERY_JAR_THERE);
+		manager.putProfileIfNotExist(profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
+				"file:/@MM_HOME@/clients/kafka/3.7.0/kafka-clients-3.7.0.jar",
+				"file:/Users/someone/libs/lz4-java-1.8.0.jar",
+				"file:/Users/someone/libs/extra-serializer.jar"));
+
+		manager.putProfileIfNotExist(profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
+				"file:///@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar",
+				"file:///@MM_HOME@/clients/kafka/3.9.2/lz4-java-1.11.4.jar"), true);
+
+		assertEquals(List.of("file:/@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar",
+				"file:/@MM_HOME@/clients/kafka/3.9.2/lz4-java-1.11.4.jar",
+				"file:/Users/someone/libs/extra-serializer.jar"), urls(manager.getProfileById(KAFKA_PROFILE)));
 	}
 
 	@Test
@@ -247,6 +269,15 @@ public class ProfileManagerTest {
 		assertTrue(ProfileManager.isOnDisk(new URL("file:/@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar"), home));
 		assertFalse(ProfileManager.isOnDisk(new URL("file:///@MM_HOME@/clients/kafka/3.9.2/lz4-java-1.11.4.jar"), home));
 		assertFalse(ProfileManager.isOnDisk(new URL("file:///@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar"), null));
+	}
+
+	/** A profile the user made with one entry, after the Kafka plugin's profile (shipping 3.9.2) was seen. */
+	private boolean markedAfterThePluginIsSeen(String entry) throws Exception {
+		ProfileManager manager = new ProfileManager(folder.newFolder("profiles"), EVERY_JAR_THERE);
+		manager.putProfileIfNotExist(profile("users-kafka", List.of("kafka-clients-*.jar"), entry));
+		manager.putProfileIfNotExist(profile(KAFKA_PROFILE, List.of("kafka-clients-*.jar"),
+				"file:///@MM_HOME@/clients/kafka/3.9.2/kafka-clients-3.9.2.jar"), true);
+		return manager.namesAnotherClientVersion(manager.getProfileById("users-kafka"));
 	}
 
 	private static Profile profile(String id, List<String> jars, String... classpath) throws MalformedURLException {

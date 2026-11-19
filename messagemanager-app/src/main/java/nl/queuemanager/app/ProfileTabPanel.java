@@ -142,9 +142,9 @@ public class ProfileTabPanel extends JPanel implements UITab {
 					final Profile profile = (Profile)value;
 					setIcon(profile.getIcon());
 					// a profile on another client version than its plugin ships: pinned by the user, or not moved
-					final boolean older = profileManager.namesAnotherClientVersion(profile);
-					setToolTipText(profile.getName() + (older ? " - uses another client version than its plugin ships" : ""));
-					setText(profile.getName() + (older ? " (older client)" : ""));
+					final boolean other = profileManager.namesAnotherClientVersion(profile);
+					setToolTipText(profile.getName() + (other ? " - uses another client version than its plugin ships" : ""));
+					setText(profile.getName() + (other ? " (other client version)" : ""));
 				}
 				return comp;
 			}
@@ -242,7 +242,7 @@ public class ProfileTabPanel extends JPanel implements UITab {
 				if(value instanceof URL) {
 					String jarUrl="";
 					try {
-						//replace any @MM_HOME@ placeholder with the actual value of the MM_HOME environment variable
+						//replace any @MM_HOME@ placeholder with the folder PluginModuleHelper.mmHome() names
 						jarUrl = ((URL)value).toString();
 						jarUrl = PluginModuleHelper.fixJarUrl(jarUrl);
 

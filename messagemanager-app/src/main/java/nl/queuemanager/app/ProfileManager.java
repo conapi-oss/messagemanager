@@ -30,6 +30,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -40,8 +41,8 @@ public class ProfileManager {
 	private final File profilesFolder;
 	private final Predicate<URL> jarExists;
 	private Set<Profile> profiles = new HashSet<>();
-	// the client folder each plugin ships (clients/<platform>/<version>), by its module class, from its own profile
-	private final Map<String, String> clientFolders = new HashMap<>();
+	// what each plugin ships, by its module class, from its own profile
+	private final Map<String, Shipped> shippedClients = new HashMap<>();
 	
 	@Inject
 	public ProfileManager(PlatformHelper platform) {
@@ -80,9 +81,9 @@ public class ProfileManager {
 	}
 	public void putProfileIfNotExist(Profile profile, boolean refreshMetadata) {
 		if(refreshMetadata){
-			List<String> shipped = generatedJars(profile);
+			List<String> shipped = generatedJars(profile.getClasspath());
 			if(shipped != null && profile.getPlugins() != null && !profile.getPlugins().isEmpty()) {
-				clientFolders.put(profile.getPlugins().get(0), folderOf(shipped.get(0)));
+				shippedClients.put(profile.getPlugins().get(0), new Shipped(folderOf(shipped.get(0)), profile.getClasspath()));
 			}
 			final Set<Profile> toBeRemoved = new HashSet<>();
 			final Set<Profile> toBeAdded = new HashSet<>();
@@ -134,60 +135,96 @@ public class ProfileManager {
 	 * {@code @MM_HOME@/clients/<platform>/<version>/} folder); the stored entries in a version folder of that
 	 * {@code clients/<platform>/} are the stored copy's generated part, the others are the user's own. It moves when the
 	 * generated part, all in one folder, names a jar the plugin no longer names and every one of the plugin's jars is
-	 * there: to the plugin's jars, then the user's own entries in their order. Jars the user removed (a subset of the
-	 * plugin's), a generated part across two folders, and new jars that are missing - an update that did not finish -
-	 * keep the stored classpath.
+	 * there: to the plugin's jars, then the user's own entries in their order - except a user's own copy of a jar the
+	 * plugin ships (the same module name), which would replace the plugin's in the module layer. Jars the user removed
+	 * (a subset of the plugin's), a generated part across two folders, and new jars that are missing - an update that
+	 * did not finish - keep the stored classpath.
 	 */
 	private List<URL> movedClasspath(Profile stored, Profile fromPlugin) {
-		List<String> pluginJars = generatedJars(fromPlugin);
+		List<String> pluginJars = generatedJars(fromPlugin.getClasspath());
 		if(pluginJars == null || stored.getClasspath() == null) {
 			return null;
 		}
 		String platform = platformOf(folderOf(pluginJars.get(0)));
-		List<String> generated = new ArrayList<>();
-		List<URL> own = new ArrayList<>();
-		String folder = null;
-		for(URL entry: stored.getClasspath()) {
-			Matcher m = GENERATED_CLASSPATH_ENTRY.matcher(entry.toString());
-			if(m.matches() && m.group(1).startsWith(platform)) {
-				if(folder != null && !folder.equals(m.group(1))) {
-					return null;
-				}
-				folder = m.group(1);
-				generated.add(folder + "/" + m.group(2));
-			} else {
-				own.add(entry);
-			}
-		}
-		if(generated.isEmpty() || pluginJars.containsAll(generated)
+		Map<Boolean, List<URL>> parts = stored.getClasspath().stream()
+				.collect(Collectors.partitioningBy(entry -> inPlatform(entry, platform)));
+		List<String> generated = generatedJars(parts.get(true));
+		if(generated == null || pluginJars.containsAll(generated)
 				|| !fromPlugin.getClasspath().stream().allMatch(jarExists)) {
 			return null;
 		}
+		Set<String> shippedModules = moduleNames(fromPlugin.getClasspath());
 		List<URL> moved = new ArrayList<>(fromPlugin.getClasspath());
-		moved.addAll(own);
+		for(URL own: parts.get(false)) {
+			if(!shippedModules.contains(moduleName(own))) {
+				moved.add(own);
+			}
+		}
 		return moved;
 	}
 
 	/**
-	 * Whether a profile names another version of its plugin's client folder than the plugin ships - a profile the user
-	 * pinned, or one an update could not move. False while the plugin's own profile has not been seen.
+	 * Whether a profile uses another version of a client its plugin ships: an entry in another version folder of the
+	 * plugin's {@code clients/<platform>/}, or a jar of the user's own with the module name of a jar the plugin ships but
+	 * another file name - a profile the user pinned, one an update could not move, or one made before the clients
+	 * shipped with the plugins. False while the plugin's own profile has not been seen.
 	 */
 	public boolean namesAnotherClientVersion(Profile profile) {
 		if(profile == null || profile.getPlugins() == null || profile.getPlugins().isEmpty() || profile.getClasspath() == null) {
 			return false;
 		}
-		String shipped = clientFolders.get(profile.getPlugins().get(0));
+		Shipped shipped = shippedClients.get(profile.getPlugins().get(0));
 		if(shipped == null) {
 			return false;
 		}
-		String platform = platformOf(shipped);
+		String platform = platformOf(shipped.folder);
 		for(URL entry: profile.getClasspath()) {
-			Matcher m = GENERATED_CLASSPATH_ENTRY.matcher(entry.toString());
-			if(m.matches() && m.group(1).startsWith(platform) && !m.group(1).equals(shipped)) {
+			String folder = clientFolderOf(entry);
+			if(folder != null ? folder.startsWith(platform) && !folder.equals(shipped.folder)
+					: shipped.modules.contains(moduleName(entry)) && !shipped.fileNames.contains(fileName(entry))) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	/** What a plugin ships: its client folder, and the module and file names of its client jars. */
+	private static final class Shipped {
+		final String folder;
+		final Set<String> modules;
+		final Set<String> fileNames;
+
+		Shipped(String folder, List<URL> classpath) {
+			this.folder = folder;
+			this.modules = moduleNames(classpath);
+			this.fileNames = classpath.stream().map(ProfileManager::fileName).collect(Collectors.toSet());
+		}
+	}
+
+	/** {@code clients/<platform>/<version>} of a generated entry, or null for any other entry. */
+	private static String clientFolderOf(URL entry) {
+		Matcher m = GENERATED_CLASSPATH_ENTRY.matcher(entry.toString());
+		return m.matches() ? m.group(1) : null;
+	}
+
+	/** Whether an entry is a generated one in a version folder of {@code clients/<platform>/}. */
+	private static boolean inPlatform(URL entry, String platform) {
+		String folder = clientFolderOf(entry);
+		return folder != null && folder.startsWith(platform);
+	}
+
+	private static String fileName(URL entry) {
+		String path = entry.getPath();
+		return path.substring(path.lastIndexOf('/') + 1);
+	}
+
+	/** The module name the plugin loader gives a jar ({@link PluginModuleHelper#deriveModuleName}). */
+	private static String moduleName(URL entry) {
+		return PluginModuleHelper.deriveModuleName(fileName(entry));
+	}
+
+	private static Set<String> moduleNames(List<URL> classpath) {
+		return classpath.stream().map(ProfileManager::moduleName).collect(Collectors.toSet());
 	}
 
 	/** {@code clients/<platform>/<version>} of a {@code clients/<platform>/<version>/<jar>}. */
@@ -202,22 +239,21 @@ public class ProfileManager {
 
 	/**
 	 * The jars of a classpath a plugin generates - every entry in one {@code @MM_HOME@/clients/<platform>/<version>/}
-	 * folder - as {@code clients/<platform>/<version>/<jar>}, or null for any other classpath.
+	 * folder - as {@code clients/<platform>/<version>/<jar>}, or null for any other classpath, an empty one included.
 	 */
-	static List<String> generatedJars(Profile profile) {
-		List<URL> classpath = profile.getClasspath();
+	static List<String> generatedJars(List<URL> classpath) {
 		if(classpath == null || classpath.isEmpty()) {
 			return null;
 		}
 		List<String> jars = new ArrayList<>();
 		String folder = null;
 		for(URL entry: classpath) {
-			Matcher m = GENERATED_CLASSPATH_ENTRY.matcher(entry.toString());
-			if(!m.matches() || (folder != null && !folder.equals(m.group(1)))) {
+			String entryFolder = clientFolderOf(entry);
+			if(entryFolder == null || (folder != null && !folder.equals(entryFolder))) {
 				return null;
 			}
-			folder = m.group(1);
-			jars.add(folder + "/" + m.group(2));
+			folder = entryFolder;
+			jars.add(folder + "/" + fileName(entry));
 		}
 		return jars;
 	}

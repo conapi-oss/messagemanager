@@ -167,7 +167,7 @@ public class PluginModuleHelper {
     private static Set<Path> copyJarsToTemporaryLocation(final List<URL> urls, final String tempFolder) throws IOException {
         final Set<Path> jarPaths = new HashSet<>();
         for(URL url: urls) {
-            //replace any @MM_HOME@ placeholder with the actual value of the MM_HOME environment variable
+            //replace any @MM_HOME@ placeholder with the folder mmHome() names: the one the app runs from, else MM_HOME
             String jarUrl = url.toString();
             jarUrl = fixJarUrl(jarUrl);
 
