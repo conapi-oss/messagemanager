@@ -9,6 +9,26 @@ hide_table_of_contents: true
 
 Below are the changelogs for the latest releases of the Message Manager:
 
+4.3.0 - 2026-11-20
+- **Message Manager brings its own Java on macOS and Windows**: after its first starts it downloads a current Java in the background and switches to it once it has passed its checks, so Java's security updates arrive with Message Manager's own updates. The Java it ran on before stays the fallback, and `LAUNCHER_JAVA` in setenv keeps the last word
+- The About tab shows the Java Message Manager runs on: its version, vendor and folder
+- License check over HTTPS, through the system proxy, when a corporate network blocks the DNS lookup (commercial only)
+- Azure Service Bus: set how many messages to browse and for how long, per connection (commercial only)
+- Azure Service Bus: deleting a single message is no longer offered - Service Bus cannot remove one message without disturbing the others (commercial only)
+- Every release is checked for known vulnerabilities of medium severity and above before it is published
+- Updated broker client libraries: Kafka 3.9.2, RabbitMQ 5.38.0, ActiveMQ Artemis 2.57.0, Solace 10.30.2, AWS SDK 2.59.3, Azure Service Bus 7.19.1 (commercial only)
+- Updated the ActiveMQ Classic client library to 5.19.12
+- A new installation shows the terms and conditions again, instead of "Unable to load terms and conditions"
+- Kafka: a send the broker rejects, e.g. for a missing write permission, now shows an error instead of looking sent (commercial only)
+- Azure Service Bus: browsing without an active license says so at once instead of an empty list after 30 seconds (commercial only)
+- Azure Service Bus: sending a message with a JMS type but no message ID no longer fails (commercial only)
+- Saving messages to files works again
+- Broken XML is highlighted more clearly in the message viewer
+- ActiveMQ Artemis: when Jolokia does not answer, the app says so and why, instead of silently showing an empty queue list (commercial only)
+- The app no longer writes its whole configuration, saved connection details included, to the log
+- After an update that brings a connector a new client library, its built-in profile uses it and keeps the jars you added yourself; profiles you created keep their libraries and are marked "(other client version)" when they use another client version than the connector ships
+- macOS installations from the zip or tar.gz archive load the connectors' current client libraries
+
 4.2.2 - 2026-08-14
 - Fast broker enumeration for large (100+ brokers) environments
 - Improved JSON and XML formatter and display, including Raw view.
