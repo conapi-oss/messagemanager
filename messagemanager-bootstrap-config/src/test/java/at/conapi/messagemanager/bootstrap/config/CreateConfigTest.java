@@ -122,6 +122,27 @@ public class CreateConfigTest {
     }
 
     @Test
+    public void jarsOffEveryModulePathSkipUpdate4jsBootConflictCheck() throws IOException {
+        // a client jar whose file name gives no module name (netty-codec-native-quic: 'native' is a keyword); Update4J
+        // derives one for its boot conflict check and fails the whole update when it cannot
+        write(config.resolve("clients/azure/7.19.1/netty-codec-native-quic-4.2.19.Final-osx-aarch_64.jar"), "quic");
+        write(config.resolve("plugins/libs/jython/jython.jar"), "lib");
+        write(config.resolve("readonly/scripts/sample.py"), "print()");
+        createConfig();
+        List<FileMetadata> files = read(config.resolve("app/config.xml")).getFiles();
+        for (String folder : List.of("/clients/", "/plugins/libs/", "/readonly/")) {
+            List<FileMetadata> inFolder = files.stream()
+                    .filter(f -> f.getPath().toString().replace('\\', '/').contains(folder))
+                    .collect(Collectors.toList());
+            assertFalse(folder, inFolder.isEmpty());
+            for (FileMetadata f : inFolder) {
+                assertTrue(f.getPath().toString(), f.isIgnoreBootConflict());
+                assertFalse(f.getPath().toString(), f.isModulepath() || f.isClasspath());
+            }
+        }
+    }
+
+    @Test
     public void javafxComesInTheVersionItIsGiven() throws IOException {
         createConfig();
         List<String> javafx = read(config.resolve("setup.xml")).getFiles().stream()

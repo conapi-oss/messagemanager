@@ -78,10 +78,13 @@ public class CreateConfig {
                         .peek(f -> f.uri(baseUrl +"/plugins/" + f.getSource().toFile().getName()))
                         .peek( f -> f.path("../plugins/" + f.getSource().toFile().getName())))
 
-                // clients, not put on modulepath nor classpath, including all subfolders
+                // clients, not put on modulepath nor classpath, including all subfolders. They load in a plugin's own
+                // layer, never at boot: Update4J's boot conflict check would only derive a module name from each file
+                // name, and one it cannot derive (netty-codec-native-quic: 'native' is a keyword) fails the update.
                 .files(FileMetadata.streamDirectory(configLoc + "/clients")
                         .peek(r -> r.modulepath(false))
                         .peek(r -> r.classpath(false))
+                        .peek(r -> r.ignoreBootConflict())
                         .peek( f -> {
                             String pathToJar = f.getSource().toFile().getPath();
                             pathToJar = pathToJar.substring(pathToJar.indexOf("clients") + 8);
@@ -94,6 +97,7 @@ public class CreateConfig {
                 .files(FileMetadata.streamDirectory(configLoc + "/plugins/libs")
                         .peek(r -> r.modulepath(false))
                         .peek(r -> r.classpath(false))
+                        .peek(r -> r.ignoreBootConflict())
                         .peek( f -> {
                             String pathToJar = f.getSource().toFile().getPath();
                             pathToJar = pathToJar.substring(pathToJar.indexOf("plugins") + 8);
@@ -106,6 +110,7 @@ public class CreateConfig {
                 .files(FileMetadata.streamDirectory(configLoc + "/readonly")
                         .peek(r -> r.modulepath(false))
                         .peek(r -> r.classpath(false))
+                        .peek(r -> r.ignoreBootConflict())
                         .peek( f -> {
                             String pathToJar = f.getSource().toFile().getPath();
                             pathToJar = pathToJar.substring(pathToJar.indexOf("readonly") + 9);
