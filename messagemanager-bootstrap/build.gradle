@@ -76,6 +76,11 @@ tasks.register('copyBootstrapJars', Copy) {
 
 tasks.register('copyLaunchScripts', Copy) {
     from "${projectDir}/scripts"
+    // Files a distribution adds to bin/, as comma-separated paths (-PbinExtras=...): this task owns bin/, and a
+    // file copied there by other means does not survive its rerun.
+    if (project.hasProperty('binExtras')) {
+        from(project.property('binExtras').toString().split(','))
+    }
     include '**/*'
     into "${bootstrapTarget}/config/bin"
 }
