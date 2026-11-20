@@ -9,9 +9,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.update4j.Configuration;
@@ -35,6 +38,12 @@ public class CreateConfig {
         final String bootstrapJarsLocation = args[1]; // target
         String configLoc = args[2];
         String build = args[3]; //default: stable
+        // The JavaFX version the bootstrap is built with: its one home is javafx { version } in the bootstrap's
+        // build.gradle, which passes it here.
+        if (args.length < 5 || args[4].isBlank()) {
+            throw new IllegalArgumentException("no JavaFX version: createUpdate4JConfig passes javafx.version as the fifth argument");
+        }
+        javafxVersion = args[4];
 
         //TODO:  Need to automate config creation per platform + hosting per platform then
 
@@ -221,7 +230,70 @@ public class CreateConfig {
             setup.write(out);
         }
 
+        writeRuntimeConfigs(Paths.get(configLoc), baseUrl);
     }
+
+    /**
+     * Writes one Update4J configuration per platform folder of the Java runtime the tree holds,
+     * {@code runtime/<name>/<platform>/}: {@code runtime/<platform>.xml}, which the bootstrap reads in the background
+     * once the app is up. Its files install under {@code ${user.dir}/runtime}; the property {@code runtime.home} names
+     * {@code <name>/<platform>}. A tree without {@code runtime/} gets none. A tree with two names fails: an installation
+     * must never see two runtimes offered at once. setup.xml and app/config.xml never list the runtime, so a runtime that
+     * cannot be downloaded holds up nothing else.
+     */
+    static List<Path> writeRuntimeConfigs(Path configLoc, String baseUrl) throws IOException {
+        Path runtimeDir = configLoc.resolve("runtime");
+        List<Path> written = new ArrayList<>();
+        if (!Files.isDirectory(runtimeDir)) {
+            return written;
+        }
+        List<Path> names;
+        try (Stream<Path> list = Files.list(runtimeDir)) {
+            names = list.filter(Files::isDirectory).sorted().collect(Collectors.toList());
+        }
+        try (Stream<Path> list = Files.list(runtimeDir)) {
+            for (Path old : (Iterable<Path>) list.filter(p -> p.getFileName().toString().endsWith(".xml"))::iterator) {
+                Files.delete(old);
+            }
+        }
+        if (names.size() > 1) {
+            throw new IllegalStateException("two or more Java runtimes in " + runtimeDir + ": " + names
+                    + " - the tree holds exactly one runtime name");
+        }
+        if (names.isEmpty()) {
+            return written;
+        }
+        Path name = names.get(0);
+        List<Path> platforms;
+        try (Stream<Path> list = Files.list(name)) {
+            platforms = list.filter(Files::isDirectory).sorted().collect(Collectors.toList());
+        }
+        for (Path platform : platforms) {
+            String home = name.getFileName() + "/" + platform.getFileName();
+            Configuration runtime = Configuration.builder()
+                    .basePath("${user.dir}/runtime")
+                    .files(FileMetadata.streamDirectory(platform)
+                            .peek(f -> f.classpath(false))
+                            .peek(f -> f.modulepath(false))
+                            // lib/jrt-fs.jar is part of the JDK: its packages are java.base's
+                            .peek(f -> f.ignoreBootConflict())
+                            .peek(f -> {
+                                String file = platform.relativize(f.getSource()).toString().replace("\\", "/");
+                                f.path(home + "/" + file);
+                                f.uri(baseUrl + "/runtime/" + home + "/" + file);
+                            }))
+                    .property("runtime.home", home)
+                    .build();
+            Path xml = runtimeDir.resolve(platform.getFileName() + ".xml");
+            try (Writer out = Files.newBufferedWriter(xml, StandardCharsets.UTF_8)) {
+                runtime.write(out);
+            }
+            written.add(xml);
+        }
+        return written;
+    }
+
+    private static String javafxVersion;
 
     private static String getNonOsSpecificJavafxName(Path source) {
         /**
@@ -286,8 +358,7 @@ public class CreateConfig {
             return null;
 
         String module = match.group(1);
-        String version = match.group(2);
-        version = "17.0.13";
+        String version = javafxVersion;
         String osArch = match.group(3);
         if ((os == null || os.equals(OS.MAC)) && osArch != null) {
             if(osArch.equals("mac-aarch64")){

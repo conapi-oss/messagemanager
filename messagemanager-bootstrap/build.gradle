@@ -20,6 +20,8 @@ application {
 }
 
 javafx {
+    // The one home of the JavaFX version: createUpdate4JConfig passes it to CreateConfig, which links the jars in
+    // setup.xml to Maven Central. It must run on Java 17 and on the Java runtime installations switch to.
     version = '17.0.13'
     //version = '17'
     modules = [ 'javafx.controls', 'javafx.fxml' , 'javafx.graphics']
@@ -118,7 +120,7 @@ tasks.register('createUpdate4JConfig', JavaExec) {
     mmbuild = project.hasProperty('mmbuild') ? project.getProperty('mmbuild') : 'dev'
     println "Building for : " + mmbuild
 
-    args(bootstrapRoot, bootstrapTarget, bootstrapConfigLocation,mmbuild)
+    args(bootstrapRoot, bootstrapTarget, bootstrapConfigLocation, mmbuild, javafx.version)
 }
 
 
@@ -501,6 +503,8 @@ tasks.register('buildTarGz', Tar) {
     from ("${bootstrapTarget}/config") {
         // do not include them as currently the build only adds the windows version
         exclude("**/javafx*.jar")
+        // the Java runtime is downloaded by each installation after its first starts
+        exclude("runtime")
     }
 }
 
@@ -512,6 +516,8 @@ tasks.register('buildZip', Zip) {
     from ("${bootstrapTarget}/config") {
         // do not include them as currently the build only adds the windows version
         exclude("**/javafx*.jar")
+        // the Java runtime is downloaded by each installation after its first starts
+        exclude("runtime")
     }
 }
 
@@ -524,6 +530,8 @@ tasks.register('buildMiniTarGz', Tar) {
     from ("${bootstrapTarget}/config") {
         // do not include them as currently the build only adds the windows version
         exclude("**/javafx*.jar")
+        // the Java runtime is downloaded by each installation after its first starts
+        exclude("runtime")
         exclude("app")
         exclude("plugins")
         exclude("clients")
@@ -537,6 +545,8 @@ tasks.register('buildMiniZip', Zip) {
     from ("${bootstrapTarget}/config") {
         // do not include them as currently the build only adds the windows version
         exclude("**/javafx*.jar")
+        // the Java runtime is downloaded by each installation after its first starts
+        exclude("runtime")
         exclude("app")
         exclude("plugins")
         exclude("clients")
