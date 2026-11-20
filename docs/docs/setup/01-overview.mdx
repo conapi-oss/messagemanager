@@ -83,9 +83,10 @@ Message Manager brings its own Java. After its first starts it downloads a curre
 Message Manager's own updates, with no action on your part. This is available on macOS (Apple silicon and Intel); on
 other platforms Message Manager keeps running on the Java it finds.
 
-Message Manager switches only when the downloaded Java is complete, runs, and can reach the update site with your
-proxy and TLS settings. Until then, and whenever it cannot be used, Message Manager runs on the Java it ran on
-before: the one the DMG or MSI installed, or for the zip/tar.gz packages Java 17 or later from `JAVA_HOME` or the
+Message Manager switches only when the downloaded Java is complete, runs, can reach the update site with your proxy
+and TLS settings, and Message Manager itself is up to date. If Message Manager does not come up on it, the next start
+goes back and stays there until the next Java update. Until then, and whenever it cannot be used, Message Manager
+runs on the Java it ran on before: the one the DMG or MSI installed, or for the zip/tar.gz packages Java 17 or later from `JAVA_HOME` or the
 `PATH`. So the zip/tar.gz packages still need Java 17 or later.
 
 Each start writes what happened in `runtime/status.txt` in the installation folder (on macOS in
@@ -109,6 +110,14 @@ the downloaded Java does not have it:
 
 If the update site itself is only reachable through such a proxy, Message Manager never switches to a Java that
 cannot reach it: it stays on the Java it runs on.
+
+## Certificate authorities
+
+Message Manager's Java trusts the root certificates of its vendor's list (Amazon Corretto). That list is shorter than
+the one the Java of the DMG and MSI installers trusted: some certificate authorities, mostly newer ones, are not in
+it. A broker whose certificate comes from one of them fails to connect on Message Manager's Java with a certificate
+error. Then add that authority's root to a trust store passed in `JVM_OPTS`, as above, or keep the other Java with
+`LAUNCHER_JAVA`. On Windows nothing changes: Message Manager uses the Windows certificate store there.
 
 ## What a current Java no longer accepts
 
