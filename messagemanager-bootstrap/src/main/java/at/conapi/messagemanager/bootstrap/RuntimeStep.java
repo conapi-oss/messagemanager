@@ -14,9 +14,11 @@ package at.conapi.messagemanager.bootstrap;
  * limitations under the License.
  */
 
+
 import org.update4j.Archive;
 import org.update4j.Configuration;
 import org.update4j.FileMetadata;
+import org.update4j.OS;
 import org.update4j.UpdateOptions;
 import org.update4j.UpdateResult;
 import org.update4j.service.UpdateHandler;
@@ -41,7 +43,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
@@ -54,23 +55,27 @@ import java.util.stream.Stream;
  * Message Manager's own Java runtime, in the background: once the application is up, this step reads the update
  * site's configuration for this platform ({@code runtime/<platform>.xml}), downloads and installs the runtime it
  * names into {@code runtime/<name>/<platform>/} under the install folder, and activates it only after it has proven
- * itself: every file matches its size and checksum, its executables are executable, and its own {@code java} has
- * read the update site's setup.xml with this start's proxy and TLS settings ({@link RuntimeCheck}).
+ * itself: every file matches its size and checksum, its executables are executable, the application is the one the
+ * update site offers, and the runtime's own {@code java} has read the update site's setup.xml with this start's proxy
+ * and TLS settings ({@link RuntimeCheck}).
  * <p>
  * Activating means writing {@code runtime/current}: one line, the runtime's home relative to the install folder. The
- * cleanup scripts read it at the next start and use that runtime when its {@code java -version} runs; in every
- * other case they leave the Java the installation runs on today. This step never asks, never shows anything and
- * never holds up a start; whatever happens is one line in {@code runtime/status.txt}.
+ * cleanup scripts read it at the next start and use that runtime when its {@code java -version} runs, marking the start
+ * as a trial ({@code runtime/trying}); this step clears the mark once the application is up on it. A trial the
+ * application never came up from sends the next start back to the Java it used before, and the runtime counts as
+ * failed. In every other case the scripts leave the Java the installation runs on today. This step never asks, never
+ * shows anything and never holds up a start; whatever happens is one line in {@code runtime/status.txt}.
  * <p>
  * The configuration is the truth, at every start that reaches it:
  * <ul>
  * <li>another name: installed beside the one in use, activated; old folders go at a later start;</li>
  * <li>no files (a withdrawn runtime): the pointer is removed;</li>
  * <li>a file of the active runtime missing or changed: the pointer is removed; a start that does not run on it
- * repairs the folder and activates it again.</li>
+ * repairs the folder and activates it again. Files the user may adjust once installed (the trust store and
+ * {@code conf/}) are left as they are.</li>
  * </ul>
- * A failed activation (the runtime's java does not run, or cannot reach the update site) is not tried again until
- * the configuration names another runtime.
+ * A runtime that failed (its activation check, or a trial start) is remembered in {@code runtime/failed} and not tried
+ * again until the configuration names another runtime.
  * <p>
  * It must run on every Update4J version installations hold (1.5.9 and later): it uses nothing newer.
  */
@@ -78,17 +83,23 @@ public final class RuntimeStep implements Runnable {
 
     static final String POINTER = "current";
     static final String STATUS = "status.txt";
+    static final String TRYING = "trying";
+    static final String FAILED = "failed";
     static final String DOWNLOAD = "download.zip";
     static final String HOME_PROPERTY = "runtime.home";
     static final long CHECK_SECONDS = 60;
+    /** How long a start on the runtime may take to bring the application up before its trial counts as failed. */
+    static final java.time.Duration TRIAL = java.time.Duration.ofMinutes(10);
 
     private final Path installDir;
+    private final Path runtimeDir;
     private final String appConfigUrl;
     private final String platform;
     private final Path javaHome;
 
     RuntimeStep(Path installDir, String appConfigUrl, String platform, Path javaHome) {
         this.installDir = installDir;
+        this.runtimeDir = installDir.resolve("runtime");
         this.appConfigUrl = appConfigUrl;
         this.platform = platform;
         this.javaHome = javaHome;
@@ -97,8 +108,7 @@ public final class RuntimeStep implements Runnable {
     /** Starts the step for this installation on a daemon thread: quitting the application ends it, mid-download or not. */
     public static void startInBackground(String appConfigUrl) {
         RuntimeStep step = new RuntimeStep(Path.of("").toAbsolutePath(), appConfigUrl,
-                platform(System.getProperty("os.name"), System.getProperty("os.arch")),
-                Path.of(System.getProperty("java.home")));
+                platform(OS.CURRENT, System.getProperty("os.arch")), Path.of(System.getProperty("java.home")));
         Thread thread = new Thread(step, "java-runtime");
         thread.setDaemon(true);
         thread.start();
@@ -108,14 +118,21 @@ public final class RuntimeStep implements Runnable {
     public void run() {
         String status;
         try {
-            status = runOnce();
+            Optional<String> running = runningHome(installDir, javaHome);
+            if (running.isPresent()) {
+                // the application is up on a runtime: its trial start succeeded
+                Files.deleteIfExists(runtimeDir.resolve(TRYING));
+            } else {
+                judgeTrial();
+            }
+            status = runOnce(running);
         } catch (Throwable t) {
             status = "failed: " + t;
         }
         writeStatus(status);
     }
 
-    private String runOnce() throws IOException, InterruptedException {
+    private String runOnce(Optional<String> running) throws IOException, InterruptedException {
         URI configUri = configUri(appConfigUrl, platform);
         Configuration config;
         try (Reader in = open(configUri)) {
@@ -126,30 +143,34 @@ public final class RuntimeStep implements Runnable {
             return "update site not reached: " + configUri + ": " + e;
         }
 
-        Path runtimeDir = installDir.resolve("runtime");
-        Optional<String> pointer = readPointer(installDir);
-        Optional<String> running = runningHome(installDir, javaHome);
-
         if (config.getFiles().isEmpty()) {
             // a withdrawn runtime: the next start uses the Java it used before
             removePointer();
-            sweep(runtimeDir, Optional.empty(), Optional.empty(), running);
+            sweep(Optional.empty(), running);
             return "withdrawn: " + configUri + " lists no runtime";
         }
         String home = "runtime/" + config.getResolvedProperty(HOME_PROPERTY);
         if (!validHome(home)) {
             return "the configuration names no runtime home: " + configUri;
         }
+        Path homeDir = installDir.resolve(home).toAbsolutePath().normalize();
         if (!config.getBasePath().toAbsolutePath().normalize().equals(runtimeDir.toAbsolutePath().normalize())) {
             return "the configuration installs into " + config.getBasePath() + ", not " + runtimeDir;
         }
         for (FileMetadata file : config.getFiles()) {
-            if (!file.getPath().toAbsolutePath().normalize().startsWith(installDir.resolve(home).toAbsolutePath().normalize())) {
+            if (!file.getPath().toAbsolutePath().normalize().startsWith(homeDir)) {
                 return "the configuration lists " + file.getPath() + " outside " + home;
             }
         }
+        String outcome = installAndActivate(config, home, homeDir, running);
+        sweep(Optional.of(home), running);
+        return outcome;
+    }
 
-        if (config.requiresUpdate()) {
+    private String installAndActivate(Configuration config, String home, Path homeDir, Optional<String> running)
+            throws IOException, InterruptedException {
+        Optional<String> pointer = readPointer(installDir);
+        if (differs(config, homeDir)) {
             if (running.isPresent() && running.get().equals(home)) {
                 // a running Java's files are never replaced: the next start falls back and repairs them
                 removePointer();
@@ -159,46 +180,101 @@ public final class RuntimeStep implements Runnable {
                 removePointer();
                 pointer = Optional.empty();
             }
-            String failure = download(config, runtimeDir);
+            Files.createDirectories(runtimeDir);
+            long total = config.getFiles().stream().mapToLong(FileMetadata::getSize).sum();
+            String noSpace = notEnoughSpace(Files.getFileStore(runtimeDir).getUsableSpace(), total);
+            if (noSpace != null) {
+                return noSpace;
+            }
+            String failure = download(config, homeDir);
             if (failure != null) {
                 return "download failed: " + failure;
             }
-            if (config.requiresUpdate()) {
+            if (differs(config, homeDir)) {
                 return "download failed: files of " + home + " still differ from the configuration";
             }
         }
-        makeExecutable(installDir.resolve(home));
+        makeExecutable(homeDir);
 
-        if (!pointer.isPresent() || !pointer.get().equals(home)) {
-            String last = readStatus();
-            if (activationFailedBefore(last, home)) {
-                return last.substring(last.indexOf(' ') + 1);
-            }
-            String failure = activationCheck(home);
-            if (failure != null) {
-                return "activation failed " + home + ": " + failure;
-            }
-            writePointer(home);
-            pointer = Optional.of(home);
+        if (pointer.isPresent() && pointer.get().equals(home)) {
+            return "active " + home;
         }
-        sweep(runtimeDir, Optional.of(home), pointer, running);
+        String failed = readLine(runtimeDir.resolve(FAILED));
+        if (failed != null && (failed + " ").startsWith(home + " ")) {
+            return "not activated: " + failed;
+        }
+        if (!applicationCurrent()) {
+            return "the runtime " + home + " waits for the application update the update site offers";
+        }
+        String failure = activationCheck(home);
+        if (failure != null) {
+            Files.writeString(runtimeDir.resolve(FAILED), home + " activation failed: " + oneLine(failure)
+                    + System.lineSeparator(), StandardCharsets.UTF_8);
+            return "activation failed " + home + ": " + failure;
+        }
+        writePointer(home);
+        Files.deleteIfExists(runtimeDir.resolve(FAILED));
         return "active " + home;
     }
 
+    /**
+     * A trial mark older than {@link #TRIAL} is a start on the runtime that never brought the application up: that
+     * runtime has failed, and the pointer to it goes. A younger mark may belong to a start still coming up, and stays.
+     */
+    private void judgeTrial() throws IOException {
+        Path trying = runtimeDir.resolve(TRYING);
+        if (!Files.exists(trying)
+                || Files.getLastModifiedTime(trying).toInstant().isAfter(Instant.now().minus(TRIAL))) {
+            return;
+        }
+        String tried = readLine(trying);
+        tried = tried == null ? "" : tried.replace('\\', '/');
+        Files.writeString(runtimeDir.resolve(FAILED), tried + " did not bring the application up"
+                + System.lineSeparator(), StandardCharsets.UTF_8);
+        Optional<String> pointer = readPointer(installDir);
+        if (pointer.isPresent() && pointer.get().equals(tried)) {
+            removePointer();
+        }
+        Files.deleteIfExists(trying);
+    }
+
+    /** Whether a file of the runtime is missing or differs; a file the user may adjust counts only when missing. */
+    private static boolean differs(Configuration config, Path homeDir) throws IOException {
+        for (FileMetadata file : config.getFiles()) {
+            if (!keepAsIs(file, homeDir) && file.requiresUpdate()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean keepAsIs(FileMetadata file, Path homeDir) {
+        Path path = file.getPath().toAbsolutePath().normalize();
+        return userAdjustable(homeDir.relativize(path).toString().replace('\\', '/')) && Files.exists(path);
+    }
+
+    /** Whether the application on disk is the one the update site offers: a runtime is activated only under it. */
+    private boolean applicationCurrent() {
+        try (Reader in = open(URI.create(appConfigUrl))) {
+            return !Configuration.read(in).requiresUpdate();
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
     /** Downloads into a fresh archive and installs it; null when that worked, else why not. */
-    private String download(Configuration config, Path runtimeDir) throws IOException {
-        Files.createDirectories(runtimeDir);
+    private String download(Configuration config, Path homeDir) throws IOException {
         Path zip = runtimeDir.resolve(DOWNLOAD);
-        removeDownload(runtimeDir); // what a killed download left
-        UpdateResult result = config.update(UpdateOptions.archive(zip).updateHandler(new QuietDownload()));
+        removeDownload(); // what a killed download left
+        UpdateResult result = config.update(UpdateOptions.archive(zip).updateHandler(new QuietDownload(homeDir)));
         if (result.getException() != null) {
-            removeDownload(runtimeDir);
+            removeDownload();
             return String.valueOf(result.getException());
         }
         try {
             Archive.read(zip).install();
         } catch (IOException e) {
-            removeDownload(runtimeDir);
+            removeDownload();
             return "could not install: " + e;
         }
         return null;
@@ -208,7 +284,7 @@ public final class RuntimeStep implements Runnable {
      * Removes a download: the archive, and the temporary files Java's zip file system writes beside it, which stay
      * when its process dies or the disk fills up.
      */
-    private static void removeDownload(Path runtimeDir) {
+    private void removeDownload() {
         try {
             Files.deleteIfExists(runtimeDir.resolve(DOWNLOAD));
             try (DirectoryStream<Path> temporary = Files.newDirectoryStream(runtimeDir, "zipfstmp*.tmp")) {
@@ -274,39 +350,46 @@ public final class RuntimeStep implements Runnable {
     }
 
     private void writePointer(String home) throws IOException {
-        Path runtimeDir = installDir.resolve("runtime");
         Path temp = runtimeDir.resolve(POINTER + ".new");
-        Files.writeString(temp, home, StandardCharsets.UTF_8); // one line, no line end: every reader takes it whole
+        // one line with this platform's line end, as the cleanup scripts read it (set /p, findstr, head)
+        Files.writeString(temp, home + System.lineSeparator(), StandardCharsets.UTF_8);
         Files.move(temp, runtimeDir.resolve(POINTER), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
     }
 
     private void removePointer() throws IOException {
-        Files.deleteIfExists(installDir.resolve("runtime").resolve(POINTER));
+        Files.deleteIfExists(runtimeDir.resolve(POINTER));
     }
 
-    private String readStatus() {
+    private static String readLine(Path file) {
         try {
-            return Files.readString(installDir.resolve("runtime").resolve(STATUS), StandardCharsets.UTF_8).strip();
+            List<String> lines = Files.readAllLines(file, StandardCharsets.UTF_8);
+            return lines.isEmpty() ? null : lines.get(0).strip();
         } catch (IOException e) {
             return null;
         }
     }
 
+    private static String oneLine(String text) {
+        return text.replaceAll("[\\r\\n]+", " ");
+    }
+
     private void writeStatus(String status) {
         try {
-            Path runtimeDir = installDir.resolve("runtime");
             Files.createDirectories(runtimeDir);
-            String line = Instant.now().truncatedTo(ChronoUnit.SECONDS) + " " + status.replaceAll("[\\r\\n]+", " ");
+            String line = Instant.now().truncatedTo(ChronoUnit.SECONDS) + " " + oneLine(status);
             Files.writeString(runtimeDir.resolve(STATUS), line + System.lineSeparator(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             System.err.println("Java runtime: " + status + " (status not written: " + e + ")");
         }
     }
 
-    /** Removes the old runtime folders; one that cannot be removed (a Java running from it) stays for a later start. */
-    private static void sweep(Path runtimeDir, Optional<String> configured, Optional<String> pointer, Optional<String> running) {
+    /**
+     * Removes the old runtime folders: all but the one the configuration names, the one the pointer names and the one
+     * this JVM runs from. One that cannot be removed (a Java running from it) stays for a later start.
+     */
+    private void sweep(Optional<String> configured, Optional<String> running) {
         Set<String> keep = new HashSet<>();
-        for (Optional<String> home : List.of(configured, pointer, running)) {
+        for (Optional<String> home : List.of(configured, readPointer(installDir), running)) {
             home.ifPresent(h -> keep.add(h.split("/")[1]));
         }
         for (Path folder : foldersToRemove(runtimeDir, keep)) {
@@ -353,26 +436,58 @@ public final class RuntimeStep implements Runnable {
         return new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8);
     }
 
-    /** Downloads without a word: no window, no console progress, and the patient timeouts StartupView uses. */
+    /**
+     * Opens a download with the patience corporate networks need: a 30 s connect and a 10 minute read timeout, as
+     * antivirus and inspecting proxies can hold the end of a large file for minutes. The bootstrap's own updates and
+     * the runtime's download use it alike.
+     */
+    static InputStream openPatiently(URI uri) throws IOException {
+        URLConnection connection = uri.toURL().openConnection();
+        connection.addRequestProperty("User-Agent", "Mozilla/5.0");
+        connection.setConnectTimeout(30 * 1000);
+        connection.setReadTimeout(10 * 60 * 1000);
+        return connection.getInputStream();
+    }
+
+    /** Downloads without a word, and leaves the files the user may adjust as they are once they exist. */
     private static final class QuietDownload implements UpdateHandler {
+        private final Path homeDir;
+
+        QuietDownload(Path homeDir) {
+            this.homeDir = homeDir;
+        }
+
+        @Override
+        public boolean shouldCheckForUpdate(FileMetadata file) {
+            return !keepAsIs(file, homeDir);
+        }
+
         @Override
         public InputStream openDownloadStream(FileMetadata file) throws Throwable {
-            URLConnection connection = file.getUri().toURL().openConnection();
-            connection.addRequestProperty("User-Agent", "Mozilla/5.0");
-            connection.setConnectTimeout(30 * 1000);
-            connection.setReadTimeout(10 * 60 * 1000);
-            return connection.getInputStream();
+            return openPatiently(file.getUri());
         }
     }
 
     /** The platform's name in the update site: Update4J's name of the operating system and the JVM's own os.arch. */
-    static String platform(String osName, String osArch) {
-        String os = osName.toLowerCase(Locale.ROOT);
-        String name = os.startsWith("mac") || os.startsWith("darwin") ? "mac"
-                : os.startsWith("windows") ? "win"
-                : os.startsWith("linux") ? "linux"
-                : "other";
-        return name + "-" + osArch;
+    static String platform(OS os, String osArch) {
+        return os.getShortName() + "-" + osArch;
+    }
+
+    /** Why a download of {@code total} bytes does not start with {@code usable} bytes free, or null when it can. */
+    static String notEnoughSpace(long usable, long total) {
+        // the download's temporary files, its archive and the installed files: about three times the runtime
+        long needed = 3 * total;
+        if (usable >= needed) {
+            return null;
+        }
+        long mb = 1024 * 1024;
+        return "not enough free disk space for the runtime: it needs " + (needed + mb - 1) / mb + " MB, "
+                + usable / mb + " MB are free";
+    }
+
+    /** A file of a runtime the user may adjust (its trust store, its conf/), relative to the runtime's home. */
+    static boolean userAdjustable(String relative) {
+        return relative.equals("lib/security/cacerts") || relative.startsWith("conf/");
     }
 
     /** The platform's runtime configuration, beside the application's: {@code <site>/runtime/<platform>.xml}. */
@@ -385,34 +500,21 @@ public final class RuntimeStep implements Runnable {
         return URI.create(appConfigUrl).resolve("../setup.xml");
     }
 
-    private static final Pattern SEGMENT = Pattern.compile("[A-Za-z0-9._-]+");
+    private static final Pattern HOME = Pattern.compile("runtime/[A-Za-z0-9_-][A-Za-z0-9._-]*/[A-Za-z0-9_-][A-Za-z0-9._-]*");
 
-    /** A runtime home as the pointer holds it: {@code runtime/<name>/<platform>}, nothing else. */
+    /**
+     * A runtime home as the pointer holds it: {@code runtime/<name>/<platform>}, each part letters, digits, {@code .},
+     * {@code _} and {@code -}, not starting with a dot, and no {@code ..} anywhere. cleanup.sh and cleanup.cmd apply
+     * the same rule (a test runs cleanup.sh against this one).
+     */
     static boolean validHome(String home) {
-        if (home == null) {
-            return false;
-        }
-        String[] parts = home.split("/", -1);
-        if (parts.length != 3 || !parts[0].equals("runtime")) {
-            return false;
-        }
-        for (int i = 1; i < 3; i++) {
-            if (!SEGMENT.matcher(parts[i]).matches() || parts[i].equals(".") || parts[i].equals("..")) {
-                return false;
-            }
-        }
-        return true;
+        return home != null && HOME.matcher(home).matches() && !home.contains("..");
     }
 
     /** The home {@code runtime/current} names, when it holds a valid one on its first line. */
     static Optional<String> readPointer(Path installDir) {
-        try {
-            List<String> lines = Files.readAllLines(installDir.resolve("runtime").resolve(POINTER), StandardCharsets.UTF_8);
-            String first = lines.isEmpty() ? "" : lines.get(0).strip();
-            return validHome(first) ? Optional.of(first) : Optional.empty();
-        } catch (IOException e) {
-            return Optional.empty();
-        }
+        String first = readLine(installDir.resolve("runtime").resolve(POINTER));
+        return validHome(first) ? Optional.of(first) : Optional.empty();
     }
 
     /** The home this JVM runs from, when it is a runtime under {@code runtime/}. */
@@ -423,17 +525,11 @@ public final class RuntimeStep implements Runnable {
             if (!home.startsWith(runtimeDir)) {
                 return Optional.empty();
             }
-            Path relative = runtimeDir.relativize(home);
-            String candidate = "runtime/" + relative.toString().replace('\\', '/');
+            String candidate = "runtime/" + runtimeDir.relativize(home).toString().replace('\\', '/');
             return validHome(candidate) ? Optional.of(candidate) : Optional.empty();
         } catch (IOException e) {
             return Optional.empty();
         }
-    }
-
-    /** Whether the last status says the activation of this home failed: it is then not tried again. */
-    static boolean activationFailedBefore(String status, String home) {
-        return status != null && status.contains(" activation failed " + home + ": ");
     }
 
     /** The folders under {@code runtime/} to remove: every folder whose name is not kept. Files stay. */

@@ -42,7 +42,6 @@ import org.update4j.inject.Injectable;
 import org.update4j.service.UpdateHandler;
 
 import java.io.InputStream;
-import java.net.URLConnection;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -388,10 +387,6 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 	 */
 	@Override
 	public InputStream openDownloadStream(FileMetadata file) throws Throwable {
-		URLConnection connection = file.getUri().toURL().openConnection();
-		connection.addRequestProperty("User-Agent", "Mozilla/5.0");
-		connection.setConnectTimeout(30 * 1000);       // 30s
-		connection.setReadTimeout(10 * 60 * 1000);     // 10 min
-		return connection.getInputStream();
+		return RuntimeStep.openPatiently(file.getUri());
 	}
 }

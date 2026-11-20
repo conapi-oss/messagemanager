@@ -29,7 +29,6 @@ javafx {
 }
 
 ext {
-    //javaFxVersion = '17.0.13'
     appName = "Message Manager Bootstrap"
     appLauncher = "Message Manager"
     appPackaging = "messagemanager-bootstrap"

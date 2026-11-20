@@ -14,15 +14,22 @@ if exist "%MM_HOME%\update.zip" del /Q "%MM_HOME%\update.zip"
 
 REM Message Manager's own Java runtime: the app downloads it in the background and names it in runtime\current once
 REM it has passed its checks - one line, a path under runtime/ relative to this folder. It is used when its java
-REM starts; in every other case the Java chosen before this script stays. setenv.cmd runs after this script: a
-REM LAUNCHER_JAVA set there keeps the last word.
+REM starts, and the start is marked as a trial (runtime\trying) that the app clears once it is up; while a trial is
+REM unfinished, and in every other case, the Java chosen before this script stays. setenv.cmd runs after this script:
+REM a LAUNCHER_JAVA set there keeps the last word. find and findstr are Windows' own, whatever the PATH holds.
 set "MM_RUNTIME="
-if exist "%MM_HOME%\runtime\current" (
-    findstr /r /x /c:"runtime/[A-Za-z0-9._-]*/[A-Za-z0-9._-]*" "%MM_HOME%\runtime\current" >NUL 2>&1
+set "MM_RUNTIME_LINES="
+set "MM_TRIAL="
+if exist "%MM_HOME%\runtime\trying" set "MM_TRIAL=1"
+if defined MM_TRIAL echo Java runtime: a start on it has not brought the app up (yet) - using the Java chosen before
+if not defined MM_TRIAL if exist "%MM_HOME%\runtime\current" for /f %%n in ('%SystemRoot%\System32\find.exe /c /v "" ^< "%MM_HOME%\runtime\current"') do set "MM_RUNTIME_LINES=%%n"
+REM one line, and that line a path under runtime/: findstr alone would pass a file whose other line matches
+if "%MM_RUNTIME_LINES%"=="1" (
+    %SystemRoot%\System32\findstr.exe /r /x /c:"runtime/[A-Za-z0-9_-][A-Za-z0-9._-]*/[A-Za-z0-9_-][A-Za-z0-9._-]*" "%MM_HOME%\runtime\current" >NUL 2>&1
     if not errorlevel 1 set /p MM_RUNTIME=<"%MM_HOME%\runtime\current"
 )
 if defined MM_RUNTIME (
-    findstr /c:".." "%MM_HOME%\runtime\current" >NUL 2>&1
+    %SystemRoot%\System32\findstr.exe /c:".." "%MM_HOME%\runtime\current" >NUL 2>&1
     if not errorlevel 1 set "MM_RUNTIME="
 )
 if defined MM_RUNTIME set "MM_RUNTIME=%MM_RUNTIME:/=\%"
@@ -32,8 +39,9 @@ if defined MM_RUNTIME (
 )
 if defined MM_RUNTIME (
     echo Java runtime: %MM_RUNTIME% starts
+    >"%MM_HOME%\runtime\trying" echo %MM_RUNTIME%
     set "LAUNCHER_JAVA=%MM_RUNTIME%\bin\javaw.exe"
     set "LAUNCHER_JAVA_DEBUG=%MM_RUNTIME%\bin\java.exe"
 ) else (
-    if exist "%MM_HOME%\runtime\current" echo Java runtime: runtime\current names none that starts
+    if not defined MM_TRIAL if exist "%MM_HOME%\runtime\current" echo Java runtime: runtime\current names none that starts
 )

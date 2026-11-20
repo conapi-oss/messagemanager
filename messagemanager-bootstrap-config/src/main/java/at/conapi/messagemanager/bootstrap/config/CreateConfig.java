@@ -9,7 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -237,15 +236,15 @@ public class CreateConfig {
      * Writes one Update4J configuration per platform folder of the Java runtime the tree holds,
      * {@code runtime/<name>/<platform>/}: {@code runtime/<platform>.xml}, which the bootstrap reads in the background
      * once the app is up. Its files install under {@code ${user.dir}/runtime}; the property {@code runtime.home} names
-     * {@code <name>/<platform>}. A tree without {@code runtime/} gets none. A tree with two names fails: an installation
-     * must never see two runtimes offered at once. setup.xml and app/config.xml never list the runtime, so a runtime that
-     * cannot be downloaded holds up nothing else.
+     * {@code <name>/<platform>}. An empty platform folder (a platform the build does not ship) gets a configuration
+     * without files, which withdraws a runtime installations may still hold. A tree without {@code runtime/} gets none.
+     * A tree with two names fails: an installation must never see two runtimes offered at once. setup.xml and
+     * app/config.xml never list the runtime, so a runtime that cannot be downloaded holds up nothing else.
      */
-    static List<Path> writeRuntimeConfigs(Path configLoc, String baseUrl) throws IOException {
+    public static void writeRuntimeConfigs(Path configLoc, String baseUrl) throws IOException {
         Path runtimeDir = configLoc.resolve("runtime");
-        List<Path> written = new ArrayList<>();
         if (!Files.isDirectory(runtimeDir)) {
-            return written;
+            return;
         }
         List<Path> names;
         try (Stream<Path> list = Files.list(runtimeDir)) {
@@ -261,7 +260,7 @@ public class CreateConfig {
                     + " - the tree holds exactly one runtime name");
         }
         if (names.isEmpty()) {
-            return written;
+            return;
         }
         Path name = names.get(0);
         List<Path> platforms;
@@ -288,9 +287,7 @@ public class CreateConfig {
             try (Writer out = Files.newBufferedWriter(xml, StandardCharsets.UTF_8)) {
                 runtime.write(out);
             }
-            written.add(xml);
         }
-        return written;
     }
 
     private static String javafxVersion;

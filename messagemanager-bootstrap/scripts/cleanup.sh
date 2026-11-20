@@ -32,18 +32,22 @@ fi
 #done
 
 # Message Manager's own Java runtime: the app downloads it in the background and names it in runtime/current once it
-# has passed its checks - one line, a path under runtime/ relative to this folder. It is used when its java starts;
-# in every other case the Java chosen before this script stays. setenv.sh runs after this script: a LAUNCHER_JAVA
-# set there keeps the last word.
-if [ -f "$MM_HOME/runtime/current" ]; then
+# has passed its checks - one line, a path under runtime/ relative to this folder. It is used when its java starts,
+# and the start is marked as a trial (runtime/trying) that the app clears once it is up; while a trial is unfinished,
+# and in every other case, the Java chosen before this script stays. setenv.sh runs after this script: a
+# LAUNCHER_JAVA set there keeps the last word.
+if [ -f "$MM_HOME/runtime/trying" ]; then
+    echo "Java runtime: a start on it has not brought the app up (yet) - using the Java chosen before"
+elif [ -f "$MM_HOME/runtime/current" ]; then
     MM_RUNTIME="$(head -n 1 "$MM_HOME/runtime/current" | tr -d '\r')"
     case "$MM_RUNTIME" in
-        *..* | *//* | runtime/*/*/* | *[!A-Za-z0-9._/-]*) MM_RUNTIME="" ;;
+        *..* | *//* | */.* | runtime/*/*/* | *[!A-Za-z0-9._/-]*) MM_RUNTIME="" ;;
         runtime/?*/?*) ;;
         *) MM_RUNTIME="" ;;
     esac
     if [ -n "$MM_RUNTIME" ] && "$MM_HOME/$MM_RUNTIME/bin/java" -version >/dev/null 2>&1; then
         echo "Java runtime: $MM_RUNTIME starts"
+        printf '%s\n' "$MM_RUNTIME" > "$MM_HOME/runtime/trying"
         LAUNCHER_JAVA="./$MM_RUNTIME/bin/java"
     else
         echo "Java runtime: runtime/current names none that starts"
