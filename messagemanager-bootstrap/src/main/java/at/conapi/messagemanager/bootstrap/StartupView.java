@@ -41,6 +41,7 @@ import org.update4j.inject.InjectSource;
 import org.update4j.inject.Injectable;
 import org.update4j.service.UpdateHandler;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -315,14 +316,20 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 							showAlert("Automatic Update Check Failed", "Unable to connect to the automatic update site. Please check proxy settings (see setenv script in '" + Path.of("").toAbsolutePath().normalize() + "')");
 						});
 					}
-
-					return false;
 				}
-				else {
-					return config.requiresUpdate();
-				}
+				return updateRequired(config);
 			}
 		};
+	}
+
+	/**
+	 * Whether a file the configuration names is missing or differs from the installed one. Asked on every start, also on one that works from
+	 * the local app/config.xml: the launch script replaces that file with the update site's in the background of
+	 * an earlier start, so it can name files of a release that is not installed yet, and launching it as it is
+	 * fails. The check reads only local files; the update that follows downloads what is missing.
+	 */
+	static boolean updateRequired(Configuration config) throws IOException {
+		return config.requiresUpdate();
 	}
 
 	private void run(Runnable runnable) {
