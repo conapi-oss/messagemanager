@@ -128,6 +128,10 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 			try {
 				final AppLauncher launcher = new AppLauncher();
 				config.launch(launcher);
+				if (!launcher.isLaunchFailed()) {
+					// the app is up: the Java runtime the update site offers is fetched and checked in the background
+					RuntimeStep.startInBackground(AppProperties.getUpdateUrl());
+				}
 				if (launcher.isLaunchFailed()) {
 					final Exception e = launcher.getLaunchError();
 					Platform.runLater(new Runnable() {

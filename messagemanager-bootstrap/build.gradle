@@ -44,6 +44,14 @@ ext {
     bootstrapConfigLocation= "${bootstrapTarget}/config" as GStringImpl
 }
 
+// The tests run on the class path: src/test/java holds a utility in the default package, which the module
+// plugin cannot open to the test framework.
+test {
+    moduleOptions {
+        runOnClasspath = true
+    }
+}
+
 dependencies {
     implementation 'org.update4j:update4j:1.5.12'
     implementation project(':messagemanager-app')
