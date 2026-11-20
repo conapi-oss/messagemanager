@@ -9,6 +9,9 @@ hide_table_of_contents: true
 
 Below are the changelogs for the latest releases of the Message Manager:
 
+4.3.1 - 2026-11-20
+- After a new release, Message Manager could fail to start ("Launch Failed") until the next scheduled update check, up to seven days later, unless `launcher.properties` was deleted. It now installs the pending update at that start
+
 4.3.0 - 2026-11-20
 - **Message Manager brings its own Java on macOS and Windows**: after its first starts it downloads a current Java in the background and switches to it once it has passed its checks, so Java's security updates arrive with Message Manager's own updates. The Java it ran on before stays the fallback, and `LAUNCHER_JAVA` in setenv keeps the last word
 - The About tab shows the Java Message Manager runs on: its version, vendor and folder
