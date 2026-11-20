@@ -1,7 +1,11 @@
-rem If you use a proxy then it might be needed to add the proxy SSL root certificate to the cacerts/truststore of the JVM
+rem Message Manager trusts the certificates in the Windows certificate store (see JVM_OPTS in launch.cmd).
+
+rem Message Manager downloads its own current Java after its first starts (about 100 MB) and switches to it once it has
+rem passed its checks. Until then, and whenever it cannot be used, it runs on the Java it found before (the installer's
+rem own, JAVA_HOME or java on the PATH): that one needs Java 17 or later.
 
 rem OPTIONAL - if you want to override the default JVM options
 rem set JVM_OPTS=-Djavax.net.ssl.trustStore=NUL -Djavax.net.ssl.trustStoreType=Windows-ROOT -Djava.net.useSystemProxies=true -Djavafx.embed.singleThread=true -Dswing.systemlaf=com.sun.java.swing.plaf.windows.WindowsLookAndFeel -DSolace_JMS_Browser_Timeout_In_MS=1000
 
-rem Use LAUNCHER_JAVA to specify the Java executable to use
-set LAUNCHER_JAVA=%JAVA_HOME%\bin\java.exe
+rem Use LAUNCHER_JAVA to specify the Java executable to use; it wins over Message Manager's own Java
+rem set LAUNCHER_JAVA=%JAVA_HOME%\bin\java.exe

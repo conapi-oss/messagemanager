@@ -1,11 +1,17 @@
 #!/bin/bash
 
-# If you use a proxy then it might be needed to add the proxy SSL root certificate to the cacerts/truststore of the JVM
+# If you use a proxy that inspects TLS, Java needs its root certificate: pass a trust store that holds it in JVM_OPTS
+# (-Djavax.net.ssl.trustStore=... -Djavax.net.ssl.trustStorePassword=...), which works with any Java.
+
+# Message Manager downloads its own current Java after its first starts (about 100 MB) and switches to it once it has
+# passed its checks. Until then, and whenever it cannot be used, it runs on the Java it found before (the macOS app's
+# own, JAVA_HOME or java on the PATH): that one needs Java 17 or later. Certificates you added to that Java's own
+# cacerts are not in Message Manager's Java: pass them in JVM_OPTS as above, or set LAUNCHER_JAVA to keep that Java.
 
 # OPTIONAL - if you want to override the default JVM options
 # export JVM_OPTS="-Djava.net.useSystemProxies=true -Djavafx.embed.singleThread=true -DSolace_JMS_Browser_Timeout_In_MS=1000"
 
-# Use LAUNCHER_JAVA to specify the Java executable to use
+# Use LAUNCHER_JAVA to specify the Java executable to use; it wins over Message Manager's own Java
 
 # MACOS DMG: note that if you set LAUNCHER_JAVA, then you can no longer use the launchpad to start the application
 # you will need to use the terminal to start the application and run launch.sh in bin folder
