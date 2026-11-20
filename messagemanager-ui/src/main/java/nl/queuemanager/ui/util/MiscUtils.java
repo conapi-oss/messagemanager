@@ -19,4 +19,15 @@ public abstract class MiscUtils {
 	    return df.format(bytes) + byteUnits[i];
 	}	
 
+	/**
+	 * Text for a component that renders HTML (a dialog's message, an editor pane): what it holds - a broker's or a
+	 * server's words, a folder name - shows as text and is never read as markup. Null stays null.
+	 */
+	public static String html(String text) {
+		if(text == null)
+			return null;
+		return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+				.replace("\"", "&quot;").replace("'", "&#39;");
+	}
+
 }

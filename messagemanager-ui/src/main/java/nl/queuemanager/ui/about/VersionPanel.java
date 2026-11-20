@@ -8,6 +8,8 @@ import nl.queuemanager.ui.EditorPaneWithHyperlinks;
 import javax.swing.*;
 import java.awt.*;
 
+import static nl.queuemanager.ui.util.MiscUtils.html;
+
 @SuppressWarnings("serial")
 class VersionPanel extends JPanel implements AboutPanel {
 
@@ -42,6 +44,7 @@ class VersionPanel extends JPanel implements AboutPanel {
 				"  <h2>Message Manager</h2>\n" +
 				"  <br>Version: "+ Version.VERSION+"\n" +
 				"  <br>Product ID: "+ config.getUniqueId()+"\n" +
+				"  <br>" + javaLine() + "\n" +
 				"  <p></p>\n" +
 				"\n" +
 				"  <h3>Licensing Information:</h3>\n" +
@@ -58,6 +61,19 @@ class VersionPanel extends JPanel implements AboutPanel {
 
 				//TODO"Documentation: <a href='https://www.conapi.at/message-manager/documentation'>https://www.conapi.at/message-manager/documentation</a><br/>"+
 
+	}
+
+	/**
+	 * The Java this application runs on: its version, vendor and folder. An installation can run on another Java than
+	 * the one it brings, so the About view says which.
+	 */
+	static String javaLine() {
+		return javaLine(System.getProperty("java.version"), System.getProperty("java.vendor"),
+				System.getProperty("java.home"));
+	}
+
+	static String javaLine(String version, String vendor, String home) {
+		return "Java: " + html(version) + " (" + html(vendor) + "), " + html(home);
 	}
 
 	public JComponent getUIPanel() {

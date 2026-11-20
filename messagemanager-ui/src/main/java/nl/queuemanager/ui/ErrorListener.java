@@ -32,6 +32,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.logging.Logger;
 
+import static nl.queuemanager.ui.util.MiscUtils.html;
+
 /**
  * Listens for TASK_ERROR events and alerts the user to them.
  * 
@@ -127,17 +129,6 @@ public class ErrorListener {
 
 		// Reached the end of the exception stack
 		return html(e.getMessage());
-	}
-
-	/**
-	 * An exception's message as text in the dialog, which renders HTML: the message can hold what a broker or a server
-	 * sent. Null stays null.
-	 */
-	private static String html(String text) {
-		if(text == null)
-			return null;
-		return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-				.replace("\"", "&quot;").replace("'", "&#39;");
 	}
 
 	private static String captureStackTrace(Throwable e) {
