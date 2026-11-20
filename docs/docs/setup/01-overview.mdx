@@ -76,6 +76,54 @@ There is also a Launcher-Only version available. This download only contains the
 :::
 
 
+# Java
+
+Message Manager brings its own Java. After its first starts it downloads a current Java runtime (Java 25, about
+100 MB) in the background, checks it, and runs on it from the next start on. Java's security updates then arrive with
+Message Manager's own updates, with no action on your part. This is available on macOS (Apple silicon and Intel); on
+other platforms Message Manager keeps running on the Java it finds.
+
+Message Manager switches only when the downloaded Java is complete, runs, and can reach the update site with your
+proxy and TLS settings. Until then, and whenever it cannot be used, Message Manager runs on the Java it ran on
+before: the one the DMG or MSI installed, or for the zip/tar.gz packages Java 17 or later from `JAVA_HOME` or the
+`PATH`. So the zip/tar.gz packages still need Java 17 or later.
+
+Each start writes what happened in `runtime/status.txt` in the installation folder (on macOS in
+"~/Library/Application Support/conapi/Message Manager").
+
+## Keeping another Java
+
+Set `LAUNCHER_JAVA` in your setenv script (see "Custom Environment Script" below). It always wins over Message
+Manager's own Java.
+
+## Certificates you added to your Java
+
+Message Manager's Java trusts the certificate authorities its vendor ships. If you added a certificate to the trust
+store (`cacerts`) of the Java Message Manager used before, for example your company's root for a proxy or a broker,
+the downloaded Java does not have it:
+
+- On Windows, Message Manager uses the Windows certificate store, whichever Java runs it. Nothing changes.
+- On macOS and Linux, pass a trust store that holds the certificate in `JVM_OPTS`, which every Java reads:
+  `-Djavax.net.ssl.trustStore=/path/to/truststore -Djavax.net.ssl.trustStorePassword=changeit` (a path without
+  spaces). Or keep your Java with `LAUNCHER_JAVA`.
+
+If the update site itself is only reachable through such a proxy, Message Manager never switches to a Java that
+cannot reach it: it stays on the Java it runs on.
+
+## What a current Java no longer accepts
+
+A current Java refuses some algorithms that Java 17.0.13, the Java of the DMG and MSI installers, still accepted.
+A broker that offers only these stops connecting, as it would with any up-to-date Java:
+
+- TLS cipher suites with RSA key exchange (`TLS_RSA_*`);
+- SHA-1 signatures in the TLS handshake (`rsa_pkcs1_sha1`, `ecdsa_sha1`, `dsa_sha1`);
+- TLS server certificates issued by Camerfirma or Chunghwa Telecom after their distrust dates.
+
+To allow them again, update the broker if you can. Otherwise keep a Java that accepts them with `LAUNCHER_JAVA`, or
+override `jdk.tls.disabledAlgorithms` in a file passed with `-Djava.security.properties=/path/to/file` in
+`JVM_OPTS`.
+
+
 # Custom Environment Script
 
 In the bin folder of the installation package, there is a file named "setenv.sh.template" (Linux/acOS) and "setenv.cmd.template" (Windows) in this folder.
@@ -110,7 +158,8 @@ Linux/macOS Example:
 export LAUNCHER_JAVA=$JAVA_HOME/bin/java
 ```
 
-Ensure that the LAUNCHER_JAVA variable is set to the correct path of the Java executable (Java 17) on your system.
+Ensure that the LAUNCHER_JAVA variable is set to the correct path of the Java executable (Java 17 or later) on your system.
+LAUNCHER_JAVA wins over the Java Message Manager downloads itself (see "Java" above).
 Optionally and for advanced users, you can also customize the JVM options by setting the JVM_OPTS variable.
 
 The launch script will run this before launching the application.
