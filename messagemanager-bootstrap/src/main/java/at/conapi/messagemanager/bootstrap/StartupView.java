@@ -165,10 +165,9 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 				final ButtonType skipAndLaunch = new ButtonType("Skip", ButtonData.CANCEL_CLOSE);
 				final ButtonType alwaysAndLaunch = new ButtonType("ALWAYS", ButtonData.OK_DONE);
 				Optional<ButtonType> result = Optional.of(skipAndLaunch);
-				// Skip would launch without a file the configuration names: no choice then
-				final boolean mustUpdate = namesAFileThatIsNotInstalled(config);
+				final boolean offerSkip = offersSkip(AppProperties.isAutoUpdate(), config);
 
-				if(!AppProperties.isAutoUpdate() && !mustUpdate) {
+				if(offerSkip) {
 					// otherwise dialog is in the background
 					mainStage.setAlwaysOnTop(false);
 
@@ -188,7 +187,7 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 					mainStage.setAlwaysOnTop(true);
 				}
 
-				if(AppProperties.isAutoUpdate() || mustUpdate || (result.isPresent() && result.get() != skipAndLaunch)){
+				if(!offerSkip || (result.isPresent() && result.get() != skipAndLaunch)){
 					// update
 					updateApplication();
 				}
@@ -244,6 +243,7 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 		Task<Void> doUpdate = new Task<>() {
 			@Override
 			protected Void call() throws Exception {
+				// cleanup.sh and cleanup.cmd remove this file by name after an interrupted update: rename it there too
 				Path zip = Paths.get("messagemanager-update.zip");
 				final UpdateResult updateResult = config.update(UpdateOptions.archive(zip).updateHandler(StartupView.this));
 
@@ -336,12 +336,22 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 	}
 
 	/**
-	 * Whether a file the configuration names for this platform is not installed. The update is then installed without
-	 * asking: Skip would launch this configuration without that file, and a launch without one of its jars fails. An
-	 * update that only changes installed files is still offered with Skip.
+	 * Whether a required update is offered with Skip, which launches the configuration as it is. Not with auto-update,
+	 * and not when the launch needs a file that is not installed: that launch fails, so the update is installed without
+	 * asking.
 	 */
-	static boolean namesAFileThatIsNotInstalled(Configuration config) {
+	static boolean offersSkip(boolean autoUpdate, Configuration config) {
+		return !autoUpdate && !launchNeedsAFileThatIsNotInstalled(config);
+	}
+
+	/**
+	 * Whether a file the launch puts on the module path or the class path, for this platform, is not installed. Other
+	 * files (client libraries, plugins, samples) do not stop the launch: the installed plugins keep the client folders
+	 * they name.
+	 */
+	static boolean launchNeedsAFileThatIsNotInstalled(Configuration config) {
 		return config.getFiles().stream()
+				.filter(file -> file.isModulepath() || file.isClasspath())
 				.anyMatch(file -> file.appliesToCurrentPlatform() && Files.notExists(file.getPath()));
 	}
 
