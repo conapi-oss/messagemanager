@@ -12,6 +12,12 @@ if exist "%MM_HOME%\bootstrap\update4j.jar.new" (
 REM remove previously failed update
 if exist "%MM_HOME%\update.zip" del /Q "%MM_HOME%\update.zip"
 
+REM remove what an interrupted application update left behind: its archive and the temporary files the JDK's zip
+REM file system writes beside it while it downloads (zipfstmp*.tmp). Only files from an earlier day (forfiles counts
+REM whole days): a second start must not remove the download of a start that is still running.
+%SystemRoot%\System32\forfiles.exe /P "%MM_HOME%" /M messagemanager-update.zip /D -1 /C "cmd /c del /Q @path" >NUL 2>&1
+%SystemRoot%\System32\forfiles.exe /P "%MM_HOME%" /M zipfstmp*.tmp /D -1 /C "cmd /c del /Q @path" >NUL 2>&1
+
 REM Message Manager's own Java runtime: the app downloads it in the background and names it in runtime\current once
 REM it has passed its checks - one line, a path under runtime/ relative to this folder. It is used when its java
 REM starts, and the start is marked as a trial (runtime\trying) that the app clears once it is up; while a trial is

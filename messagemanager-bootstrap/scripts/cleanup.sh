@@ -19,6 +19,12 @@ if [ -f "$MM_HOME/update.zip" ]; then
     rm -f "$MM_HOME/update.zip"
 fi
 
+# remove what an interrupted application update left behind: its archive and the temporary files the JDK's zip file
+# system writes beside it while it downloads (zipfstmp*.tmp). Only files older than an hour: a second start must not
+# remove the download of a start that is still running.
+find "$MM_HOME" -maxdepth 1 -type f \( -name 'messagemanager-update.zip' -o -name 'zipfstmp*.tmp' \) -mmin +60 \
+    -exec rm -f {} + 2>/dev/null
+
 # remove previously used javafx files that had the os name in it, mainly a mac issue
 # delete files not matching javafx-[a-z]*-[0-9]*.jar
 # Set the directory where the files are located
