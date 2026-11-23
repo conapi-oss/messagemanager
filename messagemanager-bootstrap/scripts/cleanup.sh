@@ -20,9 +20,9 @@ if [ -f "$MM_HOME/update.zip" ]; then
 fi
 
 # remove what an interrupted application update left behind: its archive and the temporary files the JDK's zip file
-# system writes beside it while it downloads (zipfstmp*.tmp). Only files older than an hour: a second start must not
-# remove the download of a start that is still running.
-find "$MM_HOME" -maxdepth 1 -type f \( -name 'messagemanager-update.zip' -o -name 'zipfstmp*.tmp' \) -mmin +60 \
+# system writes beside it while it downloads (zipfstmp*.tmp). Only files not written for an hour, so that a second
+# start leaves alone the download of a start that is still running. -H: the install folder may be a symlink.
+find -H "$MM_HOME" -maxdepth 1 -type f \( -name 'messagemanager-update.zip' -o -name 'zipfstmp*.tmp' \) -mmin +60 \
     -exec rm -f {} + 2>/dev/null
 
 # remove previously used javafx files that had the os name in it, mainly a mac issue
