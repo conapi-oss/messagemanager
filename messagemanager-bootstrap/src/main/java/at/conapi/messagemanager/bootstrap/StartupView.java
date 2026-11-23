@@ -43,6 +43,7 @@ import org.update4j.service.UpdateHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -164,8 +165,10 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 				final ButtonType skipAndLaunch = new ButtonType("Skip", ButtonData.CANCEL_CLOSE);
 				final ButtonType alwaysAndLaunch = new ButtonType("ALWAYS", ButtonData.OK_DONE);
 				Optional<ButtonType> result = Optional.of(skipAndLaunch);
+				// Skip would launch without a file the configuration names: no choice then
+				final boolean mustUpdate = namesAFileThatIsNotInstalled(config);
 
-				if(!AppProperties.isAutoUpdate()) {
+				if(!AppProperties.isAutoUpdate() && !mustUpdate) {
 					// otherwise dialog is in the background
 					mainStage.setAlwaysOnTop(false);
 
@@ -185,7 +188,7 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 					mainStage.setAlwaysOnTop(true);
 				}
 
-				if(AppProperties.isAutoUpdate() || (result.isPresent() && result.get() != skipAndLaunch)){
+				if(AppProperties.isAutoUpdate() || mustUpdate || (result.isPresent() && result.get() != skipAndLaunch)){
 					// update
 					updateApplication();
 				}
@@ -330,6 +333,16 @@ public class StartupView extends FXMLView implements UpdateHandler, Injectable {
 	 */
 	static boolean updateRequired(Configuration config) throws IOException {
 		return config.requiresUpdate();
+	}
+
+	/**
+	 * Whether a file the configuration names for this platform is not installed. The update is then installed without
+	 * asking: Skip would launch this configuration without that file, and a launch without one of its jars fails. An
+	 * update that only changes installed files is still offered with Skip.
+	 */
+	static boolean namesAFileThatIsNotInstalled(Configuration config) {
+		return config.getFiles().stream()
+				.anyMatch(file -> file.appliesToCurrentPlatform() && Files.notExists(file.getPath()));
 	}
 
 	private void run(Runnable runnable) {
